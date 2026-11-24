@@ -1,0 +1,20 @@
+{
+  "format": "sfxgen/1",
+  "name": "Soft confirm",
+  "description": "Two rounded triangle notes a fifth apart: a friendly OK.",
+  "tags": ["ui", "confirm", "positive", "chime"],
+  "duration": "auto",
+  "seed": 1,
+  "tracks": [
+    {
+      "id": "notes",
+      "note": "Two notes; the second is the answer.",
+      "source": { "type": "osc", "wave": "triangle", "freq": 880, "env": { "attack": 0.003, "decay": 0.35 }, "filter": { "mode": "lowpass", "cutoff": 4000 } },
+      "events": [{ "t": 0 }, { "t": 0.07, "pitch": 7 }]
+    }
+  ],
+  "controls": [
+    { "id": "pitch", "label": "Pitch", "hint": "Higher is lighter and more toy-like.", "value": 0, "min": -12, "max": 12, "step": 1, "unit": "st", "targets": [{ "path": "tracks.notes.source.pitch", "mode": "set", "from": -12, "to": 12, "curve": "linear" }] },
+    { "id": "length", "label": "Length", "hint": "Short tick to a lingering chime.", "value": 0.5, "targets": [{ "path": "tracks.notes.source.env.decay", "from": 0.12, "to": 1.2, "curve": "exp" }] }
+  ]
+}

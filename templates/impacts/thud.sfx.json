@@ -1,0 +1,96 @@
+{
+  "format": "sfxgen/1",
+  "name": "Body thud",
+  "description": "A soft heavy object landing: a falling sine with a short dark noise slap.",
+  "tags": [
+    "impact",
+    "thud",
+    "body",
+    "land"
+  ],
+  "duration": "auto",
+  "seed": 2,
+  "tracks": [
+    {
+      "id": "body",
+      "start": 0.002,
+      "source": {
+        "type": "osc",
+        "wave": "sine",
+        "freq": [
+          [
+            0,
+            170
+          ],
+          [
+            0.09,
+            55
+          ]
+        ],
+        "env": {
+          "attack": 0.001,
+          "decay": 0.4
+        }
+      },
+      "fx": [
+        {
+          "type": "drive",
+          "mode": "tube",
+          "amount": 9
+        }
+      ]
+    },
+    {
+      "id": "slap",
+      "gain": -6,
+      "source": {
+        "type": "noise",
+        "color": "brown",
+        "env": {
+          "attack": 0.0005,
+          "decay": 0.06
+        },
+        "filter": {
+          "mode": "lowpass",
+          "cutoff": 1200
+        }
+      }
+    }
+  ],
+  "controls": [
+    {
+      "id": "weight",
+      "label": "Weight",
+      "hint": "A sack to a fridge.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.body.source.freq",
+          "mode": "mul",
+          "from": 1.7,
+          "to": 0.6
+        },
+        {
+          "path": "tracks.body.source.env.decay",
+          "from": 0.2,
+          "to": 0.8,
+          "curve": "exp"
+        }
+      ]
+    },
+    {
+      "id": "slap",
+      "label": "Slap",
+      "hint": "Soft cushion to a hard floor: more contact noise on top.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.slap.gain",
+          "mode": "set",
+          "from": -24,
+          "to": 0
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "name": "sfxgen",
+  "version": "0.1.0",
+  "description": "Agent-first sound effect generator: JSON patch files, deterministic DSP, a playful editor, a CLI, an MCP server and WebMCP tools.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "sfxgen": "./dist/node/cli.js"
+  },
+  "files": [
+    "dist",
+    "templates",
+    "docs",
+    "schema"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "npm run templates && npm run schema && npm run build:web && npm run build:node",
+    "build:web": "vite build",
+    "build:node": "tsup",
+    "templates": "node scripts/gen-templates.mjs",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "sfxgen": "tsx src/node/cli.ts",
+    "schema": "tsx src/node/cli.ts schema --write"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@fontsource-variable/bricolage-grotesque": "^5.3.0",
+    "@fontsource-variable/jetbrains-mono": "^5.3.0",
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.3.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "tsup": "^9.0.0",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.8",
+    "vitest": "^5.1.1",
+    "zustand": "^5.1.0"
+  }
+}
