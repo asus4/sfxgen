@@ -1,0 +1,173 @@
+{
+  "format": "sfxgen/1",
+  "name": "Panel close",
+  "description": "A panel sliding shut like a drawer on felt runners: an FM tone falls a fifth and loses its overtones over 160 ms, and at 165 ms the panel lands with a soft, padded thud near 170 Hz. The landing is what tells it apart from Panel open: this one arrives somewhere.",
+  "tags": [
+    "ui",
+    "panel",
+    "close",
+    "collapse",
+    "menu",
+    "dismiss",
+    "window",
+    "shut"
+  ],
+  "duration": "auto",
+  "seed": 13,
+  "tracks": [
+    {
+      "id": "slide",
+      "note": "The panel moving: brightness and pitch falling together.",
+      "gain": -6,
+      "source": {
+        "type": "fm",
+        "freq": [
+          [
+            0,
+            520
+          ],
+          [
+            0.16,
+            347
+          ]
+        ],
+        "ops": [
+          {
+            "ratio": 1
+          },
+          {
+            "id": "tone",
+            "ratio": 2,
+            "index": [
+              [
+                0,
+                2.2
+              ],
+              [
+                0.16,
+                0.15
+              ]
+            ]
+          }
+        ],
+        "env": {
+          "attack": 0.03,
+          "decay": 0.24
+        }
+      }
+    },
+    {
+      "id": "land",
+      "note": "The stop: a padded box thud. Gives the sound an end and some weight.",
+      "start": 0.165,
+      "source": {
+        "type": "modal",
+        "material": "wood",
+        "shape": "box",
+        "freq": 170,
+        "decay": 0.11,
+        "damping": 2,
+        "brightness": 0.4,
+        "position": 0.3,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.3
+        }
+      }
+    }
+  ],
+  "controls": [
+    {
+      "id": "size",
+      "label": "Size",
+      "hint": "A small tooltip to a full-screen sheet: lower, slower, heavier landing.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.slide.source.freq",
+          "mode": "mul",
+          "from": 2,
+          "to": 0.5
+        },
+        {
+          "path": "tracks.slide.source.freq",
+          "mode": "stretch",
+          "from": 0.5,
+          "to": 2
+        },
+        {
+          "path": "tracks.slide.source.ops.tone.index",
+          "mode": "stretch",
+          "from": 0.5,
+          "to": 2
+        },
+        {
+          "path": "tracks.slide.source.env",
+          "mode": "stretch",
+          "from": 0.5,
+          "to": 2
+        },
+        {
+          "path": "tracks.land.start",
+          "mode": "mul",
+          "from": 0.5,
+          "to": 2
+        },
+        {
+          "path": "tracks.land.source.freq",
+          "mode": "mul",
+          "from": 1.5,
+          "to": 0.6
+        }
+      ]
+    },
+    {
+      "id": "brightness",
+      "label": "Brightness",
+      "hint": "A dull hum to a reedy, buzzing slide.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.slide.source.ops.tone.index",
+          "mode": "mul",
+          "from": 0.4,
+          "to": 2.5
+        }
+      ]
+    },
+    {
+      "id": "thud",
+      "label": "Thud",
+      "hint": "A panel that just fades out to one that lands firmly.",
+      "value": 0.6,
+      "targets": [
+        {
+          "path": "tracks.land.gain",
+          "from": -30,
+          "to": 5,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "padding",
+      "label": "Padding",
+      "hint": "Felt-lined and dead to a bare wooden knock.",
+      "value": 0.3,
+      "targets": [
+        {
+          "path": "tracks.land.source.exciter.hardness",
+          "from": 0.12,
+          "to": 0.8,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.land.source.damping",
+          "from": 3,
+          "to": 0.8,
+          "curve": "linear"
+        }
+      ]
+    }
+  ]
+}

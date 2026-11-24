@@ -1,0 +1,128 @@
+{
+  "format": "sfxgen/1",
+  "name": "Toggle on",
+  "description": "A small rocker switch thrown on. The plastic latch ticks over at 0 ms, and 8 ms later a soft indicator tone slides up a fifth in 55 ms and fades, like a light coming up behind the switch. Pairs with Toggle off.",
+  "tags": [
+    "ui",
+    "toggle",
+    "switch",
+    "on",
+    "enable",
+    "checkbox",
+    "activate"
+  ],
+  "duration": "auto",
+  "seed": 8,
+  "tracks": [
+    {
+      "id": "latch",
+      "note": "The physical switch: a dry plastic tick that says something moved.",
+      "gain": -4,
+      "source": {
+        "type": "modal",
+        "material": "plastic",
+        "shape": "box",
+        "freq": 1500,
+        "decay": 0.03,
+        "position": 0.7,
+        "modes": 12,
+        "exciter": {
+          "kind": "impulse"
+        }
+      }
+    },
+    {
+      "id": "glow",
+      "note": "The state: a tone that rises, so it reads as on without looking.",
+      "start": 0.008,
+      "source": {
+        "type": "osc",
+        "wave": "triangle",
+        "freq": 620,
+        "pitch": [
+          [
+            0,
+            0
+          ],
+          [
+            0.055,
+            7
+          ]
+        ],
+        "env": {
+          "attack": 0.004,
+          "decay": 0.13
+        },
+        "filter": {
+          "mode": "lowpass",
+          "cutoff": 3200
+        }
+      }
+    }
+  ],
+  "controls": [
+    {
+      "id": "pitch",
+      "label": "Pitch",
+      "hint": "A big panel switch to a tiny checkbox.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.glow.source.freq",
+          "mode": "mul",
+          "from": 0.5,
+          "to": 2
+        },
+        {
+          "path": "tracks.latch.source.freq",
+          "mode": "mul",
+          "from": 0.7,
+          "to": 1.4
+        }
+      ]
+    },
+    {
+      "id": "rise",
+      "label": "Rise",
+      "hint": "How far the tone climbs: a nudge to a bright leap of an octave.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.glow.source.pitch",
+          "mode": "mul",
+          "from": 0.3,
+          "to": 1.72,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "click",
+      "label": "Click",
+      "hint": "All tone to mostly the plastic switch.",
+      "value": 0.5,
+      "vary": 0.05,
+      "targets": [
+        {
+          "path": "tracks.latch.gain",
+          "from": -30,
+          "to": 4,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "length",
+      "label": "Length",
+      "hint": "A clipped blip to a tone that lingers.",
+      "value": 0.4,
+      "targets": [
+        {
+          "path": "tracks.glow.source.env.decay",
+          "from": 0.05,
+          "to": 0.4
+        }
+      ]
+    }
+  ]
+}

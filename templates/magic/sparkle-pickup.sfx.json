@@ -1,0 +1,85 @@
+{
+  "format": "sfxgen/1",
+  "name": "Sparkle pickup",
+  "description": "The hero's hand closes on a floating star shard. Five tiny glass notes run up a pentatonic scale in 240 ms, each one a small bowl-shaped chime with its partials beating, the last one ringing longest. As they rise, a puff of fairy dust goes up with them: a hundred faint pure pings from 3 to 11 kHz that climb and thin out over half a second. All of it in a bright plate so it glows instead of clicking.",
+  "tags": ["magic", "pickup", "sparkle", "collect", "coin", "star", "reward", "chime", "fairy"],
+  "duration": "auto",
+  "seed": 12,
+  "output": { "channels": 2 },
+  "tracks": [
+    {
+      "id": "chimes",
+      "note": "The melody: glass-bowl ratios (1, 2.32, 4.25, 6.63), not a synth beep. Slightly uneven timing and velocities so a hand could have played it.",
+      "source": {
+        "type": "additive",
+        "freq": 1568,
+        "partials": [{ "ratio": 1 }, { "ratio": 2.32, "amp": 0.55 }, { "ratio": 4.25, "amp": 0.3 }, { "ratio": 6.63, "amp": 0.14 }],
+        "decay": 0.514,
+        "damping": 1.1,
+        "beat": 4,
+        "width": 0.6,
+        "env": { "attack": 0.001 }
+      },
+      "events": [
+        { "t": 0, "pitch": 0, "vel": 0.7 },
+        { "t": 0.055, "pitch": 2, "vel": 0.75 },
+        { "t": 0.118, "pitch": 4, "vel": 0.8 },
+        { "t": 0.17, "pitch": 7, "vel": 0.9 },
+        { "t": 0.238, "pitch": 12, "vel": 1 }
+      ],
+      "sends": { "glow": -18 }
+    },
+    {
+      "id": "dust",
+      "note": "Fairy dust: separate pings, their range rising. This is what makes it magic and not a coin.",
+      "start": 0.03,
+      "gain": -19.1,
+      "source": {
+        "type": "particles",
+        "distribution": "burst",
+        "density": 420,
+        "duration": 0.536,
+        "spread": 0.9,
+        "grain": { "kind": "ping", "lo": [[0, 3000], [0.5, 6500]], "hi": [[0, 7000], [0.5, 13000]], "decayLo": 0.02, "decayHi": 0.12, "levelJitter": 14 },
+        "pitch": -1
+      },
+      "sends": { "glow": -6 }
+    }
+  ],
+  "buses": [{ "id": "glow", "fx": [{ "type": "reverb", "id": "plate", "space": "plate", "decay": 1.22, "damping": 0.15, "lowcut": 600 }] }],
+  "controls": [
+    {
+      "id": "pitch",
+      "label": "Pitch",
+      "hint": "A big warm gem to a tiny glittering shard.",
+      "value": 0.5,
+      "vary": 0.04,
+      "targets": [
+        { "path": "tracks.chimes.source.freq", "mode": "mul", "from": 0.5, "to": 1.8 },
+        { "path": "tracks.dust.source.pitch", "mode": "set", "from": -8, "to": 6 }
+      ]
+    },
+    {
+      "id": "ring",
+      "label": "Ring",
+      "hint": "Short muted ticks to long singing glass.",
+      "value": 0.5,
+      "targets": [{ "path": "tracks.chimes.source.decay", "from": 0.12, "to": 2.2 }, { "path": "tracks.chimes.source.damping", "from": 1.8, "to": 0.4 }]
+    },
+    {
+      "id": "dust",
+      "label": "Dust",
+      "hint": "Just the notes, or a whole cloud of glitter around them.",
+      "value": 0.55,
+      "vary": 0.1,
+      "targets": [{ "path": "tracks.dust.gain", "from": -40, "to": -2 }, { "path": "tracks.dust.source.duration", "from": 0.2, "to": 1.2 }]
+    },
+    {
+      "id": "glow",
+      "label": "Glow",
+      "hint": "Dry and close, or hanging in the air.",
+      "value": 0.5,
+      "targets": [{ "path": "tracks.chimes.sends.glow", "from": -36, "to": 0 }, { "path": "buses.glow.fx.plate.decay", "from": 0.5, "to": 3 }]
+    }
+  ]
+}

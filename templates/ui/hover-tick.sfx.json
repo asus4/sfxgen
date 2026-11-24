@@ -1,0 +1,115 @@
+{
+  "format": "sfxgen/1",
+  "name": "Hover tick",
+  "description": "A pointer passing over an item: a fingernail barely touching the rim of a thin glass. One tiny note near 2.6 kHz with a breath of two glass overtones, a soft 1.5 ms front so it never clicks, gone in 40 ms. Meant to be played quietly and often.",
+  "tags": [
+    "ui",
+    "hover",
+    "tick",
+    "glass",
+    "focus",
+    "rollover",
+    "subtle"
+  ],
+  "duration": "auto",
+  "seed": 2,
+  "tracks": [
+    {
+      "id": "tick",
+      "note": "The whole sound: three glass partials whose upper two die almost at once.",
+      "source": {
+        "type": "additive",
+        "freq": 2640,
+        "partials": [
+          {
+            "id": "f",
+            "ratio": 1
+          },
+          {
+            "id": "p2",
+            "ratio": 2.32,
+            "amp": 0.3
+          },
+          {
+            "id": "p3",
+            "ratio": 4.25,
+            "amp": 0.1
+          }
+        ],
+        "decay": 0.05,
+        "damping": 1.3,
+        "env": {
+          "attack": 0.0015
+        }
+      }
+    }
+  ],
+  "controls": [
+    {
+      "id": "pitch",
+      "label": "Pitch",
+      "hint": "Step it up or down per item for a row that plays a scale.",
+      "value": 0,
+      "min": -12,
+      "max": 12,
+      "step": 1,
+      "unit": "st",
+      "vary": 1,
+      "targets": [
+        {
+          "path": "tracks.tick.source.pitch",
+          "mode": "add",
+          "from": -12,
+          "to": 12,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "length",
+      "label": "Length",
+      "hint": "A dry tick to a small ringing ping.",
+      "value": 0.3,
+      "targets": [
+        {
+          "path": "tracks.tick.source.decay",
+          "from": 0.02,
+          "to": 0.3
+        }
+      ]
+    },
+    {
+      "id": "glass",
+      "label": "Glass",
+      "hint": "A plain soft blip to a brighter, glassier touch.",
+      "value": 0.4,
+      "targets": [
+        {
+          "path": "tracks.tick.source.partials.p2.amp",
+          "from": 0,
+          "to": 0.8,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.tick.source.partials.p3.amp",
+          "from": 0,
+          "to": 0.4,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "softness",
+      "label": "Softness",
+      "hint": "A crisp nail tap to a rounded, clickless fade-in.",
+      "value": 0.4,
+      "targets": [
+        {
+          "path": "tracks.tick.source.env.attack",
+          "from": 0.0003,
+          "to": 0.012
+        }
+      ]
+    }
+  ]
+}

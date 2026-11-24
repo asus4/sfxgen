@@ -66,6 +66,12 @@ export interface Analysis {
   firstSampleDb: number;
   lastSampleDb: number;
   /**
+   * For loops: the jump from the last sample to the first (the seam when it repeats), and the largest step between
+   * neighbouring samples inside the sound, both in dBFS. A seam well above the largest step clicks.
+   */
+  seamDb: number;
+  maxStepDb: number;
+  /**
    * Seconds at which a new hit starts, at most 64: the energy rises 8 dB or more, quickly (a slow swell, beating
    * partials or tremolo don't count).
    */
@@ -95,7 +101,7 @@ export interface Analysis {
 }
 
 export { analyze, BANDS, FLOOR_DB } from './metrics';
-export { describe, describeLines, formatHz, formatSeconds, noteName } from './describe';
+export { describe, describeLines, formatHz, formatSeconds, noteName, type DescribeOptions } from './describe';
 export { spectrogram, type SpectrogramImage, type SpectrogramOptions } from './spectrogram';
 export { encodePng } from './png';
 export { loudness, kWeighted } from './loudness';

@@ -1,0 +1,94 @@
+{
+  "format": "sfxgen/1",
+  "name": "Force field hum (loop)",
+  "description": "Standing a metre from a containment field across a doorway, a 4 s seamless loop. The field's emitters hum at 58 Hz with a hollow, mostly odd set of harmonics, slowly breathing through a phaser as the field ripples. Its metal frame sings faintly along. Somewhere inside, an unstable current wanders and flips (a quiet buzzing that never repeats), and every so often dust touches the field and pops.",
+  "tags": ["scifi", "force field", "hum", "loop", "ambience", "energy", "barrier", "drone"],
+  "duration": 4,
+  "loop": { "mode": "crossfade", "crossfade": 0.5 },
+  "seed": 17,
+  "tracks": [
+    {
+      "id": "emitters",
+      "note": "The hum: weight at 58 to 290 Hz so it survives small speakers. The phaser runs exactly two cycles per loop.",
+      "source": {
+        "type": "additive",
+        "freq": { "value": 58.3, "mod": [{ "type": "wander", "rate": 0.7, "depth": 7, "unit": "cents" }] },
+        "harmonics": 18,
+        "odd": 0.85,
+        "tilt": -4.75,
+        "decay": 0,
+        "beat": 4
+      },
+      "fx": [
+        { "type": "eq", "bands": [{ "mode": "lowcut", "freq": 110, "slope": "12" }, { "mode": "peak", "freq": 190, "gain": 3, "q": 0.8 }] },
+        { "type": "phaser", "id": "ripple", "freq": 600, "depth": 2.04, "rate": 0.5, "stages": "6", "feedback": 0.55 },
+        { "type": "resonator", "id": "frame", "mode": "metal", "freq": 233, "decay": 1.2, "brightness": 0.35, "mix": 0.22 }
+      ]
+    },
+    {
+      "id": "current",
+      "note": "The unstable current: a Lorenz attractor flipping between two lobes. This is what makes it dangerous instead of a fridge.",
+      "gain": -9.6,
+      "source": { "type": "chaos", "mode": "lorenz", "rate": 240, "chaos": 0.53, "smooth": 0.05 },
+      "fx": [
+        {
+          "type": "filter",
+          "mode": "bandpass",
+          "cutoff": { "value": 800, "mod": [{ "type": "wander", "rate": 1.5, "depth": 0.6, "unit": "oct" }] },
+          "q": 0.6
+        }
+      ]
+    },
+    {
+      "id": "arcs",
+      "note": "Dust and moths meeting the field: sparse pops with ragged tails.",
+      "gain": -12,
+      "source": {
+        "type": "particles",
+        "distribution": "random",
+        "density": 3.79,
+        "duration": 4,
+        "grain": { "kind": "crackle", "lo": 1500, "hi": 7000, "decayLo": 0.004, "decayHi": 0.035, "levelJitter": 22 }
+      }
+    }
+  ],
+  "master": { "normalize": { "mode": "loudness", "target": -20 } },
+  "controls": [
+    {
+      "id": "pitch",
+      "label": "Pitch",
+      "hint": "A deep generator drone to a higher, tenser hum.",
+      "value": 0.4,
+      "targets": [
+        { "path": "tracks.emitters.source.freq", "mode": "mul", "from": 0.62, "to": 2.1 },
+        { "path": "tracks.emitters.fx.frame.freq", "mode": "mul", "from": 0.62, "to": 2.1 },
+        { "path": "tracks.current.source.rate", "mode": "mul", "from": 0.62, "to": 2.1 }
+      ]
+    },
+    {
+      "id": "instability",
+      "label": "Instability",
+      "hint": "A healthy steady field to one that buzzes and spits, about to fail.",
+      "value": 0.4,
+      "targets": [
+        { "path": "tracks.current.gain", "from": -24, "to": 12 },
+        { "path": "tracks.current.source.chaos", "from": 0.25, "to": 0.95 },
+        { "path": "tracks.arcs.source.density", "from": 0.6, "to": 60 }
+      ]
+    },
+    {
+      "id": "edge",
+      "label": "Edge",
+      "hint": "Soft and dull behind glass to bright, buzzing and close.",
+      "value": 0.5,
+      "targets": [{ "path": "tracks.emitters.source.tilt", "from": -9, "to": -0.5 }, { "path": "tracks.arcs.gain", "from": -22, "to": -2 }]
+    },
+    {
+      "id": "ripple",
+      "label": "Ripple",
+      "hint": "How deeply the field breathes.",
+      "value": 0.6,
+      "targets": [{ "path": "tracks.emitters.fx.ripple.depth", "from": 0, "to": 3.4 }, { "path": "tracks.emitters.fx.ripple.feedback", "from": 0.1, "to": 0.85 }]
+    }
+  ]
+}

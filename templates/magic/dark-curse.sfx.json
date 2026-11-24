@@ -1,0 +1,121 @@
+{
+  "format": "sfxgen/1",
+  "name": "Dark curse",
+  "description": "A curse is laid in a crypt. 0 to 900 ms: a whisper that is sucked backwards into the caster's mouth (breathy syllables recorded forwards, played in reverse, so each one swells and stops dead). 900 ms: the curse lands. A huge throat, something far bigger than a person, lets out a falling growl from 'ah' down to a closed 'oo', its pitch sinking a fifth over 1.2 s, ring-modulated at 41 Hz so it rattles. Over it a cracked iron bell tolls once, a little flat. The crypt keeps both for three seconds.",
+  "tags": ["magic", "curse", "dark", "evil", "hex", "debuff", "necromancer", "whisper", "growl", "horror"],
+  "duration": "auto",
+  "seed": 13,
+  "tracks": [
+    {
+      "id": "whisper",
+      "note": "The incantation, reversed: four whispered syllables (voice with no tone, only breath), each with its own vowel sweep. The reverse makes them inhale.",
+      "gain": -3.6,
+      "source": {
+        "type": "voice",
+        "freq": 140,
+        "breath": 1,
+        "tension": 0.6,
+        "size": 1.05,
+        "resonance": 1.4,
+        "vowel": [[0, 0], [0.09, 2], [0.2, 3.6]],
+        "env": { "attack": 0.004, "decay": 0.24 }
+      },
+      "events": [{ "t": 0, "vel": 0.6 }, { "t": 0.21, "pitch": 3, "vel": 0.8 }, { "t": 0.39, "pitch": -2, "vel": 0.7 }, { "t": 0.62, "pitch": 5, "vel": 1 }],
+      "length": 0.88,
+      "fx": [{ "type": "reverse" }, { "type": "eq", "bands": [{ "mode": "lowcut", "freq": 500 }, { "mode": "peak", "freq": 3200, "gain": 5, "q": 1 }] }],
+      "sends": { "crypt": -8 }
+    },
+    {
+      "id": "thing",
+      "note": "What answers: a giant throat growling down. Growl adds the octave-below snarl; the ring modulator makes it shake like something not alive.",
+      "start": 0.9,
+      "source": {
+        "type": "voice",
+        "freq": [[0, 92], [0.15, 104], [1.3, 62]],
+        "vowel": [[0, 0], [1.2, 4]],
+        "size": 2.45,
+        "tension": 0.75,
+        "growl": [[0, 0.4], [1.2, 0.9]],
+        "rasp": 0.375,
+        "breath": 0.15,
+        "jitter": 3,
+        "env": { "attack": 0.03, "hold": 0.6, "decay": 0.9 }
+      },
+      "fx": [
+        { "type": "ringmod", "id": "rattle", "freq": 40.4, "bias": 0.6 },
+        { "type": "drive", "mode": "tube", "amount": 16, "tone": 6000 },
+        { "type": "eq", "bands": [{ "mode": "lowcut", "freq": 75, "slope": "24" }, { "mode": "peak", "freq": 1400, "gain": 5, "q": 0.8 }] }
+      ],
+      "sends": { "crypt": -7 }
+    },
+    {
+      "id": "bell",
+      "note": "The toll that marks it: a big cracked bell (dent), its modes beating slowly. 12 ms after the growl starts, so the two do not fuse.",
+      "start": 0.912,
+      "gain": -19.1,
+      "source": {
+        "type": "modal",
+        "material": "metal",
+        "shape": "bell",
+        "freq": 123,
+        "decay": 3.2,
+        "dent": 0.595,
+        "beat": 1.3,
+        "modes": 26,
+        "position": 0.7,
+        "variant": 4,
+        "exciter": { "kind": "mallet", "hardness": 0.55 }
+      },
+      "sends": { "crypt": -6 }
+    }
+  ],
+  "buses": [
+    {
+      "id": "crypt",
+      "fx": [{ "type": "reverb", "id": "stone", "space": "cathedral", "size": 22, "decay": 2.65, "damping": 0.65, "predelay": 30 }],
+      "gain": -7.5
+    }
+  ],
+  "controls": [
+    {
+      "id": "menace",
+      "label": "Menace",
+      "hint": "A petty hex to something enormous and very angry.",
+      "value": 0.5,
+      "targets": [
+        { "path": "tracks.thing.source.size", "from": 1.5, "to": 4 },
+        { "path": "tracks.thing.source.freq", "mode": "mul", "from": 1.5, "to": 0.7 },
+        { "path": "tracks.thing.source.rasp", "from": 0.05, "to": 0.7 },
+        { "path": "tracks.bell.source.freq", "mode": "mul", "from": 1.6, "to": 0.65 }
+      ]
+    },
+    {
+      "id": "whisper",
+      "label": "Whisper",
+      "hint": "No incantation, or loud hissing syllables before it lands.",
+      "value": 0.6,
+      "targets": [{ "path": "tracks.whisper.gain", "from": -30, "to": 14 }]
+    },
+    {
+      "id": "rattle",
+      "label": "Rattle",
+      "hint": "A living throat to a shuddering, undead buzz.",
+      "value": 0.4,
+      "targets": [{ "path": "tracks.thing.fx.rattle.bias", "from": 1, "to": 0 }, { "path": "tracks.thing.fx.rattle.freq", "from": 28, "to": 70 }]
+    },
+    {
+      "id": "bell",
+      "label": "Bell",
+      "hint": "No toll, or a great cracked bell over the growl.",
+      "value": 0.55,
+      "targets": [{ "path": "tracks.bell.gain", "from": -40, "to": -2 }, { "path": "tracks.bell.source.dent", "from": 0.1, "to": 1 }]
+    },
+    {
+      "id": "crypt",
+      "label": "Crypt",
+      "hint": "Close in a small cell, or lost in a vast vault.",
+      "value": 0.5,
+      "targets": [{ "path": "buses.crypt.gain", "mode": "set", "from": -20, "to": 5 }, { "path": "buses.crypt.fx.stone.decay", "from": 1, "to": 7 }]
+    }
+  ]
+}

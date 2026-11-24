@@ -1,6 +1,7 @@
 /**
- * The knob: a printed dial with weight. Drag up and down, wheel while focused, arrow and page keys, Home and End,
- * Shift for fine moves, double-click to reset, click the value to type one.
+ * The knob: a flat cap inside a ring that lights up to its value. It turns; it never moves. Drag up and down, wheel
+ * while focused, arrow and page keys, Home and End, Shift for fine moves, double-click to reset, click the value to
+ * type one.
  */
 import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
 import { formatValue, parseValue, positionToValue, stepByKey, valueToPosition, type KnobRange } from '../lib/knob';
@@ -43,7 +44,7 @@ function arc(from: number, to: number, r: number): string {
 }
 
 export function Knob(props: KnobProps) {
-  const { label, value, range, unit = '', size = 64, ink = 'var(--pink)', disabled = false } = props;
+  const { label, value, range, unit = '', size = 64, ink = 'var(--ink)', disabled = false } = props;
   const dial = useRef<HTMLDivElement>(null);
   const drag = useRef<{ y: number; position: number } | null>(null);
   const wheelTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -156,8 +157,8 @@ export function Knob(props: KnobProps) {
     dial.current?.focus();
   };
 
-  const [ix0, iy0] = polar(angle, 12);
-  const [ix1, iy1] = polar(angle, 27);
+  const [ix0, iy0] = polar(angle, 15);
+  const [ix1, iy1] = polar(angle, 29);
 
   return (
     <div className={`knob${disabled ? ' is-disabled' : ''}${pressed ? ' is-pressed' : ''}${unset ? ' is-unset' : ''}`} style={{ '--knob-ink': ink } as React.CSSProperties}>
@@ -186,13 +187,10 @@ export function Knob(props: KnobProps) {
           <path className="knob-track" d={arc(START, START + SWEEP, 44)} />
           {position > 0.002 && <path className="knob-arc" d={arc(START, START + Math.max(0.5, SWEEP * position), 44)} />}
           {defaultPosition !== null && (
-            <circle className="knob-default" cx={polar(START + SWEEP * defaultPosition, 44)[0]} cy={polar(START + SWEEP * defaultPosition, 44)[1]} r="2.2" />
+            <circle className="knob-default" cx={polar(START + SWEEP * defaultPosition, 44)[0]} cy={polar(START + SWEEP * defaultPosition, 44)[1]} r="2" />
           )}
-          <circle className="knob-shadow" cx="54" cy="55.5" r="31" />
-          <g className="knob-cap">
-            <circle cx="50" cy="50" r="31" />
-            <line x1={ix0} y1={iy0} x2={ix1} y2={iy1} />
-          </g>
+          <circle className="knob-cap" cx="50" cy="50" r="33" />
+          <line className="knob-mark" x1={ix0} y1={iy0} x2={ix1} y2={iy1} />
         </svg>
       </div>
       {!props.bare &&

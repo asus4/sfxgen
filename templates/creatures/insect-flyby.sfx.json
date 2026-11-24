@@ -1,0 +1,218 @@
+{
+  "format": "sfxgen/1",
+  "name": "Insect fly-by",
+  "description": "A fat bumblebee crossing in front of your face from left to right at five metres a second, passing 30 cm from the nose at 1.1 s: 170 wing beats a second, never quite steady, the buzz bending down as it passes and fading into the garden by 2.3 s. Stereo.",
+  "tags": [
+    "creature",
+    "insect",
+    "bee",
+    "fly",
+    "mosquito",
+    "buzz",
+    "doppler",
+    "pass-by"
+  ],
+  "duration": 2.3,
+  "seed": 21,
+  "output": {
+    "channels": 2
+  },
+  "tracks": [
+    {
+      "id": "wings",
+      "note": "The wing beat: a narrow pulse wave that wanders in pitch and flutters in level as the insect corrects its flight, moved past the listener.",
+      "source": {
+        "type": "osc",
+        "wave": "pulse",
+        "pw": {
+          "value": 0.16,
+          "mod": [
+            {
+              "type": "wander",
+              "rate": 9,
+              "depth": 0.05
+            }
+          ]
+        },
+        "freq": {
+          "value": 171,
+          "mod": [
+            {
+              "type": "wander",
+              "rate": 7,
+              "depth": 0.9,
+              "unit": "st"
+            },
+            {
+              "type": "lfo",
+              "shape": "smooth-random",
+              "rate": 2.3,
+              "depth": 0.6,
+              "unit": "st"
+            }
+          ]
+        },
+        "drift": 14,
+        "env": {
+          "attack": 0.04,
+          "hold": 1.7,
+          "decay": 0.5
+        },
+        "filter": {
+          "mode": "bandpass",
+          "cutoff": 760,
+          "q": 0.6
+        }
+      },
+      "fx": [
+        {
+          "type": "tremolo",
+          "rate": 13,
+          "depth": 0.25,
+          "shape": "random"
+        },
+        {
+          "id": "pass",
+          "type": "doppler",
+          "speed": 5,
+          "distance": 0.3,
+          "time": 1.1,
+          "amount": 1.6
+        }
+      ]
+    },
+    {
+      "id": "air",
+      "note": "The papery rustle of the wings themselves: thin noise chopped at the wing rate, heard only when it is close.",
+      "gain": -7,
+      "source": {
+        "type": "noise",
+        "color": "white",
+        "env": {
+          "attack": 0.04,
+          "hold": 1.7,
+          "decay": 0.5
+        },
+        "filter": {
+          "mode": "bandpass",
+          "cutoff": 3600,
+          "q": 1.1
+        }
+      },
+      "fx": [
+        {
+          "id": "chop",
+          "type": "tremolo",
+          "rate": 171,
+          "depth": 0.9,
+          "shape": "triangle"
+        },
+        {
+          "id": "pass",
+          "type": "doppler",
+          "speed": 5,
+          "distance": 0.3,
+          "time": 1.1,
+          "amount": 1.6,
+          "air": 3
+        }
+      ]
+    }
+  ],
+  "controls": [
+    {
+      "id": "insect",
+      "label": "Insect",
+      "hint": "A whining mosquito, through a housefly, to a heavy bumblebee.",
+      "value": 0.75,
+      "targets": [
+        {
+          "path": "tracks.wings.source.freq",
+          "mode": "mul",
+          "from": 3.6,
+          "to": 0.72
+        },
+        {
+          "path": "tracks.air.fx.chop.rate",
+          "mode": "mul",
+          "from": 3.6,
+          "to": 0.72
+        },
+        {
+          "path": "tracks.wings.source.filter.cutoff",
+          "mode": "set",
+          "from": 2600,
+          "to": 560
+        },
+        {
+          "path": "tracks.wings.source.pw",
+          "mode": "mul",
+          "from": 0.5,
+          "to": 1.2
+        }
+      ]
+    },
+    {
+      "id": "speed",
+      "label": "Speed",
+      "hint": "Drifting past to zipping by: a bigger, quicker pitch drop.",
+      "value": 0.4,
+      "vary": 0.08,
+      "targets": [
+        {
+          "path": "tracks.wings.fx.pass.speed",
+          "mode": "set",
+          "from": 1.5,
+          "to": 16
+        },
+        {
+          "path": "tracks.air.fx.pass.speed",
+          "mode": "set",
+          "from": 1.5,
+          "to": 16
+        }
+      ]
+    },
+    {
+      "id": "closeness",
+      "label": "Closeness",
+      "hint": "Across the garden to brushing your ear.",
+      "value": 0.6,
+      "vary": 0.08,
+      "targets": [
+        {
+          "path": "tracks.wings.fx.pass.distance",
+          "mode": "set",
+          "from": 3,
+          "to": 0.08
+        },
+        {
+          "path": "tracks.air.fx.pass.distance",
+          "mode": "set",
+          "from": 3,
+          "to": 0.08
+        }
+      ]
+    },
+    {
+      "id": "nerves",
+      "label": "Nerves",
+      "hint": "A calm cruise to a frantic, zigzagging buzz.",
+      "value": 0.4,
+      "targets": [
+        {
+          "path": "tracks.wings.source.freq.mod.0.depth",
+          "mode": "set",
+          "from": 0.15,
+          "to": 2.4
+        },
+        {
+          "path": "tracks.wings.fx.0.depth",
+          "mode": "set",
+          "from": 0.05,
+          "to": 0.6
+        }
+      ]
+    }
+  ]
+}

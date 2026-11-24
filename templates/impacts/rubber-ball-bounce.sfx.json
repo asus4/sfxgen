@@ -1,0 +1,186 @@
+{
+  "format": "sfxgen/1",
+  "name": "Rubber ball bounces to rest",
+  "description": "A solid rubber bouncy ball dropped from waist height onto a wooden gym floor. First bounce at 0 ms, the next about 310 ms later, each gap about four fifths of the last, each hit softer, until the bounces run together into a short buzz and stop near 2 s. Every bounce is the same ball: a round, pitched \"pock\" with the hollow floor answering under it, in a big empty gym.",
+  "tags": [
+    "impact",
+    "ball",
+    "bounce",
+    "rubber",
+    "toy",
+    "gym",
+    "bouncing",
+    "settle"
+  ],
+  "duration": "auto",
+  "seed": 6,
+  "master": {
+    "normalize": {
+      "mode": "peak",
+      "target": -2
+    }
+  },
+  "tracks": [
+    {
+      "id": "ball",
+      "note": "The ball: one rubber sphere bouncing, each gap a fixed fraction of the last.",
+      "source": {
+        "type": "particles",
+        "distribution": "bounce",
+        "interval": 0.42,
+        "ratio": 0.8,
+        "jitter": 0.03,
+        "duration": 2.6,
+        "grain": {
+          "kind": "modal",
+          "material": "rubber",
+          "shape": "membrane",
+          "lo": 310,
+          "hi": 310,
+          "decayLo": 0.07,
+          "decayHi": 0.07,
+          "levelJitter": 0,
+          "pitchJitter": 0.08
+        }
+      },
+      "fx": [
+        {
+          "type": "filter",
+          "mode": "lowpass",
+          "cutoff": 2400,
+          "slope": "24"
+        },
+        {
+          "type": "resonator",
+          "id": "floor",
+          "mode": "tube",
+          "freq": 96,
+          "decay": 0.12,
+          "brightness": 0.25,
+          "mix": 0.45
+        }
+      ],
+      "sends": {
+        "gym": -13
+      }
+    }
+  ],
+  "buses": [
+    {
+      "id": "gym",
+      "fx": [
+        {
+          "type": "reverb",
+          "space": "hall",
+          "size": 28,
+          "decay": 1.4,
+          "predelay": 22,
+          "highcut": 5000
+        }
+      ]
+    }
+  ],
+  "controls": [
+    {
+      "id": "height",
+      "label": "Height",
+      "hint": "Dropped from a hand-width, or thrown down from overhead: longer gaps, more bounces.",
+      "value": 0.5,
+      "vary": 0.06,
+      "targets": [
+        {
+          "path": "tracks.ball.source.interval",
+          "mode": "set",
+          "from": 0.12,
+          "to": 0.8
+        },
+        {
+          "path": "tracks.ball.source.duration",
+          "mode": "set",
+          "from": 1,
+          "to": 4.5
+        }
+      ]
+    },
+    {
+      "id": "bounce",
+      "label": "Bounciness",
+      "hint": "A dead ball that stops in three hops, or a super ball that will not quit.",
+      "value": 0.55,
+      "vary": 0.04,
+      "targets": [
+        {
+          "path": "tracks.ball.source.ratio",
+          "mode": "set",
+          "from": 0.5,
+          "to": 0.9,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "size",
+      "label": "Size",
+      "hint": "A marble-sized super ball to a basketball.",
+      "value": 0.4,
+      "vary": 0.03,
+      "targets": [
+        {
+          "path": "tracks.ball.source.pitch",
+          "mode": "set",
+          "from": 14,
+          "to": -16,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.ball.source.grain.decayHi",
+          "mode": "set",
+          "from": 0.03,
+          "to": 0.22
+        },
+        {
+          "path": "tracks.ball.source.grain.decayLo",
+          "mode": "set",
+          "from": 0.03,
+          "to": 0.22
+        }
+      ]
+    },
+    {
+      "id": "floor",
+      "label": "Floor",
+      "hint": "Solid concrete, or a hollow wooden floor that booms with each bounce.",
+      "value": 0.45,
+      "targets": [
+        {
+          "path": "tracks.ball.fx.floor.mix",
+          "mode": "set",
+          "from": 0,
+          "to": 0.85,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.ball.fx.floor.decay",
+          "mode": "set",
+          "from": 0.05,
+          "to": 0.3
+        }
+      ]
+    },
+    {
+      "id": "gym",
+      "label": "Gym",
+      "hint": "A small room to an empty sports hall.",
+      "value": 0.4,
+      "targets": [
+        {
+          "path": "tracks.ball.sends.gym",
+          "mode": "set",
+          "from": -40,
+          "to": -2,
+          "curve": -0.474
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,288 @@
+{
+  "format": "sfxgen/1",
+  "name": "Giant metal slam",
+  "description": "A blast door the size of a house dropping shut at the far end of an empty hangar. 0 ms: thousands of tons of plate steel meet the sill with a grinding, crumbling crash, not a clean clang; a boom near 60 Hz rolls under it for two seconds; the plate keeps groaning and shimmering as its huge slow modes beat; from 150 ms loosened bolts and rust rain down for a second; the hangar answers 60 ms later with a long dark roar.",
+  "tags": [
+    "impact",
+    "metal",
+    "slam",
+    "huge",
+    "boom",
+    "gate",
+    "blast door",
+    "cinematic",
+    "giant"
+  ],
+  "duration": "auto",
+  "seed": 44,
+  "tracks": [
+    {
+      "id": "plate",
+      "note": "The door: an enormous dented steel plate set off by a rough crushing contact, its modes beating slowly.",
+      "source": {
+        "type": "modal",
+        "material": "metal",
+        "shape": "plate",
+        "freq": 47,
+        "decay": 4.2,
+        "damping": 2.4,
+        "brightness": 0.62,
+        "modes": 60,
+        "dent": 0.35,
+        "beat": 0.6,
+        "stretch": 0.92,
+        "position": 0.7,
+        "exciter": {
+          "kind": "noise",
+          "hardness": 0.7,
+          "duration": 0.14
+        }
+      },
+      "fx": [
+        {
+          "type": "drive",
+          "mode": "tanh",
+          "amount": 9
+        }
+      ],
+      "sends": {
+        "hangar": -8
+      }
+    },
+    {
+      "id": "boom",
+      "note": "The floor and the air: a pitchless boom that carries the weight, with harmonics so small speakers show it.",
+      "gain": -8,
+      "source": {
+        "type": "modal",
+        "material": "skin",
+        "shape": "membrane",
+        "freq": [
+          [
+            0,
+            82
+          ],
+          [
+            0.25,
+            61
+          ]
+        ],
+        "decay": 1.9,
+        "brightness": 0.3,
+        "modes": 10,
+        "position": 0.1,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.25
+        }
+      },
+      "fx": [
+        {
+          "type": "drive",
+          "mode": "tube",
+          "amount": 18,
+          "tone": 1600
+        }
+      ],
+      "sends": {
+        "hangar": -12
+      }
+    },
+    {
+      "id": "debris",
+      "note": "Bolts, scale and rust shaken loose, falling for a second.",
+      "start": 0.15,
+      "gain": -16,
+      "source": {
+        "type": "particles",
+        "distribution": "burst",
+        "density": 90,
+        "duration": 1.3,
+        "grain": {
+          "kind": "modal",
+          "material": "metal",
+          "shape": "bar",
+          "lo": 700,
+          "hi": 5200,
+          "decayLo": 0.02,
+          "decayHi": 0.2,
+          "levelJitter": 18,
+          "size": 0.8
+        }
+      },
+      "sends": {
+        "hangar": -6
+      }
+    }
+  ],
+  "buses": [
+    {
+      "id": "hangar",
+      "fx": [
+        {
+          "type": "reverb",
+          "space": "tank",
+          "size": 60,
+          "decay": 4.5,
+          "predelay": 60,
+          "damping": 0.55,
+          "lowcut": 90
+        }
+      ]
+    }
+  ],
+  "master": {
+    "fx": [
+      {
+        "type": "compressor",
+        "threshold": -14,
+        "ratio": 3,
+        "attack": 0.02,
+        "release": 0.3
+      }
+    ]
+  },
+  "controls": [
+    {
+      "id": "size",
+      "label": "Size",
+      "hint": "A shipping container door to a dam gate.",
+      "value": 0.6,
+      "targets": [
+        {
+          "path": "tracks.plate.source.freq",
+          "mode": "mul",
+          "from": 2.6,
+          "to": 0.55
+        },
+        {
+          "path": "tracks.plate.source.decay",
+          "mode": "mul",
+          "from": 0.4,
+          "to": 1.5
+        },
+        {
+          "path": "tracks.boom.source.freq",
+          "mode": "mul",
+          "from": 1.9,
+          "to": 0.75
+        },
+        {
+          "path": "tracks.boom.source.decay",
+          "mode": "mul",
+          "from": 0.4,
+          "to": 1.5
+        },
+        {
+          "path": "tracks.plate.source.exciter.duration",
+          "mode": "set",
+          "from": 0.04,
+          "to": 0.25
+        }
+      ]
+    },
+    {
+      "id": "distance",
+      "label": "Distance",
+      "hint": "Standing under it, or hearing it from the far end of the hall: more roar, less edge.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.plate.sends.hangar",
+          "mode": "set",
+          "from": -24,
+          "to": 2,
+          "curve": -0.171
+        },
+        {
+          "path": "tracks.boom.sends.hangar",
+          "mode": "set",
+          "from": -26,
+          "to": -2,
+          "curve": -0.121
+        },
+        {
+          "path": "tracks.plate.source.brightness",
+          "mode": "set",
+          "from": 0.8,
+          "to": 0.4
+        },
+        {
+          "path": "buses.hangar.fx.0.predelay",
+          "mode": "set",
+          "from": 15,
+          "to": 100,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "debris",
+      "label": "Debris",
+      "hint": "A clean close, or bolts and rust raining after it.",
+      "value": 0.45,
+      "vary": 0.1,
+      "targets": [
+        {
+          "path": "tracks.debris.gain",
+          "mode": "set",
+          "from": -48,
+          "to": -4,
+          "curve": -0.442
+        },
+        {
+          "path": "tracks.debris.source.density",
+          "mode": "set",
+          "from": 30,
+          "to": 220
+        }
+      ]
+    },
+    {
+      "id": "rust",
+      "label": "Rust",
+      "hint": "New machined steel that tolls, or a corroded wreck that crunches and dies sooner.",
+      "value": 0.4,
+      "targets": [
+        {
+          "path": "tracks.plate.source.dent",
+          "mode": "set",
+          "from": 0.05,
+          "to": 0.9
+        },
+        {
+          "path": "tracks.plate.source.damping",
+          "mode": "set",
+          "from": 1.6,
+          "to": 3.8
+        },
+        {
+          "path": "tracks.plate.fx.0.amount",
+          "mode": "set",
+          "from": 3,
+          "to": 20
+        }
+      ]
+    },
+    {
+      "id": "hall",
+      "label": "Hall",
+      "hint": "A big workshop to an endless cavern.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "buses.hangar.fx.0.decay",
+          "mode": "set",
+          "from": 1.5,
+          "to": 9
+        },
+        {
+          "path": "buses.hangar.fx.0.size",
+          "mode": "set",
+          "from": 25,
+          "to": 120
+        }
+      ]
+    }
+  ]
+}

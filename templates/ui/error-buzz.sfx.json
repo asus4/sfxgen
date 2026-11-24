@@ -1,0 +1,145 @@
+{
+  "format": "sfxgen/1",
+  "name": "Error buzz",
+  "description": "Not allowed: a small piezo buzzer in a plastic case sounds twice, 90 ms each with a 50 ms gap. Two rough FM tones a flattened fifth apart beat against each other so it reads as no without being loud, and the case gives it a boxy 1.1 kHz honk. Flat, short, stops dead.",
+  "tags": [
+    "ui",
+    "error",
+    "buzz",
+    "deny",
+    "invalid",
+    "wrong",
+    "negative"
+  ],
+  "duration": "auto",
+  "seed": 3,
+  "tracks": [
+    {
+      "id": "buzz",
+      "note": "Two self-modulating carriers a tritone apart: the buzz and its disagreement.",
+      "source": {
+        "type": "fm",
+        "freq": 233,
+        "algorithm": "pairs",
+        "ops": [
+          {
+            "id": "low",
+            "ratio": 1,
+            "feedback": 0.85
+          },
+          {
+            "id": "edge",
+            "ratio": 2,
+            "index": 0.9
+          },
+          {
+            "id": "clash",
+            "ratio": 1.414,
+            "feedback": 0.7,
+            "level": 0.7
+          }
+        ],
+        "env": {
+          "attack": 0.003,
+          "gate": 0.09,
+          "release": 0.015
+        },
+        "filter": {
+          "mode": "lowpass",
+          "cutoff": 3200,
+          "q": 0.9
+        }
+      },
+      "events": [
+        0,
+        0.14
+      ],
+      "fx": [
+        {
+          "type": "eq",
+          "id": "case",
+          "bands": [
+            {
+              "mode": "lowcut",
+              "freq": 220
+            },
+            {
+              "id": "honk",
+              "mode": "peak",
+              "freq": 1100,
+              "gain": 5,
+              "q": 1.6
+            },
+            {
+              "mode": "highcut",
+              "freq": 5000
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "controls": [
+    {
+      "id": "pitch",
+      "label": "Pitch",
+      "hint": "A low refusal to a higher, lighter nope.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.buzz.source.freq",
+          "mode": "mul",
+          "from": 0.6,
+          "to": 1.67
+        }
+      ]
+    },
+    {
+      "id": "harshness",
+      "label": "Harshness",
+      "hint": "A dull hum to a rasping buzzer.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.buzz.source.ops.low.feedback",
+          "from": 0.2,
+          "to": 1.3,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.buzz.source.filter.cutoff",
+          "from": 900,
+          "to": 7000
+        }
+      ]
+    },
+    {
+      "id": "clash",
+      "label": "Clash",
+      "hint": "One plain tone to two that grind against each other.",
+      "value": 0.7,
+      "targets": [
+        {
+          "path": "tracks.buzz.source.ops.clash.level",
+          "from": 0,
+          "to": 1,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "length",
+      "label": "Length",
+      "hint": "Two quick blips to two longer buzzes that almost join.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.buzz.source.env.gate",
+          "from": 0.035,
+          "to": 0.13,
+          "curve": "linear"
+        }
+      ]
+    }
+  ]
+}

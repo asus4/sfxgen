@@ -1,0 +1,303 @@
+{
+  "format": "sfxgen/1",
+  "name": "Spaceship engine room (loop)",
+  "description": "The engine room of an old long-haul freighter under way: the reactor core throbs once every two seconds, a deep unstable tone that never quite repeats, the plasma conduits sing a slow swirling chord above it, coolant hisses through the pipes, and a status panel pings to itself in the corner. Steel walls, a tank of a room. An 8 s stereo loop; the throb and the swirl are tied to the loop length (0.5 and 0.125 Hz) and the seam is crossfaded over 1 s.",
+  "tags": [
+    "ambience",
+    "spaceship",
+    "engine",
+    "room",
+    "scifi",
+    "loop",
+    "drone",
+    "reactor",
+    "hum"
+  ],
+  "duration": 8,
+  "loop": {
+    "mode": "crossfade",
+    "crossfade": 1
+  },
+  "seed": 44,
+  "output": {
+    "channels": 2
+  },
+  "tracks": [
+    {
+      "id": "core",
+      "note": "The reactor: a Lorenz attractor as a low tone that wanders between two states, swelling every 2 s. Alive and slightly worrying.",
+      "gain": -11,
+      "source": {
+        "type": "chaos",
+        "mode": "lorenz",
+        "rate": 98,
+        "chaos": 0.35,
+        "smooth": 0.5,
+        "env": {
+          "attack": 0.01,
+          "sustain": 1
+        }
+      },
+      "fx": [
+        {
+          "id": "throb",
+          "type": "tremolo",
+          "rate": 0.5,
+          "depth": 0.5,
+          "shape": "sine"
+        },
+        {
+          "type": "drive",
+          "mode": "tanh",
+          "amount": 14,
+          "tone": 2400
+        }
+      ]
+    },
+    {
+      "id": "conduits",
+      "note": "The plasma conduits: a detuned FM chord with a slow phaser sweep, the \"technology\" above the rumble.",
+      "gain": 2,
+      "source": {
+        "type": "fm",
+        "algorithm": "pairs",
+        "freq": 139,
+        "ops": [
+          {
+            "ratio": 1
+          },
+          {
+            "ratio": 2.01,
+            "index": {
+              "value": 1.2,
+              "mod": [
+                {
+                  "type": "lfo",
+                  "rate": 0.25,
+                  "depth": 0.7
+                }
+              ]
+            }
+          },
+          {
+            "ratio": 1.498,
+            "detune": 6,
+            "level": 0.7
+          },
+          {
+            "ratio": 3.02,
+            "index": 0.8
+          }
+        ],
+        "env": {
+          "attack": 0.01,
+          "sustain": 1
+        }
+      },
+      "fx": [
+        {
+          "id": "swirl",
+          "type": "phaser",
+          "freq": 600,
+          "depth": 2,
+          "rate": 0.125,
+          "stages": "6",
+          "feedback": 0.6
+        },
+        {
+          "type": "width",
+          "haas": 0.009,
+          "width": 1.4
+        }
+      ]
+    },
+    {
+      "id": "coolant",
+      "note": "Coolant and air handling: a band of hiss that drifts, so the room has air in it.",
+      "gain": -5,
+      "source": {
+        "type": "noise",
+        "color": "pink",
+        "width": 1,
+        "env": {
+          "attack": 0.01
+        },
+        "filter": {
+          "mode": "bandpass",
+          "cutoff": {
+            "value": 3000,
+            "mod": [
+              {
+                "type": "lfo",
+                "rate": 0.125,
+                "depth": 5,
+                "unit": "st"
+              }
+            ]
+          },
+          "q": 0.9
+        }
+      }
+    },
+    {
+      "id": "panel",
+      "note": "A status panel: sparse, soft, high pings at slightly different pitches. Scale and a sign of life.",
+      "gain": 0,
+      "source": {
+        "type": "particles",
+        "density": 1.1,
+        "duration": 9,
+        "spread": 0.8,
+        "grain": {
+          "kind": "ping",
+          "lo": 1900,
+          "hi": 3100,
+          "decayLo": 0.08,
+          "decayHi": 0.2,
+          "levelJitter": 8
+        }
+      }
+    }
+  ],
+  "master": {
+    "fx": [
+      {
+        "type": "eq",
+        "bands": [
+          {
+            "mode": "lowcut",
+            "freq": 55,
+            "slope": "24"
+          },
+          {
+            "mode": "peak",
+            "freq": 190,
+            "gain": 4,
+            "q": 0.8
+          }
+        ]
+      },
+      {
+        "id": "hull",
+        "type": "reverb",
+        "space": "tank",
+        "decay": 2.2,
+        "mix": 0.22
+      }
+    ]
+  },
+  "controls": [
+    {
+      "id": "power",
+      "label": "Power",
+      "hint": "Drifting on standby to engines at full burn: higher, harder and brighter.",
+      "value": 0.45,
+      "targets": [
+        {
+          "path": "tracks.core.source.rate",
+          "mode": "set",
+          "from": 60,
+          "to": 190
+        },
+        {
+          "path": "tracks.core.fx.1.amount",
+          "mode": "set",
+          "from": 6,
+          "to": 26
+        },
+        {
+          "path": "tracks.conduits.source.pitch",
+          "mode": "set",
+          "from": -7,
+          "to": 9
+        }
+      ]
+    },
+    {
+      "id": "instability",
+      "label": "Instability",
+      "hint": "A healthy, steady core to one that lurches and growls.",
+      "value": 0.35,
+      "targets": [
+        {
+          "path": "tracks.core.source.chaos",
+          "mode": "set",
+          "from": 0.05,
+          "to": 0.95
+        },
+        {
+          "path": "tracks.core.source.smooth",
+          "mode": "set",
+          "from": 0.85,
+          "to": 0.35
+        },
+        {
+          "path": "tracks.core.fx.throb.depth",
+          "mode": "set",
+          "from": 0.2,
+          "to": 0.9
+        }
+      ]
+    },
+    {
+      "id": "conduits",
+      "label": "Conduits",
+      "hint": "Bare rumble to a singing, swirling chord over it.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.conduits.gain",
+          "mode": "set",
+          "from": -24,
+          "to": 9
+        },
+        {
+          "path": "tracks.conduits.fx.swirl.feedback",
+          "mode": "set",
+          "from": 0.2,
+          "to": 0.85
+        }
+      ]
+    },
+    {
+      "id": "hull",
+      "label": "Hull",
+      "hint": "A cramped crawlway to a cavernous steel hold.",
+      "value": 0.4,
+      "targets": [
+        {
+          "path": "master.fx.hull.mix",
+          "mode": "set",
+          "from": 0.05,
+          "to": 0.55
+        },
+        {
+          "path": "master.fx.hull.decay",
+          "mode": "set",
+          "from": 0.8,
+          "to": 5
+        }
+      ]
+    },
+    {
+      "id": "systems",
+      "label": "Systems",
+      "hint": "Dead consoles and still air to a busy, hissing, pinging room.",
+      "value": 0.45,
+      "targets": [
+        {
+          "path": "tracks.panel.gain",
+          "mode": "set",
+          "from": -30,
+          "to": 10
+        },
+        {
+          "path": "tracks.coolant.gain",
+          "mode": "set",
+          "from": -26,
+          "to": 3
+        }
+      ]
+    }
+  ]
+}

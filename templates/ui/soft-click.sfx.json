@@ -1,0 +1,121 @@
+{
+  "format": "sfxgen/1",
+  "name": "Soft click",
+  "description": "A fingertip pressing a soft silicone button, heard from typing distance. The pad of the finger lands (a 2 ms dull pat of air), the rubber dome gives with a rounded, pitchless knock around 430 Hz, and it is over in 50 ms. Dry and close; the default tap for anything pressed hundreds of times.",
+  "tags": [
+    "ui",
+    "click",
+    "tap",
+    "button",
+    "soft",
+    "press"
+  ],
+  "duration": "auto",
+  "seed": 4,
+  "tracks": [
+    {
+      "id": "dome",
+      "note": "The body: a small plastic skin giving way. Sets the size of the key.",
+      "source": {
+        "type": "modal",
+        "material": "plastic",
+        "shape": "membrane",
+        "freq": 430,
+        "decay": 0.07,
+        "modes": 8,
+        "position": 0.3,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.35
+        }
+      }
+    },
+    {
+      "id": "pad",
+      "note": "Skin on the surface: 15 ms of dull air that makes it a finger and not a beep.",
+      "gain": -13,
+      "source": {
+        "type": "noise",
+        "color": "pink",
+        "env": {
+          "attack": 0.001,
+          "decay": 0.018
+        },
+        "filter": {
+          "mode": "lowpass",
+          "cutoff": 2600
+        }
+      }
+    }
+  ],
+  "controls": [
+    {
+      "id": "size",
+      "label": "Size",
+      "hint": "A wide space bar to a tiny keypad dot.",
+      "value": 0.5,
+      "vary": 0.05,
+      "targets": [
+        {
+          "path": "tracks.dome.source.freq",
+          "mode": "mul",
+          "from": 0.55,
+          "to": 1.8
+        }
+      ]
+    },
+    {
+      "id": "touch",
+      "label": "Touch",
+      "hint": "A soft fingertip to a fingernail: more edge on the front.",
+      "value": 0.3,
+      "vary": 0.06,
+      "targets": [
+        {
+          "path": "tracks.dome.source.exciter.hardness",
+          "from": 0.12,
+          "to": 0.85,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.pad.source.filter.cutoff",
+          "from": 1200,
+          "to": 9000
+        },
+        {
+          "path": "tracks.dome.source.position",
+          "from": 0.2,
+          "to": 0.7,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "body",
+      "label": "Body",
+      "hint": "Dead and damped to a hollow little knock.",
+      "value": 0.4,
+      "targets": [
+        {
+          "path": "tracks.dome.source.decay",
+          "from": 0.03,
+          "to": 0.16
+        }
+      ]
+    },
+    {
+      "id": "skin",
+      "label": "Skin",
+      "hint": "How much of the finger you hear on top of the key.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.pad.gain",
+          "from": -30,
+          "to": -4,
+          "curve": "linear"
+        }
+      ]
+    }
+  ]
+}

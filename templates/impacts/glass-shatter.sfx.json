@@ -1,0 +1,291 @@
+{
+  "format": "sfxgen/1",
+  "name": "Glass shatters",
+  "description": "A window pane broken by a thrown stone, heard from inside a kitchen. 0 ms: the pane cracks with one hard, noisy clang; from 15 ms the pieces let go, a dense shower of shards that thins out over a second, the big pieces low and loud, the splinters high and faint; from 250 ms the first shards reach the tiled floor and skitter and tinkle to rest.",
+  "tags": [
+    "impact",
+    "glass",
+    "shatter",
+    "break",
+    "window",
+    "smash",
+    "debris"
+  ],
+  "duration": "auto",
+  "seed": 21,
+  "output": {
+    "channels": 2
+  },
+  "tracks": [
+    {
+      "id": "crack",
+      "note": "The pane giving way: a sheet of glass excited by a rough, crumbling hit.",
+      "source": {
+        "type": "modal",
+        "material": "glass",
+        "shape": "plate",
+        "freq": 610,
+        "decay": 0.2,
+        "damping": 1.6,
+        "brightness": 0.8,
+        "modes": 48,
+        "dent": 0.5,
+        "position": 0.7,
+        "exciter": {
+          "kind": "noise",
+          "hardness": 0.95,
+          "duration": 0.05
+        }
+      },
+      "sends": {
+        "kitchen": -12
+      }
+    },
+    {
+      "id": "frame",
+      "note": "The stone meeting the pane in its wooden frame: the low knock that gives the break a body.",
+      "gain": -7,
+      "source": {
+        "type": "modal",
+        "material": "wood",
+        "shape": "box",
+        "freq": 205,
+        "decay": 0.09,
+        "modes": 10,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.55
+        }
+      }
+    },
+    {
+      "id": "shards",
+      "note": "The pieces: a burst of small glass plates, thinning out.",
+      "start": 0.015,
+      "gain": -3,
+      "source": {
+        "type": "particles",
+        "distribution": "burst",
+        "density": 420,
+        "duration": 0.9,
+        "spread": 0.8,
+        "grain": {
+          "kind": "modal",
+          "material": "glass",
+          "shape": "plate",
+          "lo": 1500,
+          "hi": 9500,
+          "decayLo": 0.015,
+          "decayHi": 0.22,
+          "levelJitter": 16,
+          "size": 0.7
+        }
+      },
+      "sends": {
+        "kitchen": -12
+      }
+    },
+    {
+      "id": "floor",
+      "note": "Shards landing on tiles and settling: sparse bright pings, late.",
+      "start": 0.25,
+      "gain": -10,
+      "source": {
+        "type": "particles",
+        "distribution": "random",
+        "density": [
+          [
+            0,
+            45
+          ],
+          [
+            0.5,
+            18
+          ],
+          [
+            1.1,
+            2
+          ]
+        ],
+        "duration": 1.1,
+        "spread": 1,
+        "grain": {
+          "kind": "ping",
+          "lo": 3200,
+          "hi": 11000,
+          "decayLo": 0.02,
+          "decayHi": 0.12,
+          "levelJitter": 20
+        },
+        "env": {
+          "attack": 0.05,
+          "hold": 0.5,
+          "decay": 0.9
+        }
+      },
+      "sends": {
+        "kitchen": -10
+      }
+    }
+  ],
+  "buses": [
+    {
+      "id": "kitchen",
+      "fx": [
+        {
+          "type": "reverb",
+          "space": "bathroom",
+          "size": 4.5,
+          "decay": 0.55,
+          "predelay": 7
+        }
+      ]
+    }
+  ],
+  "controls": [
+    {
+      "id": "size",
+      "label": "Size",
+      "hint": "A drinking glass to a shop window.",
+      "value": 0.5,
+      "vary": 0.05,
+      "targets": [
+        {
+          "path": "tracks.crack.source.freq",
+          "mode": "mul",
+          "from": 2.4,
+          "to": 0.4
+        },
+        {
+          "path": "tracks.crack.source.decay",
+          "mode": "mul",
+          "from": 0.6,
+          "to": 1.9
+        },
+        {
+          "path": "tracks.shards.source.duration",
+          "mode": "set",
+          "from": 0.35,
+          "to": 1.9
+        },
+        {
+          "path": "tracks.shards.source.grain.lo",
+          "mode": "mul",
+          "from": 1.8,
+          "to": 0.5
+        },
+        {
+          "path": "tracks.shards.source.grain.decayHi",
+          "mode": "mul",
+          "from": 0.6,
+          "to": 1.8
+        },
+        {
+          "path": "tracks.floor.start",
+          "mode": "set",
+          "from": 0.12,
+          "to": 0.5
+        }
+      ]
+    },
+    {
+      "id": "pieces",
+      "label": "Pieces",
+      "hint": "A clean break into a few big pieces, or an explosion of splinters.",
+      "value": 0.5,
+      "vary": 0.08,
+      "targets": [
+        {
+          "path": "tracks.shards.source.density",
+          "mode": "set",
+          "from": 60,
+          "to": 1400
+        },
+        {
+          "path": "tracks.shards.source.grain.size",
+          "mode": "set",
+          "from": 0.95,
+          "to": 0.3,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "floor",
+      "label": "Floor",
+      "hint": "Carpet that swallows the pieces, or hard tiles they dance on.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.floor.gain",
+          "mode": "set",
+          "from": -40,
+          "to": -2,
+          "curve": -0.517
+        }
+      ]
+    },
+    {
+      "id": "force",
+      "label": "Force",
+      "hint": "A crack that lets go slowly, or a violent smash.",
+      "value": 0.6,
+      "vary": 0.08,
+      "targets": [
+        {
+          "path": "tracks.crack.source.exciter.duration",
+          "mode": "set",
+          "from": 0.12,
+          "to": 0.02
+        },
+        {
+          "path": "tracks.crack.gain",
+          "mode": "set",
+          "from": -8,
+          "to": 3
+        },
+        {
+          "path": "tracks.frame.gain",
+          "mode": "set",
+          "from": -20,
+          "to": -2
+        },
+        {
+          "path": "tracks.crack.source.brightness",
+          "mode": "set",
+          "from": 0.5,
+          "to": 0.95
+        }
+      ]
+    },
+    {
+      "id": "room",
+      "label": "Room",
+      "hint": "Dry, or a hard tiled room.",
+      "value": 0.35,
+      "targets": [
+        {
+          "path": "tracks.crack.sends.kitchen",
+          "mode": "set",
+          "from": -40,
+          "to": -4,
+          "curve": -0.688
+        },
+        {
+          "path": "tracks.shards.sends.kitchen",
+          "mode": "set",
+          "from": -40,
+          "to": -4,
+          "curve": -0.688
+        },
+        {
+          "path": "tracks.floor.sends.kitchen",
+          "mode": "set",
+          "from": -40,
+          "to": -3,
+          "curve": -0.775
+        }
+      ]
+    }
+  ]
+}

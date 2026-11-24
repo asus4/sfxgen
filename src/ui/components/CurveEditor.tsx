@@ -20,7 +20,7 @@ export interface CurveEditorProps {
 
 const PAD = 9;
 
-export function CurveEditor({ label, points, meta, curve, ink = 'var(--pink)', onChange, onCommit, height = 92 }: CurveEditorProps) {
+export function CurveEditor({ label, points, meta, curve, ink = 'var(--screen-ink)', onChange, onCommit, height = 92 }: CurveEditorProps) {
   const box = useRef<HTMLDivElement>(null);
   const { width } = useSize(box);
   const [active, setActive] = useState<number | null>(null);

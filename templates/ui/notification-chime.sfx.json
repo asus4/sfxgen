@@ -1,0 +1,149 @@
+{
+  "format": "sfxgen/1",
+  "name": "Notification chime",
+  "description": "Something arrived: three small FM bells stacked in fifths, 110 ms apart, each struck bright and mellowing within a quarter second while it rings on for a second. A single quiet echo and a studio plate put it a little way off, so it asks for attention without startling.",
+  "tags": [
+    "ui",
+    "notification",
+    "chime",
+    "bell",
+    "message",
+    "alert",
+    "arrive"
+  ],
+  "duration": "auto",
+  "seed": 6,
+  "tracks": [
+    {
+      "id": "bells",
+      "note": "The three notes: a strike whose overtones fade faster than the tone.",
+      "source": {
+        "type": "fm",
+        "freq": 784,
+        "algorithm": "stack",
+        "ops": [
+          {
+            "ratio": 1
+          },
+          {
+            "id": "strike",
+            "ratio": 3.5,
+            "index": 1.5,
+            "env": {
+              "decay": 0.28,
+              "sustain": 0.06
+            }
+          }
+        ],
+        "env": {
+          "attack": 0.002,
+          "decay": 1.1
+        }
+      },
+      "repeat": {
+        "count": 3,
+        "interval": 0.11,
+        "pitchStep": 7,
+        "decay": 1.5
+      },
+      "fx": [
+        {
+          "type": "delay",
+          "id": "echo",
+          "time": 230,
+          "feedback": 0.2,
+          "tone": 4000,
+          "mix": 0.12
+        },
+        {
+          "type": "reverb",
+          "id": "plate",
+          "space": "plate",
+          "decay": 1.2,
+          "mix": 0.18
+        }
+      ]
+    }
+  ],
+  "controls": [
+    {
+      "id": "pitch",
+      "label": "Pitch",
+      "hint": "A deep door chime to a small phone ping.",
+      "value": 0,
+      "min": -12,
+      "max": 12,
+      "step": 1,
+      "unit": "st",
+      "targets": [
+        {
+          "path": "tracks.bells.source.pitch",
+          "mode": "add",
+          "from": -12,
+          "to": 12,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "pace",
+      "label": "Pace",
+      "hint": "A quick flick of three notes to a slow, calm arpeggio.",
+      "value": 0.45,
+      "targets": [
+        {
+          "path": "tracks.bells.repeat.interval",
+          "from": 0.045,
+          "to": 0.26
+        }
+      ]
+    },
+    {
+      "id": "brightness",
+      "label": "Brightness",
+      "hint": "Soft and round to a hard, glittering strike.",
+      "value": 0.4,
+      "targets": [
+        {
+          "path": "tracks.bells.source.ops.strike.index",
+          "from": 0.3,
+          "to": 6,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "ring",
+      "label": "Ring",
+      "hint": "Short dry notes to long ringing ones.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.bells.source.env.decay",
+          "from": 0.25,
+          "to": 3
+        }
+      ]
+    },
+    {
+      "id": "space",
+      "label": "Space",
+      "hint": "Right at the screen to across a quiet room.",
+      "value": 0.4,
+      "targets": [
+        {
+          "path": "tracks.bells.fx.plate.mix",
+          "from": 0,
+          "to": 0.45,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.bells.fx.echo.mix",
+          "from": 0,
+          "to": 0.3,
+          "curve": "linear"
+        }
+      ]
+    }
+  ]
+}

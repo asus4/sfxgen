@@ -105,43 +105,57 @@ Serves the built editor and a small API over the `*.sfx.json` files under `dir`.
 | `PUT /api/wav?path=` | Writes WAV bytes (the editor's export) |
 | `POST /api/play?path=` | Asks every open editor to play that patch |
 | `GET /api/events` | Server-sent events: `file` (`{ path, mtime, origin }`, from the disk watcher or a PUT), `play` (`{ path }`), `focus` (`{ path, control }`) |
+| `GET /api/project` | `{ path, saved, project }`: the root's `sfxgen.project.json`, or (`saved: false`) the folder's patches as an unsaved project |
+| `PUT /api/project?origin=human` | Validates and writes `sfxgen.project.json` (422 with issues on errors) |
+| `POST /api/build` | Renders every sound (body `{ "only": [names] }` for some) in project context to its export path; returns the build rows |
+
+`/api/events` also sends `project` (`{ path, mtime, origin }`) when the project file changes.
 
 The editor opens `?file=<path>` directly. Vite's dev server proxies `/api` to `sfxgen serve --port 5179` when it runs.
 
 ## The editor
 
-### Art direction: "Ink & Signal"
+### Art direction: an instrument
 
-A risograph print shop for sound. Layering sounds is overprinting inks: each track is one ink, and where layers
-overlap on the timeline their colours multiply, as riso inks do. It should feel tactile, bold and playful (a
-creative tool, not a lab instrument) while staying precise where numbers matter.
+sfxgen is one instrument: a sound-effect synthesizer brought into the browser. The references are compact hardware
+synths and grooveboxes (Teenage Engineering's OP-1, Yamaha's SEQTRAK, Behringer's TD-3-AM): learn from them, never
+copy their layouts, graphics or trade dress.
 
-- **Paper and ink.** Light theme on a neutral, very slightly cool paper (not cream). Dark theme is black paper
-  with the inks glowing (screen blend). Track inks from the riso set: fluorescent pink `#FF48B0`, blue `#0078BF`,
-  yellow `#FFE800`, teal `#00838A`, orange `#FF6C2F`, green `#00A95C`, purple `#765BA7`, red `#FF665E`.
-- **Texture with restraint.** A faint paper grain and a 1 px misregistration on large display type; never on
-  numbers or controls.
-- **Type.** A bold grotesk for display and labels, a monospace for values, both open-licensed and bundled.
-- **Motion.** Knobs and waveforms respond immediately; a new render morphs the waveform rather than snapping;
-  agent edits flash like a highlighter on the knob they touched.
+- **One surface, clear zones.** A device body with a display, a control surface and a row of sound pads, all in
+  view at once on a desktop screen, as on a panel. No long scrolling page.
+- **Colour means something.** The body is monochrome (light or dark finish); colour appears only where it carries
+  meaning: each control has its own colour, and the display shows that colour where the control acts (the OP-1's
+  encoder-to-screen mapping); each track and each sound group has an ink.
+- **A display that's alive.** The waveform, spectrum and readouts live on a dark screen with bright, playful
+  graphics and a monospace readout font; it reacts while a sound plays.
+- **Pads with LEDs.** A project's sounds are pads: one press plays, selecting opens it; LEDs show playing, selected,
+  edited and touched-by-an-agent.
+- **Silkscreen restraint.** Small uppercase legends, hairline dividers, numbered sections. No faux 3D: controls turn
+  and light up; they don't jump or cast offset shadows when pressed.
 
 ### Layout
 
-1. **Header**: logo, patch name (editable), template gallery, open/save, export, share link, agent status (WebMCP
-   tools registered, live file link).
-2. **Stage**: the mix as a large overprinted waveform, each track in its ink, with a spectrogram view to toggle and a
-   playhead. Click to play from a point.
-3. **Lanes**: one per track: ink swatch, name, mute/solo, its waveform at its start time (drag to move).
-4. **Controls**: the patch's controls as large knobs and selectors with their hints. This is the default view.
-5. **Everything**: a toggle that reveals every parameter of the selected track (source, voice filter, envelope,
-   events, effects) and the master, generated from the node metadata; breakpoint parameters get a small curve
-   editor; any parameter can be pinned into the controls.
-6. **Agent notes and activity**: the patch's description and track notes, and a feed of agent edits.
+On a desktop screen everything is one panel with no page scroll (below 1040 × 640 px the zones stack):
+
+1. **01 Top strip**: logo, the project key (switch, create, delete projects), gallery, open, save, export, share,
+   undo and redo, WebMCP status, light or dark finish.
+2. **02 Display**: a dark screen with the sound's name and readouts (length, peak, LUFS, render time), the mix as a
+   waveform or spectrum with a playhead and a level meter, the tracks as lanes (mute, solo, drag to move), and the
+   agent's notes and activity. Under it, the transport: play, another take, surprise me.
+3. **03 Control surface**: the patch's controls as colour-coded knobs and selectors with their hints. Hovering or
+   turning one draws what it drives in its colour on the display. A **Controls | Everything** switch in its header
+   reveals every parameter of the selected track (source, voice filter, envelope, events, effects) and the master,
+   generated from the node metadata; breakpoint parameters get a small curve editor; any parameter can be pinned
+   into the controls.
+4. **04 Pads**: one per sound in the project (keys 1 to 9 and 0 play them), with LEDs for playing, edited by you and
+   touched by an agent. Mode keys swap the control surface for the **Mixer** (groups, gain faders, loudness and peak,
+   match loudness per group, play the set in turn) or **Project** settings (output, levelling, the shared master
+   chain, export folder). A single patch is a project of one.
 
 ### Behaviour
 
 - Re-render in a worker on every change (latest wins), cache unchanged tracks, show render time.
-- Space plays; auto-audition after a knob is released (a toggle); undo/redo.
+- Space plays; a knob plays the sound when it is released (always); undo/redo.
 - Template gallery: cards by category with a mini waveform; one click loads and plays.
 - "Another take" (new seed) and "Surprise me" (random values within the controls' ranges).
 - Export WAV (16/24/32-bit, mono/stereo, sample rate), variations, and the `.sfx.json`.

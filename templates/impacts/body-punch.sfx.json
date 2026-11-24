@@ -1,0 +1,265 @@
+{
+  "format": "sfxgen/1",
+  "name": "Body punch",
+  "description": "A film-style punch to the ribs, miked close. -45 ms: the sleeve cuts the air, a short swish rising in pitch; 0 ms: the fist lands, a wet leathery smack over a deep, dead thump of flesh (the chest gives, so the thump sags in pitch), with a dull knuckle-on-bone knock inside it; all of it is over in 150 ms, squeezed hard like a movie fight.",
+  "tags": [
+    "impact",
+    "punch",
+    "hit",
+    "body",
+    "fight",
+    "combat",
+    "meaty",
+    "smack"
+  ],
+  "duration": "auto",
+  "seed": 8,
+  "tracks": [
+    {
+      "id": "swish",
+      "note": "The arm coming: 45 ms of sleeve and air before the hit, cut off by it.",
+      "gain": -12,
+      "length": 0.047,
+      "source": {
+        "type": "noise",
+        "color": "pink",
+        "env": {
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              0.003,
+              0.3
+            ],
+            [
+              0.03,
+              0.6
+            ],
+            [
+              0.044,
+              1
+            ],
+            [
+              0.047,
+              0
+            ]
+          ],
+          "curve": "linear"
+        },
+        "filter": {
+          "mode": "bandpass",
+          "cutoff": [
+            [
+              0,
+              800
+            ],
+            [
+              0.045,
+              2600
+            ]
+          ],
+          "q": 1.6
+        }
+      }
+    },
+    {
+      "id": "flesh",
+      "note": "The thump: a soft dead mass, hit with a padded fist. The pitch sags as the body gives.",
+      "start": 0.045,
+      "source": {
+        "type": "modal",
+        "material": "rubber",
+        "shape": "membrane",
+        "freq": [
+          [
+            0,
+            128
+          ],
+          [
+            0.07,
+            84
+          ]
+        ],
+        "decay": 0.17,
+        "brightness": 0.4,
+        "modes": 14,
+        "position": 0.25,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.3
+        }
+      },
+      "fx": [
+        {
+          "type": "drive",
+          "mode": "tube",
+          "amount": 12,
+          "tone": 5000
+        }
+      ]
+    },
+    {
+      "id": "smack",
+      "note": "Skin and cloth: the wet slap on top, the part laptop speakers carry.",
+      "start": 0.044,
+      "gain": -3,
+      "source": {
+        "type": "noise",
+        "color": "pink",
+        "env": {
+          "attack": 0.001,
+          "hold": 0.004,
+          "decay": 0.07
+        },
+        "filter": {
+          "mode": "bandpass",
+          "cutoff": [
+            [
+              0,
+              2700
+            ],
+            [
+              0.035,
+              950
+            ]
+          ],
+          "q": 0.9
+        }
+      },
+      "fx": [
+        {
+          "type": "drive",
+          "mode": "soft",
+          "amount": 10
+        }
+      ]
+    },
+    {
+      "id": "bone",
+      "note": "Knuckles on ribs: a short woody knock inside the thump.",
+      "start": 0.047,
+      "gain": -8,
+      "source": {
+        "type": "modal",
+        "material": "wood",
+        "shape": "tube",
+        "freq": 372,
+        "decay": 0.045,
+        "damping": 2,
+        "modes": 7,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.6
+        }
+      }
+    }
+  ],
+  "master": {
+    "fx": [
+      {
+        "type": "compressor",
+        "threshold": -16,
+        "ratio": 4,
+        "attack": 0.012,
+        "release": 0.08,
+        "autoMakeup": true
+      }
+    ]
+  },
+  "controls": [
+    {
+      "id": "weight",
+      "label": "Weight",
+      "hint": "A jab to a heavyweight body blow: lower, longer, fatter.",
+      "value": 0.5,
+      "vary": 0.07,
+      "targets": [
+        {
+          "path": "tracks.flesh.source.freq",
+          "mode": "mul",
+          "from": 1.7,
+          "to": 0.6
+        },
+        {
+          "path": "tracks.flesh.source.decay",
+          "mode": "set",
+          "from": 0.09,
+          "to": 0.34
+        },
+        {
+          "path": "tracks.flesh.fx.0.amount",
+          "mode": "set",
+          "from": 4,
+          "to": 20
+        },
+        {
+          "path": "tracks.bone.source.freq",
+          "mode": "mul",
+          "from": 1.4,
+          "to": 0.75
+        }
+      ]
+    },
+    {
+      "id": "smack",
+      "label": "Smack",
+      "hint": "A muffled hit through a coat, or a bare wet slap.",
+      "value": 0.5,
+      "vary": 0.1,
+      "targets": [
+        {
+          "path": "tracks.smack.gain",
+          "mode": "set",
+          "from": -24,
+          "to": 1,
+          "curve": -0.664
+        },
+        {
+          "path": "tracks.smack.source.filter.cutoff",
+          "mode": "mul",
+          "from": 0.6,
+          "to": 1.6
+        }
+      ]
+    },
+    {
+      "id": "bone",
+      "label": "Bone",
+      "hint": "All soft tissue, or a crack of knuckle on rib.",
+      "value": 0.4,
+      "vary": 0.1,
+      "targets": [
+        {
+          "path": "tracks.bone.gain",
+          "mode": "set",
+          "from": -36,
+          "to": -1,
+          "curve": -0.679
+        },
+        {
+          "path": "tracks.bone.source.exciter.hardness",
+          "mode": "set",
+          "from": 0.4,
+          "to": 0.9
+        }
+      ]
+    },
+    {
+      "id": "swing",
+      "label": "Swing",
+      "hint": "No wind-up, or a big telegraphed swing you hear coming.",
+      "value": 0.45,
+      "targets": [
+        {
+          "path": "tracks.swish.gain",
+          "mode": "set",
+          "from": -48,
+          "to": -4,
+          "curve": -0.664
+        }
+      ]
+    }
+  ]
+}

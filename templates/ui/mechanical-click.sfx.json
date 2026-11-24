@@ -1,0 +1,145 @@
+{
+  "format": "sfxgen/1",
+  "name": "Mechanical click",
+  "description": "One key of a mechanical keyboard pressed home. The plastic stem snaps past the click leaf (a sharp 3 kHz tick at 0 ms), bottoms out on the plate 11 ms later (a lower, boxier knock around 520 Hz) and the coil spring under it answers with a faint high ping for 100 ms. Close, dry, on a desk.",
+  "tags": [
+    "ui",
+    "click",
+    "keyboard",
+    "switch",
+    "mechanical",
+    "key",
+    "hard"
+  ],
+  "duration": "auto",
+  "seed": 7,
+  "tracks": [
+    {
+      "id": "snap",
+      "note": "The click leaf: the first 3 ms, bright and thin. This is what makes it mechanical.",
+      "source": {
+        "type": "modal",
+        "material": "plastic",
+        "shape": "tine",
+        "freq": 3200,
+        "decay": 0.025,
+        "brightness": 0.9,
+        "position": 0.8,
+        "modes": 10,
+        "exciter": {
+          "kind": "impulse"
+        }
+      }
+    },
+    {
+      "id": "bottom",
+      "note": "The stem hitting the plate: the weight of the key, a few ms after the snap.",
+      "start": 0.011,
+      "gain": -2,
+      "source": {
+        "type": "modal",
+        "material": "plastic",
+        "shape": "box",
+        "freq": 520,
+        "decay": 0.055,
+        "dent": 0.2,
+        "position": 0.5,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.7
+        }
+      }
+    },
+    {
+      "id": "spring",
+      "note": "The coil spring ringing after the hit: quiet, but it is the tail that says metal inside plastic.",
+      "start": 0.012,
+      "gain": -20,
+      "source": {
+        "type": "pluck",
+        "freq": 143,
+        "decay": 0.14,
+        "stiffness": 0.92,
+        "brightness": 0.85,
+        "position": 0.07,
+        "hardness": 0.9,
+        "filter": {
+          "mode": "highpass",
+          "cutoff": 1600
+        }
+      }
+    }
+  ],
+  "controls": [
+    {
+      "id": "travel",
+      "label": "Travel",
+      "hint": "A short laptop key to a deep, slow switch: the gap between the snap and the bottom.",
+      "value": 0.35,
+      "vary": 0.05,
+      "targets": [
+        {
+          "path": "tracks.bottom.start",
+          "from": 0.003,
+          "to": 0.03,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.spring.start",
+          "from": 0.004,
+          "to": 0.031,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "weight",
+      "label": "Weight",
+      "hint": "A light keycap to a heavy one on a thick plate.",
+      "value": 0.5,
+      "vary": 0.06,
+      "targets": [
+        {
+          "path": "tracks.bottom.source.freq",
+          "mode": "mul",
+          "from": 1.7,
+          "to": 0.55
+        },
+        {
+          "path": "tracks.bottom.gain",
+          "mode": "add",
+          "from": -5,
+          "to": 3
+        }
+      ]
+    },
+    {
+      "id": "snap",
+      "label": "Snap",
+      "hint": "A quiet linear switch to a loud clicky one.",
+      "value": 0.6,
+      "targets": [
+        {
+          "path": "tracks.snap.gain",
+          "from": -24,
+          "to": 6,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "spring",
+      "label": "Spring",
+      "hint": "How much the spring pings after the key lands.",
+      "value": 0.4,
+      "targets": [
+        {
+          "path": "tracks.spring.gain",
+          "from": -40,
+          "to": -6,
+          "curve": "linear"
+        }
+      ]
+    }
+  ]
+}

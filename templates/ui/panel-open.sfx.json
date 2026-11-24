@@ -1,0 +1,196 @@
+{
+  "format": "sfxgen/1",
+  "name": "Panel open",
+  "description": "A panel unfolding into view: a soft synthetic tone that climbs a fifth and opens from dull to clear over 200 ms, pushing a breath of air outward ahead of it, then settles in a small room. Gentle and rounded; nothing lands.",
+  "tags": [
+    "ui",
+    "panel",
+    "open",
+    "expand",
+    "menu",
+    "popup",
+    "appear",
+    "window"
+  ],
+  "duration": "auto",
+  "seed": 12,
+  "tracks": [
+    {
+      "id": "tone",
+      "note": "The panel: harmonics that are let in as it opens, on a rising pitch.",
+      "source": {
+        "type": "additive",
+        "freq": 330,
+        "pitch": [
+          [
+            0,
+            0
+          ],
+          [
+            0.2,
+            7
+          ]
+        ],
+        "harmonics": 10,
+        "tilt": [
+          [
+            0,
+            -20
+          ],
+          [
+            0.2,
+            -5
+          ]
+        ],
+        "odd": 0.6,
+        "decay": 0,
+        "env": {
+          "attack": 0.06,
+          "decay": 0.38
+        }
+      }
+    },
+    {
+      "id": "air",
+      "note": "Displaced air, rising with the tone: the size of the thing that moved.",
+      "gain": -10,
+      "source": {
+        "type": "noise",
+        "color": "pink",
+        "env": {
+          "attack": 0.1,
+          "decay": 0.16
+        },
+        "filter": {
+          "mode": "bandpass",
+          "cutoff": [
+            [
+              0,
+              900
+            ],
+            [
+              0.22,
+              6000
+            ]
+          ],
+          "q": 0.9
+        }
+      }
+    }
+  ],
+  "master": {
+    "fx": [
+      {
+        "type": "reverb",
+        "id": "room",
+        "space": "room",
+        "decay": 0.5,
+        "mix": 0.14
+      }
+    ]
+  },
+  "controls": [
+    {
+      "id": "size",
+      "label": "Size",
+      "hint": "A small tooltip to a full-screen sheet: lower and slower.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.tone.source.freq",
+          "mode": "mul",
+          "from": 2,
+          "to": 0.5
+        },
+        {
+          "path": "tracks.tone.source.pitch",
+          "mode": "stretch",
+          "from": 0.5,
+          "to": 2
+        },
+        {
+          "path": "tracks.tone.source.tilt",
+          "mode": "stretch",
+          "from": 0.5,
+          "to": 2
+        },
+        {
+          "path": "tracks.tone.source.env",
+          "mode": "stretch",
+          "from": 0.5,
+          "to": 2
+        },
+        {
+          "path": "tracks.air.source.env",
+          "mode": "stretch",
+          "from": 0.5,
+          "to": 2
+        },
+        {
+          "path": "tracks.air.source.filter.cutoff",
+          "mode": "stretch",
+          "from": 0.5,
+          "to": 2
+        }
+      ]
+    },
+    {
+      "id": "brightness",
+      "label": "Brightness",
+      "hint": "Muffled and felt-like to open and reedy.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.tone.source.tilt",
+          "mode": "mul",
+          "from": 1.5,
+          "to": 0.5,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "rise",
+      "label": "Rise",
+      "hint": "Almost level to a clear upward leap.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.tone.source.pitch",
+          "mode": "mul",
+          "from": 0.28,
+          "to": 1.72,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "air",
+      "label": "Air",
+      "hint": "A pure tone to mostly a breath of air.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.air.gain",
+          "from": -36,
+          "to": -2,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "space",
+      "label": "Space",
+      "hint": "Flat on the glass to a panel in a room.",
+      "value": 0.3,
+      "targets": [
+        {
+          "path": "master.fx.room.mix",
+          "from": 0,
+          "to": 0.45,
+          "curve": "linear"
+        }
+      ]
+    }
+  ]
+}

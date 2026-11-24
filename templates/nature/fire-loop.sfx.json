@@ -1,0 +1,272 @@
+{
+  "format": "sfxgen/1",
+  "name": "Crackling fire (loop)",
+  "description": "A campfire of dry pine an arm's length away: the soft low flutter of the flames, a steady fine crackle from the embers, sharp resin pops a few times a second with a little wooden knock in each, and now and then a hiss of sap. A 5 s loop; the flames and pops are random, and the end is crossfaded into the start over 0.5 s.",
+  "tags": [
+    "nature",
+    "fire",
+    "campfire",
+    "crackle",
+    "loop",
+    "ambience",
+    "flames",
+    "torch"
+  ],
+  "duration": 5,
+  "loop": {
+    "mode": "crossfade",
+    "crossfade": 0.5
+  },
+  "seed": 13,
+  "tracks": [
+    {
+      "id": "flames",
+      "note": "The flames: low noise that flutters irregularly at 8 to 12 times a second, as burning gas does. The warmth and the size of the fire.",
+      "gain": -7,
+      "source": {
+        "type": "noise",
+        "color": "pink",
+        "env": {
+          "attack": 0.01
+        },
+        "filter": {
+          "mode": "bandpass",
+          "cutoff": {
+            "value": 300,
+            "mod": [
+              {
+                "type": "wander",
+                "rate": 3,
+                "depth": 5,
+                "unit": "st"
+              }
+            ]
+          },
+          "q": 0.6
+        }
+      },
+      "fx": [
+        {
+          "id": "flutter",
+          "type": "tremolo",
+          "rate": {
+            "value": 10,
+            "mod": [
+              {
+                "type": "wander",
+                "rate": 2,
+                "depth": 3
+              }
+            ]
+          },
+          "depth": 0.6,
+          "shape": "random"
+        },
+        {
+          "type": "gain",
+          "gain": {
+            "value": 0,
+            "mod": [
+              {
+                "type": "wander",
+                "rate": 0.7,
+                "depth": 3
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "embers",
+      "note": "The fine crackle: dense tiny pops with very uneven levels. The texture that says \"fire\" on any speaker.",
+      "gain": -10,
+      "source": {
+        "type": "noise",
+        "color": "crackle",
+        "density": 55,
+        "env": {
+          "attack": 0.01
+        },
+        "filter": {
+          "mode": "highpass",
+          "cutoff": 1400
+        }
+      }
+    },
+    {
+      "id": "pops",
+      "note": "Resin pockets bursting: sharp ragged pops, a few a second, some much louder than the rest.",
+      "source": {
+        "type": "particles",
+        "density": 7,
+        "duration": 6,
+        "grain": {
+          "kind": "crackle",
+          "lo": 900,
+          "hi": 6500,
+          "decayLo": 0.004,
+          "decayHi": 0.03,
+          "levelJitter": 16,
+          "size": 0.6
+        }
+      }
+    },
+    {
+      "id": "wood",
+      "note": "The logs themselves cracking: small wooden knocks under some of the pops, so the fire is made of wood.",
+      "gain": 0,
+      "source": {
+        "type": "particles",
+        "density": 2.2,
+        "duration": 6,
+        "grain": {
+          "kind": "modal",
+          "material": "wood",
+          "shape": "bar",
+          "lo": 260,
+          "hi": 1200,
+          "decayLo": 0.02,
+          "decayHi": 0.07,
+          "levelJitter": 18,
+          "size": 0.8
+        }
+      }
+    }
+  ],
+  "master": {
+    "fx": [
+      {
+        "type": "eq",
+        "bands": [
+          {
+            "mode": "lowcut",
+            "freq": 60,
+            "slope": "12"
+          }
+        ]
+      },
+      {
+        "type": "limiter",
+        "gain": 9,
+        "release": 0.08
+      }
+    ],
+    "normalize": {
+      "mode": "peak",
+      "target": -2
+    }
+  },
+  "controls": [
+    {
+      "id": "size",
+      "label": "Size",
+      "hint": "A candle-sized flame to a roaring bonfire.",
+      "value": 0.45,
+      "targets": [
+        {
+          "path": "tracks.flames.gain",
+          "mode": "set",
+          "from": -26,
+          "to": 1
+        },
+        {
+          "path": "tracks.flames.source.filter.cutoff.value",
+          "mode": "set",
+          "from": 700,
+          "to": 180
+        },
+        {
+          "path": "tracks.flames.fx.flutter.rate.value",
+          "mode": "set",
+          "from": 15,
+          "to": 6
+        },
+        {
+          "path": "tracks.wood.gain",
+          "mode": "set",
+          "from": -14,
+          "to": 6
+        }
+      ]
+    },
+    {
+      "id": "crackle",
+      "label": "Crackle",
+      "hint": "Glowing quietly to spitting and snapping.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.pops.source.density",
+          "mode": "set",
+          "from": 1.2,
+          "to": 30
+        },
+        {
+          "path": "tracks.embers.source.density",
+          "mode": "set",
+          "from": 12,
+          "to": 220
+        }
+      ]
+    },
+    {
+      "id": "distance",
+      "label": "Distance",
+      "hint": "Face in the heat to across the camp: the crackle softens, the flutter stays.",
+      "value": 0.15,
+      "targets": [
+        {
+          "path": "tracks.embers.gain",
+          "mode": "set",
+          "from": -8,
+          "to": -26
+        },
+        {
+          "path": "tracks.pops.gain",
+          "mode": "set",
+          "from": 1,
+          "to": -14
+        }
+      ]
+    },
+    {
+      "id": "dryness",
+      "label": "Wood",
+      "hint": "Damp, hissing logs to bone-dry kindling: sharper, brighter pops.",
+      "value": 0.6,
+      "targets": [
+        {
+          "path": "tracks.pops.source.pitch",
+          "mode": "set",
+          "from": -9,
+          "to": 7
+        },
+        {
+          "path": "tracks.embers.source.filter.cutoff",
+          "mode": "set",
+          "from": 500,
+          "to": 2600
+        },
+        {
+          "path": "tracks.pops.source.grain.decayHi",
+          "mode": "set",
+          "from": 0.07,
+          "to": 0.012
+        },
+        {
+          "path": "tracks.pops.gain",
+          "mode": "add",
+          "from": -8,
+          "to": 4
+        },
+        {
+          "path": "tracks.embers.gain",
+          "mode": "add",
+          "from": 5,
+          "to": -5
+        }
+      ]
+    }
+  ]
+}

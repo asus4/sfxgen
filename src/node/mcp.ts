@@ -20,6 +20,7 @@ const INSTRUCTIONS = [
   'sfxgen designs sound effects as JSON patches that render deterministically.',
   'Workflow: describe_format once, then list_templates + new_from_template (or set_patch), set_controls for the knobs a person should get,',
   'then loop edit_patch -> render_and_analyze (with spectrogram: true when shape matters) until the numbers and image match the intent.',
+  'For a set of sounds made to be heard together (a game\'s sound effects): get_project, edit_project, balance_project to level them, build_project to write the WAVs.',
   'Call open_editor so the person can see and tweak the patch, play it for them, and check get_human_changes before editing after they have.',
 ].join(' ');
 

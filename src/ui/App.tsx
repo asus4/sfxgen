@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react';
 import { importFile, onGlobalKey, start } from './controller';
-import { AgentPanel } from './components/AgentPanel';
-import { ControlsPanel } from './components/ControlsPanel';
-import { Everything } from './components/Everything';
-import { ExportDialog } from './components/ExportDialog';
+import { EasyStrip, Surface } from './components/ControlsPanel';
+import { Display } from './components/Display';
+import { BuildReport, ExportDialog } from './components/ExportDialog';
 import { Gallery } from './components/Gallery';
-import { Header } from './components/Header';
-import { Timeline } from './components/Timeline';
+import { Pads } from './components/Pads';
+import { TopStrip } from './components/TopStrip';
 import { useEditor } from './store';
 
 function Toasts() {
@@ -24,7 +23,6 @@ function Toasts() {
 }
 
 export function App() {
-  const everything = useEditor((s) => s.everything);
   const [dropping, setDropping] = useState(false);
 
   useEffect(() => {
@@ -55,30 +53,26 @@ export function App() {
       onDrop={(e) => {
         e.preventDefault();
         setDropping(false);
-        const file = [...e.dataTransfer.files].find((f) => f.name.endsWith('.json'));
-        if (file) void importFile(file);
-        else useEditor.getState().toast('Drop a .sfx.json file', 'error');
+        const files = [...e.dataTransfer.files].filter((f) => f.name.endsWith('.json'));
+        if (files.length === 0) useEditor.getState().toast('Drop .sfx.json files, or a .sfxproj.json bundle', 'error');
+        // One after another, so each new pad gets its own unique name.
+        void (async () => {
+          for (const f of files) await importFile(f);
+        })();
       }}
     >
-      <Header />
-      <main className="main">
-        <div className="top">
-          <Timeline />
-          <AgentPanel />
-        </div>
-        <ControlsPanel />
-        {everything && <Everything />}
-      </main>
-      <footer className="colophon">
-        <span>
-          <kbd>Space</kbd> play · <kbd>G</kbd> gallery · <kbd>E</kbd> everything · <kbd>⌘Z</kbd> undo · drop a <code>.sfx.json</code> anywhere
-        </span>
-        <span>sfxgen · sounds as JSON, printed in ink</span>
-      </footer>
+      <div className="device">
+        <TopStrip />
+        <Pads />
+        <Display />
+        <EasyStrip />
+        <Surface />
+      </div>
       <Gallery />
       <ExportDialog />
+      <BuildReport />
       <Toasts />
-      {dropping && <div className="drop-hint display">Drop it on the press</div>}
+      {dropping && <div className="drop-hint">Drop to add to the set</div>}
     </div>
   );
 }

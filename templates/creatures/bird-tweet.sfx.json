@@ -1,0 +1,240 @@
+{
+  "format": "sfxgen/1",
+  "name": "Bird tweet",
+  "description": "A robin-sized songbird on a branch ten metres away, one phrase: four clear whistled notes that each swoop down and flick up (every 115 ms, drifting higher), then a fast dry trill of a dozen chips from 520 ms that tumbles down and stops at 800 ms. The wood answers softly.",
+  "tags": [
+    "creature",
+    "bird",
+    "tweet",
+    "song",
+    "chirp",
+    "forest",
+    "morning",
+    "nature"
+  ],
+  "duration": "auto",
+  "seed": 17,
+  "tracks": [
+    {
+      "id": "whistle",
+      "note": "The whistled notes: a nearly pure tone from the syrinx with a fast swoop in each note. The second voice of the syrinx adds a faint shimmer above.",
+      "repeat": {
+        "count": 4,
+        "interval": 0.115,
+        "pitchStep": 1.2,
+        "pitchJitter": 0.8,
+        "jitter": 0.006,
+        "velJitter": 0.25
+      },
+      "source": {
+        "type": "fm",
+        "algorithm": "pairs",
+        "freq": [
+          [
+            0,
+            4300
+          ],
+          [
+            0.03,
+            2950
+          ],
+          [
+            0.055,
+            3250
+          ],
+          [
+            0.075,
+            4700
+          ]
+        ],
+        "ops": [
+          {
+            "ratio": 1
+          },
+          {
+            "ratio": 1,
+            "index": 0.5,
+            "env": {
+              "decay": 0.06
+            }
+          },
+          {
+            "ratio": 1.503,
+            "level": 0.16
+          }
+        ],
+        "env": {
+          "attack": 0.006,
+          "hold": 0.045,
+          "decay": 0.045
+        }
+      }
+    },
+    {
+      "id": "trill",
+      "note": "The rattle that ends the phrase: quick falling chips at about 30 a second, the whole run sliding down a third.",
+      "start": 0.52,
+      "gain": 10,
+      "source": {
+        "type": "particles",
+        "distribution": "regular",
+        "jitter": 0.12,
+        "density": [
+          [
+            0,
+            26
+          ],
+          [
+            0.28,
+            38
+          ]
+        ],
+        "duration": 0.28,
+        "pitch": [
+          [
+            0,
+            0
+          ],
+          [
+            0.28,
+            -4
+          ]
+        ],
+        "grain": {
+          "kind": "chirp",
+          "lo": 4600,
+          "hi": 5200,
+          "sweep": -0.7,
+          "decayLo": 0.014,
+          "decayHi": 0.022,
+          "levelJitter": 5
+        }
+      }
+    }
+  ],
+  "master": {
+    "fx": [
+      {
+        "type": "eq",
+        "bands": [
+          {
+            "mode": "lowcut",
+            "freq": 900,
+            "slope": "24"
+          }
+        ]
+      },
+      {
+        "id": "wood",
+        "type": "reverb",
+        "space": "forest",
+        "mix": 0.2
+      }
+    ]
+  },
+  "controls": [
+    {
+      "id": "size",
+      "label": "Size",
+      "hint": "A tiny wren to a blackbird: lower, rounder notes.",
+      "value": 0.4,
+      "vary": 0.05,
+      "targets": [
+        {
+          "path": "tracks.whistle.source.pitch",
+          "mode": "set",
+          "from": 7,
+          "to": -11
+        },
+        {
+          "path": "tracks.trill.source.grain.lo",
+          "mode": "mul",
+          "from": 1.5,
+          "to": 0.52
+        },
+        {
+          "path": "tracks.trill.source.grain.hi",
+          "mode": "mul",
+          "from": 1.5,
+          "to": 0.52
+        }
+      ]
+    },
+    {
+      "id": "tempo",
+      "label": "Tempo",
+      "hint": "A lazy song to a hurried one.",
+      "value": 0.5,
+      "vary": 0.08,
+      "targets": [
+        {
+          "path": "tracks.whistle.repeat.interval",
+          "mode": "set",
+          "from": 0.2,
+          "to": 0.075
+        },
+        {
+          "path": "tracks.trill.source.density",
+          "mode": "mul",
+          "from": 0.6,
+          "to": 1.7
+        }
+      ]
+    },
+    {
+      "id": "melody",
+      "label": "Melody",
+      "hint": "Every note the same, to a phrase that climbs and wanders.",
+      "value": 0.5,
+      "vary": 0.15,
+      "targets": [
+        {
+          "path": "tracks.whistle.repeat.pitchStep",
+          "mode": "set",
+          "from": -0.5,
+          "to": 3
+        },
+        {
+          "path": "tracks.whistle.repeat.pitchJitter",
+          "mode": "set",
+          "from": 0,
+          "to": 2.5
+        }
+      ]
+    },
+    {
+      "id": "trill",
+      "label": "Trill",
+      "hint": "Whistles only, to a long rattle at the end.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.trill.gain",
+          "mode": "set",
+          "from": -24,
+          "to": 12
+        },
+        {
+          "path": "tracks.trill.source.duration",
+          "mode": "set",
+          "from": 0.12,
+          "to": 0.55
+        }
+      ]
+    },
+    {
+      "id": "distance",
+      "label": "Distance",
+      "hint": "On your windowsill to far off in the wood.",
+      "value": 0.35,
+      "targets": [
+        {
+          "path": "master.fx.wood.mix",
+          "mode": "set",
+          "from": 0.02,
+          "to": 0.6
+        }
+      ]
+    }
+  ]
+}

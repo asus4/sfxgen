@@ -1,0 +1,251 @@
+{
+  "format": "sfxgen/1",
+  "name": "Footstep: leather shoe on concrete",
+  "description": "One step of a hard-soled leather shoe on a polished concrete corridor floor. 0 ms: the stacked leather heel lands with a short, hard, slightly hollow tock; 95 ms later the sole rolls down with a softer, duller pat and a faint scuff of grit under it; the corridor gives each a short hard slap. Use the variations for a walk.",
+  "tags": [
+    "footstep",
+    "step",
+    "shoe",
+    "concrete",
+    "walk",
+    "heel",
+    "corridor",
+    "foley"
+  ],
+  "duration": "auto",
+  "seed": 12,
+  "tracks": [
+    {
+      "id": "heel",
+      "note": "Heel strike: a small hard block (the heel) on stone.",
+      "source": {
+        "type": "modal",
+        "material": "wood",
+        "shape": "bar",
+        "freq": 690,
+        "decay": 0.035,
+        "damping": 1.8,
+        "brightness": 0.55,
+        "modes": 12,
+        "dent": 0.2,
+        "position": 0.6,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.78
+        }
+      },
+      "sends": {
+        "hall": -15
+      }
+    },
+    {
+      "id": "slab",
+      "note": "The floor answering: a dead stone thump that gives the step its weight.",
+      "start": 0.001,
+      "gain": -5,
+      "source": {
+        "type": "modal",
+        "material": "stone",
+        "shape": "plate",
+        "freq": 132,
+        "decay": 0.07,
+        "damping": 2,
+        "brightness": 0.3,
+        "modes": 10,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.4
+        }
+      },
+      "events": [
+        {
+          "t": 0,
+          "vel": 1
+        },
+        {
+          "t": 0.095,
+          "vel": 0.5,
+          "pitch": 2
+        }
+      ]
+    },
+    {
+      "id": "sole",
+      "note": "The sole rolling down 95 ms after the heel: leather pat and a little grit scuff.",
+      "start": 0.093,
+      "gain": -9,
+      "source": {
+        "type": "noise",
+        "color": "pink",
+        "env": {
+          "attack": 0.003,
+          "decay": 0.05
+        },
+        "filter": {
+          "mode": "bandpass",
+          "cutoff": [
+            [
+              0,
+              2400
+            ],
+            [
+              0.04,
+              1300
+            ]
+          ],
+          "q": 0.9
+        }
+      },
+      "sends": {
+        "hall": -15
+      }
+    }
+  ],
+  "buses": [
+    {
+      "id": "hall",
+      "fx": [
+        {
+          "type": "reverb",
+          "space": "stairwell",
+          "size": 9,
+          "decay": 0.6,
+          "predelay": 9,
+          "highcut": 6000
+        }
+      ]
+    }
+  ],
+  "controls": [
+    {
+      "id": "shoe",
+      "label": "Shoe",
+      "hint": "A soft sneaker that pads, to a dress shoe, to a hard stiletto click.",
+      "value": 0.55,
+      "vary": 0.03,
+      "targets": [
+        {
+          "path": "tracks.heel.source.exciter.hardness",
+          "mode": "set",
+          "from": 0.25,
+          "to": 1
+        },
+        {
+          "path": "tracks.heel.source.freq",
+          "mode": "mul",
+          "from": 0.55,
+          "to": 2.3
+        },
+        {
+          "path": "tracks.heel.gain",
+          "mode": "set",
+          "from": -10,
+          "to": 2
+        },
+        {
+          "path": "tracks.sole.gain",
+          "mode": "set",
+          "from": -5,
+          "to": -14
+        }
+      ]
+    },
+    {
+      "id": "weight",
+      "label": "Weight",
+      "hint": "A light quick step to a heavy stomp.",
+      "value": 0.45,
+      "vary": 0.08,
+      "targets": [
+        {
+          "path": "tracks.slab.gain",
+          "mode": "set",
+          "from": -16,
+          "to": 3
+        },
+        {
+          "path": "tracks.slab.source.freq",
+          "mode": "mul",
+          "from": 1.4,
+          "to": 0.75
+        },
+        {
+          "path": "tracks.slab.source.decay",
+          "mode": "set",
+          "from": 0.045,
+          "to": 0.13
+        }
+      ]
+    },
+    {
+      "id": "pace",
+      "label": "Pace",
+      "hint": "A slow stroll with the heel and sole far apart, to a run where they land together.",
+      "value": 0.45,
+      "vary": 0.07,
+      "targets": [
+        {
+          "path": "tracks.sole.start",
+          "mode": "set",
+          "from": 0.17,
+          "to": 0.012
+        },
+        {
+          "path": "tracks.slab.events.1.t",
+          "mode": "set",
+          "from": 0.172,
+          "to": 0.014
+        }
+      ]
+    },
+    {
+      "id": "scuff",
+      "label": "Scuff",
+      "hint": "A clean placed step, or a dragged sole on a gritty floor.",
+      "value": 0.35,
+      "vary": 0.12,
+      "targets": [
+        {
+          "path": "tracks.sole.source.env.decay",
+          "mode": "set",
+          "from": 0.03,
+          "to": 0.2
+        },
+        {
+          "path": "tracks.sole.source.filter.q",
+          "mode": "set",
+          "from": 1.2,
+          "to": 0.5
+        },
+        {
+          "path": "tracks.sole.source.env.attack",
+          "mode": "set",
+          "from": 0.002,
+          "to": 0.02
+        }
+      ]
+    },
+    {
+      "id": "hall",
+      "label": "Corridor",
+      "hint": "Dry, or a long empty corridor.",
+      "value": 0.4,
+      "targets": [
+        {
+          "path": "tracks.heel.sends.hall",
+          "mode": "set",
+          "from": -40,
+          "to": -3,
+          "curve": -0.408
+        },
+        {
+          "path": "tracks.sole.sends.hall",
+          "mode": "set",
+          "from": -40,
+          "to": -3,
+          "curve": -0.408
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,204 @@
+{
+  "format": "sfxgen/1",
+  "name": "Swipe",
+  "description": "A card flicked sideways across a touchscreen: 180 ms of air that swells and rises in pitch as the finger accelerates, with a faint hollow whistle from the gap under the card. No click at either end; it starts from nothing and thins out.",
+  "tags": [
+    "ui",
+    "swipe",
+    "whoosh",
+    "slide",
+    "transition",
+    "air",
+    "page"
+  ],
+  "duration": "auto",
+  "seed": 11,
+  "tracks": [
+    {
+      "id": "air",
+      "note": "The movement: a band of noise sweeping with the gesture.",
+      "source": {
+        "type": "noise",
+        "color": "pink",
+        "env": {
+          "attack": 0.09,
+          "decay": 0.13
+        },
+        "filter": {
+          "mode": "bandpass",
+          "cutoff": [
+            [
+              0,
+              650
+            ],
+            [
+              0.17,
+              4200
+            ]
+          ],
+          "q": 1.3
+        }
+      }
+    },
+    {
+      "id": "gap",
+      "note": "A hollow pitch inside the air, so the direction is heard and not only felt.",
+      "gain": -11,
+      "source": {
+        "type": "noise",
+        "color": "white",
+        "env": {
+          "attack": 0.07,
+          "decay": 0.12
+        }
+      },
+      "fx": [
+        {
+          "type": "resonator",
+          "id": "pipe",
+          "mode": "tube",
+          "freq": [
+            [
+              0,
+              480
+            ],
+            [
+              0.17,
+              1500
+            ]
+          ],
+          "decay": 0.06,
+          "brightness": 0.3
+        }
+      ]
+    }
+  ],
+  "controls": [
+    {
+      "id": "direction",
+      "label": "Direction",
+      "hint": "Rising for forward or open, falling for back or dismiss.",
+      "value": 0,
+      "widget": "select",
+      "options": [
+        {
+          "label": "Up",
+          "set": {
+            "tracks.air.source.filter.cutoff": [
+              [
+                0,
+                650
+              ],
+              [
+                0.17,
+                4200
+              ]
+            ],
+            "tracks.gap.fx.pipe.freq": [
+              [
+                0,
+                480
+              ],
+              [
+                0.17,
+                1500
+              ]
+            ]
+          }
+        },
+        {
+          "label": "Down",
+          "set": {
+            "tracks.air.source.filter.cutoff": [
+              [
+                0,
+                4200
+              ],
+              [
+                0.17,
+                650
+              ]
+            ],
+            "tracks.gap.fx.pipe.freq": [
+              [
+                0,
+                1500
+              ],
+              [
+                0.17,
+                480
+              ]
+            ]
+          }
+        }
+      ],
+      "targets": []
+    },
+    {
+      "id": "speed",
+      "label": "Speed",
+      "hint": "A slow drag to a quick flick.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.air.source.env",
+          "mode": "stretch",
+          "from": 2.4,
+          "to": 0.45
+        },
+        {
+          "path": "tracks.air.source.filter.cutoff",
+          "mode": "stretch",
+          "from": 2.4,
+          "to": 0.45
+        },
+        {
+          "path": "tracks.gap.source.env",
+          "mode": "stretch",
+          "from": 2.4,
+          "to": 0.45
+        },
+        {
+          "path": "tracks.gap.fx.pipe.freq",
+          "mode": "stretch",
+          "from": 2.4,
+          "to": 0.45
+        }
+      ]
+    },
+    {
+      "id": "brightness",
+      "label": "Brightness",
+      "hint": "A heavy sheet moving to a thin, airy flick.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.air.source.filter.cutoff",
+          "mode": "mul",
+          "from": 0.45,
+          "to": 2.2
+        },
+        {
+          "path": "tracks.gap.fx.pipe.freq",
+          "mode": "mul",
+          "from": 0.6,
+          "to": 1.6
+        }
+      ]
+    },
+    {
+      "id": "whistle",
+      "label": "Whistle",
+      "hint": "Plain air to a clear hollow pitch in it.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.gap.gain",
+          "from": -34,
+          "to": 0,
+          "curve": "linear"
+        }
+      ]
+    }
+  ]
+}

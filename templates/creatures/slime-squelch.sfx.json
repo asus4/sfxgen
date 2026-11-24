@@ -1,0 +1,276 @@
+{
+  "format": "sfxgen/1",
+  "name": "Slime squelch",
+  "description": "A fist-sized blob of slime dropping onto a stone floor and pulling itself together: a soft rubbery splat at 0, the wet suck of its skin peeling off the stone from 40 to 260 ms (a mouth-like \"shhluck\" that closes), and a dozen fat bubbles popping inside it until about 350 ms. Close and dry.",
+  "tags": [
+    "creature",
+    "slime",
+    "squelch",
+    "goo",
+    "wet",
+    "blob",
+    "gross",
+    "footstep"
+  ],
+  "duration": "auto",
+  "seed": 8,
+  "tracks": [
+    {
+      "id": "splat",
+      "gain": -4,
+      "note": "The body landing: a dead rubber skin hit softly. No ring, only a round thump at 100 to 200 Hz.",
+      "source": {
+        "type": "modal",
+        "material": "rubber",
+        "shape": "membrane",
+        "freq": [
+          [
+            0,
+            150
+          ],
+          [
+            0.09,
+            96
+          ]
+        ],
+        "decay": 0.16,
+        "brightness": 0.3,
+        "position": 0.2,
+        "modes": 5,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.22
+        }
+      }
+    },
+    {
+      "id": "suck",
+      "note": "The squelch: wet noise through a small mouth that goes from open to closed, so it says \"shluck\". The vowel sweep is the stickiness.",
+      "start": 0.04,
+      "gain": 6,
+      "source": {
+        "type": "noise",
+        "color": "pink",
+        "env": {
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              0.03,
+              1
+            ],
+            [
+              0.12,
+              0.55
+            ],
+            [
+              0.19,
+              0.9
+            ],
+            [
+              0.24,
+              0
+            ]
+          ],
+          "curve": "linear"
+        },
+        "filter": {
+          "mode": "lowpass",
+          "cutoff": [
+            [
+              0,
+              7500
+            ],
+            [
+              0.22,
+              1300
+            ]
+          ],
+          "q": 1.4
+        }
+      },
+      "fx": [
+        {
+          "id": "mouth",
+          "type": "formant",
+          "vowel": [
+            [
+              0,
+              0.2
+            ],
+            [
+              0.13,
+              1.6
+            ],
+            [
+              0.22,
+              4
+            ]
+          ],
+          "size": 0.8,
+          "resonance": 1.9,
+          "mix": 0.75
+        },
+        {
+          "type": "tremolo",
+          "rate": [
+            [
+              0,
+              60
+            ],
+            [
+              0.22,
+              24
+            ]
+          ],
+          "depth": 0.55,
+          "shape": "random"
+        }
+      ]
+    },
+    {
+      "id": "bubbles",
+      "note": "Air pockets popping in the goo: rising-pitch drops, biggest first. They make it thick liquid, not water.",
+      "start": 0.07,
+      "gain": 2,
+      "source": {
+        "type": "particles",
+        "distribution": "burst",
+        "density": 70,
+        "duration": 0.36,
+        "grain": {
+          "kind": "drop",
+          "lo": 240,
+          "hi": 1300,
+          "decayLo": 0.012,
+          "decayHi": 0.06,
+          "levelJitter": 14,
+          "size": 0.8
+        }
+      }
+    }
+  ],
+  "master": {
+    "fx": [
+      {
+        "type": "compressor",
+        "threshold": -14,
+        "ratio": 3,
+        "attack": 0.004,
+        "release": 0.08,
+        "autoMakeup": true
+      }
+    ]
+  },
+  "controls": [
+    {
+      "id": "size",
+      "label": "Size",
+      "hint": "A drip of goo to a bucket-sized blob: lower, fatter bubbles and a heavier splat.",
+      "value": 0.45,
+      "vary": 0.08,
+      "targets": [
+        {
+          "path": "tracks.splat.source.freq",
+          "mode": "mul",
+          "from": 1.9,
+          "to": 0.55
+        },
+        {
+          "path": "tracks.splat.source.decay",
+          "mode": "set",
+          "from": 0.09,
+          "to": 0.3
+        },
+        {
+          "path": "tracks.bubbles.source.pitch",
+          "mode": "set",
+          "from": 10,
+          "to": -10
+        },
+        {
+          "path": "tracks.suck.fx.mouth.size",
+          "mode": "set",
+          "from": 0.5,
+          "to": 1.5
+        }
+      ]
+    },
+    {
+      "id": "sticky",
+      "label": "Stickiness",
+      "hint": "A quick wet slap to a long, reluctant peel.",
+      "value": 0.45,
+      "vary": 0.08,
+      "targets": [
+        {
+          "path": "tracks.suck.source.env.points",
+          "mode": "stretch",
+          "from": 0.45,
+          "to": 2.2
+        },
+        {
+          "path": "tracks.suck.fx.mouth.vowel",
+          "mode": "stretch",
+          "from": 0.45,
+          "to": 2.2
+        },
+        {
+          "path": "tracks.suck.source.filter.cutoff",
+          "mode": "stretch",
+          "from": 0.45,
+          "to": 2.2
+        },
+        {
+          "path": "tracks.bubbles.source.duration",
+          "mode": "set",
+          "from": 0.18,
+          "to": 0.8
+        }
+      ]
+    },
+    {
+      "id": "bubbly",
+      "label": "Bubbles",
+      "hint": "Smooth jelly to a fizzing, popping mass.",
+      "value": 0.5,
+      "vary": 0.05,
+      "targets": [
+        {
+          "path": "tracks.bubbles.gain",
+          "mode": "set",
+          "from": -18,
+          "to": 12
+        },
+        {
+          "path": "tracks.bubbles.source.density",
+          "mode": "set",
+          "from": 25,
+          "to": 220
+        }
+      ]
+    },
+    {
+      "id": "wet",
+      "label": "Wetness",
+      "hint": "Thick and dull to thin, glistening and splashy.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.suck.gain",
+          "mode": "set",
+          "from": -14,
+          "to": 2
+        },
+        {
+          "path": "tracks.suck.source.filter.cutoff",
+          "mode": "mul",
+          "from": 0.5,
+          "to": 2
+        }
+      ]
+    }
+  ]
+}

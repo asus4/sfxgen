@@ -1,20 +1,193 @@
 {
   "format": "sfxgen/1",
   "name": "Soft confirm",
-  "description": "Two rounded triangle notes a fifth apart: a friendly OK.",
-  "tags": ["ui", "confirm", "positive", "chime"],
+  "description": "A friendly yes: two small glass tumblers tapped with a felt stick, the second a fourth above the first and 85 ms later, answering it. Each has the uneven partials of real glass and a slow shimmer; the felt gives a short warm bump under each note. A small bright room keeps them from sounding like a test tone.",
+  "tags": [
+    "ui",
+    "confirm",
+    "ok",
+    "accept",
+    "positive",
+    "chime",
+    "glass"
+  ],
   "duration": "auto",
   "seed": 1,
   "tracks": [
     {
       "id": "notes",
-      "note": "Two notes; the second is the answer.",
-      "source": { "type": "osc", "wave": "triangle", "freq": 880, "env": { "attack": 0.003, "decay": 0.35 }, "filter": { "mode": "lowpass", "cutoff": 4000 } },
-      "events": [{ "t": 0 }, { "t": 0.07, "pitch": 7 }]
+      "note": "The two glasses; the second note is the answer.",
+      "source": {
+        "type": "additive",
+        "freq": 1046,
+        "partials": [
+          {
+            "ratio": 1
+          },
+          {
+            "ratio": 2.32,
+            "amp": 0.6
+          },
+          {
+            "ratio": 4.25,
+            "amp": 0.35
+          },
+          {
+            "ratio": 6.63,
+            "amp": 0.15
+          }
+        ],
+        "decay": 0.6,
+        "damping": 0.8,
+        "beat": 3,
+        "env": {
+          "attack": 0.002
+        },
+        "pitch": [
+          [
+            0,
+            0
+          ],
+          [
+            0.085,
+            5,
+            "hold"
+          ]
+        ]
+      },
+      "events": [
+        {
+          "t": 0,
+          "vel": 0.75,
+          "dur": 0.085
+        },
+        {
+          "t": 0.085
+        }
+      ]
+    },
+    {
+      "id": "felt",
+      "note": "The felt stick: a short octave-below bump that gives the notes weight on small speakers.",
+      "gain": -9,
+      "source": {
+        "type": "osc",
+        "wave": "sine",
+        "freq": 523,
+        "env": {
+          "attack": 0.002,
+          "decay": 0.09
+        },
+        "pitch": [
+          [
+            0,
+            0
+          ],
+          [
+            0.085,
+            5,
+            "hold"
+          ]
+        ]
+      },
+      "events": [
+        {
+          "t": 0,
+          "vel": 0.75,
+          "dur": 0.085
+        },
+        {
+          "t": 0.085
+        }
+      ]
     }
   ],
+  "master": {
+    "fx": [
+      {
+        "type": "reverb",
+        "id": "room",
+        "space": "room",
+        "size": 4,
+        "decay": 0.45,
+        "damping": 0.2,
+        "mix": 0.14
+      }
+    ]
+  },
   "controls": [
-    { "id": "pitch", "label": "Pitch", "hint": "Higher is lighter and more toy-like.", "value": 0, "min": -12, "max": 12, "step": 1, "unit": "st", "targets": [{ "path": "tracks.notes.source.pitch", "mode": "set", "from": -12, "to": 12, "curve": "linear" }] },
-    { "id": "length", "label": "Length", "hint": "Short tick to a lingering chime.", "value": 0.5, "targets": [{ "path": "tracks.notes.source.env.decay", "from": 0.12, "to": 1.2, "curve": "exp" }] }
+    {
+      "id": "pitch",
+      "label": "Pitch",
+      "hint": "Higher is lighter and more toy-like; lower is calmer.",
+      "value": 0,
+      "min": -12,
+      "max": 12,
+      "step": 1,
+      "unit": "st",
+      "targets": [
+        {
+          "path": "tracks.notes.source.pitch",
+          "mode": "add",
+          "from": -12,
+          "to": 12,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.felt.source.pitch",
+          "mode": "add",
+          "from": -12,
+          "to": 12,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "length",
+      "label": "Length",
+      "hint": "Two quick taps to a lingering chime.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.notes.source.decay",
+          "from": 0.15,
+          "to": 1.8
+        }
+      ]
+    },
+    {
+      "id": "shimmer",
+      "label": "Shimmer",
+      "hint": "Plain glass to a slow, beating sparkle in a bigger room.",
+      "value": 0.3,
+      "targets": [
+        {
+          "path": "tracks.notes.source.beat",
+          "from": 0,
+          "to": 10,
+          "curve": "linear"
+        },
+        {
+          "path": "master.fx.room.mix",
+          "from": 0.04,
+          "to": 0.38,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "warmth",
+      "label": "Warmth",
+      "hint": "Thin and glassy to round and padded.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.felt.gain",
+          "from": -30,
+          "to": 0,
+          "curve": "linear"
+        }
+      ]
+    }
   ]
 }

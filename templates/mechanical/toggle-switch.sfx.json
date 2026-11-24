@@ -1,0 +1,192 @@
+{
+  "format": "sfxgen/1",
+  "name": "Toggle switch",
+  "description": "A chunky metal bat-handle toggle switch on an aluminium control panel, flipped up with a thumb. 0 ms: the lever passes centre with a faint plastic tick; 14 ms later the spring throws the contact home with a hard, bright snap; the panel it is bolted to answers with a short boxy \"tok\" that makes it sound mounted in something. Dry and close, like an aircraft cockpit.",
+  "tags": [
+    "mechanical",
+    "switch",
+    "toggle",
+    "click",
+    "snap",
+    "cockpit",
+    "button",
+    "ui",
+    "flip"
+  ],
+  "duration": "auto",
+  "seed": 10,
+  "tracks": [
+    {
+      "id": "tick",
+      "note": "The lever going over centre: the small pre-click.",
+      "gain": -13,
+      "source": {
+        "type": "modal",
+        "material": "plastic",
+        "shape": "bar",
+        "freq": 2350,
+        "decay": 0.012,
+        "modes": 8,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.7
+        }
+      }
+    },
+    {
+      "id": "snap",
+      "note": "The spring-loaded contact landing: a tiny steel bar, bright and very short.",
+      "start": 0.014,
+      "source": {
+        "type": "modal",
+        "material": "metal",
+        "shape": "bar",
+        "freq": 1720,
+        "decay": 0.035,
+        "damping": 3.2,
+        "brightness": 0.5,
+        "modes": 10,
+        "dent": 0.2,
+        "position": 0.9,
+        "exciter": {
+          "kind": "impulse",
+          "hardness": 0.95
+        }
+      }
+    },
+    {
+      "id": "panel",
+      "note": "The panel the switch is bolted to: a short boxy answer that gives it a size.",
+      "start": 0.0145,
+      "gain": -2,
+      "source": {
+        "type": "modal",
+        "material": "plastic",
+        "shape": "box",
+        "freq": 410,
+        "decay": 0.05,
+        "damping": 1.4,
+        "brightness": 0.45,
+        "modes": 14,
+        "dent": 0.2,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.6
+        }
+      }
+    }
+  ],
+  "controls": [
+    {
+      "id": "size",
+      "label": "Size",
+      "hint": "A tiny slide switch to a big knife-switch breaker.",
+      "value": 0.45,
+      "vary": 0.02,
+      "targets": [
+        {
+          "path": "tracks.snap.source.pitch",
+          "mode": "set",
+          "from": 14,
+          "to": -17,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.tick.source.pitch",
+          "mode": "set",
+          "from": 10,
+          "to": -12,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.panel.source.freq",
+          "mode": "mul",
+          "from": 2,
+          "to": 0.42
+        },
+        {
+          "path": "tracks.panel.source.decay",
+          "mode": "set",
+          "from": 0.025,
+          "to": 0.16
+        },
+        {
+          "path": "tracks.snap.source.decay",
+          "mode": "set",
+          "from": 0.02,
+          "to": 0.1
+        }
+      ]
+    },
+    {
+      "id": "throw",
+      "label": "Throw",
+      "hint": "A crisp short-travel click, or a long lazy lever with a gap between tick and snap.",
+      "value": 0.3,
+      "vary": 0.05,
+      "targets": [
+        {
+          "path": "tracks.snap.start",
+          "mode": "set",
+          "from": 0.004,
+          "to": 0.06
+        },
+        {
+          "path": "tracks.panel.start",
+          "mode": "set",
+          "from": 0.0045,
+          "to": 0.0605
+        },
+        {
+          "path": "tracks.tick.gain",
+          "mode": "set",
+          "from": -22,
+          "to": -5
+        }
+      ]
+    },
+    {
+      "id": "panel",
+      "label": "Panel",
+      "hint": "A bare switch in the hand, or one mounted in a hollow console that knocks.",
+      "value": 0.5,
+      "vary": 0.05,
+      "targets": [
+        {
+          "path": "tracks.panel.gain",
+          "mode": "set",
+          "from": -30,
+          "to": 2,
+          "curve": -0.792
+        }
+      ]
+    },
+    {
+      "id": "metal",
+      "label": "Metal",
+      "hint": "A soft plastic rocker to a ringing all-metal toggle.",
+      "value": 0.5,
+      "vary": 0.05,
+      "targets": [
+        {
+          "path": "tracks.snap.source.damping",
+          "mode": "set",
+          "from": 6,
+          "to": 1.2
+        },
+        {
+          "path": "tracks.snap.source.brightness",
+          "mode": "set",
+          "from": 0.25,
+          "to": 0.7
+        },
+        {
+          "path": "tracks.snap.source.exciter.hardness",
+          "mode": "set",
+          "from": 0.5,
+          "to": 1
+        }
+      ]
+    }
+  ]
+}

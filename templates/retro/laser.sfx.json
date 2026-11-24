@@ -1,0 +1,202 @@
+{
+  "format": "sfxgen/1",
+  "name": "Laser",
+  "description": "A shot from a home-computer sound chip with a real filter. A pulse falls from 2.1 kHz to 260 Hz in 140 ms while its width opens from a thin sliver to a square, and the chip's resonant low-pass closes behind it. The player routine retriggers it twice more, quieter each time, 70 ms apart: the cheap echo of the era. Low sample rate leaves metallic aliasing on top.",
+  "tags": [
+    "retro",
+    "8-bit",
+    "chiptune",
+    "laser",
+    "shoot",
+    "pew",
+    "zap",
+    "c64"
+  ],
+  "duration": "auto",
+  "seed": 5,
+  "tracks": [
+    {
+      "id": "shot",
+      "note": "The shot and its two software echoes.",
+      "source": {
+        "type": "osc",
+        "wave": "pulse",
+        "freq": [
+          [
+            0,
+            2100
+          ],
+          [
+            0.14,
+            260
+          ]
+        ],
+        "pw": [
+          [
+            0,
+            0.08
+          ],
+          [
+            0.14,
+            0.5
+          ]
+        ],
+        "env": {
+          "points": [
+            [
+              0,
+              1
+            ],
+            [
+              0.14,
+              0.45
+            ],
+            [
+              0.19,
+              0
+            ]
+          ],
+          "curve": "linear"
+        },
+        "filter": {
+          "mode": "lowpass",
+          "cutoff": [
+            [
+              0,
+              9000
+            ],
+            [
+              0.14,
+              900
+            ]
+          ],
+          "q": 3
+        }
+      },
+      "repeat": {
+        "count": 3,
+        "interval": 0.07,
+        "decay": -9
+      },
+      "fx": [
+        {
+          "type": "crush",
+          "id": "chip",
+          "bits": 8,
+          "rate": 15000
+        },
+        {
+          "type": "eq",
+          "bands": [
+            {
+              "mode": "lowcut",
+              "freq": 140,
+              "slope": "24"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "master": {
+    "normalize": {
+      "mode": "peak",
+      "target": -3
+    }
+  },
+  "controls": [
+    {
+      "id": "pitch",
+      "label": "Pitch",
+      "hint": "A heavy cannon to a small pea-shooter.",
+      "value": 0.5,
+      "vary": 0.03,
+      "targets": [
+        {
+          "path": "tracks.shot.source.freq",
+          "mode": "mul",
+          "from": 0.45,
+          "to": 2.2
+        }
+      ]
+    },
+    {
+      "id": "speed",
+      "label": "Speed",
+      "hint": "A long descending beam to a quick pew.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.shot.source.freq",
+          "mode": "stretch",
+          "from": 2.5,
+          "to": 0.4
+        },
+        {
+          "path": "tracks.shot.source.pw",
+          "mode": "stretch",
+          "from": 2.5,
+          "to": 0.4
+        },
+        {
+          "path": "tracks.shot.source.filter.cutoff",
+          "mode": "stretch",
+          "from": 2.5,
+          "to": 0.4
+        },
+        {
+          "path": "tracks.shot.source.env",
+          "mode": "stretch",
+          "from": 2.5,
+          "to": 0.4
+        },
+        {
+          "path": "tracks.shot.repeat.interval",
+          "mode": "mul",
+          "from": 2.5,
+          "to": 0.4
+        }
+      ]
+    },
+    {
+      "id": "echo",
+      "label": "Echo",
+      "hint": "A single dry shot to three that trail off down a corridor.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.shot.repeat.decay",
+          "from": -24,
+          "to": -3,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "squelch",
+      "label": "Squelch",
+      "hint": "A plain pulse to a wet, whistling filter sweep.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.shot.source.filter.q",
+          "from": 0.7,
+          "to": 12
+        }
+      ]
+    },
+    {
+      "id": "grit",
+      "label": "Grit",
+      "hint": "A clean chip to a cheap one that rings and aliases.",
+      "value": 0.4,
+      "targets": [
+        {
+          "path": "tracks.shot.fx.chip.rate",
+          "from": 30000,
+          "to": 4500
+        }
+      ]
+    }
+  ]
+}

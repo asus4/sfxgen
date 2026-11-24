@@ -1,0 +1,244 @@
+{
+  "format": "sfxgen/1",
+  "name": "Footstep: creaky wooden floor",
+  "description": "One slow step on an old floorboard in a quiet house at night. 0 ms: a socked heel lands with a low hollow thump, the board booming over the space under it; from 50 ms, as the weight comes on, the board rubs on its nail and creaks: a stick-slip groan of about 300 ms that starts near 220 Hz, sags, and ends in a few separate ticks as it stops. Use the variations for a walk.",
+  "tags": [
+    "footstep",
+    "step",
+    "wood",
+    "floorboard",
+    "creak",
+    "squeak",
+    "house",
+    "horror",
+    "sneak",
+    "foley"
+  ],
+  "duration": "auto",
+  "seed": 4,
+  "tracks": [
+    {
+      "id": "thump",
+      "note": "The step: a soft heel on a long plank over a hollow.",
+      "source": {
+        "type": "modal",
+        "material": "wood",
+        "shape": "box",
+        "freq": 91,
+        "decay": 0.2,
+        "damping": 1.4,
+        "brightness": 0.4,
+        "modes": 18,
+        "dent": 0.3,
+        "position": 0.3,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.3
+        }
+      },
+      "sends": {
+        "house": -14
+      }
+    },
+    {
+      "id": "creak",
+      "note": "The board rubbing on its nail under the weight: wood scraped over evenly spaced ridges, slowing to single ticks.",
+      "start": 0.05,
+      "gain": -9,
+      "source": {
+        "type": "modal",
+        "material": "wood",
+        "shape": "bar",
+        "freq": 470,
+        "decay": 0.05,
+        "damping": 0.8,
+        "brightness": 0.7,
+        "modes": 18,
+        "dent": 0.5,
+        "position": 0.8,
+        "exciter": {
+          "kind": "scrape",
+          "hardness": 0.55,
+          "duration": 0.32,
+          "roughness": 0.12,
+          "density": {
+            "env": [
+              [
+                0,
+                232
+              ],
+              [
+                0.1,
+                171
+              ],
+              [
+                0.22,
+                196
+              ],
+              [
+                0.29,
+                60
+              ],
+              [
+                0.32,
+                22
+              ]
+            ],
+            "mod": [
+              {
+                "type": "wander",
+                "rate": 9,
+                "depth": 35,
+                "unit": "cents"
+              }
+            ]
+          }
+        }
+      },
+      "sends": {
+        "house": -14
+      }
+    }
+  ],
+  "buses": [
+    {
+      "id": "house",
+      "fx": [
+        {
+          "type": "reverb",
+          "space": "room",
+          "size": 5,
+          "decay": 0.5,
+          "damping": 0.6
+        }
+      ]
+    }
+  ],
+  "controls": [
+    {
+      "id": "creak",
+      "label": "Creak",
+      "hint": "A sound board that only thumps, or a loud long complaint.",
+      "value": 0.55,
+      "vary": 0.12,
+      "targets": [
+        {
+          "path": "tracks.creak.gain",
+          "mode": "set",
+          "from": -40,
+          "to": -1,
+          "curve": -0.46
+        },
+        {
+          "path": "tracks.creak.source.exciter.duration",
+          "mode": "set",
+          "from": 0.14,
+          "to": 0.6
+        },
+        {
+          "path": "tracks.creak.source.exciter.density",
+          "mode": "stretch",
+          "from": 0.44,
+          "to": 1.9
+        }
+      ]
+    },
+    {
+      "id": "pitch",
+      "label": "Board",
+      "hint": "A thick old beam that groans low, to a thin dry board that squeaks.",
+      "value": 0.45,
+      "vary": 0.1,
+      "targets": [
+        {
+          "path": "tracks.creak.source.exciter.density",
+          "mode": "mul",
+          "from": 0.4,
+          "to": 3
+        },
+        {
+          "path": "tracks.creak.source.freq",
+          "mode": "mul",
+          "from": 0.6,
+          "to": 1.9
+        },
+        {
+          "path": "tracks.thump.source.freq",
+          "mode": "mul",
+          "from": 0.8,
+          "to": 1.3
+        }
+      ]
+    },
+    {
+      "id": "weight",
+      "label": "Weight",
+      "hint": "A cat-light step to a heavy man.",
+      "value": 0.5,
+      "vary": 0.08,
+      "targets": [
+        {
+          "path": "tracks.thump.gain",
+          "mode": "set",
+          "from": -14,
+          "to": 4
+        },
+        {
+          "path": "tracks.thump.source.freq",
+          "mode": "mul",
+          "from": 1.3,
+          "to": 0.75
+        },
+        {
+          "path": "tracks.thump.source.decay",
+          "mode": "set",
+          "from": 0.12,
+          "to": 0.34
+        }
+      ]
+    },
+    {
+      "id": "shoe",
+      "label": "Shoe",
+      "hint": "Bare feet and socks, or hard boots that knock.",
+      "value": 0.25,
+      "vary": 0.05,
+      "targets": [
+        {
+          "path": "tracks.thump.source.exciter.hardness",
+          "mode": "set",
+          "from": 0.15,
+          "to": 0.85
+        },
+        {
+          "path": "tracks.thump.source.brightness",
+          "mode": "set",
+          "from": 0.3,
+          "to": 0.65
+        }
+      ]
+    },
+    {
+      "id": "house",
+      "label": "House",
+      "hint": "Close and dry, or an empty room.",
+      "value": 0.35,
+      "targets": [
+        {
+          "path": "tracks.thump.sends.house",
+          "mode": "set",
+          "from": -40,
+          "to": -4,
+          "curve": -0.563
+        },
+        {
+          "path": "tracks.creak.sends.house",
+          "mode": "set",
+          "from": -40,
+          "to": -4,
+          "curve": -0.563
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,252 @@
+{
+  "format": "sfxgen/1",
+  "name": "Jump take-off",
+  "description": "A runner in trainers jumping straight up from a wooden gym floor: the crouch loads the boards for 60 ms with a creak-less push (a soft double thump as heel then toe leave, 0 and 45 ms), the soles scuff grit as they twist off, and the body goes up through its own clothes with a short rising rush of air from 50 to 300 ms. No cartoon boing: the effort is in the push.",
+  "tags": [
+    "movement",
+    "jump",
+    "take-off",
+    "leap",
+    "footstep",
+    "player",
+    "platformer",
+    "foley"
+  ],
+  "duration": "auto",
+  "seed": 7,
+  "tracks": [
+    {
+      "id": "push",
+      "note": "The floor taking the push: a wooden box struck softly twice, the toe higher and lighter than the heel. The physical part of the jump.",
+      "events": [
+        {
+          "t": 0
+        },
+        {
+          "t": 0.045,
+          "pitch": 4,
+          "vel": 0.7
+        }
+      ],
+      "source": {
+        "type": "modal",
+        "material": "wood",
+        "shape": "box",
+        "freq": 118,
+        "decay": 0.13,
+        "position": 0.3,
+        "brightness": 0.35,
+        "dent": 0.15,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.38
+        }
+      }
+    },
+    {
+      "id": "scuff",
+      "note": "Rubber soles twisting on dust: a short burst of fine grit ticks at the toe-off.",
+      "start": 0.035,
+      "gain": 6,
+      "source": {
+        "type": "particles",
+        "distribution": "burst",
+        "density": 900,
+        "duration": 0.07,
+        "grain": {
+          "kind": "tick",
+          "lo": 1500,
+          "hi": 6000,
+          "decayLo": 0.002,
+          "decayHi": 0.008,
+          "levelJitter": 12
+        }
+      }
+    },
+    {
+      "id": "lift",
+      "note": "The body rising: air and cloth rushing, its pitch climbing as the jumper accelerates away from the floor. This is what says \"up\".",
+      "start": 0.05,
+      "gain": -2,
+      "source": {
+        "type": "noise",
+        "color": "pink",
+        "env": {
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              0.05,
+              1
+            ],
+            [
+              0.14,
+              0.45
+            ],
+            [
+              0.26,
+              0
+            ]
+          ],
+          "curve": "linear"
+        },
+        "filter": {
+          "mode": "bandpass",
+          "cutoff": [
+            [
+              0,
+              450
+            ],
+            [
+              0.24,
+              2100
+            ]
+          ],
+          "q": 1.3
+        }
+      }
+    }
+  ],
+  "master": {
+    "fx": [
+      {
+        "id": "gym",
+        "type": "reverb",
+        "space": "room",
+        "mix": 0.08
+      }
+    ]
+  },
+  "controls": [
+    {
+      "id": "effort",
+      "label": "Effort",
+      "hint": "A little hop to an all-out leap: harder push, longer rush of air.",
+      "value": 0.5,
+      "vary": 0.08,
+      "targets": [
+        {
+          "path": "tracks.push.source.exciter.hardness",
+          "mode": "set",
+          "from": 0.2,
+          "to": 0.62
+        },
+        {
+          "path": "tracks.lift.gain",
+          "mode": "set",
+          "from": -16,
+          "to": 4
+        },
+        {
+          "path": "tracks.lift.source.env.points",
+          "mode": "stretch",
+          "from": 0.6,
+          "to": 1.6
+        },
+        {
+          "path": "tracks.lift.source.filter.cutoff",
+          "mode": "stretch",
+          "from": 0.6,
+          "to": 1.6
+        }
+      ]
+    },
+    {
+      "id": "floor",
+      "label": "Floor",
+      "hint": "What they jump from: boards, packed earth, a metal deck or stone.",
+      "widget": "select",
+      "value": 0,
+      "options": [
+        {
+          "label": "Wood",
+          "set": {
+            "tracks.push.source.material": "wood",
+            "tracks.push.source.shape": "box",
+            "tracks.push.source.freq": 118,
+            "tracks.push.source.decay": 0.13
+          }
+        },
+        {
+          "label": "Earth",
+          "set": {
+            "tracks.push.source.material": "cardboard",
+            "tracks.push.source.shape": "membrane",
+            "tracks.push.source.freq": 90,
+            "tracks.push.source.decay": 0.07
+          }
+        },
+        {
+          "label": "Metal",
+          "set": {
+            "tracks.push.source.material": "metal",
+            "tracks.push.source.shape": "plate",
+            "tracks.push.source.freq": 140,
+            "tracks.push.source.decay": 0.5
+          }
+        },
+        {
+          "label": "Stone",
+          "set": {
+            "tracks.push.source.material": "stone",
+            "tracks.push.source.shape": "box",
+            "tracks.push.source.freq": 170,
+            "tracks.push.source.decay": 0.06
+          }
+        }
+      ]
+    },
+    {
+      "id": "weight",
+      "label": "Weight",
+      "hint": "A child to a knight in armour: lower, longer thumps.",
+      "value": 0.45,
+      "vary": 0.06,
+      "targets": [
+        {
+          "path": "tracks.push.source.pitch",
+          "mode": "set",
+          "from": 9,
+          "to": -9
+        },
+        {
+          "path": "tracks.push.gain",
+          "mode": "set",
+          "from": -6,
+          "to": 3
+        }
+      ]
+    },
+    {
+      "id": "grit",
+      "label": "Grit",
+      "hint": "A clean floor to a dusty one that scuffs.",
+      "value": 0.45,
+      "vary": 0.1,
+      "targets": [
+        {
+          "path": "tracks.scuff.gain",
+          "mode": "set",
+          "from": -24,
+          "to": 12
+        }
+      ]
+    },
+    {
+      "id": "lift",
+      "label": "Lift",
+      "hint": "How steeply the rush of air rises: a heavy heave to a light spring.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.lift.source.filter.cutoff",
+          "mode": "mul",
+          "from": 0.55,
+          "to": 1.9
+        }
+      ]
+    }
+  ]
+}

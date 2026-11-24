@@ -1,0 +1,257 @@
+{
+  "format": "sfxgen/1",
+  "name": "Coin dropped and settling",
+  "description": "A large coin dropped a hand-width onto a wooden table top. 0 ms: it lands on its edge with a bright ring; it hops four or five times, faster and faster and a little wild because it is spinning; near 600 ms it falls onto its face and wobbles round its rim, the rattle speeding up and rising in pitch as it flattens, until it stops dead at about 1.4 s. The table knocks softly under the first hits.",
+  "tags": [
+    "impact",
+    "coin",
+    "drop",
+    "metal",
+    "money",
+    "spin",
+    "settle",
+    "ring",
+    "pickup"
+  ],
+  "duration": "auto",
+  "seed": 19,
+  "tracks": [
+    {
+      "id": "hops",
+      "note": "The coin bouncing on its edge: one small metal disc, each hop sooner and softer.",
+      "source": {
+        "type": "particles",
+        "distribution": "bounce",
+        "interval": 0.19,
+        "ratio": 0.68,
+        "jitter": 0.35,
+        "duration": 0.7,
+        "grain": {
+          "kind": "modal",
+          "material": "metal",
+          "shape": "plate",
+          "lo": 3950,
+          "hi": 3950,
+          "decayLo": 0.35,
+          "decayHi": 0.35,
+          "levelJitter": 3,
+          "pitchJitter": 0.4
+        }
+      },
+      "fx": [
+        {
+          "type": "eq",
+          "bands": [
+            {
+              "mode": "highshelf",
+              "freq": 9000,
+              "gain": -14
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "wobble",
+      "note": "The spin-down: the coin rolling round its rim, faster and higher until it lies flat.",
+      "start": 0.55,
+      "gain": -7,
+      "source": {
+        "type": "modal",
+        "material": "metal",
+        "shape": "plate",
+        "freq": [
+          [
+            0,
+            3700
+          ],
+          [
+            0.8,
+            4300
+          ]
+        ],
+        "decay": 0.12,
+        "damping": 2.2,
+        "brightness": 0.3,
+        "modes": 8,
+        "position": 0.95,
+        "exciter": {
+          "kind": "roll",
+          "hardness": 0.8,
+          "duration": 0.85,
+          "density": [
+            [
+              0,
+              14
+            ],
+            [
+              0.5,
+              45
+            ],
+            [
+              0.85,
+              210
+            ]
+          ],
+          "roughness": 0.25
+        }
+      }
+    },
+    {
+      "id": "table",
+      "note": "The table top under the first hits: a soft wooden knock that gives it a place.",
+      "gain": -12,
+      "source": {
+        "type": "modal",
+        "material": "wood",
+        "shape": "plate",
+        "freq": 176,
+        "decay": 0.09,
+        "brightness": 0.3,
+        "modes": 10,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.5
+        }
+      },
+      "events": [
+        {
+          "t": 0,
+          "vel": 1
+        },
+        {
+          "t": 0.19,
+          "vel": 0.45
+        },
+        {
+          "t": 0.32,
+          "vel": 0.2
+        }
+      ]
+    }
+  ],
+  "master": {
+    "fx": [
+      {
+        "type": "reverb",
+        "id": "room",
+        "space": "room",
+        "decay": 0.4,
+        "mix": 0.08
+      }
+    ]
+  },
+  "controls": [
+    {
+      "id": "size",
+      "label": "Coin",
+      "hint": "A tiny thin coin that tinks to a heavy silver dollar.",
+      "value": 0.5,
+      "vary": 0.03,
+      "targets": [
+        {
+          "path": "tracks.hops.source.pitch",
+          "mode": "set",
+          "from": 10,
+          "to": -10,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.wobble.source.pitch",
+          "mode": "set",
+          "from": 10,
+          "to": -10,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.hops.source.grain.decayHi",
+          "mode": "set",
+          "from": 0.15,
+          "to": 0.7
+        },
+        {
+          "path": "tracks.hops.source.grain.decayLo",
+          "mode": "set",
+          "from": 0.15,
+          "to": 0.7
+        }
+      ]
+    },
+    {
+      "id": "height",
+      "label": "Height",
+      "hint": "Slipped from the fingers, or dropped from standing: longer hops.",
+      "value": 0.4,
+      "vary": 0.08,
+      "targets": [
+        {
+          "path": "tracks.hops.source.interval",
+          "mode": "set",
+          "from": 0.08,
+          "to": 0.42
+        },
+        {
+          "path": "tracks.hops.source.duration",
+          "mode": "set",
+          "from": 0.4,
+          "to": 1.3
+        },
+        {
+          "path": "tracks.wobble.start",
+          "mode": "set",
+          "from": 0.3,
+          "to": 1.15
+        }
+      ]
+    },
+    {
+      "id": "spin",
+      "label": "Spin",
+      "hint": "Lands flat and stops, or spins down in a long rising rattle.",
+      "value": 0.5,
+      "vary": 0.08,
+      "targets": [
+        {
+          "path": "tracks.wobble.gain",
+          "mode": "set",
+          "from": -40,
+          "to": -2,
+          "curve": -0.766
+        },
+        {
+          "path": "tracks.wobble.source.exciter.duration",
+          "mode": "set",
+          "from": 0.3,
+          "to": 1.8
+        },
+        {
+          "path": "tracks.wobble.source.exciter.density",
+          "mode": "stretch",
+          "from": 0.35,
+          "to": 2.1
+        },
+        {
+          "path": "tracks.wobble.source.freq",
+          "mode": "stretch",
+          "from": 0.35,
+          "to": 2.1
+        }
+      ]
+    },
+    {
+      "id": "table",
+      "label": "Table",
+      "hint": "Stone counter with no voice, or a hollow wooden table that knocks.",
+      "value": 0.45,
+      "targets": [
+        {
+          "path": "tracks.table.gain",
+          "mode": "set",
+          "from": -40,
+          "to": -3,
+          "curve": -0.506
+        }
+      ]
+    }
+  ]
+}

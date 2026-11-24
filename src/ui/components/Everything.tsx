@@ -2,7 +2,7 @@
  * Everything: every parameter of the selected track, or of the master and the patch. The fields are generated from
  * the node metadata (ParamMeta), so a new source or effect shows up here without any editor code.
  */
-import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import {
   BUS_FIELDS,
   COMMON_EFFECT_PARAMS,
@@ -28,8 +28,8 @@ import {
 } from '../../core';
 import { renderEnvelope } from '../../core/params';
 import { audition } from '../controller';
-import { useAppliedPatch } from '../hooks';
-import { INKS, trackInk } from '../lib/inks';
+import { prefersReducedMotion, useAppliedPatch } from '../hooks';
+import { INKS, controlColor, trackInk } from '../lib/inks';
 import { parseValue } from '../lib/knob';
 import {
   addEffect,
@@ -49,18 +49,49 @@ import {
   writeSignal,
 } from '../lib/patchOps';
 import { canonPath, drivenPaths, type Driver } from '../lib/paths';
-import { SELECT_MASTER, useEditor } from '../store';
+import { SELECT_MASTER, editor, useEditor, type EditorState } from '../store';
 import { CurveEditor } from './CurveEditor';
 import { Icon } from './Icon';
 import { Knob } from './Knob';
 import { Flash, Segmented, Switch } from './Widgets';
 
+/** What the fields read and write: the open patch, or the project (its shared master chain). */
+export interface Scope {
+  read(s: EditorState): unknown;
+  write(fn: (root: never) => unknown, tag: string | null): void;
+  /** Can its parameters be pinned into the controls? */
+  pins: boolean;
+}
+
+export const patchScope: Scope = {
+  read: (s) => s.patch,
+  write: (fn, tag) => editor().edit(fn as (p: Patch) => Patch, tag),
+  pins: true,
+};
+
+export const projectScope: Scope = {
+  read: (s) => s.project,
+  // The fields edit the project's own settings; the sounds ride along untouched, so no patch is copied or re-saved.
+  write: (fn, tag) => editor().editProject((p) => ({ ...(fn({ ...p, sounds: [] } as never) as typeof p), sounds: p.sounds }), tag),
+  pins: false,
+};
+
 interface Ctx {
   applied: Patch;
   drivers: Map<string, Driver[]>;
   ink: string;
+  scope: Scope;
+  /** The control being hovered or turned: its colour and the canonical paths it drives, to light them up here. */
+  follow?: { color: string; paths: string[] };
 }
-const EverythingContext = createContext<Ctx>({ applied: { format: 'sfxgen/1', name: '', duration: 'auto', tracks: [] }, drivers: new Map(), ink: 'var(--pink)' });
+const EMPTY_APPLIED: Patch = { format: 'sfxgen/1', name: '', duration: 'auto', tracks: [] };
+export const EverythingContext = createContext<Ctx>({ applied: EMPTY_APPLIED, drivers: new Map(), ink: 'var(--ink)', scope: patchScope });
+
+/** Fields under this edit the project instead of the open patch. */
+export function ProjectFields({ ink, children }: { ink?: string; children: ReactNode }) {
+  const ctx = useMemo(() => ({ applied: EMPTY_APPLIED, drivers: new Map(), ink: ink ?? 'var(--ink)', scope: projectScope }), [ink]);
+  return <EverythingContext.Provider value={ctx}>{children}</EverythingContext.Provider>;
+}
 
 function humanize(name: string): string {
   const words = name.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/[-_]/g, ' ').toLowerCase();
@@ -74,9 +105,9 @@ function commit(): void {
 
 /** Writes a value, first creating the group it lives in when that group only exists as defaults. */
 function useWrite(path: string, materialize?: { path: string; value: unknown }) {
-  const edit = useEditor((s) => s.edit);
+  const { scope } = useContext(EverythingContext);
   return (value: unknown) =>
-    edit((p) => {
+    scope.write((p: unknown) => {
       let next = p;
       if (materialize && getPath(p, materialize.path) === undefined) next = setAt(next, materialize.path, materialize.value);
       return setAt(next, path, value);
@@ -134,18 +165,26 @@ interface FieldProps {
 }
 
 function ParamField({ path, name, meta, fallback, materialize }: FieldProps) {
-  const { applied, drivers, ink } = useContext(EverythingContext);
-  const raw = useEditor((s) => getPath(s.patch, path));
-  const canon = useEditor((s) => canonPath(s.patch, path));
+  const { applied, drivers, ink, scope, follow } = useContext(EverythingContext);
+  const raw = useEditor((s) => getPath(scope.read(s), path));
+  const canon = useEditor((s) => (scope.pins ? canonPath(s.patch, path) : `project.${path}`));
   const write = useWrite(path, materialize);
   const driving = drivers.get(canon);
   const overridden = !!driving?.some((d) => d.mode === 'set' || d.mode === 'option');
   const value = overridden ? getPath(applied, path) : raw;
   const label = meta.label ?? humanize(name);
   const dflt = meta.default ?? fallback;
-  const pin = <PinButton path={path} meta={meta} value={raw} drivers={driving} />;
+  const pin = scope.pins ? <PinButton path={path} meta={meta} value={raw} drivers={driving} /> : null;
   const tags = <Drivers drivers={driving} />;
-  const flash = <Flash id={`p:${canon}`} />;
+  // Lit in the control's colour while that control is hovered or turned (also when it drives a parent, as a
+  // stretch of the whole envelope does).
+  const followed = !!follow && follow.paths.some((p) => canon === p || canon.startsWith(`${p}.`));
+  const flash = (
+    <>
+      <Flash id={`p:${canon}`} />
+      {followed && <span className="following" style={{ '--c': follow!.color } as React.CSSProperties} />}
+    </>
+  );
 
   if (meta.kind === 'object' && meta.fields) return <GroupField path={path} name={name} meta={meta} />;
 
@@ -295,7 +334,8 @@ function ParamField({ path, name, meta, fallback, materialize }: FieldProps) {
 
 /** Anything the metadata describes only loosely (lists, future kinds): edit it as JSON. */
 function JsonField({ path, label, doc }: { path: string; label: string; doc?: string }) {
-  const raw = useEditor((s) => getPath(s.patch, path));
+  const { scope } = useContext(EverythingContext);
+  const raw = useEditor((s) => getPath(scope.read(s), path));
   const write = useWrite(path);
   const [draft, setDraft] = useState<string | null>(null);
   const [bad, setBad] = useState(false);
@@ -329,7 +369,8 @@ function JsonField({ path, label, doc }: { path: string; label: string; doc?: st
 
 /** An optional group of parameters (a voice filter): a switch, then its fields. */
 function GroupField({ path, name, meta }: { path: string; name: string; meta: ParamMeta }) {
-  const present = useEditor((s) => getPath(s.patch, path) !== undefined);
+  const { scope } = useContext(EverythingContext);
+  const present = useEditor((s) => getPath(scope.read(s), path) !== undefined);
   const write = useWrite(path);
   const fields = meta.fields ?? {};
   const turnOn = () => {
@@ -356,7 +397,7 @@ function GroupField({ path, name, meta }: { path: string; name: string; meta: Pa
   );
 }
 
-function Fields({ base, params, skip, fallbacks, materialize }: { base: string; params: ParamMap; skip?: string[]; fallbacks?: Record<string, unknown>; materialize?: FieldProps['materialize'] }) {
+export function Fields({ base, params, skip, fallbacks, materialize }: { base: string; params: ParamMap; skip?: string[]; fallbacks?: Record<string, unknown>; materialize?: FieldProps['materialize'] }) {
   const names = Object.keys(params).filter((n) => !skip?.includes(n));
   // Knobs first, then the wide things, so the grid packs without holes.
   const small = names.filter((n) => params[n].kind === 'number' || params[n].kind === 'signal' || params[n].kind === 'bool');
@@ -372,11 +413,11 @@ function Fields({ base, params, skip, fallbacks, materialize }: { base: string; 
 
 // ---- Sections ---------------------------------------------------------------------------------
 
-function Section({ title, tag, children, tools }: { title: string; tag?: string; children: ReactNode; tools?: ReactNode }) {
+export function Section({ title, tag, children, tools }: { title: string; tag?: string; children: ReactNode; tools?: ReactNode }) {
   return (
     <section className="section">
       <header className="section-head">
-        <h3 className="display">{title}</h3>
+        <h3 className="legend-title">{title}</h3>
         {tag && <span className="section-tag">{tag}</span>}
         <span className="section-tools">{tools}</span>
       </header>
@@ -447,7 +488,7 @@ function EnvelopeSection({ trackId, defaultEnv }: { trackId: string; defaultEnv:
       title="Envelope"
       tag={points ? 'points' : 'ADSR'}
       tools={
-        <button type="button" className="btn btn-quiet btn-xs" onClick={() => (points ? edit((p) => setAt(p, path, undefined)) : toPoints())}>
+        <button type="button" className="key key-sm" onClick={() => (points ? edit((p) => setAt(p, path, undefined)) : toPoints())}>
           {points ? 'Back to ADSR' : 'Draw it'}
         </button>
       }
@@ -549,7 +590,7 @@ function EventsSection({ trackId }: { trackId: string }) {
               </div>
             );
           })}
-          <button type="button" className="btn btn-quiet btn-xs" onClick={() => setEvents([...list, { t: Number(((list[list.length - 1]?.t ?? 0) + 0.1).toFixed(3)) }])}>
+          <button type="button" className="key key-sm" onClick={() => setEvents([...list, { t: Number(((list[list.length - 1]?.t ?? 0) + 0.1).toFixed(3)) }])}>
             <Icon name="plus" size={13} /> Event
           </button>
         </div>
@@ -558,13 +599,13 @@ function EventsSection({ trackId }: { trackId: string }) {
   );
 }
 
-function FxChain({ chainPath, title }: { chainPath: string; title: string }) {
-  const patch = useEditor((s) => s.patch);
-  const chain = useMemo(() => getChain(patch, chainPath), [patch, chainPath]);
-  const edit = useEditor((s) => s.edit);
+export function FxChain({ chainPath, title }: { chainPath: string; title: string }) {
+  const { scope } = useContext(EverythingContext);
+  const root = useEditor((s) => scope.read(s));
+  const chain = useMemo(() => getChain(root, chainPath), [root, chainPath]);
   const effects = useMemo(() => listEffects(), []);
-  const act = (fn: (p: Patch) => Patch) => {
-    edit(fn);
+  const act = (fn: (p: unknown) => unknown) => {
+    scope.write(fn, null);
     commit();
   };
   return (
@@ -709,6 +750,11 @@ function MasterSheet() {
   const act = (fn: (p: Patch) => Patch, tag?: string) => edit(fn, tag);
   const auto = patch.duration === 'auto';
   const normalize = patch.master?.normalize?.mode ?? 'peak';
+  // In a set, the project's (or the group's) levelling takes this setting's place.
+  const overruled = useEditor((s) => {
+    const sound = s.project.sounds[s.current];
+    return !!sound && (!!s.project.normalize || !!s.project.groups?.find((g) => g.id === sound.group)?.normalize);
+  });
   return (
     <div className="sheets">
       <Section title="Patch" tag={patch.format}>
@@ -801,6 +847,7 @@ function MasterSheet() {
             <NormalizeTarget mode={normalize} />
           )}
         </div>
+        {overruled && <p className="section-doc">In this set the project’s levelling replaces this one (see Project, or the sound’s group in the mixer).</p>}
       </Section>
       <FxChain chainPath="master.fx" title="master" />
 
@@ -810,7 +857,7 @@ function MasterSheet() {
       <div className="section section-add">
         <button
           type="button"
-          className="btn btn-quiet"
+          className="key key-sm"
           onClick={() =>
             act((p) =>
               mutate(p, (d) => {
@@ -896,11 +943,41 @@ export function Everything() {
   const applied = useAppliedPatch();
   const index = patch.tracks.findIndex((t) => t.id === selected);
   const ink = index >= 0 ? trackInk(patch.tracks[index], index) : 'var(--ink)';
-  const ctx = useMemo(() => ({ applied, drivers: drivenPaths(patch), ink }), [applied, patch, ink]);
+  const activeId = useEditor((s) => s.activeControl);
+  const follow = useMemo(() => {
+    const at = (patch.controls ?? []).findIndex((c) => c.id === activeId);
+    if (at < 0) return undefined;
+    const c = patch.controls![at];
+    const targets = [...(c.targets ?? []).map((t) => t.path), ...(c.options ?? []).flatMap((o) => Object.keys(o.set ?? {}))];
+    return { color: controlColor(at), paths: targets.map((p) => canonPath(patch, p)), raw: targets };
+  }, [patch, activeId]);
+  const followKey = follow ? `${activeId}:${follow.paths.join(',')}` : '';
+  const body = useRef<HTMLDivElement>(null);
+
+  // Bring what the control drives into view: open the right sheet, then scroll to the first lit parameter.
+  useEffect(() => {
+    if (!follow) return;
+    const sheets = follow.raw.map((p) => {
+      const segs = p.split('.');
+      if (segs[0] !== 'tracks') return SELECT_MASTER;
+      const track = patch.tracks.find((t) => t.id === segs[1]) ?? (/^\d+$/.test(segs[1]) ? patch.tracks[Number(segs[1])] : undefined);
+      return track?.id;
+    }).filter((x): x is string => !!x);
+    const now = useEditor.getState().selected;
+    if (sheets.length > 0 && !sheets.includes(now)) select(sheets[0]);
+    // A short wait, so passing over a knob on the way elsewhere does not move the page.
+    const timer = setTimeout(() => {
+      body.current?.querySelector('.following')?.parentElement?.scrollIntoView({ block: 'nearest', behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+    }, 140);
+    return () => clearTimeout(timer);
+    // Only when the control (or what it drives) changes, not on every value it passes through.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [followKey]);
+
+  const ctx = useMemo(() => ({ applied, drivers: drivenPaths(patch), ink, scope: patchScope, follow }), [applied, patch, ink, follow]);
   return (
-    <section className="everything sheet" aria-label="Everything" style={{ '--c': ink } as React.CSSProperties}>
-      <header className="panel-head">
-        <h2 className="display">Everything</h2>
+    <div ref={body} className="everything" style={{ '--c': ink } as React.CSSProperties}>
+      <header className="everything-head">
         <div className="tabs" role="tablist" aria-label="What to edit">
           {patch.tracks.map((t, i) => (
             <button key={t.id} type="button" role="tab" aria-selected={t.id === selected} className={`tab${t.id === selected ? ' is-on' : ''}`} style={{ '--c': trackInk(t, i) } as React.CSSProperties} onClick={() => select(t.id)}>
@@ -914,6 +991,6 @@ export function Everything() {
         </div>
       </header>
       <EverythingContext.Provider value={ctx}>{index >= 0 ? <TrackSheet key={selected} trackId={selected} /> : <MasterSheet />}</EverythingContext.Provider>
-    </section>
+    </div>
   );
 }

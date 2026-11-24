@@ -1,0 +1,288 @@
+{
+  "format": "sfxgen/1",
+  "name": "Servo move",
+  "description": "A hobby-size robot arm servo turning its joint through 90 degrees and stopping, heard close. 0 ms: the gear train takes up its slack with a small tick; the motor whines up to speed in 60 ms, buzzes steadily, then strains and drops in pitch over the last 100 ms as it brakes against the load; at 480 ms it stops dead with a plastic clack of the gears settling. Its small plastic case makes it nasal.",
+  "tags": [
+    "mechanical",
+    "servo",
+    "robot",
+    "motor",
+    "whir",
+    "actuator",
+    "mech",
+    "scifi",
+    "move"
+  ],
+  "duration": "auto",
+  "seed": 20,
+  "tracks": [
+    {
+      "id": "motor",
+      "note": "The geared motor: spins up, holds, strains as it brakes.",
+      "source": {
+        "type": "machine",
+        "kind": "servo",
+        "size": 0.8,
+        "roughness": 0.3,
+        "whine": 0.75,
+        "rpm": {
+          "env": [
+            [
+              0,
+              2400
+            ],
+            [
+              0.06,
+              10400
+            ],
+            [
+              0.37,
+              10900
+            ],
+            [
+              0.48,
+              4300
+            ]
+          ],
+          "mod": [
+            {
+              "type": "wander",
+              "rate": 11,
+              "depth": 25,
+              "unit": "cents"
+            }
+          ]
+        },
+        "load": [
+          [
+            0,
+            0.6
+          ],
+          [
+            0.07,
+            0.25
+          ],
+          [
+            0.36,
+            0.35
+          ],
+          [
+            0.47,
+            0.9
+          ]
+        ],
+        "env": {
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              0.012,
+              0.8
+            ],
+            [
+              0.36,
+              1
+            ],
+            [
+              0.47,
+              0.8
+            ],
+            [
+              0.485,
+              0
+            ]
+          ],
+          "curve": "linear"
+        }
+      },
+      "fx": [
+        {
+          "type": "resonator",
+          "id": "case",
+          "mode": "tube",
+          "freq": 880,
+          "decay": 0.03,
+          "brightness": 0.5,
+          "mix": 0.3
+        }
+      ]
+    },
+    {
+      "id": "stop",
+      "note": "The gears landing at the end of travel: a small hard plastic clack.",
+      "start": 0.48,
+      "gain": -5,
+      "source": {
+        "type": "modal",
+        "material": "plastic",
+        "shape": "box",
+        "freq": 730,
+        "decay": 0.045,
+        "brightness": 0.6,
+        "modes": 14,
+        "dent": 0.3,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.8
+        }
+      },
+      "events": [
+        {
+          "t": 0,
+          "vel": 1
+        },
+        {
+          "t": 0.021,
+          "vel": 0.3,
+          "pitch": 2
+        }
+      ]
+    },
+    {
+      "id": "slack",
+      "note": "Backlash taken up at the start: a tiny tick.",
+      "gain": -14,
+      "source": {
+        "type": "modal",
+        "material": "plastic",
+        "shape": "bar",
+        "freq": 1900,
+        "decay": 0.012,
+        "modes": 6,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.8
+        }
+      }
+    }
+  ],
+  "controls": [
+    {
+      "id": "travel",
+      "label": "Travel",
+      "hint": "A small twitch to a long sweep of the arm.",
+      "value": 0.51,
+      "vary": 0.05,
+      "targets": [
+        {
+          "path": "tracks.motor.source.rpm",
+          "mode": "stretch",
+          "from": 0.3,
+          "to": 3.2
+        },
+        {
+          "path": "tracks.motor.source.load",
+          "mode": "stretch",
+          "from": 0.3,
+          "to": 3.2
+        },
+        {
+          "path": "tracks.motor.source.env",
+          "mode": "stretch",
+          "from": 0.3,
+          "to": 3.2
+        },
+        {
+          "path": "tracks.stop.start",
+          "mode": "mul",
+          "from": 0.3,
+          "to": 3.2
+        }
+      ]
+    },
+    {
+      "id": "speed",
+      "label": "Speed",
+      "hint": "A slow precise crawl to a fast snap: higher whine.",
+      "value": 0.5,
+      "vary": 0.05,
+      "targets": [
+        {
+          "path": "tracks.motor.source.rpm",
+          "mode": "mul",
+          "from": 0.45,
+          "to": 1.9
+        }
+      ]
+    },
+    {
+      "id": "size",
+      "label": "Size",
+      "hint": "A micro servo in a toy to an industrial arm joint.",
+      "value": 0.35,
+      "targets": [
+        {
+          "path": "tracks.motor.source.size",
+          "mode": "set",
+          "from": 0.4,
+          "to": 2.6
+        },
+        {
+          "path": "tracks.motor.fx.case.freq",
+          "mode": "mul",
+          "from": 1.8,
+          "to": 0.3
+        },
+        {
+          "path": "tracks.stop.source.freq",
+          "mode": "mul",
+          "from": 1.9,
+          "to": 0.3
+        },
+        {
+          "path": "tracks.stop.source.decay",
+          "mode": "set",
+          "from": 0.03,
+          "to": 0.16
+        },
+        {
+          "path": "tracks.motor.source.teeth",
+          "mode": "set",
+          "from": 14,
+          "to": 7,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "strain",
+      "label": "Strain",
+      "hint": "Moving nothing, or fighting a heavy load: rougher, buzzier.",
+      "value": 0.4,
+      "vary": 0.08,
+      "targets": [
+        {
+          "path": "tracks.motor.source.load",
+          "mode": "mul",
+          "from": 0.3,
+          "to": 1.1,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.motor.source.roughness",
+          "mode": "set",
+          "from": 0.1,
+          "to": 0.75
+        }
+      ]
+    },
+    {
+      "id": "clack",
+      "label": "Stop",
+      "hint": "A soft controlled stop, or slamming into the end stop.",
+      "value": 0.5,
+      "vary": 0.1,
+      "targets": [
+        {
+          "path": "tracks.stop.gain",
+          "mode": "set",
+          "from": -30,
+          "to": 3,
+          "curve": -0.44
+        }
+      ]
+    }
+  ]
+}

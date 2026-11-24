@@ -13,8 +13,11 @@ If you are here to make sound effects rather than to change sfxgen:
 2. Start from the nearest template (`npm run sfxgen -- templates --search door`) or from scratch, write the story in
    `description` and each track's `note`, and render with `npm run sfxgen -- render my.sfx.json --analyze --png`.
 3. Read the analysis and look at the spectrogram PNG. You can't hear the sound, so check the measurements against
-   the story and say what you could not check.
-4. Choose 3 to 7 `controls` a person should try, named in a listener's words, each tested at both ends.
+   the story and say what you could not check. `analyze my.sfx.json --tracks` renders each layer on its own and
+   marks any 30 dB or more under the loudest: the usual reason a layer seems to do nothing.
+4. Choose 3 to 7 `controls` a person should try, named in a listener's words, each tested at both ends. A control's
+   `set` targets override the file's own values at their paths, so after editing run `npm run sfxgen -- sync my.sfx.json`
+   to make the file say what renders (`--check` in CI).
 5. Hand it over: `npm run sfxgen -- serve .` opens the editor on the same files.
 
 ## Changing sfxgen
@@ -22,7 +25,7 @@ If you are here to make sound effects rather than to change sfxgen:
 | Command | Does |
 | --- | --- |
 | `npm run dev` | The editor with hot reload, at http://localhost:5178 |
-| `npm run sfxgen -- <command>` | The CLI from source (`render`, `analyze`, `validate`, `guide`, `templates`, `new`, `diff`, `serve`, `mcp`) |
+| `npm run sfxgen -- <command>` | The CLI from source (`render`, `analyze`, `validate`, `guide`, `templates`, `new`, `diff`, `sync`, `build`, `project`, `serve`, `mcp`) |
 | `npm test` | All tests (vitest) |
 | `npm run typecheck` | TypeScript |
 | `npm run templates` | Rebuild `src/core/templates/library.json` after changing `templates/` |

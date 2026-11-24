@@ -1,0 +1,238 @@
+{
+  "format": "sfxgen/1",
+  "name": "Cave drip",
+  "description": "Deep in a limestone cave, water gathers on a stalactite and falls two metres into a still pool: three drops (at 0, about 0.75 and 1.5 s, never quite on time), each a clear \"plink\" whose pitch flicks upward as the bubble closes, with a fainter secondary drip 60 ms after. The cave answers each one with an echo off the far wall 280 ms later and a long dark tail.",
+  "tags": [
+    "nature",
+    "water",
+    "drip",
+    "drop",
+    "cave",
+    "echo",
+    "dungeon",
+    "ambience"
+  ],
+  "duration": "auto",
+  "maxDuration": 6,
+  "seed": 6,
+  "tracks": [
+    {
+      "id": "drop",
+      "note": "The drops: one tuned bubble per event, pitch rising within 30 ms. Each is a slightly different size.",
+      "repeat": {
+        "count": 3,
+        "interval": 0.76,
+        "jitter": 0.06,
+        "pitchJitter": 1.6,
+        "velJitter": 0.3
+      },
+      "sends": {
+        "cave": -1
+      },
+      "source": {
+        "type": "osc",
+        "wave": "sine",
+        "freq": [
+          [
+            0,
+            1180
+          ],
+          [
+            0.012,
+            1050
+          ],
+          [
+            0.045,
+            2050
+          ]
+        ],
+        "env": {
+          "attack": 0.0008,
+          "decay": 0.075
+        }
+      }
+    },
+    {
+      "id": "after",
+      "note": "The small droplet thrown up by the first one, landing 60 ms later: higher and much quieter. Without it the drops sound synthetic.",
+      "start": 0.062,
+      "gain": 3,
+      "repeat": {
+        "count": 3,
+        "interval": 0.76,
+        "jitter": 0.07,
+        "pitchJitter": 3,
+        "velJitter": 0.5
+      },
+      "sends": {
+        "cave": -1
+      },
+      "source": {
+        "type": "particles",
+        "distribution": "burst",
+        "density": 60,
+        "duration": 0.06,
+        "grain": {
+          "kind": "drop",
+          "lo": 2400,
+          "hi": 4200,
+          "decayLo": 0.01,
+          "decayHi": 0.03,
+          "levelJitter": 10
+        }
+      }
+    },
+    {
+      "id": "surface",
+      "note": "The slap on the water surface: a 5 ms tick of dark noise at each impact, giving the drop a body.",
+      "gain": -2,
+      "repeat": {
+        "count": 3,
+        "interval": 0.76,
+        "jitter": 0.06,
+        "velJitter": 0.3
+      },
+      "sends": {
+        "cave": -8
+      },
+      "source": {
+        "type": "noise",
+        "color": "pink",
+        "env": {
+          "attack": 0.0003,
+          "decay": 0.02
+        },
+        "filter": {
+          "mode": "bandpass",
+          "cutoff": 900,
+          "q": 0.8
+        }
+      }
+    }
+  ],
+  "buses": [
+    {
+      "id": "cave",
+      "fx": [
+        {
+          "id": "wall",
+          "type": "delay",
+          "time": 280,
+          "feedback": 0.3,
+          "tone": 2600,
+          "highpass": 300,
+          "mix": 0.45
+        },
+        {
+          "id": "space",
+          "type": "reverb",
+          "space": "cave",
+          "decay": 3.2
+        }
+      ]
+    }
+  ],
+  "controls": [
+    {
+      "id": "size",
+      "label": "Drop size",
+      "hint": "A fine bead to a fat, heavy drop: lower and rounder.",
+      "value": 0.45,
+      "vary": 0.1,
+      "targets": [
+        {
+          "path": "tracks.drop.source.pitch",
+          "mode": "set",
+          "from": 10,
+          "to": -11
+        },
+        {
+          "path": "tracks.drop.source.env.decay",
+          "mode": "set",
+          "from": 0.045,
+          "to": 0.14
+        },
+        {
+          "path": "tracks.surface.gain",
+          "mode": "set",
+          "from": -14,
+          "to": 6
+        }
+      ]
+    },
+    {
+      "id": "rate",
+      "label": "Rate",
+      "hint": "A slow, patient drip to a quick trickle.",
+      "value": 0.4,
+      "targets": [
+        {
+          "path": "tracks.drop.repeat.interval",
+          "mode": "set",
+          "from": 1.3,
+          "to": 0.2
+        },
+        {
+          "path": "tracks.after.repeat.interval",
+          "mode": "set",
+          "from": 1.3,
+          "to": 0.2
+        },
+        {
+          "path": "tracks.surface.repeat.interval",
+          "mode": "set",
+          "from": 1.3,
+          "to": 0.2
+        }
+      ]
+    },
+    {
+      "id": "cave",
+      "label": "Cave size",
+      "hint": "A wet cellar to a vast cavern: longer tail, later echo.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "buses.cave.fx.space.decay",
+          "mode": "set",
+          "from": 0.8,
+          "to": 7
+        },
+        {
+          "path": "buses.cave.fx.wall.time",
+          "mode": "set",
+          "from": 90,
+          "to": 520
+        }
+      ]
+    },
+    {
+      "id": "depth",
+      "label": "Depth",
+      "hint": "Beside the pool to far down the tunnel: the echo takes over from the drop.",
+      "value": 0.45,
+      "targets": [
+        {
+          "path": "buses.cave.gain",
+          "mode": "set",
+          "from": -20,
+          "to": 8
+        }
+      ]
+    },
+    {
+      "id": "spray",
+      "label": "Splash",
+      "hint": "A clean plink to a messier drop with droplets scattering.",
+      "value": 0.4,
+      "targets": [
+        {
+          "path": "tracks.after.gain",
+          "mode": "set",
+          "from": -24,
+          "to": 12
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,104 @@
+{
+  "format": "sfxgen/1",
+  "name": "Fireball",
+  "description": "A fireball lit in the caster's hand and thrown. 0 ms: ignition, a soft 'whoomp' as the air catches (low noise opening quickly from 150 Hz to 2 kHz, with a pressure thump under it). 0 to 1.3 s: the ball roars and flutters like a torch swung through the air, and it travels away from you at 28 m/s, so the roar drops in pitch and dulls. All the way it spits and crackles: embers popping off, thinning as it goes.",
+  "tags": ["magic", "fire", "fireball", "flame", "burn", "spell", "whoosh", "ignite"],
+  "duration": "auto",
+  "seed": 27,
+  "tracks": [
+    {
+      "id": "whoomp",
+      "note": "Ignition: the pressure thump. A big soft membrane, not a sine drop, so it sounds like air and not a kick drum.",
+      "source": {
+        "type": "modal",
+        "material": "rubber",
+        "shape": "membrane",
+        "freq": [[0, 190], [0.12, 104]],
+        "decay": 0.313,
+        "position": 0.3,
+        "exciter": { "kind": "noise", "hardness": 0.3, "duration": 0.07 }
+      },
+      "fx": [{ "type": "drive", "mode": "tanh", "amount": 10, "tone": 3000 }],
+      "gain": -9.6
+    },
+    {
+      "id": "roar",
+      "note": "The flame: pink noise whose filter flutters at random (wander plus a fast random tremolo) is what makes it burn instead of hiss. Doppler carries it away.",
+      "source": {
+        "type": "noise",
+        "color": "pink",
+        "env": { "attack": 0.03, "hold": 0.5, "decay": 1.1 },
+        "filter": {
+          "mode": "lowpass",
+          "q": 1.1,
+          "cutoff": { "env": [[0, 300], [0.06, 3200], [0.4, 1700], [1.4, 600]], "mod": [{ "type": "wander", "rate": 13, "depth": 0.7, "unit": "oct" }] }
+        }
+      },
+      "fx": [
+        { "type": "tremolo", "id": "flutter", "rate": 21.8, "depth": 0.5, "shape": "random" },
+        { "type": "drive", "mode": "tube", "amount": 8 },
+        { "type": "eq", "bands": [{ "mode": "lowcut", "freq": 95, "slope": "24" }, { "mode": "peak", "freq": 220, "gain": 3, "q": 0.8 }] },
+        { "type": "doppler", "id": "throw", "speed": 7.58, "distance": 1.5, "time": 0.05, "direction": "front-to-back", "air": 2 }
+      ]
+    },
+    {
+      "id": "embers",
+      "note": "Sparks and pops: sharp, uneven, never regular. Without them it is wind.",
+      "start": 0.02,
+      "gain": -2,
+      "source": {
+        "type": "particles",
+        "distribution": "burst",
+        "density": 155,
+        "duration": 1.2,
+        "grain": { "kind": "crackle", "lo": 900, "hi": 7000, "decayLo": 0.004, "decayHi": 0.05, "levelJitter": 24 }
+      },
+      "fx": [{ "type": "doppler", "speed": 7.58, "distance": 1.5, "time": 0.03, "direction": "front-to-back", "rolloff": 0.7 }]
+    }
+  ],
+  "controls": [
+    {
+      "id": "size",
+      "label": "Size",
+      "hint": "A candle-sized firebolt to a cart-sized ball of flame.",
+      "value": 0.5,
+      "vary": 0.05,
+      "targets": [
+        { "path": "tracks.whoomp.source.freq", "mode": "mul", "from": 1.9, "to": 0.55 },
+        { "path": "tracks.whoomp.source.decay", "from": 0.14, "to": 0.7 },
+        { "path": "tracks.roar.source.filter.cutoff", "mode": "mul", "from": 1.8, "to": 0.55 },
+        { "path": "tracks.roar.source.env", "mode": "stretch", "from": 0.5, "to": 1.9 },
+        { "path": "tracks.embers.source.duration", "from": 0.6, "to": 2.4 }
+      ]
+    },
+    {
+      "id": "crackle",
+      "label": "Crackle",
+      "hint": "Smooth clean flame to a spitting, popping blaze.",
+      "value": 0.5,
+      "vary": 0.1,
+      "targets": [{ "path": "tracks.embers.gain", "from": -16, "to": 12 }, { "path": "tracks.embers.source.density", "from": 40, "to": 600 }]
+    },
+    {
+      "id": "flutter",
+      "label": "Flutter",
+      "hint": "A steady jet to a wildly guttering torch.",
+      "value": 0.5,
+      "targets": [{ "path": "tracks.roar.fx.flutter.depth", "from": 0.05, "to": 0.95 }, { "path": "tracks.roar.fx.flutter.rate", "from": 34, "to": 14 }]
+    },
+    {
+      "id": "throw",
+      "label": "Throw",
+      "hint": "Held burning in the hand, or hurled away fast.",
+      "value": 0.45,
+      "targets": [{ "path": "tracks.roar.fx.throw.speed", "from": 1, "to": 90 }, { "path": "tracks.embers.fx.0.speed", "from": 1, "to": 90 }]
+    },
+    {
+      "id": "ignite",
+      "label": "Ignition",
+      "hint": "How hard it catches at the start.",
+      "value": 0.6,
+      "targets": [{ "path": "tracks.whoomp.gain", "from": -30, "to": 4 }]
+    }
+  ]
+}

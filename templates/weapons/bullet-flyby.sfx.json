@@ -1,0 +1,105 @@
+{
+  "format": "sfxgen/1",
+  "name": "Bullet fly-by",
+  "description": "You are being shot at across open ground and the round misses your head by a metre. The bullet is heard before the gun: 0 to 150 ms it comes in as a rising, buzzing whizz (the slug's spin modulating the air it tears, a harsh tone inside a hiss), passing at 150 ms with a tiny sharp crack as its shock wave slaps your ear, and is gone in another 150 ms, its pitch dropped almost an octave. About 650 ms later the rifle's own report finally arrives from 200 m away: a dull, low thump with all its top end eaten by the air, and a short roll off the ground.",
+  "tags": ["weapon", "bullet", "flyby", "whizz", "doppler", "gun", "near miss", "pass", "crack", "war"],
+  "duration": "auto",
+  "seed": 29,
+  "output": { "channels": 2 },
+  "tracks": [
+    {
+      "id": "whizz",
+      "note": "The round in the air: a chaotic buzz (a logistic map on the edge of a tone) is the spinning slug. Steady by itself; the doppler does all the motion, pitch and pan.",
+      "source": { "type": "chaos", "mode": "logistic", "rate": 5020, "chaos": 0.1, "smooth": 0.3, "env": { "attack": 0.01, "hold": 0.36, "decay": 0.2 } },
+      "fx": [
+        { "type": "eq", "bands": [{ "mode": "lowcut", "freq": 500 }, { "mode": "highshelf", "freq": 6000, "gain": -4 }] },
+        { "type": "doppler", "id": "pass", "speed": 134, "distance": 1.09, "time": 0.15, "direction": "left-to-right", "rolloff": 0.9, "air": 1.5 }
+      ],
+      "gain": -4
+    },
+    {
+      "id": "hiss",
+      "note": "Torn air around the slug: plain hiss on the same path, so the whizz is not just a tone.",
+      "gain": -10,
+      "source": {
+        "type": "noise",
+        "color": "white",
+        "width": 0.3,
+        "env": { "attack": 0.01, "hold": 0.36, "decay": 0.2 },
+        "filter": { "mode": "bandpass", "cutoff": 3800, "q": 0.7 }
+      },
+      "fx": [{ "type": "doppler", "id": "pass", "speed": 134, "distance": 1.09, "time": 0.15, "direction": "left-to-right", "rolloff": 1 }]
+    },
+    {
+      "id": "crack",
+      "note": "The shock wave at the moment of passing: 6 ms, bright, dry. This is what makes people duck.",
+      "start": 0.149,
+      "gain": -17.9,
+      "source": { "type": "noise", "color": "white", "env": { "attack": 0.0002, "decay": 0.012 }, "filter": { "mode": "highpass", "cutoff": 2500 } }
+    },
+    {
+      "id": "report",
+      "note": "The gun, late and far: a soft-struck drum skin through heavy air absorption and a wide outdoor slap. Low and round on purpose.",
+      "start": 1,
+      "gain": -6.5,
+      "source": {
+        "type": "modal",
+        "material": "skin",
+        "shape": "membrane",
+        "freq": [[0, 128], [0.1, 84]],
+        "decay": 0.4,
+        "position": 0.3,
+        "exciter": { "kind": "noise", "hardness": 0.5, "duration": 0.03 }
+      },
+      "fx": [
+        { "type": "filter", "id": "air", "mode": "lowpass", "cutoff": 1180, "slope": "24" },
+        { "type": "delay", "time": 95, "feedback": 0.3, "tone": 700, "mix": 0.35 },
+        { "type": "reverb", "space": "forest", "decay": 1.1, "mix": 0.3 }
+      ]
+    }
+  ],
+  "controls": [
+    {
+      "id": "closeness",
+      "label": "Closeness",
+      "hint": "Passing ten metres off, a soft zip, to parting your hair: sudden and vicious.",
+      "value": 0.65,
+      "vary": 0.1,
+      "targets": [
+        { "path": "tracks.whizz.fx.pass.distance", "from": 12, "to": 0.3 },
+        { "path": "tracks.hiss.fx.pass.distance", "from": 12, "to": 0.3 },
+        { "path": "tracks.crack.gain", "from": -40, "to": -6 }
+      ]
+    },
+    {
+      "id": "speed",
+      "label": "Speed",
+      "hint": "A lazy spent round to a supersonic rifle bullet: a bigger, quicker pitch drop.",
+      "value": 0.6,
+      "targets": [{ "path": "tracks.whizz.fx.pass.speed", "from": 40, "to": 300 }, { "path": "tracks.hiss.fx.pass.speed", "from": 40, "to": 300 }]
+    },
+    {
+      "id": "buzz",
+      "label": "Buzz",
+      "hint": "A clean hiss of air to an angry, hornet-like tumbling slug.",
+      "value": 0.5,
+      "vary": 0.1,
+      "targets": [
+        { "path": "tracks.whizz.gain", "from": -16, "to": 8 },
+        { "path": "tracks.whizz.source.rate", "from": 9000, "to": 2800 },
+        { "path": "tracks.hiss.gain", "from": -2, "to": -18 }
+      ]
+    },
+    {
+      "id": "range",
+      "label": "Shooter range",
+      "hint": "Fired from close by, loud and soon, or from far off: later, duller, quieter.",
+      "value": 0.5,
+      "targets": [
+        { "path": "tracks.report.start", "from": 0.4, "to": 1.6 },
+        { "path": "tracks.report.fx.air.cutoff", "from": 4000, "to": 350 },
+        { "path": "tracks.report.gain", "from": 3, "to": -16 }
+      ]
+    }
+  ]
+}

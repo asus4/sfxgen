@@ -286,6 +286,7 @@ export function validatePatch(input: unknown): ValidationResult {
     if (m.normalize !== undefined) {
       const nm = m.normalize as Record<string, unknown>;
       if (!['peak', 'loudness', 'none'].includes(nm.mode as string)) c.error('master.normalize.mode', 'peak, loudness or none');
+      if (nm.ceiling !== undefined && !(isNum(nm.ceiling) && nm.ceiling <= 0)) c.error('master.normalize.ceiling', 'a peak in dBFS, 0 or below');
     }
   }
 
@@ -310,6 +311,7 @@ export function validatePatch(input: unknown): ValidationResult {
             const tp = `${p}.targets[${k}]`;
             if (!isObj(t) || typeof t.path !== 'string') return c.error(tp, 'a target needs a path');
             if (t.mode !== undefined && !['set', 'mul', 'add', 'stretch'].includes(t.mode as string)) c.error(`${tp}.mode`, 'set, mul, add or stretch');
+            for (const k of ['from', 'to', 'via']) if (t[k] !== undefined && !isNum(t[k])) c.error(`${tp}.${k}`, 'expected a number');
             if (getPath(patch, t.path) === undefined && metaAt(patch, t.path) === undefined) {
               c.warn(`${tp}.path`, `nothing at "${t.path}"`);
             }

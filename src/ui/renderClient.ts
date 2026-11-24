@@ -46,6 +46,14 @@ class Channel {
   }
 }
 
+export interface WavResult {
+  bytes: Uint8Array;
+  duration: number;
+  warnings: string[];
+  peakDb: number;
+  lufs: number;
+}
+
 export interface LiveListener {
   onStart(): void;
   onResult(view: RenderView, patch: Patch): void;
@@ -56,7 +64,7 @@ export class RenderClient {
   private main = new Channel();
   private thumbs = new Channel();
   private busy = false;
-  private waiting: Patch | null = null;
+  private waiting: { patch: Patch; gainDb: number } | null = null;
   private listener: LiveListener | null = null;
   private serial = 0;
   private settled: (() => void)[] = [];
@@ -66,16 +74,16 @@ export class RenderClient {
   }
 
   /** Renders the open patch. Called on every change; the newest patch always wins. */
-  live(patch: Patch): void {
+  live(patch: Patch, gainDb = 0): void {
     if (this.busy) {
-      this.waiting = patch;
+      this.waiting = { patch, gainDb };
       return;
     }
     this.busy = true;
     this.listener?.onStart();
     const serial = ++this.serial;
     this.main
-      .send({ kind: 'live', patch })
+      .send({ kind: 'live', patch, gainDb })
       .then((res) => {
         if (res.ok && res.kind === 'live') this.listener?.onResult({ ...res.view, id: serial }, patch);
       })
@@ -84,7 +92,7 @@ export class RenderClient {
         this.busy = false;
         const next = this.waiting;
         this.waiting = null;
-        if (next) this.live(next);
+        if (next) this.live(next.patch, next.gainDb);
         else this.settled.splice(0).forEach((fn) => fn());
       });
   }
@@ -101,10 +109,17 @@ export class RenderClient {
     throw new Error('render failed');
   }
 
-  async wav(patch: Patch, opts: RenderJobOptions, bitDepth: 16 | 24 | 32): Promise<{ bytes: Uint8Array; duration: number; warnings: string[] }> {
-    const res = await this.main.send({ kind: 'wav', patch, opts, bitDepth });
-    if (res.ok && res.kind === 'wav') return { bytes: res.bytes, duration: res.duration, warnings: res.warnings };
+  async wav(patch: Patch, opts: RenderJobOptions, bitDepth: 16 | 24 | 32, gainDb = 0): Promise<WavResult> {
+    const res = await this.main.send({ kind: 'wav', patch, opts, bitDepth, gainDb });
+    if (res.ok && res.kind === 'wav') return { bytes: res.bytes, duration: res.duration, warnings: res.warnings, peakDb: res.peakDb, lufs: res.lufs };
     throw new Error('export failed');
+  }
+
+  /** One project sound, rendered and measured, on the second worker so the open sound never waits for it. */
+  async sound(patch: Patch, bins: number): Promise<{ view: RenderView; lufs: number; peakDb: number; peaks: Float32Array }> {
+    const res = await this.thumbs.send({ kind: 'sound', patch, bins });
+    if (res.ok && res.kind === 'sound') return { view: res.view, lufs: res.lufs, peakDb: res.peakDb, peaks: res.peaks };
+    throw new Error('render failed');
   }
 
   /** The spectrogram of the last live render. */

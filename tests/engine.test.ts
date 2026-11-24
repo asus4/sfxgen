@@ -56,6 +56,23 @@ describe('render', () => {
     expect(r.channels.length).toBe(2);
   });
 
+  it('does not wrap a sustained sound onto itself in a wrap loop', () => {
+    const p: Patch = {
+      format: 'sfxgen/1',
+      name: 'hum',
+      duration: 0.5,
+      loop: { mode: 'wrap' },
+      master: { normalize: { mode: 'none' } },
+      tracks: [{ id: 'hum', source: { type: 'osc', wave: 'sine', freq: 100, env: { attack: 0, sustain: 1 } } }],
+    };
+    const x = render(p, { sampleRate: 48000 }).channels[0];
+    const rmsOf = (a: number, b: number) => Math.sqrt(x.slice(a, b).reduce((s, v) => s + v * v, 0) / (b - a));
+    // Two whole cycles at the start against two in the middle: equal, not doubled.
+    expect(rmsOf(0, 960) / rmsOf(12000, 12960)).toBeCloseTo(1, 1);
+    // And seamless: the last sample runs into the first.
+    expect(Math.abs(x[x.length - 1] - x[0])).toBeLessThan(0.02);
+  });
+
   it('wraps a loop to exactly its duration', () => {
     const p = base();
     p.duration = 0.2;
@@ -69,6 +86,58 @@ describe('controls', () => {
   it('multiplies breakpoint values', () => {
     const { patch } = applyControls(base(), metaAt);
     expect(patch.tracks[0].source.freq).toEqual([[0, 4800], [0.25, 360]]);
+  });
+});
+
+describe('control targets', () => {
+  it('stretch scales event times and a repeat', () => {
+    const p = base();
+    p.tracks[0].events = [0, { t: 0.1, dur: 0.05, pitch: 7 }];
+    p.tracks[1].repeat = { count: 3, interval: 0.1, jitter: 0.01 };
+    p.controls = [
+      {
+        id: 'speed',
+        label: 'Speed',
+        value: 1,
+        targets: [
+          { path: 'tracks.zap.events', mode: 'stretch', from: 1, to: 2 },
+          { path: 'tracks.air.repeat', mode: 'stretch', from: 1, to: 2 },
+        ],
+      },
+    ];
+    const { patch, warnings } = applyControls(p, metaAt);
+    expect(warnings).toEqual([]);
+    expect(patch.tracks[0].events).toEqual([0, { t: 0.2, dur: 0.1, pitch: 7 }]);
+    expect(patch.tracks[1].repeat).toEqual({ count: 3, interval: 0.2, jitter: 0.02 });
+  });
+
+  it('via puts the default exactly on the mixed value', () => {
+    const p = base();
+    const at = (value: number) => {
+      p.controls = [{ id: 'air', label: 'Air', value, default: 0.5, targets: [{ path: 'tracks.air.gain', from: -30, via: -8, to: 0 }] }];
+      return applyControls(p, metaAt).patch.tracks[1].gain;
+    };
+    expect(at(0)).toBeCloseTo(-30);
+    expect(at(0.5)).toBeCloseTo(-8);
+    expect(at(0.75)).toBeCloseTo(-4);
+    expect(at(1)).toBeCloseTo(0);
+  });
+
+  it('relative changes land on top of set values, whatever the order', () => {
+    const p = base();
+    p.controls = [
+      { id: 'distance', label: 'Distance', value: 1, targets: [{ path: 'tracks.air.gain', mode: 'add', from: 0, to: -10 }] },
+      { id: 'air', label: 'Air', value: 1, targets: [{ path: 'tracks.air.gain', from: -20, to: 0 }] },
+    ];
+    expect(applyControls(p, metaAt).patch.tracks[1].gain).toBeCloseTo(-10);
+  });
+
+  it('set reaches one breakpoint value by index', () => {
+    const p = base();
+    p.controls = [{ id: 'end', label: 'End pitch', value: 1, targets: [{ path: 'tracks.zap.source.freq.1.1', from: 100, to: 300 }] }];
+    const { patch, warnings } = applyControls(p, metaAt);
+    expect(warnings).toEqual([]);
+    expect(patch.tracks[0].source.freq).toEqual([[0, 2400], [0.25, 300]]);
   });
 });
 

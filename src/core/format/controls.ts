@@ -83,13 +83,24 @@ function transformValues(current: unknown, fn: (v: number) => number): unknown {
 function stretchTimes(current: unknown, k: number): unknown {
   const scalePoints = (pts: Breakpoint[]) => pts.map(([t, v, c]) => (c === undefined ? [t * k, v] : [t * k, v, c]) as Breakpoint);
   if (isBreakpoints(current)) return scalePoints(current);
+  // A track's events (seconds, or { t, dur }): the whole pattern speeds up or slows down.
+  if (Array.isArray(current)) {
+    return current.map((e) => {
+      if (typeof e === 'number') return e * k;
+      if (typeof e !== 'object' || e === null) return e;
+      const ev = { ...(e as Record<string, unknown>) };
+      if (typeof ev.t === 'number') ev.t = ev.t * k;
+      if (typeof ev.dur === 'number') ev.dur = ev.dur * k;
+      return ev;
+    });
+  }
   if (typeof current === 'object' && current !== null) {
     const obj = current as Record<string, unknown>;
     if (isPointsEnvelope(obj as never)) return { ...obj, points: scalePoints(obj.points as Breakpoint[]) };
     const out: Record<string, unknown> = { ...obj };
     if (Array.isArray(obj.env)) out.env = scalePoints(obj.env as Breakpoint[]);
-    // An ADSR envelope: every duration scales.
-    for (const key of ['attack', 'hold', 'decay', 'release', 'gate'] as (keyof AdsrEnvelope)[]) {
+    // An ADSR envelope (every duration) or a repeat (its timing) scales.
+    for (const key of ['attack', 'hold', 'decay', 'release', 'gate', 'interval', 'jitter', 'dur'] as (keyof AdsrEnvelope)[]) {
       if (typeof obj[key] === 'number') out[key] = (obj[key] as number) * k;
     }
     return out;
@@ -99,19 +110,38 @@ function stretchTimes(current: unknown, k: number): unknown {
 }
 
 /** Applies one control to a patch in place. */
-export function applyControl(patch: Patch, c: Control, metaAt: MetaLookup, warnings: string[]): void {
-  if (c.options && c.options.length > 0) {
+/**
+ * Applies one control to a patch in place. `phase` limits it to its absolute changes (options and `set` targets) or
+ * its relative ones (`mul`, `add`, `stretch`); applyControls runs every control's absolute changes first, so a
+ * relative change always lands on top of whatever value the controls set, whatever their order.
+ */
+export function applyControl(
+  patch: Patch,
+  c: Control,
+  metaAt: MetaLookup,
+  warnings: string[],
+  phase: 'all' | 'absolute' | 'relative' = 'all',
+): void {
+  if (phase !== 'relative' && c.options && c.options.length > 0) {
     const idx = clamp(Math.round(c.value), 0, c.options.length - 1);
     for (const [path, value] of Object.entries(c.options[idx].set ?? {})) {
       if (!setPath(patch, path, deepClone(value))) warnings.push(`control "${c.id}": option path not found: ${path}`);
     }
   }
   const pos = controlPosition(c);
+  // Where `via` sits: the control's default, else its middle.
+  const anchor = c.default !== undefined ? controlPosition({ ...c, value: c.default }) : 0.5;
   for (const t of c.targets ?? []) {
     const meta = metaAt(patch, t.path);
     const { from, to, curve } = defaultsFor(t, meta);
-    const mapped = mapValue(pos, from, to, curve);
+    let mapped: number;
+    if (typeof t.via === 'number' && anchor > 0 && anchor < 1) {
+      mapped = pos <= anchor ? mapValue(pos / anchor, from, t.via, curve) : mapValue((pos - anchor) / (1 - anchor), t.via, to, curve);
+    } else {
+      mapped = mapValue(pos, from, to, curve);
+    }
     const mode = t.mode ?? 'set';
+    if ((phase === 'absolute' && mode !== 'set') || (phase === 'relative' && mode === 'set')) continue;
     const current = getPath(patch, t.path);
     const base = current === undefined ? (typeof meta?.default === 'number' ? meta.default : undefined) : current;
     let next: unknown;
@@ -131,7 +161,19 @@ export function applyControl(patch: Patch, c: Control, metaAt: MetaLookup, warni
 export function applyControls(patch: Patch, metaAt: MetaLookup): { patch: Patch; warnings: string[] } {
   const out = deepClone(patch);
   const warnings: string[] = [];
-  for (const c of patch.controls ?? []) applyControl(out, c, metaAt, warnings);
+  const controls = patch.controls ?? [];
+  // Absolute values first (options, `set`), then relative changes on top, so the order of controls doesn't matter.
+  for (const c of controls) applyControl(out, c, metaAt, warnings, 'absolute');
+  for (const c of controls) applyControl(out, c, metaAt, warnings, 'relative');
+  const setBy = new Map<string, string>();
+  for (const c of controls) {
+    const paths = [...(c.targets ?? []).filter((t) => (t.mode ?? 'set') === 'set').map((t) => t.path), ...(c.options ?? []).flatMap((o) => Object.keys(o.set ?? {}))];
+    for (const path of new Set(paths)) {
+      const other = setBy.get(path);
+      if (other && other !== c.id) warnings.push(`controls "${other}" and "${c.id}" both set ${path}; "${c.id}" wins`);
+      setBy.set(path, c.id);
+    }
+  }
   return { patch: out, warnings };
 }
 

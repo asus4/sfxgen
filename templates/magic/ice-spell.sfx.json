@@ -1,0 +1,160 @@
+{
+  "format": "sfxgen/1",
+  "name": "Ice spell crack",
+  "description": "A frost spell freezes a puddle solid and the ice splits. 0 to 550 ms: frost racing across the surface, a dry creaking scrape over a thin glassy sheet that speeds up and rises in pitch as the crystals close in. 560 ms: the sheet cracks, a hard, bright, short snap (a brittle ceramic-like plate, badly flawed), with a second smaller crack 70 ms later as the fracture runs. Then splinters skitter away on the ice for half a second, and a cold thin breath of air hangs over it.",
+  "tags": ["magic", "ice", "frost", "freeze", "crack", "spell", "cold", "shatter", "crystal"],
+  "duration": "auto",
+  "seed": 33,
+  "tracks": [
+    {
+      "id": "frost",
+      "note": "Freezing: a scrape exciter on a glass plate. The ridge rate climbs, so the creak tightens. High damping keeps it dry: ice, not a wine glass.",
+      "gain": -6,
+      "source": {
+        "type": "modal",
+        "material": "glass",
+        "shape": "plate",
+        "freq": [[0, 520], [0.55, 890]],
+        "decay": 0.12,
+        "damping": 2.4,
+        "brightness": 0.7,
+        "modes": 30,
+        "dent": 0.4,
+        "exciter": { "kind": "scrape", "hardness": 0.8, "duration": 0.55, "density": [[0, 35], [0.55, 420]], "roughness": 0.45 }
+      },
+      "fx": [{ "type": "gain", "gain": [[0, -14], [0.5, 0]] }]
+    },
+    {
+      "id": "crack",
+      "note": "The split: the loudest, shortest thing. A flawed ceramic plate hit at its edge with steel; the transient shaper makes it snap. Two events: the crack, and the fracture running on.",
+      "start": 0.56,
+      "source": {
+        "type": "modal",
+        "material": "ceramic",
+        "shape": "plate",
+        "freq": 410,
+        "decay": 0.3,
+        "damping": 1.6,
+        "brightness": 0.808,
+        "modes": 44,
+        "dent": 0.7,
+        "position": 0.95,
+        "variant": 7,
+        "exciter": { "kind": "mallet", "hardness": 0.825 }
+      },
+      "events": [{ "t": 0, "vel": 1 }, { "t": 0.071, "pitch": 5, "vel": 0.5 }],
+      "fx": [{ "type": "transient", "attack": 3.7, "sustain": 0, "window": 0.006 }]
+    },
+    {
+      "id": "body",
+      "note": "The thickness of the ice giving way under the crack: a dull stone knock at 170 Hz so the snap has weight on small speakers.",
+      "start": 0.563,
+      "gain": -5,
+      "source": {
+        "type": "modal",
+        "material": "stone",
+        "shape": "box",
+        "freq": 172,
+        "decay": 0.2,
+        "position": 0.5,
+        "exciter": { "kind": "mallet", "hardness": 0.6 }
+      }
+    },
+    {
+      "id": "splinters",
+      "note": "Shards skittering off across the ice after the crack: small glass pieces, big ones first.",
+      "start": 0.6,
+      "gain": -18,
+      "source": {
+        "type": "particles",
+        "distribution": "burst",
+        "density": 112,
+        "duration": 0.7,
+        "grain": {
+          "kind": "modal",
+          "material": "glass",
+          "shape": "plate",
+          "lo": 1700,
+          "hi": 7000,
+          "decayLo": 0.01,
+          "decayHi": 0.09,
+          "levelJitter": 14,
+          "size": 0.7
+        }
+      }
+    },
+    {
+      "id": "cold",
+      "note": "Cold air: a thin high hiss that swells with the freeze and lingers. Makes the space feel frozen.",
+      "gain": -32,
+      "source": {
+        "type": "noise",
+        "color": "blue",
+        "env": { "attack": 0.5, "hold": 0.1, "decay": 1.2 },
+        "filter": { "mode": "bandpass", "cutoff": [[0, 5000], [0.56, 9000], [1.6, 6500]], "q": 1.5 }
+      }
+    }
+  ],
+  "master": {
+    "normalize": { "mode": "peak", "target": -3 },
+    "fx": [{ "type": "reverb", "id": "air", "space": "bathroom", "decay": 0.5, "mix": 0.12 }, { "type": "limiter", "gain": 7, "release": 0.04 }]
+  },
+  "controls": [
+    {
+      "id": "freeze",
+      "label": "Freeze time",
+      "hint": "An instant flash-freeze to a long creeping frost before the crack.",
+      "value": 0.5,
+      "targets": [
+        { "path": "tracks.frost.source.exciter.duration", "mode": "mul", "from": 0.3, "to": 3.3 },
+        { "path": "tracks.frost.source.exciter.density", "mode": "stretch", "from": 0.3, "to": 3.3 },
+        { "path": "tracks.frost.source.freq", "mode": "stretch", "from": 0.3, "to": 3.3 },
+        { "path": "tracks.frost.fx.0.gain", "mode": "stretch", "from": 0.3, "to": 3.3 },
+        { "path": "tracks.cold.source.env.attack", "mode": "mul", "from": 0.3, "to": 3.3 },
+        { "path": "tracks.crack.start", "mode": "mul", "from": 0.3, "to": 3.3 },
+        { "path": "tracks.body.start", "mode": "mul", "from": 0.3, "to": 3.3 },
+        { "path": "tracks.splinters.start", "mode": "mul", "from": 0.3, "to": 3.3 }
+      ]
+    },
+    {
+      "id": "thickness",
+      "label": "Thickness",
+      "hint": "A thin brittle skin of ice to a thick slab that booms when it splits.",
+      "value": 0.45,
+      "vary": 0.06,
+      "targets": [
+        { "path": "tracks.crack.source.freq", "mode": "mul", "from": 2, "to": 0.45 },
+        { "path": "tracks.body.source.freq", "mode": "mul", "from": 1.8, "to": 0.5 },
+        { "path": "tracks.body.gain", "from": -14, "to": 6 },
+        { "path": "tracks.frost.source.freq", "mode": "mul", "from": 1.6, "to": 0.6 }
+      ]
+    },
+    {
+      "id": "crack",
+      "label": "Crack",
+      "hint": "A soft tick to a vicious snap.",
+      "value": 0.65,
+      "vary": 0.08,
+      "targets": [
+        { "path": "tracks.crack.fx.0.attack", "from": -8, "to": 10 },
+        { "path": "tracks.crack.source.exciter.hardness", "from": 0.5, "to": 1 },
+        { "path": "tracks.crack.source.brightness", "from": 0.45, "to": 1 }
+      ]
+    },
+    {
+      "id": "splinters",
+      "label": "Splinters",
+      "hint": "A clean split, or shards scattering everywhere.",
+      "value": 0.5,
+      "vary": 0.1,
+      "targets": [{ "path": "tracks.splinters.gain", "from": -36, "to": 0 }, { "path": "tracks.splinters.source.density", "from": 30, "to": 420 }]
+    },
+    {
+      "id": "cold",
+      "label": "Cold air",
+      "hint": "The thin frozen hiss over everything.",
+      "value": 0.5,
+      "targets": [{ "path": "tracks.cold.gain", "from": -48, "to": -16 }]
+    }
+  ]
+}

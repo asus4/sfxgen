@@ -75,6 +75,17 @@ export const MASTER_FIELDS: ParamMap = {
   fadeOut: { kind: 'number', doc: 'Fade-out seconds.', min: 0, max: 2, unit: 's' },
 };
 
+/** `master.normalize` fields. Only path lookups (`--set`, controls) use these; the schema and guide describe it by hand. */
+const MASTER_NORMALIZE: ParamMeta = {
+  kind: 'object',
+  doc: 'How the finished sound is levelled.',
+  fields: {
+    mode: { kind: 'enum', doc: 'peak sets the highest sample, loudness the integrated loudness, none leaves the level alone.', options: ['peak', 'loudness', 'none'], default: 'peak' },
+    target: { kind: 'number', doc: 'dBFS for peak (default -1), LUFS for loudness (default -16).', min: -60, max: 0, unit: 'dB' },
+    ceiling: { kind: 'number', doc: 'For loudness: the highest peak allowed, dBFS (default -0.3).', min: -20, max: 0, unit: 'dBFS' },
+  },
+};
+
 export const BUS_FIELDS: ParamMap = {
   gain: { kind: 'number', doc: 'Bus level in dB.', default: 0, min: -48, max: 12, unit: 'dB' },
 };
@@ -122,6 +133,7 @@ export function metaAt(patch: Patch, path: string): ParamMeta | undefined {
   };
   if (segs[0] === 'master') {
     if (segs[1] === 'fx') return fxMeta(patch.master?.fx ?? [], segs[2], segs.slice(3));
+    if (segs[1] === 'normalize') return descend(MASTER_NORMALIZE, segs.slice(2));
     return MASTER_FIELDS[segs[1]];
   }
   if (segs[0] === 'buses') {

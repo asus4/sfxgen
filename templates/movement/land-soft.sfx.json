@@ -1,0 +1,293 @@
+{
+  "format": "sfxgen/1",
+  "name": "Soft landing",
+  "description": "A cat-burglar dropping from a wall onto a lawn in soft shoes: the balls of both feet meet the turf 28 ms apart (two padded thumps, nothing sharp), the knees give and the heels settle at 110 ms, grass and soil crush under the soles, and the clothes catch up with a last rustle around 150 ms. Outdoors and close: no echo at all.",
+  "tags": [
+    "movement",
+    "landing",
+    "land",
+    "jump",
+    "footstep",
+    "soft",
+    "stealth",
+    "grass",
+    "foley"
+  ],
+  "duration": "auto",
+  "seed": 29,
+  "tracks": [
+    {
+      "id": "feet",
+      "note": "Left and right foot, 28 ms apart: a drum-skin-like patch of ground hit with something soft. The flam is what makes it two feet and a body.",
+      "events": [
+        {
+          "t": 0
+        },
+        {
+          "t": 0.028,
+          "pitch": -1.5,
+          "vel": 0.85
+        }
+      ],
+      "source": {
+        "type": "modal",
+        "material": "skin",
+        "shape": "membrane",
+        "freq": [
+          [
+            0,
+            128
+          ],
+          [
+            0.06,
+            96
+          ]
+        ],
+        "decay": 0.12,
+        "damping": 2.6,
+        "position": 0.1,
+        "brightness": 0.45,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.3
+        }
+      },
+      "fx": [
+        {
+          "type": "drive",
+          "mode": "tanh",
+          "amount": 15,
+          "tone": 3500
+        }
+      ],
+      "gain": -15
+    },
+    {
+      "id": "heels",
+      "note": "The weight coming down through the heels as the knees bend: one lower, duller bump at 110 ms.",
+      "start": 0.11,
+      "gain": -16,
+      "source": {
+        "type": "modal",
+        "material": "rubber",
+        "shape": "box",
+        "freq": 71,
+        "decay": 0.1,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.1
+        }
+      }
+    },
+    {
+      "id": "turf",
+      "note": "Grass and soil crushed under the soles: a soft crunch of low, short grains that begins with the first foot.",
+      "start": 0.004,
+      "gain": 4,
+      "source": {
+        "type": "particles",
+        "distribution": "burst",
+        "density": 1400,
+        "duration": 0.16,
+        "grain": {
+          "kind": "tick",
+          "lo": 500,
+          "hi": 3200,
+          "decayLo": 0.004,
+          "decayHi": 0.014,
+          "levelJitter": 14,
+          "size": 0.6
+        }
+      }
+    },
+    {
+      "id": "crush",
+      "note": "The turf giving way under the soles: a crumbling, noisy press on something dead and fibrous. It carries the landing on small speakers, where the thumps vanish.",
+      "start": 0.006,
+      "gain": -3,
+      "events": [
+        {
+          "t": 0
+        },
+        {
+          "t": 0.03,
+          "vel": 0.8,
+          "pitch": -2
+        }
+      ],
+      "source": {
+        "type": "modal",
+        "material": "cardboard",
+        "shape": "random",
+        "variant": 7,
+        "freq": 520,
+        "modes": 30,
+        "brightness": 0.7,
+        "exciter": {
+          "kind": "noise",
+          "hardness": 0.55,
+          "duration": 0.09
+        }
+      }
+    },
+    {
+      "id": "clothes",
+      "note": "The jacket arriving after the body: a breath of fabric noise, 100 ms long.",
+      "start": 0.1,
+      "gain": -12,
+      "source": {
+        "type": "noise",
+        "color": "pink",
+        "env": {
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              0.04,
+              1
+            ],
+            [
+              0.13,
+              0
+            ]
+          ],
+          "curve": "linear"
+        },
+        "filter": {
+          "mode": "bandpass",
+          "cutoff": [
+            [
+              0,
+              2600
+            ],
+            [
+              0.12,
+              1300
+            ]
+          ],
+          "q": 0.7
+        }
+      }
+    }
+  ],
+  "controls": [
+    {
+      "id": "weight",
+      "label": "Weight",
+      "hint": "A cat to a heavy man with a pack: lower, longer, with more heel.",
+      "value": 0.45,
+      "vary": 0.07,
+      "targets": [
+        {
+          "path": "tracks.feet.source.pitch",
+          "mode": "set",
+          "from": 10,
+          "to": -8
+        },
+        {
+          "path": "tracks.feet.source.decay",
+          "mode": "set",
+          "from": 0.07,
+          "to": 0.2
+        },
+        {
+          "path": "tracks.heels.gain",
+          "mode": "set",
+          "from": -30,
+          "to": -8
+        },
+        {
+          "path": "tracks.feet.gain",
+          "mode": "set",
+          "from": -19,
+          "to": -10
+        }
+      ]
+    },
+    {
+      "id": "softness",
+      "label": "Softness",
+      "hint": "Bare stone under thin soles to deep moss: the thump loses its edge.",
+      "value": 0.55,
+      "vary": 0.06,
+      "targets": [
+        {
+          "path": "tracks.crush.source.exciter.hardness",
+          "mode": "set",
+          "from": 0.85,
+          "to": 0.3
+        },
+        {
+          "path": "tracks.feet.source.exciter.hardness",
+          "mode": "set",
+          "from": 0.6,
+          "to": 0.04
+        },
+        {
+          "path": "tracks.feet.source.brightness",
+          "mode": "set",
+          "from": 0.65,
+          "to": 0.15
+        }
+      ]
+    },
+    {
+      "id": "ground",
+      "label": "Ground",
+      "hint": "Bare, swept ground to leaves, twigs and gravel.",
+      "value": 0.4,
+      "vary": 0.08,
+      "targets": [
+        {
+          "path": "tracks.turf.gain",
+          "mode": "set",
+          "from": -30,
+          "to": 12
+        },
+        {
+          "path": "tracks.turf.source.grain.hi",
+          "mode": "set",
+          "from": 1800,
+          "to": 6500
+        },
+        {
+          "path": "tracks.crush.gain",
+          "mode": "set",
+          "from": -20,
+          "to": 5
+        }
+      ]
+    },
+    {
+      "id": "flam",
+      "label": "Feet",
+      "hint": "Both feet together to one after the other.",
+      "value": 0.3,
+      "vary": 0.1,
+      "targets": [
+        {
+          "path": "tracks.feet.events.1.t",
+          "mode": "set",
+          "from": 0.004,
+          "to": 0.09
+        }
+      ]
+    },
+    {
+      "id": "clothes",
+      "label": "Clothes",
+      "hint": "Tight, silent gear to a flapping coat.",
+      "value": 0.4,
+      "targets": [
+        {
+          "path": "tracks.clothes.gain",
+          "mode": "set",
+          "from": -36,
+          "to": 0
+        }
+      ]
+    }
+  ]
+}

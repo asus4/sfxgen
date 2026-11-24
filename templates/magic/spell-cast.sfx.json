@@ -1,0 +1,134 @@
+{
+  "format": "sfxgen/1",
+  "name": "Spell cast",
+  "description": "A mage throws an arcane bolt. 0 to 420 ms: energy is drawn into the staff, an unstable tone that wanders and climbs (an attractor being wound tighter), ringing a chord of sympathetic strings as it goes. 420 ms: release. The staff head rings like a struck bell with strange overtones, and the bolt leaves with a quick air tear that sweeps up and away. Then a short trail of rising sparks, and the string chord left hanging in a stone hall.",
+  "tags": ["magic", "spell", "cast", "arcane", "wizard", "bolt", "missile", "staff"],
+  "duration": "auto",
+  "seed": 19,
+  "tracks": [
+    {
+      "id": "gather",
+      "gain": -9,
+      "note": "Drawing power: a Lorenz attractor, sped up and made less stable. The string resonator turns its buzz into a chord, so the wind-up is musical.",
+      "source": {
+        "type": "chaos",
+        "mode": "lorenz",
+        "rate": [[0, 120], [0.42, 640]],
+        "chaos": [[0, 0.25], [0.42, 0.75]],
+        "smooth": 0.15,
+        "env": { "points": [[0, 0], [0.008, 0.25], [0.1, 0.4], [0.4, 1], [0.44, 0]], "curve": "linear" }
+      },
+      "fx": [
+        {
+          "type": "resonator",
+          "id": "strings",
+          "mode": "string",
+          "freq": 247,
+          "chord": [0, 7.02, 14.04, 17.9],
+          "decay": 1.6,
+          "brightness": 0.6,
+          "mix": 0.64
+        }
+      ],
+      "sends": { "hall": -8 }
+    },
+    {
+      "id": "release",
+      "note": "The cast itself: an FM bell with inharmonic ratios whose brightness dies faster than its level. Pitch kicks upward at the start, like something leaving.",
+      "start": 0.42,
+      "source": {
+        "type": "fm",
+        "freq": [[0, 370], [0.05, 554], [0.6, 540]],
+        "algorithm": "stack",
+        "ops": [
+          { "ratio": 1 },
+          { "id": "clang", "ratio": 2.76, "index": 7, "env": { "decay": 0.35, "sustain": 0.08 } },
+          { "ratio": 5.4, "index": 2, "env": { "decay": 0.1 } }
+        ],
+        "env": { "attack": 0.001, "decay": 1.05 }
+      },
+      "sends": { "hall": -7 }
+    },
+    {
+      "id": "tear",
+      "note": "Air torn by the bolt: starts 20 ms before the bell so the release has a leading edge.",
+      "start": 0.4,
+      "gain": -14,
+      "source": {
+        "type": "noise",
+        "color": "white",
+        "env": { "attack": 0.02, "decay": 0.32 },
+        "filter": { "mode": "bandpass", "cutoff": [[0, 700], [0.07, 2600], [0.3, 7500]], "q": 2.2 }
+      },
+      "sends": { "hall": -10 }
+    },
+    {
+      "id": "trail",
+      "note": "What is left in the air: a few sparks that chirp upward.",
+      "start": 0.47,
+      "gain": -18.3,
+      "source": {
+        "type": "particles",
+        "distribution": "burst",
+        "density": 90,
+        "duration": 0.6,
+        "grain": { "kind": "chirp", "lo": 1800, "hi": 6000, "sweep": 1.2, "decayLo": 0.015, "decayHi": 0.06, "levelJitter": 10 }
+      },
+      "sends": { "hall": -6 }
+    }
+  ],
+  "buses": [{ "id": "hall", "fx": [{ "type": "reverb", "id": "stone", "space": "chamber", "decay": 1.33, "predelay": 15 }], "gain": -11.4 }],
+  "controls": [
+    {
+      "id": "charge",
+      "label": "Charge time",
+      "hint": "An instant snap cast to a long, wound-up incantation.",
+      "value": 0.5,
+      "targets": [
+        { "path": "tracks.gather.source.rate", "mode": "stretch", "from": 0.3, "to": 3.3 },
+        { "path": "tracks.gather.source.chaos", "mode": "stretch", "from": 0.3, "to": 3.3 },
+        { "path": "tracks.gather.source.env.points", "mode": "stretch", "from": 0.3, "to": 3.3 },
+        { "path": "tracks.release.start", "mode": "mul", "from": 0.3, "to": 3.3 },
+        { "path": "tracks.tear.start", "mode": "mul", "from": 0.3, "to": 3.3 },
+        { "path": "tracks.trail.start", "mode": "mul", "from": 0.3, "to": 3.3 }
+      ]
+    },
+    {
+      "id": "power",
+      "label": "Power",
+      "hint": "A cantrip, small and high, to a heavy, clanging great spell.",
+      "value": 0.5,
+      "targets": [
+        { "path": "tracks.release.source.freq", "mode": "mul", "from": 1.8, "to": 0.5 },
+        { "path": "tracks.release.source.ops.clang.index", "from": 2, "to": 12 },
+        { "path": "tracks.release.source.env.decay", "from": 0.5, "to": 2.2 },
+        { "path": "tracks.gather.fx.strings.freq", "mode": "mul", "from": 1.8, "to": 0.5 }
+      ]
+    },
+    {
+      "id": "wild",
+      "label": "Wildness",
+      "hint": "Disciplined, tonal magic to raw crackling chaos.",
+      "value": 0.45,
+      "targets": [
+        { "path": "tracks.gather.fx.strings.mix", "from": 1, "to": 0.2 },
+        { "path": "tracks.gather.source.chaos", "mode": "mul", "from": 0.4, "to": 1.3 },
+        { "path": "tracks.trail.gain", "from": -30, "to": -4 }
+      ]
+    },
+    {
+      "id": "air",
+      "label": "Whoosh",
+      "hint": "How much air the bolt tears on its way out.",
+      "value": 0.5,
+      "targets": [{ "path": "tracks.tear.gain", "from": -30, "to": 2 }]
+    },
+    {
+      "id": "hall",
+      "label": "Hall",
+      "hint": "Outdoors and dry, or echoing in a stone chamber.",
+      "value": 0.45,
+      "targets": [{ "path": "buses.hall.gain", "mode": "set", "from": -24, "to": 4 }, { "path": "buses.hall.fx.stone.decay", "from": 0.6, "to": 3.5 }]
+    }
+  ]
+}

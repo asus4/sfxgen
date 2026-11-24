@@ -8,12 +8,15 @@
 import type { Control, Patch, Track } from '../format/types';
 import { validatePatch, formatIssues, suggest, type ValidationResult } from '../format/validate';
 import { deepClone, getPath, setPath, splitPath } from '../format/paths';
+import { controlsSetting, syncControlBases } from '../format/sync';
 import { takeFileName, variationTakes } from '../format/controls';
 import { metaAt, getSource } from '../registry';
 import { getTemplate, listTemplates, templateCategories } from '../templates';
 import { analyze, describe, encodePng, spectrogram } from '../analysis';
+import type { RenderResult } from '../render';
 import { buildGuide, catalogIndex, type GuideSection } from './guide';
-import type { ChangeRecord, Workspace } from './workspace';
+import { PROJECT_FILE, matchLoudness, newProject, projectPatch, soundExportPath, soundName, validateProject, type Project, type ProjectSound, type SoundLevel } from '../project/project';
+import type { ChangeRecord, ProjectBuildRow, Workspace } from './workspace';
 
 // ---- Types -----------------------------------------------------------------------------------
 
@@ -474,9 +477,14 @@ const editPatch: ToolDef = {
     if ('error' in g) return fail(`Not saved: the edit leaves the patch with errors.\n${validationText(validatePatch(patch))}`);
     const broken = brokenControlTargets(patch);
     const note = await humanChangeNote(ws, ref);
+    const owners = controlsSetting(patch);
+    const overridden = Object.keys(set)
+      .filter((p) => owners.has(p))
+      .map((p) => `\nWarning: ${p} is set by control "${owners.get(p)}", which overrides this value when rendering. Change the control's value instead, or call sync_controls after editing.`)
+      .join('');
     await save(ws, patch, ref);
     const brokenText = broken.length ? `\nControls now broken (fix with set_controls):\n- ${broken.join('\n- ')}` : '';
-    return { text: `Saved. ${done.join('; ')}.${g.warnings}${brokenText}${note}`, data: { applied: done, patch } };
+    return { text: `Saved. ${done.join('; ')}.${g.warnings}${overridden}${brokenText}${note}`, data: { applied: done, patch } };
   },
 };
 
@@ -491,6 +499,25 @@ const controlSchema: JsonSchema = {
   },
   required: ['id', 'label', 'value'],
   additionalProperties: true,
+};
+
+
+const syncControls: ToolDef = {
+  name: 'sync_controls',
+  title: 'Sync the patch with its controls',
+  description:
+    'Writes the value each control currently applies into the base value at its `set` targets and options, so the patch file says what renders (a control overrides the base value there on every render, which makes a hand-edited value at that path look dead). Relative targets (mul, add, stretch) are left alone. Call it after changing a control\'s value or a controlled parameter, and before reading the patch back to a person.',
+  inputSchema: obj({ file: FILE_PROP }),
+  annotations: { destructiveHint: true, idempotentHint: true },
+  async run(ws, args) {
+    const ref = str(args, 'file');
+    const patch = await ws.getPatch(ref);
+    const { patch: synced, changes } = syncControlBases(patch);
+    if (changes.length === 0) return { text: 'Already in sync: no control sets a value that differs from the patch.', data: { changes } };
+    await save(ws, synced, ref);
+    const lines = changes.map((c) => `- ${c.path}: ${formatValue(c.before)} -> ${formatValue(c.after)}`);
+    return { text: `Wrote ${changes.length} base value(s) from the controls:\n${lines.join('\n')}`, data: { changes } };
+  },
 };
 
 const setControls: ToolDef = {
@@ -528,6 +555,85 @@ const setControls: ToolDef = {
 
 // ---- render_and_analyze ----------------------------------------------------------------------
 
+
+// ---- Per-track levels ----------------------------------------------------------------------------------
+
+export interface TrackLevel {
+  id: string;
+  type: string;
+  muted: boolean;
+  /** Peak and loudness of the track on its own, at the level it has in the finished mix, dB. */
+  peakDb: number;
+  lufs: number;
+  /** Share of the mix's energy, percent (layers that overlap or cancel make the shares not add up to 100). */
+  sharePct: number;
+  /** 30 dB or more under the loudest track: it contributes nothing you can hear. */
+  inaudible: boolean;
+}
+
+const INAUDIBLE_DB = 30;
+
+function energyOf(channels: Float32Array[]): number {
+  let e = 0;
+  for (const ch of channels) for (let i = 0; i < ch.length; i++) e += ch[i] * ch[i];
+  return e;
+}
+
+/**
+ * Renders every track on its own (same seed, controls and master chain, normalisation off) and measures it at the
+ * level it has in the finished mix: `mix` is the normal render of `patch`, whose `normalizeGainDb` is the gain the
+ * mix got, and each solo is brought up by the same amount. `renderPatch` renders a patch as the caller does (project
+ * context, controls applied); pass the patch as it renders (project settings already in it).
+ */
+export async function measureTracks(
+  patch: Patch,
+  mix: RenderResult,
+  renderPatch: (p: Patch) => RenderResult | Promise<RenderResult>,
+): Promise<TrackLevel[]> {
+  const withoutNormalize = (p: Patch): Patch => {
+    const q = deepClone(p);
+    q.master = { ...(q.master ?? {}), normalize: { mode: 'none' } };
+    return q;
+  };
+  const rawMix = await renderPatch(withoutNormalize(patch));
+  const mixEnergy = energyOf(rawMix.channels);
+  const gain = mix.normalizeGainDb;
+  const rows: TrackLevel[] = [];
+  for (const track of patch.tracks) {
+    const base = { id: track.id, type: String(track.source.type) };
+    if (track.mute) {
+      rows.push({ ...base, muted: true, peakDb: -Infinity, lufs: -Infinity, sharePct: 0, inaudible: false });
+      continue;
+    }
+    const solo = withoutNormalize(patch);
+    for (const t of solo.tracks) t.solo = t.id === track.id;
+    const r = await renderPatch(solo);
+    const a = analyze(r.channels, r.sampleRate);
+    const silent = a.peakDb <= -100;
+    rows.push({
+      ...base,
+      muted: false,
+      peakDb: silent ? -Infinity : a.peakDb + gain,
+      lufs: silent ? -Infinity : a.lufs + gain,
+      sharePct: mixEnergy > 0 ? (100 * energyOf(r.channels)) / mixEnergy : 0,
+      inaudible: false,
+    });
+  }
+  const loudest = Math.max(...rows.filter((r) => !r.muted).map((r) => r.peakDb));
+  for (const r of rows) if (!r.muted && r.peakDb <= loudest - INAUDIBLE_DB) r.inaudible = true;
+  return rows;
+}
+
+/** The track table as text lines (one row per track). */
+export function trackTable(rows: TrackLevel[]): string[] {
+  const db = (x: number) => (Number.isFinite(x) ? x.toFixed(1) : '-inf');
+  return formatTable(
+    ['track', 'source', 'peak dBFS', 'LUFS', 'energy %', ''],
+    rows.map((r) => [r.id, r.type, r.muted ? '-' : db(r.peakDb), r.muted ? '-' : db(r.lufs), r.muted ? '-' : r.sharePct < 0.1 ? '<0.1' : r.sharePct.toFixed(1), r.muted ? 'muted' : r.inaudible ? 'inaudible' : '']),
+    [2, 3, 4],
+  );
+}
+
 const renderAndAnalyze: ToolDef = {
   name: 'render_and_analyze',
   title: 'Render and analyze',
@@ -538,6 +644,7 @@ const renderAndAnalyze: ToolDef = {
     describe: { type: 'boolean', description: 'Include the plain-language description. Default true.' },
     analyze: { type: 'boolean', description: 'Include every measurement as structured data. Default true.' },
     spectrogram: { type: 'boolean', description: 'Also return a spectrogram image with the waveform above it. Default false.' },
+    tracks: { type: 'boolean', description: 'Also render each track on its own and list its peak, loudness and share of the mix\'s energy, marking tracks 30 dB or more under the loudest as inaudible. Use it when a layer seems to do nothing. Default false.' },
   }),
   annotations: { readOnlyHint: true, idempotentHint: true },
   async run(ws, args) {
@@ -547,7 +654,9 @@ const renderAndAnalyze: ToolDef = {
     const result = await ws.render(patch);
     const analysis = analyze(result.channels, result.sampleRate);
     const lines = [`Rendered "${patch.name}": ${round(result.duration)} s, ${result.sampleRate} Hz, ${result.channels.length === 2 ? 'stereo' : 'mono'}, in ${Math.round(result.timeMs)} ms.`];
-    if (args.describe !== false) lines.push(describe(analysis));
+    if (args.describe !== false) lines.push(describe(analysis, { loop: !!patch.loop }));
+    const tracks = args.tracks === true ? await measureTracks(patch, result, (p) => ws.render(p)) : undefined;
+    if (tracks) lines.push('Tracks on their own, at their level in the mix:', ...trackTable(tracks));
     if (result.warnings.length) lines.push(`Render warnings:\n- ${result.warnings.join('\n- ')}`);
     if (v.warnings.length) lines.push(`Validation warnings:\n${formatIssues({ ...v, errors: [] })}`);
     const out: ToolResult = {
@@ -560,6 +669,7 @@ const renderAndAnalyze: ToolDef = {
         renderMs: result.timeMs,
         warnings: result.warnings,
         ...(args.analyze !== false ? { analysis } : {}),
+        ...(tracks ? { tracks } : {}),
       },
     };
     if (args.spectrogram === true) {
@@ -665,6 +775,317 @@ const listPatches: ToolDef = {
   },
 };
 
+
+// ---- Projects --------------------------------------------------------------------------------------
+
+const PROJECT_HINT = 'This workspace has no projects.';
+
+/** A column-aligned text table: header row, then rows. Columns in `right` are right-aligned (numbers). */
+export function formatTable(header: string[], rows: string[][], right: number[] = []): string[] {
+  const widths = header.map((h, i) => Math.max(h.length, ...rows.map((r) => (r[i] ?? '').length)));
+  const line = (cells: string[]) =>
+    cells
+      .map((c, i) => (right.includes(i) ? (c ?? '').padStart(widths[i]) : (c ?? '').padEnd(widths[i])))
+      .join('  ')
+      .trimEnd();
+  return [line(header), line(widths.map((w) => '-'.repeat(w))), ...rows.map(line)];
+}
+
+const num1 = (x: number | undefined): string => (x === undefined || !Number.isFinite(x) ? '-' : x.toFixed(1));
+
+export interface MeasuredSound {
+  name: string;
+  file?: string;
+  group?: string;
+  /** The sound's gain in the project, dB. */
+  gain: number;
+  skip: boolean;
+  export: string;
+  duration?: number;
+  /** Peak and loudness as the project renders it, gain included. */
+  peakDb?: number;
+  lufs?: number;
+  warnings: string[];
+  /** The sound could not be rendered. */
+  error?: string;
+}
+
+/**
+ * Renders every sound (skipped ones are only listed) in its project's context and measures it. Gain is applied
+ * analytically: it moves peak and loudness by exactly that many dB.
+ */
+export async function measureProject(ws: Workspace, project: Project, only?: string[]): Promise<MeasuredSound[]> {
+  const rows: MeasuredSound[] = [];
+  for (const sound of project.sounds) {
+    const name = soundName(sound);
+    const row: MeasuredSound = { name, file: sound.file, group: sound.group, gain: sound.gain ?? 0, skip: sound.skip === true, export: soundExportPath(project, sound), warnings: [] };
+    rows.push(row);
+    if (row.skip || (only && !only.includes(name))) continue;
+    try {
+      const patch = sound.patch ?? (await ws.getPatch(sound.file));
+      const v = validatePatch(patch);
+      if (!v.ok) throw new ToolError(`the patch has errors:\n${formatIssues({ ...v, warnings: [] })}`);
+      const r = await ws.render(projectPatch(project, sound, patch));
+      const a = analyze(r.channels, r.sampleRate);
+      row.duration = r.duration;
+      row.peakDb = a.peakDb + row.gain;
+      row.lufs = a.lufs + row.gain;
+      row.warnings = r.warnings;
+    } catch (e) {
+      row.error = e instanceof Error ? e.message : String(e);
+    }
+  }
+  return rows;
+}
+
+/** Loads the workspace's project or throws a message for the agent. */
+async function requireProject(ws: Workspace): Promise<{ project: Project; path?: string; saved: boolean }> {
+  if (!ws.getProject) throw new ToolError(PROJECT_HINT);
+  const got = await ws.getProject();
+  if (!got) throw new ToolError('There is no project yet. Add sounds with edit_project (add_sound) to start one, or create patches first.');
+  return { ...got, project: deepClone(got.project) };
+}
+
+function describeProject(project: Project, path: string | undefined, saved: boolean): string {
+  const bits = [
+    project.output ? `output ${JSON.stringify(project.output)}` : '',
+    project.normalize ? `normalize ${project.normalize.mode}${project.normalize.target !== undefined ? ` ${project.normalize.target}` : ''}` : '',
+    project.master?.fx?.length ? `master fx ${project.master.fx.map((f) => f.type).join(', ')}` : '',
+    project.outDir ? `outDir ${project.outDir}` : '',
+  ].filter(Boolean);
+  const groups = (project.groups ?? []).map((g) => `${g.id}${g.normalize ? ` (${g.normalize.mode}${g.normalize.target !== undefined ? ` ${g.normalize.target}` : ''})` : ''}`);
+  return `Project "${project.name}" (${saved ? path ?? PROJECT_FILE : `not saved yet: it will be written to ${path ?? PROJECT_FILE} on the first edit`}): ${project.sounds.length} sound(s)${groups.length ? `; groups: ${groups.join(', ')}` : ''}${bits.length ? `\nShared settings: ${bits.join('; ')}` : ''}`;
+}
+
+const getProjectTool: ToolDef = {
+  name: 'get_project',
+  title: 'Get the project',
+  description:
+    'Returns the project: the set of sounds made to be heard together, with its shared output and levelling, groups and each sound\'s group, gain and export path. Pass `measure: true` to render every sound in the project\'s context and add its loudness (LUFS) and peak, which is how you find a sound that is too loud or quiet for the set.',
+  inputSchema: obj({ measure: { type: 'boolean', description: 'Also render each sound and report duration, peak (dBFS) and loudness (LUFS). Default false.' } }),
+  annotations: { readOnlyHint: true, idempotentHint: true },
+  async run(ws, args) {
+    const { project, path, saved } = await requireProject(ws);
+    const measured = args.measure === true ? await measureProject(ws, project) : undefined;
+    const header = ['name', 'group', 'gain', 'export', ...(measured ? ['dur s', 'peak', 'LUFS'] : []), 'note'];
+    const rows = project.sounds.map((s, i) => {
+      const m = measured?.[i];
+      return [
+        soundName(s) + (s.skip ? ' (skip)' : ''),
+        s.group ?? '',
+        num1(s.gain ?? 0),
+        soundExportPath(project, s),
+        ...(measured ? [m?.duration !== undefined ? m.duration.toFixed(2) : '-', num1(m?.peakDb), m?.error ? 'error' : num1(m?.lufs)] : []),
+        s.note ?? '',
+      ];
+    });
+    const lines = [describeProject(project, path, saved), '', ...formatTable(header, rows, measured ? [2, 4, 5, 6] : [2])];
+    for (const m of measured ?? []) if (m.error) lines.push(`${m.name}: ${m.error}`);
+    const data = {
+      path,
+      saved,
+      project,
+      sounds: project.sounds.map((s, i) => ({ name: soundName(s), file: s.file, group: s.group, gain: s.gain ?? 0, export: soundExportPath(project, s), skip: s.skip === true, ...(measured?.[i] ? { duration: measured[i].duration, peakDb: measured[i].peakDb, lufs: measured[i].lufs, error: measured[i].error } : {}) })),
+    };
+    return { text: lines.join('\n'), data };
+  },
+};
+
+/** `sounds.<name>.gain` -> `sounds.<index>.gain`: sounds have no id, so tools address them by name. */
+function resolveProjectPath(project: Project, path: string): string {
+  const segs = splitPath(path);
+  if (segs[0] === 'sounds' && segs[1] !== undefined && !/^\d+$/.test(segs[1])) {
+    const i = project.sounds.findIndex((s) => soundName(s) === segs[1]);
+    if (i < 0) {
+      throw new ToolError(`No sound "${segs[1]}" in the project${suggest(segs[1], project.sounds.map(soundName))}. Sounds: ${project.sounds.map(soundName).join(', ') || 'none'}.`);
+    }
+    segs[1] = String(i);
+  }
+  return segs.join('.');
+}
+
+const addSoundSchema: JsonSchema = {
+  type: 'object',
+  description: 'A sound to add: `file` (a patch path relative to the project, such as "hits/punch.sfx.json") or an inline `patch`, plus optional group, gain (dB), export (a .wav path), note and skip.',
+  properties: {
+    file: { type: 'string', description: 'Patch file, relative to the project folder.' },
+    patch: { type: 'object', description: 'An inline patch instead of a file.' },
+    group: { type: 'string', description: 'A group id from the project\'s groups.' },
+    gain: { type: 'number', description: 'dB added after levelling: the sound\'s place in the set.' },
+    export: { type: 'string', description: 'WAV path for builds, relative to the project file. Default: <outDir>/<name>.wav.' },
+    note: { type: 'string', description: 'What the sound is for in the game.' },
+    skip: { type: 'boolean', description: 'Leave it out of builds.' },
+  },
+  additionalProperties: false,
+};
+
+const editProject: ToolDef = {
+  name: 'edit_project',
+  title: 'Edit the project',
+  description:
+    'Changes the project file by dot path: `set` writes values ({"normalize": {"mode":"peak","target":-3}, "sounds.punch.gain": -2, "groups.ui.normalize": {...}}; sounds are addressed by name), `unset` removes paths, `add_sound` appends a sound and `remove_sound` removes one by name. Order: remove_sound, add_sound, set, unset; it is validated first and nothing is saved if it has errors. Patch files are never touched: use edit_patch for the sounds themselves.',
+  inputSchema: obj({
+    set: { type: 'object', description: 'Path to new value. Paths: name, output.sampleRate, normalize, master.fx, outDir, groups.<id>.normalize, sounds.<name>.gain|group|export|note|skip.', additionalProperties: true },
+    unset: { type: 'array', items: { type: 'string' }, description: 'Paths to remove.' },
+    add_sound: addSoundSchema,
+    remove_sound: { type: 'string', description: 'Name of the sound to remove (its file name without .sfx.json). The patch file stays on disk.' },
+  }),
+  annotations: { destructiveHint: true },
+  async run(ws, args) {
+    if (!ws.setProject) return fail(PROJECT_HINT);
+    const { project, saved } = await requireProjectOrNew(ws);
+    const set = (args.set ?? {}) as Record<string, unknown>;
+    const unset = (args.unset ?? []) as string[];
+    if (Object.keys(set).length === 0 && unset.length === 0 && args.add_sound === undefined && args.remove_sound === undefined) {
+      return fail('Nothing to do: give set, unset, add_sound or remove_sound.');
+    }
+    const done: string[] = [];
+    if (typeof args.remove_sound === 'string') {
+      const i = project.sounds.findIndex((s) => soundName(s) === args.remove_sound);
+      if (i < 0) return fail(`No sound "${args.remove_sound}"${suggest(args.remove_sound, project.sounds.map(soundName))}. Sounds: ${project.sounds.map(soundName).join(', ')}.`);
+      project.sounds.splice(i, 1);
+      done.push(`removed sound ${args.remove_sound}`);
+    }
+    if (args.add_sound !== undefined) {
+      const sound = args.add_sound as ProjectSound;
+      if (!sound.file && !sound.patch) return fail('add_sound needs a `file` or an inline `patch`.');
+      if (sound.file && ws.list) {
+        const known = await ws.list();
+        if (!known.includes(sound.file)) return fail(`No patch file "${sound.file}"${suggest(sound.file, known)}. Patches: ${known.slice(0, 20).join(', ') || 'none'}. Create it first (new_from_template, set_patch).`);
+      }
+      project.sounds.push(sound);
+      done.push(`added sound ${soundName(sound)}`);
+    }
+    try {
+      for (const [path, value] of Object.entries(set)) {
+        if (!setPath(project, resolveProjectPath(project, path), deepClone(value))) return fail(`Cannot set "${path}": it runs through something that doesn't exist. Nothing was changed.`);
+        done.push(`set ${path}`);
+      }
+      for (const path of unset) {
+        if (!unsetPath(project, resolveProjectPath(project, path))) return fail(`Cannot unset "${path}": nothing is there. Nothing was changed.`);
+        done.push(`unset ${path}`);
+      }
+    } catch (e) {
+      if (e instanceof ToolError) return fail(`${e.message} Nothing was changed.`);
+      throw e;
+    }
+    const v = validateProject(project);
+    if (!v.ok) return fail(`Not saved: the edit leaves the project with errors.\n${formatIssues(v)}`);
+    await ws.setProject(project, { origin: 'agent' });
+    const warn = v.warnings.length ? `\nWarnings:\n${formatIssues({ ...v, errors: [] })}` : '';
+    return { text: `${saved ? 'Saved' : 'Created the project file'}. ${done.join('; ')}.${warn}`, data: { applied: done, project } };
+  },
+};
+
+/** The workspace's project, or a new empty one for a first edit. */
+async function requireProjectOrNew(ws: Workspace): Promise<{ project: Project; saved: boolean }> {
+  const got = ws.getProject ? await ws.getProject() : null;
+  if (got) return { project: deepClone(got.project), saved: got.saved };
+  return { project: newProject('Project'), saved: false };
+}
+
+function buildRowsText(rows: ProjectBuildRow[]): string[] {
+  return formatTable(
+    ['name', 'dur s', 'peak', 'LUFS', 'export', 'warnings'],
+    rows.map((r) => [r.name, r.error ? '-' : r.duration.toFixed(2), r.error ? '-' : num1(r.peakDb), r.error ? '-' : num1(r.lufs), r.export, r.error ? `ERROR ${r.error.split('\n')[0]}` : r.warnings.join('; ')]),
+    [1, 2, 3],
+  );
+}
+
+const buildProjectTool: ToolDef = {
+  name: 'build_project',
+  title: 'Build the project',
+  description:
+    'Renders every sound of the project (or only the named ones) in the project\'s context, with its output, levelling and shared master chain, and writes each WAV to its export path. Use it when the set is ready to go into the game; it overwrites the previous build and reports each sound\'s duration, peak and loudness so you can check the set is level.',
+  inputSchema: obj({ only: { type: 'array', items: { type: 'string' }, description: 'Build only these sounds, by name. Default: all that are not skipped.' } }),
+  annotations: { consequentialHint: true, destructiveHint: true },
+  async run(ws, args) {
+    if (!ws.buildProject) return fail('This workspace cannot build projects.');
+    const only = args.only as string[] | undefined;
+    if (only && ws.getProject) {
+      const got = await ws.getProject();
+      const names = (got?.project.sounds ?? []).map(soundName);
+      const missing = only.filter((n) => !names.includes(n));
+      if (missing.length) return fail(`No sound named ${missing.map((m) => `"${m}"${suggest(m, names)}`).join(', ')}. Sounds: ${names.join(', ')}.`);
+    }
+    const rows = await ws.buildProject({ only });
+    const failed = rows.filter((r) => r.error).length;
+    const text = [`Built ${rows.length - failed} of ${rows.length} sound(s):`, ...buildRowsText(rows)].join('\n');
+    return { text: failed ? `${text}\n${failed} failed; see the ERROR rows.` : text, data: { rows }, isError: failed > 0 ? true : undefined };
+  },
+};
+
+const balanceProject: ToolDef = {
+  name: 'balance_project',
+  title: 'Balance the project levels',
+  description:
+    'Measures every sound as the project renders it and works out the gains that bring each to a target loudness (LUFS), never letting a peak pass the ceiling. By default it only reports the suggestion; with `apply: true` it writes the new gains into the project. Use `group` or `group_targets` when families should sit at different levels (interface quieter than impacts); typical game targets are -24 to -16 LUFS.',
+  inputSchema: obj(
+    {
+      target_lufs: { type: 'number', minimum: -60, maximum: 0, description: 'Integrated loudness to match, LUFS. Used for every sound without a group target.' },
+      group: { type: 'string', description: 'Only balance the sounds of this group.' },
+      group_targets: { type: 'object', additionalProperties: { type: 'number' }, description: 'Target LUFS by group id, overriding target_lufs for that group: {"ui": -26, "hits": -16}.' },
+      ceiling_db: { type: 'number', minimum: -20, maximum: 0, description: 'Highest peak allowed after the new gain, dBFS. Default -1.' },
+      apply: { type: 'boolean', description: 'Write the gains into the project. Default false (suggest only).' },
+    },
+    ['target_lufs'],
+  ),
+  annotations: { destructiveHint: true },
+  async run(ws, args) {
+    const { project } = await requireProject(ws);
+    if (args.apply === true && !ws.setProject) return fail(PROJECT_HINT);
+    const groupFilter = str(args, 'group');
+    if (groupFilter && !(project.groups ?? []).some((g) => g.id === groupFilter)) {
+      return fail(`No group "${groupFilter}"${suggest(groupFilter, (project.groups ?? []).map((g) => g.id))}. Groups: ${(project.groups ?? []).map((g) => g.id).join(', ') || 'none'}.`);
+    }
+    const targets = (args.group_targets ?? {}) as Record<string, number>;
+    const ceiling = typeof args.ceiling_db === 'number' ? args.ceiling_db : -1;
+    const measured = (await measureProject(ws, project)).filter((m) => !m.skip && (!groupFilter || m.group === groupFilter));
+    const levels: SoundLevel[] = [];
+    const bad: MeasuredSound[] = [];
+    for (const m of measured) {
+      if (m.error || m.lufs === undefined || !Number.isFinite(m.lufs) || m.peakDb === undefined) bad.push(m);
+      else levels.push({ name: m.name, lufs: m.lufs, peakDb: m.peakDb, gain: m.gain });
+    }
+    const byTarget = new Map<number, SoundLevel[]>();
+    for (const l of levels) {
+      const g = measured.find((m) => m.name === l.name)?.group;
+      const t = (g !== undefined ? targets[g] : undefined) ?? (args.target_lufs as number);
+      byTarget.set(t, [...(byTarget.get(t) ?? []), l]);
+    }
+    const gains: Record<string, number> = {};
+    for (const [t, ls] of byTarget) Object.assign(gains, matchLoudness(ls, t, ceiling));
+    const rows = levels.map((l) => {
+      const m = measured.find((x) => x.name === l.name) as MeasuredSound;
+      const g = gains[l.name];
+      const target = (m.group !== undefined ? targets[m.group] : undefined) ?? (args.target_lufs as number);
+      const limited = g < target - (l.lufs - l.gain) - 0.05;
+      return [l.name, m.group ?? '', num1(l.lufs), num1(l.gain), num1(g), num1(l.lufs - l.gain + g), num1(l.peakDb - l.gain + g), limited ? 'ceiling' : ''];
+    });
+    const lines = [
+      `${args.apply === true ? 'Applied' : 'Suggested'} gains for ${levels.length} sound(s) (peak ceiling ${ceiling} dBFS):`,
+      ...formatTable(['name', 'group', 'LUFS now', 'gain now', 'gain new', 'LUFS new', 'peak new', 'held by'], rows, [2, 3, 4, 5, 6]),
+    ];
+    for (const m of bad) lines.push(`${m.name}: left alone (${m.error ? m.error.split('\n')[0] : 'silent'})`);
+    const changed = levels.filter((l) => Math.abs(gains[l.name] - l.gain) >= 0.05);
+    if (args.apply === true) {
+      if (changed.length === 0) lines.push('Nothing to change: the gains already match.');
+      else {
+        for (const s of project.sounds) {
+          const g = gains[soundName(s)];
+          if (g !== undefined) {
+            if (g === 0) delete s.gain;
+            else s.gain = g;
+          }
+        }
+        await (ws.setProject as NonNullable<Workspace['setProject']>)(project, { origin: 'agent' });
+        lines.push(`Wrote ${changed.length} new gain(s) to the project. Run build_project to write the WAVs.`);
+      }
+    } else if (changed.length) lines.push('Call again with apply: true to write these gains.');
+    return { text: lines.join('\n'), data: { gains, applied: args.apply === true && changed.length > 0, levels } };
+  },
+};
+
 // ---- The list ----------------------------------------------------------------------------------
 
 export const TOOLS: ToolDef[] = [
@@ -675,11 +1096,16 @@ export const TOOLS: ToolDef[] = [
   setPatchTool,
   editPatch,
   setControls,
+  syncControls,
   renderAndAnalyze,
   play,
   exportWav,
   getHumanChanges,
   listPatches,
+  getProjectTool,
+  editProject,
+  buildProjectTool,
+  balanceProject,
 ];
 
 export function findTool(name: string): ToolDef | undefined {

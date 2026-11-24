@@ -1,0 +1,203 @@
+{
+  "format": "sfxgen/1",
+  "name": "Rain (loop)",
+  "description": "Steady rain in a garden, heard from under a porch roof: thousands of small drops ticking on leaves and gravel (the bright patter), fat drops from the gutter plopping into a puddle a few times a second, and the far wash of rain on the whole street behind them. A 6 s stereo loop; nothing in it is periodic, and the end is crossfaded into the start over 0.6 s.",
+  "tags": [
+    "nature",
+    "rain",
+    "weather",
+    "loop",
+    "ambience",
+    "water",
+    "storm"
+  ],
+  "duration": 6,
+  "loop": {
+    "mode": "crossfade",
+    "crossfade": 0.6
+  },
+  "seed": 4,
+  "output": {
+    "channels": 2
+  },
+  "tracks": [
+    {
+      "id": "patter",
+      "note": "The near drops: separate ticks, each with its own pitch and place. This is what makes it rain and not hiss.",
+      "source": {
+        "type": "particles",
+        "density": 420,
+        "duration": 7,
+        "spread": 1,
+        "grain": {
+          "kind": "tick",
+          "lo": 1800,
+          "hi": 9500,
+          "decayLo": 0.003,
+          "decayHi": 0.016,
+          "levelJitter": 22,
+          "size": 0.4
+        }
+      }
+    },
+    {
+      "id": "puddle",
+      "note": "Heavy drops falling from the gutter into standing water: rising-pitch plops, sparse and louder.",
+      "gain": 3,
+      "source": {
+        "type": "particles",
+        "density": 5,
+        "duration": 7,
+        "spread": 0.6,
+        "grain": {
+          "kind": "drop",
+          "lo": 500,
+          "hi": 2300,
+          "decayLo": 0.02,
+          "decayHi": 0.07,
+          "levelJitter": 16,
+          "size": 0.7
+        }
+      }
+    },
+    {
+      "id": "wash",
+      "note": "All the rain you cannot pick out: a soft band of noise that breathes slowly. It fills the gaps between ticks.",
+      "gain": -15,
+      "source": {
+        "type": "noise",
+        "color": "pink",
+        "width": 1,
+        "env": {
+          "attack": 0.01
+        },
+        "filter": {
+          "mode": "bandpass",
+          "cutoff": {
+            "value": 2600,
+            "mod": [
+              {
+                "type": "wander",
+                "rate": 0.3,
+                "depth": 3,
+                "unit": "st"
+              }
+            ]
+          },
+          "q": 0.5
+        }
+      },
+      "fx": [
+        {
+          "type": "gain",
+          "gain": {
+            "value": 0,
+            "mod": [
+              {
+                "type": "wander",
+                "rate": 0.4,
+                "depth": 2.5
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "master": {
+    "fx": [
+      {
+        "id": "roof",
+        "type": "filter",
+        "mode": "lowpass",
+        "cutoff": 15000
+      },
+      {
+        "type": "eq",
+        "bands": [
+          {
+            "mode": "lowcut",
+            "freq": 150,
+            "slope": "12"
+          }
+        ]
+      }
+    ]
+  },
+  "controls": [
+    {
+      "id": "intensity",
+      "label": "Intensity",
+      "hint": "A light drizzle to a downpour.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.patter.source.density",
+          "mode": "set",
+          "from": 40,
+          "to": 2600
+        },
+        {
+          "path": "tracks.wash.gain",
+          "mode": "set",
+          "from": -30,
+          "to": -6
+        },
+        {
+          "path": "tracks.puddle.source.density",
+          "mode": "set",
+          "from": 1.5,
+          "to": 14
+        }
+      ]
+    },
+    {
+      "id": "drops",
+      "label": "Drop size",
+      "hint": "Fine mist to big heavy drops: lower, longer ticks.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.patter.source.pitch",
+          "mode": "set",
+          "from": 9,
+          "to": -12
+        },
+        {
+          "path": "tracks.patter.source.grain.decayHi",
+          "mode": "set",
+          "from": 0.008,
+          "to": 0.04
+        }
+      ]
+    },
+    {
+      "id": "puddles",
+      "label": "Puddles",
+      "hint": "Dry ground to water standing everywhere.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.puddle.gain",
+          "mode": "set",
+          "from": -26,
+          "to": 11
+        }
+      ]
+    },
+    {
+      "id": "shelter",
+      "label": "Shelter",
+      "hint": "Out in it, to behind a closed window.",
+      "value": 0.1,
+      "targets": [
+        {
+          "path": "master.fx.roof.cutoff",
+          "mode": "set",
+          "from": 18000,
+          "to": 700
+        }
+      ]
+    }
+  ]
+}

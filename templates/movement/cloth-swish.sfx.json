@@ -1,0 +1,246 @@
+{
+  "format": "sfxgen/1",
+  "name": "Cloth swish",
+  "description": "A cotton jacket sleeve as an arm swings out and back: two brushes of fabric on fabric, the first 130 ms long and the answer 90 ms later softer and shorter. Each is thousands of fibres catching, so it is grainy rather than a hiss, and the weave gives it a faint zip. Very close, dry.",
+  "tags": [
+    "movement",
+    "cloth",
+    "fabric",
+    "swish",
+    "rustle",
+    "clothes",
+    "foley",
+    "cape"
+  ],
+  "duration": "auto",
+  "seed": 33,
+  "tracks": [
+    {
+      "id": "fibres",
+      "note": "The fabric: a dense cloud of tiny noise grains whose rate swells and dies with each move. Grain size is the coarseness of the cloth.",
+      "events": [
+        {
+          "t": 0
+        },
+        {
+          "t": 0.22,
+          "vel": 0.6,
+          "pitch": -2
+        }
+      ],
+      "source": {
+        "type": "particles",
+        "density": [
+          [
+            0,
+            300
+          ],
+          [
+            0.05,
+            2600
+          ],
+          [
+            0.13,
+            400
+          ]
+        ],
+        "duration": 0.13,
+        "grain": {
+          "kind": "tick",
+          "lo": 1700,
+          "hi": 7500,
+          "decayLo": 0.002,
+          "decayHi": 0.007,
+          "levelJitter": 14,
+          "size": 0.3
+        },
+        "env": {
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              0.045,
+              1
+            ],
+            [
+              0.1,
+              0.5
+            ],
+            [
+              0.15,
+              0
+            ]
+          ],
+          "curve": "linear"
+        }
+      }
+    },
+    {
+      "id": "weave",
+      "note": "The threads of the weave dragging past each other: a fast scrape on a dead cardboard-like surface, the faint \"zip\" inside the swish.",
+      "gain": -9,
+      "events": [
+        {
+          "t": 0.01
+        },
+        {
+          "t": 0.225,
+          "vel": 0.5
+        }
+      ],
+      "source": {
+        "type": "modal",
+        "material": "cardboard",
+        "shape": "plate",
+        "freq": 900,
+        "modes": 20,
+        "brightness": 0.75,
+        "exciter": {
+          "kind": "scrape",
+          "hardness": 0.7,
+          "duration": 0.12,
+          "density": [
+            [
+              0,
+              400
+            ],
+            [
+              0.05,
+              1500
+            ],
+            [
+              0.12,
+              500
+            ]
+          ],
+          "roughness": 0.8
+        }
+      }
+    }
+  ],
+  "master": {
+    "fx": [
+      {
+        "type": "eq",
+        "bands": [
+          {
+            "mode": "lowcut",
+            "freq": 250,
+            "slope": "12"
+          }
+        ]
+      }
+    ]
+  },
+  "controls": [
+    {
+      "id": "fabric",
+      "label": "Fabric",
+      "hint": "Silk, through cotton, to stiff canvas or leather: coarser, lower, louder weave.",
+      "value": 0.45,
+      "vary": 0.05,
+      "targets": [
+        {
+          "path": "tracks.fibres.source.pitch",
+          "mode": "set",
+          "from": 10,
+          "to": -14
+        },
+        {
+          "path": "tracks.fibres.source.grain.decayHi",
+          "mode": "set",
+          "from": 0.003,
+          "to": 0.02
+        },
+        {
+          "path": "tracks.weave.gain",
+          "mode": "set",
+          "from": -24,
+          "to": 0
+        },
+        {
+          "path": "tracks.weave.source.freq",
+          "mode": "set",
+          "from": 2200,
+          "to": 380
+        }
+      ]
+    },
+    {
+      "id": "speed",
+      "label": "Speed",
+      "hint": "A slow drag to a quick flick.",
+      "value": 0.5,
+      "vary": 0.1,
+      "targets": [
+        {
+          "path": "tracks.fibres.source.duration",
+          "mode": "set",
+          "from": 0.4,
+          "to": 0.06
+        },
+        {
+          "path": "tracks.fibres.source.density",
+          "mode": "stretch",
+          "from": 3,
+          "to": 0.45
+        },
+        {
+          "path": "tracks.fibres.source.env.points",
+          "mode": "stretch",
+          "from": 3,
+          "to": 0.45
+        },
+        {
+          "path": "tracks.weave.source.exciter.duration",
+          "mode": "set",
+          "from": 0.36,
+          "to": 0.055
+        },
+        {
+          "path": "tracks.weave.source.exciter.density",
+          "mode": "stretch",
+          "from": 3,
+          "to": 0.45
+        }
+      ]
+    },
+    {
+      "id": "answer",
+      "label": "Return",
+      "hint": "One move only, to a full back-and-forth.",
+      "value": 0.6,
+      "vary": 0.1,
+      "targets": [
+        {
+          "path": "tracks.fibres.events.1.vel",
+          "mode": "set",
+          "from": 0.001,
+          "to": 1
+        },
+        {
+          "path": "tracks.weave.events.1.vel",
+          "mode": "set",
+          "from": 0.001,
+          "to": 0.9
+        }
+      ]
+    },
+    {
+      "id": "layers",
+      "label": "Layers",
+      "hint": "A single thin sleeve to a heavy coat or cape: denser rustle.",
+      "value": 0.4,
+      "targets": [
+        {
+          "path": "tracks.fibres.source.density",
+          "mode": "mul",
+          "from": 0.3,
+          "to": 3
+        }
+      ]
+    }
+  ]
+}

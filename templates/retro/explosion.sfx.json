@@ -1,0 +1,275 @@
+{
+  "format": "sfxgen/1",
+  "name": "8-bit explosion",
+  "description": "Something blows up on an 8-bit console. The noise channel starts at a fast clock (bright hiss) and is stepped down to a slow one over 700 ms, so the roar sinks into a rattling grumble, while its volume falls through all 16 levels, 50 ms each. The triangle channel adds the only bass the machine has: a rumble sliding from 120 to 50 Hz that jitters at random.",
+  "tags": [
+    "retro",
+    "8-bit",
+    "chiptune",
+    "explosion",
+    "boom",
+    "destroy",
+    "noise"
+  ],
+  "duration": "auto",
+  "seed": 6,
+  "tracks": [
+    {
+      "id": "noise",
+      "note": "The blast: clocked noise whose clock slows, with a staircase fade.",
+      "source": {
+        "type": "noise",
+        "color": "digital",
+        "density": [
+          [
+            0,
+            16000
+          ],
+          [
+            0.12,
+            5000
+          ],
+          [
+            0.75,
+            350
+          ]
+        ],
+        "env": {
+          "points": [
+            [
+              0,
+              1
+            ],
+            [
+              0.05,
+              0.933,
+              "hold"
+            ],
+            [
+              0.1,
+              0.867,
+              "hold"
+            ],
+            [
+              0.15,
+              0.8,
+              "hold"
+            ],
+            [
+              0.2,
+              0.733,
+              "hold"
+            ],
+            [
+              0.25,
+              0.667,
+              "hold"
+            ],
+            [
+              0.3,
+              0.6,
+              "hold"
+            ],
+            [
+              0.35,
+              0.533,
+              "hold"
+            ],
+            [
+              0.4,
+              0.467,
+              "hold"
+            ],
+            [
+              0.45,
+              0.4,
+              "hold"
+            ],
+            [
+              0.5,
+              0.333,
+              "hold"
+            ],
+            [
+              0.55,
+              0.267,
+              "hold"
+            ],
+            [
+              0.6,
+              0.2,
+              "hold"
+            ],
+            [
+              0.65,
+              0.133,
+              "hold"
+            ],
+            [
+              0.7,
+              0.067,
+              "hold"
+            ],
+            [
+              0.75,
+              0,
+              "hold"
+            ],
+            [
+              0.8,
+              0,
+              "hold"
+            ]
+          ],
+          "curve": "linear"
+        }
+      },
+      "fx": [
+        {
+          "type": "crush",
+          "id": "dac",
+          "bits": 4
+        }
+      ]
+    },
+    {
+      "id": "rumble",
+      "note": "The weight: a stepped triangle sliding down and shaking.",
+      "gain": -4,
+      "source": {
+        "type": "osc",
+        "wave": "triangle",
+        "freq": {
+          "env": [
+            [
+              0,
+              125
+            ],
+            [
+              0.5,
+              52
+            ]
+          ],
+          "mod": [
+            {
+              "type": "lfo",
+              "shape": "random",
+              "rate": 30,
+              "depth": 4,
+              "unit": "st"
+            }
+          ]
+        },
+        "env": {
+          "attack": 0,
+          "gate": 0.5,
+          "release": 0.005
+        }
+      },
+      "fx": [
+        {
+          "type": "crush",
+          "bits": 4
+        },
+        {
+          "type": "eq",
+          "bands": [
+            {
+              "mode": "lowcut",
+              "freq": 55,
+              "slope": "24"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "master": {
+    "normalize": {
+      "mode": "peak",
+      "target": -3
+    }
+  },
+  "controls": [
+    {
+      "id": "size",
+      "label": "Size",
+      "hint": "A popped crate to a boss going up: longer and deeper.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.noise.source.env",
+          "mode": "stretch",
+          "from": 0.4,
+          "to": 2.5
+        },
+        {
+          "path": "tracks.noise.source.density",
+          "mode": "stretch",
+          "from": 0.4,
+          "to": 2.5
+        },
+        {
+          "path": "tracks.noise.source.density",
+          "mode": "mul",
+          "from": 1.7,
+          "to": 0.6
+        },
+        {
+          "path": "tracks.rumble.source.freq",
+          "mode": "stretch",
+          "from": 0.4,
+          "to": 2.5
+        },
+        {
+          "path": "tracks.rumble.source.env.gate",
+          "mode": "mul",
+          "from": 0.4,
+          "to": 2.5
+        }
+      ]
+    },
+    {
+      "id": "rumble",
+      "label": "Rumble",
+      "hint": "Noise alone to a blast with a shaking bass under it.",
+      "value": 0.6,
+      "targets": [
+        {
+          "path": "tracks.rumble.gain",
+          "from": -40,
+          "to": 2,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "grumble",
+      "label": "Grumble",
+      "hint": "A smooth hiss that just fades to one that breaks up into rattling chunks.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.noise.source.density",
+          "mode": "mul",
+          "from": 3,
+          "to": 0.33
+        }
+      ]
+    },
+    {
+      "id": "crunch",
+      "label": "Crunch",
+      "hint": "A cleaner 6-bit machine to a brutal 2-bit one.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.noise.fx.dac.bits",
+          "from": 6,
+          "to": 2,
+          "curve": "linear"
+        }
+      ]
+    }
+  ]
+}

@@ -717,6 +717,8 @@ function silent(sr: number, nCh: number, n: number): Analysis {
     tailDb: FLOOR_DB,
     firstSampleDb: FLOOR_DB,
     lastSampleDb: FLOOR_DB,
+    seamDb: FLOOR_DB,
+    maxStepDb: FLOOR_DB,
     onsets: [],
     centroidHz: 0,
     centroidThirds: [0, 0, 0],
@@ -749,6 +751,8 @@ export function analyze(channels: ArrayLike<number>[], sampleRate: number): Anal
   let dc = 0;
   let first = 0;
   let lastS = 0;
+  let seam = 0;
+  let maxStep = 0;
   const centred: Float64Array[] = [];
   for (const ch of input) {
     let mean = 0;
@@ -759,11 +763,16 @@ export function analyze(channels: ArrayLike<number>[], sampleRate: number): Anal
       if (a > peak) peak = a;
       if (a >= FULL_SCALE) clipped++;
       sumSq += v * v;
+      if (i > 0) {
+        const step = Math.abs(v - ch[i - 1]);
+        if (step > maxStep) maxStep = step;
+      }
     }
     mean /= n;
     if (Math.abs(mean) > Math.abs(dc)) dc = mean;
     first = Math.max(first, Math.abs(ch[0]));
     lastS = Math.max(lastS, Math.abs(ch[n - 1]));
+    seam = Math.max(seam, Math.abs(ch[0] - ch[n - 1]));
     const c = new Float64Array(n);
     for (let i = 0; i < n; i++) c[i] = ch[i] - mean;
     centred.push(c);
@@ -933,6 +942,8 @@ export function analyze(channels: ArrayLike<number>[], sampleRate: number): Anal
     tailDb: round(Math.max(FLOOR_DB, ampDb(tail) - ampDb(max)), 1),
     firstSampleDb: round(ampDb(first), 1),
     lastSampleDb: round(ampDb(lastS), 1),
+    seamDb: round(ampDb(seam), 1),
+    maxStepDb: round(ampDb(maxStep), 1),
     onsets,
     centroidHz: round(centroidOf(power, binHz), 1),
     centroidThirds: thirds,

@@ -30,7 +30,7 @@ describe('WebMCP', () => {
     installWebMcpShim();
     const ws = new MemoryWorkspace({ patches: { 'p.sfx.json': patch } });
     const h = await registerWebMcp(ws);
-    expect(h).toMatchObject({ api: 'document.modelContext', count: 12 });
+    expect(h).toMatchObject({ api: 'document.modelContext', count: 17 });
     const api = (window as unknown as { __sfxgenWebMcp: import('../src/web/webmcp').WebMcpShimApi }).__sfxgenWebMcp;
     const tools = api.getTools();
     expect(tools.map((t) => t.name)).not.toContain('open_editor');
@@ -43,7 +43,7 @@ describe('WebMCP', () => {
     expect(bad.isError).toBe(true);
 
     // Registering again replaces rather than collides.
-    expect((await registerWebMcp(ws)).count).toBe(12);
+    expect((await registerWebMcp(ws)).count).toBe(17);
     h.dispose();
   });
 
@@ -64,14 +64,14 @@ describe('WebMCP', () => {
       modelContext: { registerTool: (t: { name: string }) => ({ unregister: () => removed.push(t.name) }) },
     });
     const h = await registerWebMcp(new MemoryWorkspace());
-    expect(h).toMatchObject({ api: 'navigator.modelContext', count: 12 });
+    expect(h).toMatchObject({ api: 'navigator.modelContext', count: 17 });
     h.dispose();
-    expect(removed).toHaveLength(12);
+    expect(removed).toHaveLength(17);
 
     const provided: unknown[] = [];
     vi.stubGlobal('navigator', { modelContext: { provideContext: (c: unknown) => provided.push(c) } });
     const h2 = await registerWebMcp(new MemoryWorkspace());
-    expect(h2.count).toBe(12);
+    expect(h2.count).toBe(17);
     h2.dispose();
     expect(provided).toHaveLength(2);
   });

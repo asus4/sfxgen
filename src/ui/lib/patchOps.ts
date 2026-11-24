@@ -20,14 +20,14 @@ import {
 import { canonPath } from './paths';
 import { positionToValue } from './knob';
 
-export function mutate(patch: Patch, fn: (draft: Patch) => void): Patch {
+export function mutate<T>(patch: T, fn: (draft: T) => void): T {
   const draft = deepClone(patch);
   fn(draft);
   return draft;
 }
 
-/** Sets (or, with `undefined`, removes) the value at a path. */
-export function setAt(patch: Patch, path: string, value: unknown): Patch {
+/** Sets (or, with `undefined`, removes) the value at a path. Works on a patch or on a project. */
+export function setAt<T>(patch: T, path: string, value: unknown): T {
   return mutate(patch, (d) => {
     setPath(d, path, value);
     // Removing the last key of an optional group leaves `{}` behind; drop it so the file stays tidy.
@@ -243,24 +243,24 @@ export function defaultEffect(type: string): EffectSpec {
   return example ? { ...deepClone(example), type } : { type };
 }
 
-export function getChain(patch: Patch, chainPath: string): EffectSpec[] {
+export function getChain(patch: unknown, chainPath: string): EffectSpec[] {
   const v = getPath(patch, chainPath);
   return Array.isArray(v) ? (v as EffectSpec[]) : [];
 }
 
-export function setChain(patch: Patch, chainPath: string, chain: EffectSpec[]): Patch {
+export function setChain<T>(patch: T, chainPath: string, chain: EffectSpec[]): T {
   return setAt(patch, chainPath, chain.length > 0 ? chain : undefined);
 }
 
-export function addEffect(patch: Patch, chainPath: string, type: string): Patch {
+export function addEffect<T>(patch: T, chainPath: string, type: string): T {
   return setChain(patch, chainPath, [...getChain(patch, chainPath), defaultEffect(type)]);
 }
 
-export function removeEffect(patch: Patch, chainPath: string, index: number): Patch {
+export function removeEffect<T>(patch: T, chainPath: string, index: number): T {
   return setChain(patch, chainPath, getChain(patch, chainPath).filter((_, i) => i !== index));
 }
 
-export function moveEffect(patch: Patch, chainPath: string, index: number, by: number): Patch {
+export function moveEffect<T>(patch: T, chainPath: string, index: number, by: number): T {
   const chain = [...getChain(patch, chainPath)];
   const to = index + by;
   if (to < 0 || to >= chain.length) return patch;

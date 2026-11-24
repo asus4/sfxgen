@@ -1,0 +1,132 @@
+{
+  "format": "sfxgen/1",
+  "name": "Cancel / back",
+  "description": "Never mind: two tines of a wooden thumb piano plucked with the flesh of the thumb, stepping down a minor third 75 ms apart, each damped by the hand so it does not sing. The thumb lands on the board with a small woody knock. Dry and unhurried; a step back, not a failure.",
+  "tags": [
+    "ui",
+    "cancel",
+    "back",
+    "close",
+    "dismiss",
+    "wood",
+    "negative",
+    "neutral"
+  ],
+  "duration": "auto",
+  "seed": 5,
+  "tracks": [
+    {
+      "id": "tines",
+      "note": "The two notes going down. Muted so they read as a gesture, not a melody.",
+      "source": {
+        "type": "pluck",
+        "freq": 587,
+        "decay": 0.4,
+        "brightness": 0.35,
+        "position": 0.3,
+        "hardness": 0.3,
+        "mute": 0.3
+      },
+      "events": [
+        {
+          "t": 0
+        },
+        {
+          "t": 0.075,
+          "pitch": -3,
+          "vel": 0.7
+        }
+      ]
+    },
+    {
+      "id": "board",
+      "note": "The thumb landing on the wooden box: the material of the set.",
+      "gain": -10,
+      "source": {
+        "type": "modal",
+        "material": "wood",
+        "shape": "box",
+        "freq": 250,
+        "decay": 0.07,
+        "position": 0.4,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.3
+        }
+      }
+    }
+  ],
+  "controls": [
+    {
+      "id": "pitch",
+      "label": "Pitch",
+      "hint": "Move the pair up or down to sit under your confirm sound.",
+      "value": 0,
+      "min": -12,
+      "max": 12,
+      "step": 1,
+      "unit": "st",
+      "targets": [
+        {
+          "path": "tracks.tines.source.pitch",
+          "mode": "add",
+          "from": -12,
+          "to": 12,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "drop",
+      "label": "Drop",
+      "hint": "How far the second note falls: a small step to a fifth.",
+      "value": 3,
+      "min": 1,
+      "max": 7,
+      "step": 1,
+      "unit": "st",
+      "targets": [
+        {
+          "path": "tracks.tines.events.1.pitch",
+          "from": -1,
+          "to": -7,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "mute",
+      "label": "Mute",
+      "hint": "Open ringing tines to a short choked thunk.",
+      "value": 0.4,
+      "targets": [
+        {
+          "path": "tracks.tines.source.mute",
+          "from": 0.02,
+          "to": 0.75,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.tines.source.brightness",
+          "from": 0.6,
+          "to": 0.15,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "wood",
+      "label": "Wood",
+      "hint": "How much of the wooden box knocks under the notes.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.board.gain",
+          "from": -30,
+          "to": 0,
+          "curve": "linear"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,136 @@
+{
+  "format": "sfxgen/1",
+  "name": "Sword clash",
+  "description": "Two steel blades meet edge to edge in a stone courtyard. 0 ms: the attacker's blade (a long bar, 640 Hz) strikes near its tip. 4 ms later the defender's blade, shorter and held tight so it rings higher and dies sooner, answers. Both are real hand-forged bars, a little out of true. 30 to 260 ms: the edges grind along each other as the swords slide to the guards, a rasp that slows down. A few sparks tick off the contact. Walls give it a short hard slap.",
+  "tags": ["weapon", "sword", "clash", "clang", "metal", "blade", "parry", "melee", "impact", "steel"],
+  "duration": "auto",
+  "seed": 15,
+  "tracks": [
+    {
+      "id": "attacker",
+      "note": "The swung blade: free to ring, struck near the end so every mode sounds. Steel on steel, so the hardest mallet.",
+      "source": {
+        "type": "modal",
+        "material": "metal",
+        "shape": "bar",
+        "freq": 640,
+        "decay": 1.1,
+        "modes": 22,
+        "dent": 0.25,
+        "position": 0.85,
+        "brightness": 0.665,
+        "variant": 3,
+        "exciter": { "kind": "mallet", "hardness": 0.865 },
+        "damping": 1.75
+      },
+      "sends": { "yard": -10 }
+    },
+    {
+      "id": "defender",
+      "note": "The parrying blade: gripped hard (more damping), another object (other variant), 4 ms late. The flam is what makes it two swords.",
+      "start": 0.004,
+      "gain": -2,
+      "source": {
+        "type": "modal",
+        "material": "metal",
+        "shape": "bar",
+        "freq": 913,
+        "decay": 0.49,
+        "damping": 1.7,
+        "modes": 18,
+        "dent": 0.4,
+        "position": 0.6,
+        "variant": 11,
+        "exciter": { "kind": "mallet", "hardness": 0.85 }
+      },
+      "sends": { "yard": -10 }
+    },
+    {
+      "id": "slide",
+      "note": "Edges grinding to the hilt: a scrape exciter on a plate-like blade flat, ridge rate falling as the slide slows.",
+      "start": 0.03,
+      "gain": -20.5,
+      "source": {
+        "type": "modal",
+        "material": "metal",
+        "shape": "plate",
+        "freq": 1480,
+        "decay": 0.18,
+        "modes": 30,
+        "brightness": 0.8,
+        "dent": 0.5,
+        "exciter": { "kind": "scrape", "hardness": 0.9, "duration": 0.219, "density": [[0, 1400], [0.23, 180]], "roughness": 0.55 }
+      },
+      "sends": { "yard": -12 }
+    },
+    {
+      "id": "sparks",
+      "note": "Flecks of hot steel: a handful of bare clicks right after the hit.",
+      "start": 0.002,
+      "gain": -17.6,
+      "source": {
+        "type": "particles",
+        "distribution": "burst",
+        "density": 180,
+        "duration": 0.12,
+        "grain": { "kind": "click", "lo": 5000, "hi": 12000, "levelJitter": 16 }
+      }
+    }
+  ],
+  "buses": [{ "id": "yard", "fx": [{ "type": "reverb", "id": "walls", "space": "stairwell", "size": 12, "decay": 0.614, "predelay": 22 }], "gain": -15.6 }],
+  "master": { "fx": [{ "type": "limiter", "gain": 7, "release": 0.08 }] },
+  "controls": [
+    {
+      "id": "size",
+      "label": "Blade size",
+      "hint": "Daggers, thin and high, to great two-handers.",
+      "value": 0.5,
+      "vary": 0.07,
+      "targets": [
+        { "path": "tracks.attacker.source.freq", "mode": "mul", "from": 2.1, "to": 0.48 },
+        { "path": "tracks.defender.source.freq", "mode": "mul", "from": 2.3, "to": 0.5 },
+        { "path": "tracks.attacker.source.decay", "from": 0.5, "to": 2.4 },
+        { "path": "tracks.slide.source.freq", "mode": "mul", "from": 1.6, "to": 0.6 }
+      ]
+    },
+    {
+      "id": "force",
+      "label": "Force",
+      "hint": "A light tap of blades to a full-strength blow.",
+      "value": 0.7,
+      "vary": 0.12,
+      "targets": [
+        { "path": "tracks.attacker.source.exciter.hardness", "from": 0.55, "to": 1 },
+        { "path": "tracks.defender.source.exciter.hardness", "from": 0.5, "to": 1 },
+        { "path": "tracks.attacker.source.brightness", "from": 0.35, "to": 0.8 },
+        { "path": "tracks.sparks.gain", "from": -40, "to": -8 }
+      ]
+    },
+    {
+      "id": "ring",
+      "label": "Ring",
+      "hint": "Blades caught and deadened, or left singing.",
+      "value": 0.5,
+      "targets": [{ "path": "tracks.attacker.source.damping", "from": 3, "to": 0.5 }, { "path": "tracks.defender.source.decay", "from": 0.15, "to": 1.6 }]
+    },
+    {
+      "id": "slide",
+      "label": "Slide",
+      "hint": "A clean bounce apart, or a long grind down to the guards.",
+      "value": 0.5,
+      "vary": 0.15,
+      "targets": [
+        { "path": "tracks.slide.gain", "from": -40, "to": -1 },
+        { "path": "tracks.slide.source.exciter.duration", "from": 0.08, "to": 0.6 },
+        { "path": "tracks.slide.source.exciter.density", "mode": "stretch", "from": 0.35, "to": 2.6 }
+      ]
+    },
+    {
+      "id": "yard",
+      "label": "Courtyard",
+      "hint": "Open field, dry, to hard stone walls close by.",
+      "value": 0.4,
+      "targets": [{ "path": "buses.yard.gain", "mode": "set", "from": -30, "to": 6 }, { "path": "buses.yard.fx.walls.decay", "from": 0.3, "to": 1.8 }]
+    }
+  ]
+}

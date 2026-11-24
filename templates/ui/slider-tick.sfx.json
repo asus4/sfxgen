@@ -1,0 +1,138 @@
+{
+  "format": "sfxgen/1",
+  "name": "Slider detent",
+  "description": "One notch of a dial with a ceramic detent wheel: a hard, dry 2.3 kHz tick as the ball drops into the groove, with a tiny low bump of the knob in the fingers, over in 20 ms. Drive Position from the slider value and a drag plays a rising row of ticks.",
+  "tags": [
+    "ui",
+    "slider",
+    "detent",
+    "tick",
+    "dial",
+    "knob",
+    "scroll",
+    "step"
+  ],
+  "duration": "auto",
+  "seed": 9,
+  "tracks": [
+    {
+      "id": "notch",
+      "note": "The detent itself: a few ceramic modes, heavily damped.",
+      "source": {
+        "type": "modal",
+        "material": "ceramic",
+        "shape": "bar",
+        "freq": 2300,
+        "decay": 0.022,
+        "damping": 2.5,
+        "brightness": 0.3,
+        "modes": 6,
+        "position": 0.4,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.9
+        }
+      }
+    },
+    {
+      "id": "seat",
+      "note": "The knob settling in the hand: two cycles of a low bump, felt more than heard.",
+      "gain": -12,
+      "source": {
+        "type": "osc",
+        "wave": "sine",
+        "freq": [
+          [
+            0,
+            520
+          ],
+          [
+            0.012,
+            380
+          ]
+        ],
+        "env": {
+          "attack": 0.0008,
+          "decay": 0.014
+        }
+      }
+    }
+  ],
+  "master": {
+    "normalize": {
+      "mode": "peak",
+      "target": -3
+    }
+  },
+  "controls": [
+    {
+      "id": "position",
+      "label": "Position",
+      "hint": "Where on the slider: low end to high end, a little over an octave of ticks.",
+      "value": 0.4,
+      "vary": 0.02,
+      "targets": [
+        {
+          "path": "tracks.notch.source.pitch",
+          "from": -6,
+          "to": 9,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.seat.source.pitch",
+          "from": -2,
+          "to": 3,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "hardness",
+      "label": "Hardness",
+      "hint": "A rubbery soft stop to steel on ceramic.",
+      "value": 0.8,
+      "vary": 0.05,
+      "targets": [
+        {
+          "path": "tracks.notch.source.exciter.hardness",
+          "from": 0.3,
+          "to": 1,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.notch.source.brightness",
+          "from": 0.1,
+          "to": 0.45,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "ring",
+      "label": "Ring",
+      "hint": "A dead tick to a small ringing tink.",
+      "value": 0.3,
+      "targets": [
+        {
+          "path": "tracks.notch.source.decay",
+          "from": 0.008,
+          "to": 0.12
+        }
+      ]
+    },
+    {
+      "id": "weight",
+      "label": "Weight",
+      "hint": "A weightless tick to a knob with some mass behind it.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.seat.gain",
+          "from": -30,
+          "to": 0,
+          "curve": "linear"
+        }
+      ]
+    }
+  ]
+}

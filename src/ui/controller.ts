@@ -1,34 +1,87 @@
 /**
- * Everything the editor does besides holding state: rendering on every change, playback, autosave, files, share
- * links, the local server and WebMCP. Components call these functions; the store stays plain data.
+ * Everything the editor does besides holding state: rendering on every change, measuring the set, playback,
+ * projects kept in the browser, files, share links, the local server and WebMCP. Components call these functions;
+ * the store stays plain data.
  */
-import { takeFileName, validatePatch, variationTakes, type Patch } from '../core';
+import {
+  PROJECT_FORMAT_ID,
+  newProject,
+  projectPatch,
+  soundExportPath,
+  soundName,
+  takeFileName,
+  validatePatch,
+  validateProject,
+  variationTakes,
+  type Patch,
+  type Project,
+  type ProjectSound,
+} from '../core';
+import type { ProjectBuildRow } from '../core/agent/workspace';
 import { getTemplate, listTemplates } from '../core/templates';
 import { player } from './audio';
 import { anotherTake, fileNameFor, surprise } from './lib/patchOps';
+import {
+  EMPTY_PATCH,
+  addSound,
+  bundleProject,
+  matchGroup,
+  patchOf,
+  projectOfOne,
+  removeSound,
+  renderHash,
+  shellKey,
+  soundKey,
+  stripProject,
+  uniquePatchName,
+  zipPath,
+} from './lib/projectOps';
 import { decodePatchHash, encodePatchHash } from './lib/share';
+import { makeZip } from './lib/zip';
 import { renderClient } from './renderClient';
+import type { RenderView } from './renderProtocol';
 import * as serve from './serve';
-import { editor, followsSystemTheme, useEditor, type Origin } from './store';
+import { editor, followsSystemTheme, useEditor, type Library, type Origin } from './store';
 import { createBrowserWorkspace } from './workspace';
 
-const AUTOSAVE_KEY = 'sfxgen:autosave';
 const SPECTRO_W = 360;
 const SPECTRO_H = 128;
+const PAD_BINS = 40;
 
 // ---- Playback ---------------------------------------------------------------------------------
 
-/** Plays the open patch once its render is up to date. Returns false when the browser refused audio. */
+/** Audio of every sound as the project hears it (before its project gain), for pads and "play the set". */
+const audio = new Map<string, { hash: string; view: RenderView }>();
+let setToken = 0;
+/**
+ * What the player holds: the open sound's live render (its project gain baked in), or a sound from the cache
+ * above (its gain applied on the way out). Edits made while it plays are swapped in accordingly.
+ */
+let voice: 'live' | 'cached' = 'live';
+
+function currentKey(): string {
+  const s = editor();
+  return s.project.sounds[s.current] ? soundKey(s.project.sounds[s.current]) : '';
+}
+
+/** Plays the open sound once its render is up to date. Returns false when the browser refused audio. */
 export async function playNow(from = 0): Promise<boolean> {
+  setToken++;
   // Unlock inside the gesture, before waiting for anything.
   const unlocked = player.unlock();
   await renderClient.idle();
   const { view, patch } = editor();
   if (!view || !(await unlocked)) return false;
-  return player.play(view, from, !!patch.loop);
+  const ok = await player.play(view, from, !!patch.loop);
+  if (ok) {
+    voice = 'live';
+    useEditor.setState({ playingKey: currentKey() });
+  }
+  return ok;
 }
 
 export function stop(): void {
+  setToken++;
   player.stop();
 }
 
@@ -37,9 +90,128 @@ export function togglePlay(): void {
   else void playNow();
 }
 
-/** After a knob is released: play, when the person wants that. */
+/**
+ * A knob was released: hear what it did. Always. A loop that is already playing is not restarted: the change is
+ * swapped into it as it plays.
+ */
 export function audition(): void {
-  if (editor().autoAudition) void playNow();
+  if (player.playing && player.looping && voice === 'live' && editor().playingKey === currentKey()) return;
+  void playNow();
+}
+
+/** A pad was pressed: open that sound and play it. */
+export function pressPad(index: number): void {
+  editor().openSound(index);
+  void playNow();
+}
+
+/** Plays one sound without opening it (the mixer's play keys), at its level in the set. */
+export async function playSound(index: number): Promise<boolean> {
+  const s = editor();
+  if (index === s.current) return playNow();
+  setToken++;
+  const unlocked = player.unlock();
+  const sound = s.project.sounds[index];
+  const view = sound && (await ensureAudio(sound));
+  if (!sound || !view || !(await unlocked)) return false;
+  const ok = await player.play(view, 0, false, sound.gain ?? 0);
+  if (ok) {
+    voice = 'cached';
+    useEditor.setState({ playingKey: soundKey(sound) });
+  }
+  return ok;
+}
+
+/** Plays the whole set in turn (or one group of it), so levels can be judged side by side. */
+export async function playSet(group?: string | null): Promise<void> {
+  const token = ++setToken;
+  const unlocked = player.unlock();
+  const sounds = editor().project.sounds.filter((x) => !x.skip && (group === undefined || (x.group ?? null) === group));
+  if (!(await unlocked)) return;
+  for (const sound of sounds) {
+    const view = await ensureAudio(sound);
+    if (token !== setToken) return;
+    if (!view) continue;
+    // The fader may have moved while the set plays: read the gain now.
+    const now = editor().project.sounds.find((x) => soundKey(x) === soundKey(sound)) ?? sound;
+    if (!(await player.play(view, 0, false, now.gain ?? 0))) return;
+    voice = 'cached';
+    useEditor.setState({ playingKey: soundKey(sound) });
+    await player.whenEnded();
+    if (token !== setToken) return;
+    await new Promise((r) => setTimeout(r, 140));
+    if (token !== setToken) return;
+  }
+}
+
+// ---- Measuring the set --------------------------------------------------------------------------
+
+async function measure(sound: ProjectSound): Promise<RenderView | null> {
+  const project = editor().project;
+  const key = soundKey(sound);
+  const hash = renderHash(project, sound);
+  const have = audio.get(key);
+  if (have?.hash === hash && editor().measured[key]?.hash === hash) return have.view;
+  try {
+    const r = await renderClient.sound(projectPatch(project, sound, patchOf(sound)), PAD_BINS);
+    audio.set(key, { hash, view: r.view });
+    // The sound changed while it was playing from the cache (an undo, an agent's edit): let that be heard.
+    if (have && voice === 'cached' && player.playing && editor().playingKey === key) player.swap(r.view, false, sound.gain ?? 0);
+    useEditor.setState((s) => ({
+      measured: { ...s.measured, [key]: { hash, lufs: r.lufs, peakDb: r.peakDb, duration: r.view.duration, peaks: r.peaks, warnings: r.view.warnings } },
+    }));
+    return r.view;
+  } catch {
+    return null;
+  }
+}
+
+async function ensureAudio(sound: ProjectSound): Promise<RenderView | null> {
+  const now = editor().project.sounds.find((x) => soundKey(x) === soundKey(sound));
+  return now ? measure(now) : null;
+}
+
+let measuring = false;
+let measureAgain = false;
+let measureTimer: ReturnType<typeof setTimeout> | null = null;
+
+async function measureAll(): Promise<void> {
+  if (measuring) {
+    measureAgain = true;
+    return;
+  }
+  measuring = true;
+  try {
+    do {
+      measureAgain = false;
+      for (const sound of editor().project.sounds) await ensureAudio(sound);
+      // Forget sounds that left the project.
+      const keys = new Set(editor().project.sounds.map(soundKey));
+      for (const k of [...audio.keys()]) if (!keys.has(k)) audio.delete(k);
+      const stale = Object.keys(editor().measured).filter((k) => !keys.has(k));
+      if (stale.length) useEditor.setState((s) => ({ measured: Object.fromEntries(Object.entries(s.measured).filter(([k]) => keys.has(k))) }));
+    } while (measureAgain);
+  } finally {
+    measuring = false;
+  }
+}
+
+function scheduleMeasure(): void {
+  if (measureTimer) clearTimeout(measureTimer);
+  measureTimer = setTimeout(() => void measureAll(), 260);
+}
+
+/** Resolves when every sound's loudness and peak are up to date. */
+export async function levelsReady(): Promise<void> {
+  if (measureTimer) clearTimeout(measureTimer);
+  await measureAll();
+}
+
+export async function matchLoudnessOf(group: string | null, targetLufs: number, ceilingDb: number): Promise<void> {
+  await levelsReady();
+  const s = editor();
+  s.editProject((p) => matchGroup(p, editor().measured, group, targetLufs, ceilingDb));
+  s.log('human', `matched ${group === '*' ? 'the set' : group === null ? 'ungrouped sounds' : `group ${group}`} to ${targetLufs} LUFS (ceiling ${ceilingDb} dB)`);
 }
 
 // ---- Patch actions ----------------------------------------------------------------------------
@@ -56,14 +228,6 @@ export function surpriseMe(): void {
   void playNow();
 }
 
-export function loadTemplate(id: string): void {
-  const patch = getTemplate(id);
-  if (!patch) return;
-  unbindFile();
-  editor().load(patch, { origin: 'system', note: `loaded template “${patch.name}”`, fresh: true });
-  void playNow();
-}
-
 function accept(input: unknown, source: string): Patch | null {
   const result = validatePatch(input);
   if (!result.ok) {
@@ -72,6 +236,63 @@ function accept(input: unknown, source: string): Patch | null {
     return null;
   }
   return input as Patch;
+}
+
+function uniqueFile(project: Project, stem: string): string {
+  const taken = new Set(project.sounds.map((x) => (x.file ?? '').toLowerCase()));
+  const clean = stem.replace(/[^A-Za-z0-9_-]+/g, '-').replace(/^-+|-+$/g, '') || 'sound';
+  for (let i = 1; ; i++) {
+    const file = `${i === 1 ? clean : `${clean}-${i}`}.sfx.json`;
+    if (!taken.has(file.toLowerCase())) return file;
+  }
+}
+
+/** Adds a sound to the project as a new pad, opens it and plays it. In serve mode it becomes a file. */
+export async function addSoundToProject(patch: Patch, note: string): Promise<void> {
+  const s = editor();
+  try {
+    let extra: Partial<ProjectSound> = {};
+    if (s.serve.info) {
+      const file = uniqueFile(s.project, soundName({ patch }));
+      await serve.writeFile(file, patch, 'human');
+      onDisk.set(file, JSON.stringify(patch));
+      extra = { file };
+    }
+    const added = addSound(editor().project, patch, extra);
+    editor().editProject(added.project, null, added.index);
+    editor().log('human', note);
+    void playNow();
+  } catch (err) {
+    s.toast(err instanceof Error ? err.message : 'Could not add the sound', 'error');
+  }
+}
+
+/** A gallery card was clicked: the template replaces the open sound, or becomes a new pad. */
+export function pickTemplate(id: string): void {
+  const patch = getTemplate(id);
+  if (!patch) return;
+  const s = editor();
+  if (s.gallery.mode === 'add') {
+    void addSoundToProject(patch, `added “${patch.name}” from the gallery`);
+    return;
+  }
+  const sound = s.project.sounds[s.current];
+  // An inline sound is named by its patch: keep names unique in the set.
+  const named = sound?.file ? patch : { ...patch, name: uniquePatchName(s.project, patch.name, s.current) };
+  s.load(named, { origin: 'human', note: `loaded template “${patch.name}”`, fresh: true });
+  void playNow();
+}
+
+export function addBlankSound(): void {
+  void addSoundToProject({ ...EMPTY_PATCH, name: 'New sound' }, 'added a blank sound');
+}
+
+export function deleteSound(index: number): void {
+  const s = editor();
+  const sound = s.project.sounds[index];
+  if (!sound || s.project.sounds.length <= 1) return;
+  s.editProject((p) => removeSound(p, index));
+  s.log('human', `removed ${soundKey(sound)} from the project${sound.file ? ' (its file stays on disk)' : ''}`);
 }
 
 // ---- Files ------------------------------------------------------------------------------------
@@ -88,21 +309,56 @@ export function downloadBytes(bytes: Uint8Array | string, name: string, type: st
   setTimeout(() => URL.revokeObjectURL(url), 2000);
 }
 
+function acceptProject(input: unknown, source: string): Project | null {
+  const result = validateProject(input);
+  if (!result.ok) {
+    const first = result.errors[0];
+    editor().toast(`${source}: ${first ? `${first.path || 'project'}: ${first.message}` : 'not a project'}`, 'error');
+    return null;
+  }
+  return input as Project;
+}
+
+/** Opens a dropped or chosen file: a patch becomes a new pad, a project bundle becomes a project. */
 export async function importFile(file: File): Promise<void> {
+  let json: unknown;
   try {
-    const patch = accept(JSON.parse(await file.text()), file.name);
-    if (!patch) return;
-    unbindFile();
-    editor().load(patch, { origin: 'system', note: `opened ${file.name}`, fresh: true });
-    void playNow();
+    json = JSON.parse(await file.text());
   } catch {
     editor().toast(`${file.name} is not valid JSON`, 'error');
+    return;
   }
+  if ((json as { format?: unknown } | null)?.format === PROJECT_FORMAT_ID) {
+    const project = acceptProject(json, file.name);
+    if (!project) return;
+    const inline = project.sounds.filter((x) => x.patch);
+    if (inline.length === 0) {
+      editor().toast(`${file.name} lists files, not sounds: import a bundle (.sfxproj.json) or open the folder with sfxgen serve`, 'error');
+      return;
+    }
+    if (editor().serve.info) {
+      // On a served folder the bundle's sounds join the folder's project.
+      for (const x of inline) await addSoundToProject(x.patch!, `imported “${x.patch!.name}” from ${file.name}`);
+      return;
+    }
+    openBrowserProject(createLibraryEntry(project.name), { ...project, sounds: inline }, `imported project “${project.name}”`);
+    return;
+  }
+  const patch = accept(json, file.name);
+  if (patch) await addSoundToProject(patch, `imported ${file.name}`);
 }
 
 export function exportJson(): void {
   const { patch } = editor();
   downloadBytes(`${JSON.stringify(patch, null, 2)}\n`, `${fileNameFor(patch)}.sfx.json`, 'application/json');
+  editor().showStamp('Saved');
+}
+
+/** The whole project as one file, every patch inline. */
+export function exportBundle(): void {
+  const { project } = editor();
+  const stem = project.name.trim().replace(/[^A-Za-z0-9_-]+/g, '-').replace(/^-+|-+$/g, '') || 'project';
+  downloadBytes(`${JSON.stringify(bundleProject(project), null, 2)}\n`, `${stem}.sfxproj.json`, 'application/json');
   editor().showStamp('Saved');
 }
 
@@ -112,29 +368,85 @@ export interface ExportOptions {
   sampleRate: number;
   /** 1 exports the patch as it is; more adds varied takes. */
   takes: number;
-  /** Serve mode: write beside the patch instead of downloading. */
+  /** Serve mode: write to the sound's export path instead of downloading. */
   toFolder: boolean;
 }
 
+/** Exports the open sound as the project hears it. */
 export async function exportWav(opts: ExportOptions): Promise<void> {
   const s = editor();
-  const { patch } = s;
-  const base = fileNameFor(patch);
-  const takes = variationTakes(patch, opts.takes);
-  const folder = opts.toFolder && s.serve.info && s.serve.path ? s.serve.path.replace(/[^/]*$/, '') : null;
-  const stem = folder !== null && s.serve.path ? s.serve.path.replace(/^.*\//, '').replace(/\.sfx\.json$|\.json$/, '') : base;
+  const sound = s.project.sounds[s.current];
+  if (!sound) return;
+  const toFolder = opts.toFolder && !!s.serve.info;
+  const target = soundExportPath(s.project, sound);
+  const stem = toFolder ? target.replace(/\.wav$/i, '') : soundName(sound);
   try {
-    for (let take = 0; take < opts.takes; take++) {
-      const p = takes[take];
-      const { bytes } = await renderClient.wav(p, { sampleRate: opts.sampleRate, channels: opts.channels }, opts.bitDepth);
-      const name = takeFileName(stem, take, opts.takes);
-      if (folder !== null) await serve.writeWav(`${folder}${name}`, bytes);
+    const takes = variationTakes(s.patch, opts.takes);
+    for (let take = 0; take < takes.length; take++) {
+      const p = projectPatch(s.project, sound, takes[take]);
+      const { bytes } = await renderClient.wav(p, { sampleRate: opts.sampleRate, channels: opts.channels }, opts.bitDepth, sound.gain ?? 0);
+      const name = takeFileName(stem, take, takes.length);
+      if (toFolder) await serve.writeWav(name, bytes);
       else downloadBytes(bytes, name, 'audio/wav');
     }
     s.showStamp('Exported');
-    s.log('human', opts.takes > 1 ? `exported ${opts.takes} takes as WAV` : `exported ${stem}.wav`);
+    s.log('human', opts.takes > 1 ? `exported ${opts.takes} takes of ${soundName(sound)}` : `exported ${stem}.wav`);
   } catch (err) {
     s.toast(err instanceof Error ? err.message : 'Export failed', 'error');
+  }
+}
+
+/**
+ * Exports every sound of the project in project context: the server builds to the export paths when it can,
+ * otherwise the browser renders them and downloads one zip.
+ */
+export async function exportAll(opts: { only?: string[]; origin?: Origin } = {}): Promise<ProjectBuildRow[]> {
+  const s = editor();
+  const origin = opts.origin ?? 'human';
+  if (s.serve.info) {
+    await flushSaves();
+    if (!editor().serve.projectSaved) await saveProjectFile();
+    if (editor().serve.projectSaved) {
+      const rows = await serve.build(opts.only);
+      if (rows) {
+        // A person gets the report; an agent's build must not put a dialog in their way.
+        if (origin === 'human') useEditor.setState({ buildRows: rows });
+        s.showStamp('Built');
+        s.log(origin, `built ${rows.length} sound${rows.length === 1 ? '' : 's'} to their export paths`);
+        return rows;
+      }
+    }
+  }
+  const project = editor().project;
+  const rows: ProjectBuildRow[] = [];
+  const entries: { name: string; data: Uint8Array }[] = [];
+  for (const sound of project.sounds) {
+    const name = soundName(sound);
+    if (sound.skip || (opts.only && !opts.only.includes(name))) continue;
+    const patch = projectPatch(project, sound, patchOf(sound));
+    const r = await renderClient.wav(patch, {}, patch.output?.bitDepth ?? 16, sound.gain ?? 0);
+    const path = zipPath(project, sound);
+    entries.push({ name: path, data: r.bytes });
+    rows.push({ name, ...(sound.file ? { file: sound.file } : {}), export: path, duration: r.duration, peakDb: r.peakDb, lufs: r.lufs, warnings: r.warnings });
+  }
+  if (entries.length === 0) {
+    s.toast('Nothing to export: every sound is skipped', 'error');
+    return rows;
+  }
+  const stem = project.name.trim().replace(/[^A-Za-z0-9_-]+/g, '-').replace(/^-+|-+$/g, '') || 'project';
+  downloadBytes(makeZip(entries), `${stem}.zip`, 'application/zip');
+  if (origin === 'human') useEditor.setState({ buildRows: rows });
+  s.showStamp('Exported');
+  s.log(origin, `exported ${rows.length} sound${rows.length === 1 ? '' : 's'} as ${stem}.zip`);
+  return rows;
+}
+
+/** "Export set" as pressed by a person: failures become a message, not an exception. */
+export async function exportSet(): Promise<void> {
+  try {
+    await exportAll();
+  } catch (err) {
+    editor().toast(err instanceof Error ? err.message : 'The export failed', 'error');
   }
 }
 
@@ -143,11 +455,11 @@ export async function copyShareLink(): Promise<void> {
   try {
     const hash = await encodePatchHash(s.patch);
     const url = `${location.origin}${location.pathname}#${hash}`;
-    history.replaceState(null, '', `#${hash}`);
     try {
       await navigator.clipboard.writeText(url);
-      s.toast(`Link copied (${url.length.toLocaleString()} characters)`);
+      s.toast(`Link to this sound copied (${url.length.toLocaleString()} characters)`);
     } catch {
+      history.replaceState(null, '', `#${hash}`);
       s.toast('The link is in the address bar: copy it from there');
     }
   } catch {
@@ -155,146 +467,372 @@ export async function copyShareLink(): Promise<void> {
   }
 }
 
-// ---- Local server -----------------------------------------------------------------------------
+// ---- Projects kept in the browser ---------------------------------------------------------------
 
-let saveTimer: ReturnType<typeof setTimeout> | null = null;
-/** JSON of what the editor last read from or wrote to the bound file, so its own saves don't echo back. */
-let onDisk = '';
+const LIBRARY_KEY = 'sfxgen:library';
+const projectKey = (id: string) => `sfxgen:project:${id}`;
+const LEGACY_AUTOSAVE_KEY = 'sfxgen:autosave';
 
-function unbindFile(): void {
-  const s = editor();
-  if (!s.serve.path) return;
-  if (saveTimer) clearTimeout(saveTimer);
-  saveTimer = null;
-  useEditor.setState({ serve: { ...s.serve, path: null, save: 'idle' } });
-  const url = new URL(location.href);
-  url.searchParams.delete('file');
-  history.replaceState(null, '', url);
-}
-
-export async function openServeFile(path: string, origin: Origin = 'system'): Promise<boolean> {
-  const s = editor();
+function readJson(key: string): unknown {
   try {
-    const patch = accept(await serve.readFile(path), path);
-    if (!patch) return false;
-    const same = s.serve.path === path;
-    onDisk = JSON.stringify(patch);
-    useEditor.setState({ serve: { ...editor().serve, path, save: 'saved' } });
-    editor().load(patch, same ? { origin } : { origin, note: `opened ${path}`, fresh: true });
-    const url = new URL(location.href);
-    url.searchParams.set('file', path);
-    url.hash = '';
-    history.replaceState(null, '', url);
-    return true;
-  } catch (err) {
-    s.toast(err instanceof Error ? err.message : `could not open ${path}`, 'error');
-    return false;
-  }
-}
-
-export async function refreshFiles(): Promise<void> {
-  try {
-    const files = await serve.listFiles();
-    useEditor.setState({ serve: { ...editor().serve, files } });
-  } catch {
-    // The list is a convenience; the open file still works.
-  }
-}
-
-function scheduleSave(): void {
-  if (saveTimer) clearTimeout(saveTimer);
-  saveTimer = setTimeout(async () => {
-    saveTimer = null;
-    const s = editor();
-    const path = s.serve.path;
-    if (!path) return;
-    const json = JSON.stringify(s.patch);
-    if (json === onDisk) return;
-    useEditor.setState({ serve: { ...s.serve, save: 'saving' } });
-    try {
-      onDisk = json;
-      await serve.writeFile(path, s.patch, 'human');
-      if (editor().serve.path === path) useEditor.setState({ serve: { ...editor().serve, save: 'saved' } });
-    } catch (err) {
-      onDisk = '';
-      useEditor.setState({ serve: { ...editor().serve, save: 'error' } });
-      s.toast(err instanceof Error ? err.message : 'Save failed', 'error');
-    }
-  }, 350);
-}
-
-async function onFileEvent(e: { path: string; origin?: string; deleted?: boolean }): Promise<void> {
-  const s = editor();
-  if (e.path !== s.serve.path) {
-    void refreshFiles();
-    return;
-  }
-  if (e.deleted) {
-    s.toast(`${e.path} was deleted on disk; your next edit saves it again`);
-    onDisk = '';
-    return;
-  }
-  try {
-    const incoming = await serve.readFile(e.path);
-    const json = JSON.stringify(incoming);
-    // Our own save coming back, or nothing new.
-    if (json === onDisk || json === JSON.stringify(editor().patch)) {
-      onDisk = json;
-      return;
-    }
-    const patch = accept(incoming, e.path);
-    if (!patch) return;
-    onDisk = json;
-    // `agent` is an agent's PUT; anything else is the file changing on disk (an agent's editor, git, another tab).
-    editor().load(patch, { origin: e.origin === 'agent' ? 'agent' : 'file' });
-    audition();
-  } catch {
-    // Caught mid-write; the next event brings the finished file.
-  }
-}
-
-async function startServeMode(): Promise<boolean> {
-  const info = await serve.detectServer();
-  if (!info) return false;
-  useEditor.setState({ serve: { ...editor().serve, info } });
-  await refreshFiles();
-  serve.followEvents({
-    file: (e) => void onFileEvent(e),
-    play: async (e) => {
-      if (e.path && e.path !== editor().serve.path) await openServeFile(e.path, 'agent');
-      const played = await playNow();
-      editor().log('agent', played ? 'played the sound' : 'asked to play: click anywhere to let audio start');
-      if (!played) editor().toast('The agent wants you to hear this: press play');
-    },
-    focus: async (e) => {
-      if (e.path && e.path !== editor().serve.path) await openServeFile(e.path, 'agent');
-      if (e.control) editor().focusControl(e.control);
-    },
-  });
-  return true;
-}
-
-// ---- Start-up ---------------------------------------------------------------------------------
-
-function readAutosave(): Patch | null {
-  try {
-    const raw = localStorage.getItem(AUTOSAVE_KEY);
-    if (!raw) return null;
-    const patch = JSON.parse(raw) as unknown;
-    return validatePatch(patch).ok ? (patch as Patch) : null;
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : null;
   } catch {
     return null;
   }
 }
 
-function firstPatch(): Patch {
-  const preferred = getTemplate('scifi/laser-zap') ?? getTemplate(listTemplates()[0]?.id ?? '');
-  return preferred ?? editor().patch;
+function writeJson(key: string, value: unknown): boolean {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+    return true;
+  } catch {
+    // Storage is full or blocked; the project is still in memory and can be exported.
+    return false;
+  }
 }
+
+function readLibrary(): Library {
+  const lib = readJson(LIBRARY_KEY) as Partial<Library> | null;
+  const items = Array.isArray(lib?.items) ? lib.items.filter((i) => i && typeof i.id === 'string' && typeof i.name === 'string') : [];
+  return { current: typeof lib?.current === 'string' ? lib.current : '', items };
+}
+
+function readStoredProject(id: string): Project | null {
+  const project = readJson(projectKey(id));
+  return project && validateProject(project).ok && (project as Project).sounds.every((x) => x.patch) && (project as Project).sounds.length > 0 ? (project as Project) : null;
+}
+
+function createLibraryEntry(name: string): string {
+  const id = `p${Date.now().toString(36)}${Math.floor(Math.random() * 1296).toString(36)}`;
+  const lib = editor().library;
+  useEditor.setState({ library: { current: lib.current, items: [...lib.items, { id, name }] } });
+  return id;
+}
+
+function openBrowserProject(id: string, project: Project, note?: string): void {
+  setToken++;
+  player.stop();
+  audio.clear();
+  useEditor.setState((s) => ({ library: { ...s.library, current: id } }));
+  editor().loadProject(project, { origin: 'system', fresh: true, note });
+  persistBrowserProject();
+}
+
+function persistBrowserProject(): void {
+  const s = editor();
+  if (s.serve.info || !s.library.current) return;
+  const items = s.library.items.map((i) => (i.id === s.library.current ? { ...i, name: s.project.name } : i));
+  const library = { current: s.library.current, items };
+  if (JSON.stringify(items) !== JSON.stringify(s.library.items)) useEditor.setState({ library });
+  writeJson(projectKey(s.library.current), s.project);
+  writeJson(LIBRARY_KEY, library);
+}
+
+/** The first project a person sees: a few sounds from the library, ready on the pads. */
+function starterProject(): Project {
+  const ids = ['scifi/laser-zap', ...listTemplates().map((t) => t.id)].filter((id, i, all) => all.indexOf(id) === i);
+  const patches = ids.map((id) => getTemplate(id)).filter((p): p is Patch => !!p).slice(0, 4);
+  let project: Project = { format: PROJECT_FORMAT_ID, name: 'First set', sounds: [] };
+  for (const p of patches) project = addSound(project, p).project;
+  return project.sounds.length > 0 ? project : projectOfOne(EMPTY_PATCH, 'First set');
+}
+
+export function createProject(name = 'New set'): void {
+  if (editor().serve.info) return;
+  const taken = new Set(editor().library.items.map((i) => i.name));
+  let unique = name;
+  for (let i = 2; taken.has(unique); i++) unique = `${name} ${i}`;
+  openBrowserProject(createLibraryEntry(unique), projectOfOne({ ...EMPTY_PATCH, name: 'New sound' }, unique), `started project “${unique}”`);
+}
+
+export function switchProject(id: string): void {
+  const s = editor();
+  if (s.serve.info || id === s.library.current) return;
+  persistBrowserProject();
+  const project = readStoredProject(id);
+  if (!project) {
+    s.toast('That project could not be read from this browser', 'error');
+    return;
+  }
+  openBrowserProject(id, project);
+}
+
+export function deleteProject(id: string): void {
+  const s = editor();
+  if (s.serve.info) return;
+  const items = s.library.items.filter((i) => i.id !== id);
+  try {
+    localStorage.removeItem(projectKey(id));
+  } catch {
+    // Nothing to remove.
+  }
+  useEditor.setState({ library: { current: s.library.current, items } });
+  if (id !== s.library.current) {
+    writeJson(LIBRARY_KEY, { current: s.library.current, items });
+    return;
+  }
+  const next = items.map((i) => ({ id: i.id, project: readStoredProject(i.id) })).find((x) => x.project);
+  if (next?.project) openBrowserProject(next.id, next.project);
+  else openBrowserProject(createLibraryEntry('First set'), starterProject());
+}
+
+function bootBrowserProject(shared: Patch | null): void {
+  const library = readLibrary();
+  useEditor.setState({ library });
+  if (shared) {
+    openBrowserProject(createLibraryEntry(shared.name), projectOfOne(shared), `opened a shared link: “${shared.name}”`);
+    return;
+  }
+  const stored = library.current ? readStoredProject(library.current) : null;
+  if (stored) {
+    editor().loadProject(stored, { origin: 'system', fresh: true, note: `picked up where you left off: “${stored.name}”` });
+    return;
+  }
+  // A patch autosaved by the first version of the editor becomes a project of one.
+  const legacy = readJson(LEGACY_AUTOSAVE_KEY);
+  if (legacy && validatePatch(legacy).ok) {
+    const patch = legacy as Patch;
+    openBrowserProject(createLibraryEntry(patch.name), projectOfOne(patch));
+    try {
+      localStorage.removeItem(LEGACY_AUTOSAVE_KEY);
+    } catch {
+      // Leave it.
+    }
+    return;
+  }
+  openBrowserProject(createLibraryEntry('First set'), starterProject());
+}
+
+// ---- Local server -----------------------------------------------------------------------------
+
+/** JSON of each patch file as the editor last read or wrote it, so its own saves don't echo back. */
+const onDisk = new Map<string, string>();
+/** The project file's content (see shellKey) as last read or written. */
+let projectOnDisk = '';
+const fileTimers = new Map<string, ReturnType<typeof setTimeout>>();
+let projectTimer: ReturnType<typeof setTimeout> | null = null;
+
+function setServe(change: Partial<ReturnType<typeof editor>['serve']>): void {
+  useEditor.setState((s) => ({ serve: { ...s.serve, ...change } }));
+}
+
+async function saveFile(file: string): Promise<void> {
+  fileTimers.delete(file);
+  const sound = editor().project.sounds.find((x) => x.file === file);
+  if (!sound?.patch) return;
+  const json = JSON.stringify(sound.patch);
+  if (json === onDisk.get(file)) return;
+  setServe({ save: 'saving' });
+  try {
+    onDisk.set(file, json);
+    await serve.writeFile(file, sound.patch, 'human');
+    setServe({ save: 'saved' });
+  } catch (err) {
+    onDisk.delete(file);
+    setServe({ save: 'error' });
+    editor().toast(err instanceof Error ? err.message : 'Save failed', 'error');
+  }
+}
+
+async function saveProjectNow(): Promise<boolean> {
+  projectTimer = null;
+  const project = editor().project;
+  const key = shellKey(project);
+  if (key === projectOnDisk) return true;
+  setServe({ save: 'saving' });
+  try {
+    projectOnDisk = key;
+    const res = await serve.writeProject(stripProject(project), 'human');
+    setServe({ save: 'saved', projectSaved: true, projectPath: res.path ?? editor().serve.projectPath ?? 'sfxgen.project.json' });
+    return true;
+  } catch (err) {
+    projectOnDisk = '';
+    setServe({ save: 'error' });
+    editor().toast(err instanceof Error ? err.message : 'Could not save the project', 'error');
+    return false;
+  }
+}
+
+/** Writes the project file for a folder that has none yet. */
+export async function saveProjectFile(): Promise<void> {
+  if (!editor().serve.info) return;
+  if (await saveProjectNow()) editor().log('human', 'saved the project file');
+}
+
+async function flushSaves(): Promise<void> {
+  const files = [...fileTimers.keys()];
+  for (const t of fileTimers.values()) clearTimeout(t);
+  await Promise.all(files.map(saveFile));
+  if (projectTimer) {
+    clearTimeout(projectTimer);
+    await saveProjectNow();
+  }
+}
+
+function scheduleServeSaves(prev: Project, next: Project): void {
+  const before = new Map(prev.sounds.filter((x) => x.file).map((x) => [x.file!, x.patch]));
+  for (const sound of next.sounds) {
+    if (!sound.file || !before.has(sound.file) || before.get(sound.file) === sound.patch) continue;
+    const old = fileTimers.get(sound.file);
+    if (old) clearTimeout(old);
+    const file = sound.file;
+    fileTimers.set(file, setTimeout(() => void saveFile(file), 350));
+  }
+  if (editor().serve.projectSaved && shellKey(next) !== projectOnDisk) {
+    if (projectTimer) clearTimeout(projectTimer);
+    projectTimer = setTimeout(() => void saveProjectNow(), 450);
+  }
+}
+
+/** Gives every file sound its patch: the one already in memory, else the file from the server. */
+async function hydrate(project: Project, reuse: Project | null): Promise<Project> {
+  const known = new Map((reuse?.sounds ?? []).filter((x) => x.file && x.patch).map((x) => [x.file!, x.patch!]));
+  const sounds: ProjectSound[] = [];
+  const failed: string[] = [];
+  await Promise.all(
+    project.sounds.map(async (sound, i) => {
+      if (sound.patch || !sound.file) {
+        sounds[i] = sound;
+        return;
+      }
+      const have = known.get(sound.file);
+      if (have) {
+        sounds[i] = { ...sound, patch: have };
+        return;
+      }
+      try {
+        const raw = await serve.readFile(sound.file);
+        if (!validatePatch(raw).ok) throw new Error('invalid');
+        onDisk.set(sound.file, JSON.stringify(raw));
+        sounds[i] = { ...sound, patch: raw as Patch };
+      } catch {
+        failed.push(sound.file);
+      }
+    }),
+  );
+  if (failed.length) editor().toast(`Could not open ${failed.slice(0, 3).join(', ')}${failed.length > 3 ? ` and ${failed.length - 3} more` : ''}`, 'error');
+  return { ...project, sounds: sounds.filter(Boolean) };
+}
+
+async function fetchServedProject(): Promise<serve.ServedProject> {
+  const served = await serve.readProject().catch(() => null);
+  if (served) return served;
+  // A server without project routes: the folder's patches, as an unsaved project.
+  const files = await serve.listFiles();
+  const root = editor().serve.info?.root ?? '';
+  return { path: null, saved: false, project: newProject(root.replace(/\/+$/, '').replace(/^.*\//, '') || 'Folder', files.map((f) => f.path)) };
+}
+
+async function loadServedProject(origin: Origin, fresh: boolean, select?: string): Promise<boolean> {
+  try {
+    const served = await fetchServedProject();
+    if (!validateProject(served.project).ok) throw new Error('the project file is not valid');
+    const project = await hydrate(served.project, fresh ? null : editor().project);
+    if (project.sounds.length === 0) {
+      setServe({ projectPath: served.path, projectSaved: served.saved });
+      return false;
+    }
+    projectOnDisk = shellKey(project);
+    setServe({ projectPath: served.path, projectSaved: served.saved, save: 'saved' });
+    const at = select ? project.sounds.findIndex((x) => x.file === select) : -1;
+    editor().loadProject(project, { origin, fresh, ...(at >= 0 ? { select: at } : {}), ...(fresh ? { note: `opened ${served.saved ? 'project' : 'folder'} “${project.name}”` } : {}) });
+    return true;
+  } catch (err) {
+    editor().toast(err instanceof Error ? err.message : 'Could not open the project', 'error');
+    return false;
+  }
+}
+
+function indexOfFile(path: string | undefined): number {
+  return path ? editor().project.sounds.findIndex((x) => x.file === path) : -1;
+}
+
+/** Opens a sound of the served project by its file. */
+export async function openServeFile(path: string): Promise<boolean> {
+  let at = indexOfFile(path);
+  if (at < 0) {
+    await loadServedProject('file', false);
+    at = indexOfFile(path);
+  }
+  if (at < 0) return false;
+  editor().openSound(at);
+  return true;
+}
+
+async function onFileEvent(e: { path: string; origin?: string; deleted?: boolean }): Promise<void> {
+  const at = indexOfFile(e.path);
+  if (at < 0 || e.deleted) {
+    // A folder without a project file is its own list of sounds.
+    if (!editor().serve.projectSaved) await loadServedProject('file', false);
+    else if (e.deleted && at >= 0) editor().toast(`${e.path} was deleted on disk; your next edit saves it again`);
+    if (e.deleted) onDisk.delete(e.path);
+    return;
+  }
+  try {
+    const incoming = await serve.readFile(e.path);
+    const json = JSON.stringify(incoming);
+    const now = indexOfFile(e.path);
+    // Our own save coming back, or nothing new.
+    if (now < 0 || json === onDisk.get(e.path) || json === JSON.stringify(editor().project.sounds[now].patch)) {
+      onDisk.set(e.path, json);
+      return;
+    }
+    const patch = accept(incoming, e.path);
+    if (!patch) return;
+    onDisk.set(e.path, json);
+    // `agent` is an agent's PUT; anything else is the file changing on disk (an agent's editor, git, another tab).
+    editor().load(patch, { origin: e.origin === 'agent' ? 'agent' : 'file', index: now });
+    if (now === editor().current) audition();
+  } catch {
+    // Caught mid-write; the next event brings the finished file.
+  }
+}
+
+async function onProjectEvent(e: { origin?: string }): Promise<void> {
+  try {
+    const served = await fetchServedProject();
+    const project = await hydrate(served.project, editor().project);
+    setServe({ projectPath: served.path, projectSaved: served.saved });
+    const key = shellKey(project);
+    if (key === projectOnDisk || key === shellKey(editor().project) || project.sounds.length === 0) {
+      projectOnDisk = key;
+      return;
+    }
+    projectOnDisk = key;
+    editor().loadProject(project, { origin: e.origin === 'agent' ? 'agent' : 'file', note: 'changed the project file' });
+  } catch {
+    // The next event brings the finished file.
+  }
+}
+
+async function startServeMode(select?: string): Promise<boolean> {
+  const info = await serve.detectServer();
+  if (!info) return false;
+  setServe({ info });
+  const ok = await loadServedProject('system', true, select);
+  serve.followEvents({
+    file: (e) => void onFileEvent(e),
+    project: (e) => void onProjectEvent(e),
+    play: async (e) => {
+      if (e.path && !(await openServeFile(e.path))) return;
+      const played = await playNow();
+      editor().log('agent', played ? 'played the sound' : 'asked to play: click anywhere to let audio start');
+      if (!played) editor().toast('The agent wants you to hear this: press play');
+    },
+    focus: async (e) => {
+      if (e.path && !(await openServeFile(e.path))) return;
+      if (e.control) editor().focusControl(e.control);
+    },
+  });
+  return ok;
+}
+
+// ---- Start-up ---------------------------------------------------------------------------------
 
 export function applyTheme(theme: 'light' | 'dark'): void {
   document.documentElement.dataset.theme = theme;
-  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#0b0b0d' : '#f1f2f4');
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#17181b' : '#e4e5e7');
 }
 
 async function requestSpectrogram(): Promise<void> {
@@ -316,57 +854,72 @@ export async function start(): Promise<void> {
     onStart: () => useEditor.setState({ rendering: true }),
     onResult: (view) => {
       useEditor.setState({ view, rendering: false, renderError: null });
+      // Whatever changed while the open sound plays (a knob, mute, undo) reaches the ears at the same position.
+      if (voice === 'live' && player.playing && editor().playingKey === currentKey()) player.swap(view, !!editor().patch.loop);
       if (editor().stageView === 'spectro') void requestSpectrogram();
     },
     onError: (message) => useEditor.setState({ rendering: false, renderError: message }),
   });
-  player.subscribe((playing) => useEditor.setState({ playing }));
+  player.subscribe((playing) => useEditor.setState(playing ? { playing } : { playing, playingKey: null }));
 
-  let autosaveTimer: ReturnType<typeof setTimeout> | null = null;
+  let persistTimer: ReturnType<typeof setTimeout> | null = null;
+  let liveKey = '';
   useEditor.subscribe((s, prev) => {
     if (s.theme !== prev.theme) applyTheme(s.theme);
     if (s.stageView !== prev.stageView && s.stageView === 'spectro') void requestSpectrogram();
-    if (s.patch === prev.patch) return;
-    renderClient.live(s.patch);
-    if (autosaveTimer) clearTimeout(autosaveTimer);
-    autosaveTimer = setTimeout(() => {
-      try {
-        localStorage.setItem(AUTOSAVE_KEY, JSON.stringify(editor().patch));
-      } catch {
-        // Storage is full or blocked; the patch is still in memory and can be exported.
-      }
-    }, 400);
-    if (s.lastOrigin === 'human' && s.serve.path) scheduleSave();
-  });
-
-  // What to open: a shared link, then the server's file, then what was open last, then a starter sound.
-  const params = new URLSearchParams(location.search);
-  let opened = false;
-  try {
-    const shared = await decodePatchHash(location.hash);
-    if (shared) {
-      const patch = accept(shared, 'Shared link');
-      if (patch) {
-        editor().load(patch, { origin: 'system', note: `opened a shared link: “${patch.name}”`, fresh: true });
-        opened = true;
-        // The link has done its job; left in place it would undo the next edits on reload.
-        history.replaceState(null, '', location.pathname + location.search);
+    if (s.project === prev.project && s.current === prev.current) return;
+    const sound = s.project.sounds[s.current];
+    if (sound) {
+      // The open sound renders as the project hears it: its output, levelling, shared chain and gain.
+      const patch = projectPatch(s.project, sound, s.patch);
+      const key = `${sound.gain ?? 0}|${JSON.stringify(patch)}`;
+      if (key !== liveKey) {
+        liveKey = key;
+        renderClient.live(patch, sound.gain ?? 0);
       }
     }
+    if (s.project === prev.project) return;
+    // A fader moved under a sound playing from the cache: its level follows at once.
+    if (voice === 'cached' && s.playingKey) {
+      const playing = s.project.sounds.find((x) => soundKey(x) === s.playingKey);
+      const before = prev.project.sounds.find((x) => soundKey(x) === s.playingKey);
+      if (playing && (playing.gain ?? 0) !== (before?.gain ?? 0)) player.setGain(playing.gain ?? 0);
+    }
+    scheduleMeasure();
+    if (s.serve.info) {
+      if (s.lastOrigin === 'human') scheduleServeSaves(prev.project, s.project);
+    } else {
+      if (persistTimer) clearTimeout(persistTimer);
+      persistTimer = setTimeout(persistBrowserProject, 400);
+    }
+  });
+
+  // What to open: the server's project when there is one; else a shared link, then what was open last, then a
+  // starter set. The server check is quick and local, so the first paint waits for it rather than flashing a
+  // browser project that the folder then replaces.
+  const params = new URLSearchParams(location.search);
+  let shared: Patch | null = null;
+  try {
+    const decoded = await decodePatchHash(location.hash);
+    if (decoded) shared = accept(decoded, 'Shared link');
+    // The link has done its job; left in place it would reopen on every reload.
+    if (decoded) history.replaceState(null, '', location.pathname + location.search);
   } catch {
     editor().toast('That share link is damaged', 'error');
   }
-  // Show a sound at once; the server check must not hold up the first paint.
-  if (!opened) {
-    const local = params.get('file') ? null : readAutosave();
-    const patch = local ?? firstPatch();
-    editor().load(patch, { origin: 'system', note: local ? `picked up where you left off: “${patch.name}”` : `opened “${patch.name}”`, fresh: true });
+
+  const served = await startServeMode(params.get('file') ?? undefined);
+  if (served && shared) void addSoundToProject(shared, `opened a shared link: “${shared.name}”`);
+  if (!served) {
+    if (editor().serve.info) editor().toast('This folder has no sounds yet: add one from the gallery');
+    bootBrowserProject(shared);
+    // With a server but an empty folder the starter set is only a place to begin; nothing is written until a sound is added.
   }
 
   // The agent tools (with the guide and analysis they carry) load after the first paint, in their own chunk.
   const workspace = createBrowserWorkspace();
   // For debugging and browser tests in development: the store and the workspace the tools act on.
-  if (import.meta.env.DEV) Object.assign(window, { __sfxgen: { store: useEditor, workspace } });
+  if (import.meta.env.DEV) Object.assign(window, { __sfxgen: { store: useEditor, workspace, player, play: { playSound, audition, stop } } });
   void import('../web/webmcp')
     .then(({ installWebMcpShim, registerWebMcp }) => {
       if (params.get('webmcp') === 'shim') installWebMcpShim();
@@ -374,11 +927,6 @@ export async function start(): Promise<void> {
     })
     .then((h) => useEditor.setState({ webmcp: { api: h.api, count: h.count } }))
     .catch(() => useEditor.setState({ webmcp: { api: 'none', count: 0 } }));
-
-  if (await startServeMode()) {
-    const file = params.get('file');
-    if (file && !opened) await openServeFile(file);
-  }
 }
 
 // ---- Keyboard ---------------------------------------------------------------------------------
@@ -406,17 +954,26 @@ export function onGlobalKey(e: KeyboardEvent): void {
     return;
   }
   if (e.key === 'Escape') {
-    if (s.galleryOpen || s.exportOpen) useEditor.setState({ galleryOpen: false, exportOpen: false });
+    if (s.gallery.open || s.exportOpen || s.projectsOpen || s.buildRows) {
+      useEditor.setState({ gallery: { ...s.gallery, open: false }, exportOpen: false, projectsOpen: false, buildRows: null });
+    }
     return;
   }
   if (mod || e.altKey || isTyping(e.target)) return;
+  const key = e.key.toLowerCase();
   if (e.key === ' ' || e.code === 'Space') {
     // Space always plays, even with a button focused (Enter still presses the button).
     e.preventDefault();
     togglePlay();
-  } else if (e.key.toLowerCase() === 'g') {
-    useEditor.setState({ galleryOpen: !s.galleryOpen });
-  } else if (e.key.toLowerCase() === 'e') {
-    s.setSettings({ everything: !s.everything });
+  } else if (/^[0-9]$/.test(e.key)) {
+    // Number keys are the pads: 1 to 9, then 0 for the tenth.
+    const index = e.key === '0' ? 9 : Number(e.key) - 1;
+    if (s.project.sounds[index]) pressPad(index);
+  } else if (key === 'g') {
+    useEditor.setState({ gallery: { open: !s.gallery.open, mode: 'replace' } });
+  } else if (key === 'e') {
+    useEditor.setState({ surface: 'sound' });
+  } else if (key === 'm') {
+    useEditor.setState({ surface: s.surface === 'mixer' ? 'sound' : 'mixer' });
   }
 }

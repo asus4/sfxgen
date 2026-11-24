@@ -37,7 +37,7 @@ describe('sfxgen CLI', () => {
   it('prints help for itself and every command, and its version', () => {
     const main = sfxgen('--help');
     expect(main.code).toBe(0);
-    for (const c of ['render', 'analyze', 'validate', 'guide', 'schema', 'templates', 'new', 'diff', 'serve', 'mcp']) {
+    for (const c of ['render', 'analyze', 'validate', 'guide', 'schema', 'templates', 'new', 'diff', 'sync', 'serve', 'mcp']) {
       expect(main.out).toContain(`  ${c}`);
       const help = sfxgen(c, '--help');
       expect(help.code, c).toBe(0);
@@ -95,7 +95,8 @@ describe('sfxgen CLI', () => {
   });
 
   it('honours --sr, --channels, --bits, --seed and --set by path', () => {
-    const r = sfxgen('render', 'door.sfx.json', '-o', 'alt.wav', '--sr', '44100', '--channels', '2', '--bits', '24', '--seed', '9', '--set', 'tracks.body.gain=-3', '--json');
+    const first = readJson('door.sfx.json').tracks[0].id;
+    const r = sfxgen('render', 'door.sfx.json', '-o', 'alt.wav', '--sr', '44100', '--channels', '2', '--bits', '24', '--seed', '9', '--set', `tracks.${first}.gain=-3`, '--json');
     expect(r.code, r.err).toBe(0);
     const take = JSON.parse(r.out).takes[0];
     expect([take.sampleRate, take.channels, take.bitDepth, take.seed]).toEqual([44100, 2, 24, 9]);
@@ -120,12 +121,12 @@ describe('sfxgen CLI', () => {
   it('diffs two patches by path', () => {
     const patch = readJson('door.sfx.json');
     patch.controls[0].value = 0.3;
-    patch.tracks[0].source.env.decay = 0.5;
+    patch.tracks[0].gain = -7.5;
     writeFileSync(join(dir, 'door2.sfx.json'), JSON.stringify(patch, null, 2));
     const r = sfxgen('diff', 'door.sfx.json', 'door2.sfx.json');
     expect(r.code).toBe(0);
     expect(r.out).toContain('~ controls.weight.value: 0.8 -> 0.3');
-    expect(r.out).toMatch(/~ tracks\.body\.source\.env\.decay: [\d.]+ -> 0\.5/);
+    expect(r.out).toMatch(new RegExp(`[~+] tracks\\.${patch.tracks[0].id}\\.gain: .*-7\\.5`));
     expect(r.out).toContain('2 changes');
     expect(sfxgen('diff', 'door.sfx.json', 'door.sfx.json').out.trim()).toBe('no changes');
     const json = JSON.parse(sfxgen('diff', 'door.sfx.json', 'door2.sfx.json', '--json').out);
@@ -190,5 +191,74 @@ describe('sfxgen CLI', () => {
     const control = sfxgen('render', 'door.sfx.json', '--set', 'wieght=1');
     expect(control.code).toBe(1);
     expect(control.err).toContain('did you mean "weight"?');
+  });
+
+  describe('sync, tracks and --set', () => {
+    const write = (file: string, patch: unknown) => writeFileSync(join(dir, file), JSON.stringify(patch, null, 2));
+    const base = () => ({
+      format: 'sfxgen/1',
+      name: 'layers',
+      duration: 'auto',
+      tracks: [
+        { id: 'main', source: { type: 'osc', wave: 'sine', freq: 300, env: { attack: 0.001, decay: 0.3 } } },
+        { id: 'faint', gain: -45, source: { type: 'noise', color: 'pink', env: { attack: 0.001, decay: 0.1 } } },
+      ],
+      controls: [{ id: 'punch', label: 'Punch', value: 0.25, targets: [{ path: 'tracks.faint.gain', mode: 'set', from: -60, to: -30 }] }],
+    });
+
+    it('sync writes control values into the base, --check changes nothing and exits 1', () => {
+      write('sync-me.sfx.json', base());
+      const check = sfxgen('sync', 'sync-me.sfx.json', '--check');
+      expect(check.code).toBe(1);
+      expect(check.out).toContain('tracks.faint.gain');
+      expect(readJson('sync-me.sfx.json').tracks[1].gain).toBe(-45);
+      const run = sfxgen('sync', 'sync-me.sfx.json');
+      expect(run.code).toBe(0);
+      expect(run.out).toContain('synced');
+      expect(readJson('sync-me.sfx.json').tracks[1].gain).toBe(-52.5);
+      expect(sfxgen('sync', 'sync-me.sfx.json', '--check').code).toBe(0);
+      expect(sfxgen('sync').code).toBe(2);
+    });
+
+    it('analyze --tracks and render --tracks list each layer and mark the inaudible one', () => {
+      write('layers.sfx.json', base());
+      const a = sfxgen('analyze', 'layers.sfx.json', '--tracks');
+      expect(a.code).toBe(0);
+      expect(a.out).toMatch(/track\s+source\s+peak dBFS\s+LUFS\s+energy %/);
+      expect(a.out).toMatch(/faint\s+noise.*inaudible/);
+      expect(a.out).not.toMatch(/main\s+osc.*inaudible/);
+      const json = JSON.parse(sfxgen('analyze', 'layers.sfx.json', '--tracks', '--json').out);
+      expect(json.tracks.map((t: { id: string }) => t.id)).toEqual(['main', 'faint']);
+      expect(json.tracks[1].inaudible).toBe(true);
+      expect(json.tracks[0].sharePct).toBeGreaterThan(99);
+      const r = sfxgen('render', 'layers.sfx.json', '--tracks', '-o', 'layers-out.wav');
+      expect(r.code).toBe(0);
+      expect(r.out).toContain('inaudible');
+      expect(sfxgen('analyze', 'layers-out.wav', '--tracks').code).toBe(2);
+    });
+
+    it('warns when --set targets a path a control sets, and creates master.normalize parents', () => {
+      write('owned.sfx.json', base());
+      const r = sfxgen('render', 'owned.sfx.json', '--set', 'tracks.faint.gain=-10', '-o', 'owned.wav');
+      expect(r.code).toBe(0);
+      expect(r.err).toContain('tracks.faint.gain is set by control "punch"; use --set punch=<value>, or sfxgen sync after editing');
+      const n = sfxgen('render', 'owned.sfx.json', '--set', 'master.normalize.mode=none', '-o', 'owned2.wav');
+      expect(n.code).toBe(0);
+      expect(n.err).not.toContain('no parameter');
+    });
+
+    it('analyses a loop without the one-shot start and end warnings', () => {
+      write('loopy.sfx.json', {
+        format: 'sfxgen/1',
+        name: 'loopy',
+        duration: 1,
+        loop: { mode: 'wrap' },
+        tracks: [{ id: 'hum', source: { type: 'osc', wave: 'sine', freq: 100, env: { attack: 0.001, sustain: 1 } } }],
+      });
+      const r = sfxgen('analyze', 'loopy.sfx.json');
+      expect(r.code).toBe(0);
+      expect(r.out).toContain('Loop: seam');
+      expect(r.out).not.toContain('still sounding at the end');
+    });
   });
 });

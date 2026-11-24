@@ -1,0 +1,156 @@
+{
+  "format": "sfxgen/1",
+  "name": "Bounce",
+  "description": "A ball bouncing in a 16-bit console game, on its two-operator FM chip. Each bounce is a rubbery boing: the pitch dips from 330 to 150 Hz in 40 ms as the ball squashes and springs back up past 400 Hz, while the FM index flares and relaxes. Three bounces, each sooner and quieter than the last, through the console's slightly grainy converter.",
+  "tags": [
+    "retro",
+    "16-bit",
+    "fm",
+    "bounce",
+    "boing",
+    "ball",
+    "spring",
+    "genesis"
+  ],
+  "duration": "auto",
+  "seed": 9,
+  "tracks": [
+    {
+      "id": "boing",
+      "note": "One squash and rebound, repeated as the ball settles.",
+      "source": {
+        "type": "fm",
+        "freq": [
+          [
+            0,
+            330
+          ],
+          [
+            0.04,
+            150
+          ],
+          [
+            0.15,
+            420
+          ]
+        ],
+        "ops": [
+          {
+            "ratio": 1
+          },
+          {
+            "id": "rubber",
+            "ratio": 1,
+            "index": [
+              [
+                0,
+                5
+              ],
+              [
+                0.05,
+                2.2
+              ],
+              [
+                0.17,
+                0.6
+              ]
+            ],
+            "feedback": 0.3
+          }
+        ],
+        "env": {
+          "attack": 0.002,
+          "decay": 0.24
+        }
+      },
+      "repeat": {
+        "count": 3,
+        "interval": 0.2,
+        "accel": 0.72,
+        "decay": -7,
+        "pitchStep": 1
+      },
+      "fx": [
+        {
+          "type": "crush",
+          "id": "dac",
+          "bits": 9,
+          "rate": 26000
+        }
+      ]
+    }
+  ],
+  "controls": [
+    {
+      "id": "size",
+      "label": "Size",
+      "hint": "A beach ball to a marble.",
+      "value": 0.5,
+      "vary": 0.04,
+      "targets": [
+        {
+          "path": "tracks.boing.source.freq",
+          "mode": "mul",
+          "from": 0.45,
+          "to": 2.2
+        }
+      ]
+    },
+    {
+      "id": "bounces",
+      "label": "Bounces",
+      "hint": "One boing to a ball that keeps going.",
+      "value": 3,
+      "min": 1,
+      "max": 6,
+      "step": 1,
+      "targets": [
+        {
+          "path": "tracks.boing.repeat.count",
+          "from": 1,
+          "to": 6,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "rubber",
+      "label": "Rubber",
+      "hint": "A dull round ball to a twangy, brassy one.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.boing.source.ops.rubber.index",
+          "mode": "mul",
+          "from": 0.4,
+          "to": 2.5
+        }
+      ]
+    },
+    {
+      "id": "springiness",
+      "label": "Springiness",
+      "hint": "A dead ball that stops fast to a lively one with long, even hops.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.boing.repeat.accel",
+          "from": 0.55,
+          "to": 0.92,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.boing.repeat.interval",
+          "from": 0.13,
+          "to": 0.3
+        },
+        {
+          "path": "tracks.boing.repeat.decay",
+          "from": -12,
+          "to": -3,
+          "curve": "linear"
+        }
+      ]
+    }
+  ]
+}

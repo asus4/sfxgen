@@ -32,6 +32,8 @@ export type LfoShape = 'sine' | 'triangle' | 'square' | 'saw' | 'ramp' | 'random
 
 /** A wobble added on top of a parameter. */
 export interface Modulator {
+  /** Names it for paths and controls: `tracks.x.source.freq.mod.wobble.depth`. */
+  id?: string;
   /** `lfo` repeats a shape; `wander` is smooth random drift with nothing faster than `rate`. */
   type: 'lfo' | 'wander';
   /** Hz. A breakpoint list makes the rate itself move (a tumble that speeds up). */
@@ -219,6 +221,8 @@ export interface Normalize {
   mode: 'peak' | 'loudness' | 'none';
   /** dBFS for `peak` (default -1), LUFS for `loudness` (default -16). */
   target?: number;
+  /** For `loudness`: the highest peak allowed, dBFS (default -0.3). A sound that would pass it stays quieter. */
+  ceiling?: number;
 }
 
 export interface Master {
@@ -275,6 +279,11 @@ export interface ControlTarget {
   from?: number;
   /** Value at the control's maximum. */
   to?: number;
+  /**
+   * Value at the control's `default` (or its middle when it has none): the mapping runs from → via → to, so a knob
+   * can rest exactly on the mixed level and still sweep either side of it.
+   */
+  via?: number;
   /** Default `linear`, or `exp` when both ends are positive and the parameter is on a log scale. */
   curve?: MapCurve;
 }

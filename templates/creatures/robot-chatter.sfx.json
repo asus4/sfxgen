@@ -1,0 +1,343 @@
+{
+  "format": "sfxgen/1",
+  "name": "Robot creature chatter",
+  "description": "A knee-high maintenance droid with opinions: about 0.9 s of burbling electronic speech, a dozen syllables of unstable tone that jump in pitch like words, squeezed through a small plastic speaker-mouth, ending on a rising two-note \"bee-woop?\" at 950 ms. Its head servo twitches as it finishes. Close, in a corridor.",
+  "tags": [
+    "creature",
+    "robot",
+    "droid",
+    "chatter",
+    "beep",
+    "talk",
+    "cute",
+    "scifi"
+  ],
+  "duration": "auto",
+  "seed": 42,
+  "tracks": [
+    {
+      "id": "babble",
+      "note": "The speech: two cross-modulating oscillators whose pitch is thrown to a new value 13 times a second, each syllable a little chaotic. Seeds change what it says.",
+      "source": {
+        "type": "chaos",
+        "mode": "feedback",
+        "ratio": 2.02,
+        "rate": {
+          "value": 880,
+          "mod": [
+            {
+              "type": "lfo",
+              "shape": "random",
+              "rate": 13,
+              "depth": 11,
+              "unit": "st"
+            },
+            {
+              "type": "lfo",
+              "shape": "saw",
+              "rate": 13,
+              "depth": 2.5,
+              "unit": "st"
+            }
+          ]
+        },
+        "chaos": {
+          "value": 0.32,
+          "mod": [
+            {
+              "type": "lfo",
+              "shape": "random",
+              "rate": 6.5,
+              "depth": 0.2
+            }
+          ]
+        },
+        "smooth": 0.45,
+        "env": {
+          "attack": 0.004,
+          "hold": 0.86,
+          "decay": 0.03
+        }
+      },
+      "fx": [
+        {
+          "id": "syllables",
+          "type": "tremolo",
+          "rate": 13,
+          "depth": 0.85,
+          "shape": "saw"
+        },
+        {
+          "id": "mouth",
+          "type": "formant",
+          "vowel": {
+            "value": 2,
+            "mod": [
+              {
+                "type": "lfo",
+                "shape": "smooth-random",
+                "rate": 6,
+                "depth": 2
+              }
+            ]
+          },
+          "size": 0.62,
+          "resonance": 1.5,
+          "mix": 0.75
+        }
+      ]
+    },
+    {
+      "id": "question",
+      "note": "The sign-off: two clean notes, the second sliding up. It turns noise into a sentence with a meaning.",
+      "start": 0.95,
+      "events": [
+        {
+          "t": 0,
+          "dur": 0.07
+        },
+        {
+          "t": 0.11,
+          "pitch": 5,
+          "dur": 0.16
+        }
+      ],
+      "source": {
+        "type": "chaos",
+        "mode": "feedback",
+        "ratio": 2,
+        "rate": [
+          [
+            0,
+            1250
+          ],
+          [
+            0.11,
+            1250
+          ],
+          [
+            0.25,
+            1900
+          ]
+        ],
+        "chaos": 0.12,
+        "smooth": 0.5,
+        "env": {
+          "attack": 0.004,
+          "sustain": 1,
+          "release": 0.05
+        }
+      },
+      "fx": [
+        {
+          "type": "formant",
+          "vowel": [
+            [
+              0,
+              2
+            ],
+            [
+              0.11,
+              4
+            ],
+            [
+              0.3,
+              1
+            ]
+          ],
+          "size": 0.62,
+          "resonance": 1.5,
+          "mix": 0.75
+        }
+      ]
+    },
+    {
+      "id": "servo",
+      "note": "The head tilting as it asks: a small geared motor, 160 ms. Gives the voice a body.",
+      "start": 1.08,
+      "gain": 0,
+      "source": {
+        "type": "machine",
+        "kind": "servo",
+        "size": 0.5,
+        "rpm": [
+          [
+            0,
+            5000
+          ],
+          [
+            0.05,
+            12500
+          ],
+          [
+            0.13,
+            11000
+          ],
+          [
+            0.17,
+            4000
+          ]
+        ],
+        "load": [
+          [
+            0,
+            0.3
+          ],
+          [
+            0.17,
+            0.7
+          ]
+        ],
+        "env": {
+          "attack": 0.008,
+          "hold": 0.13,
+          "decay": 0.05
+        }
+      }
+    }
+  ],
+  "master": {
+    "fx": [
+      {
+        "id": "speaker",
+        "type": "eq",
+        "bands": [
+          {
+            "mode": "lowcut",
+            "freq": 320,
+            "slope": "24"
+          },
+          {
+            "mode": "peak",
+            "freq": 2300,
+            "gain": 5,
+            "q": 1.5
+          },
+          {
+            "mode": "highcut",
+            "freq": 11000,
+            "slope": "12"
+          }
+        ]
+      },
+      {
+        "id": "corridor",
+        "type": "reverb",
+        "space": "stairwell",
+        "decay": 0.7,
+        "mix": 0.12
+      }
+    ]
+  },
+  "controls": [
+    {
+      "id": "size",
+      "label": "Size",
+      "hint": "A pocket-sized bot to a barrel-shaped one: lower voice, bigger mouth.",
+      "value": 0.4,
+      "vary": 0.05,
+      "targets": [
+        {
+          "path": "tracks.babble.source.pitch",
+          "mode": "set",
+          "from": 9,
+          "to": -14
+        },
+        {
+          "path": "tracks.question.source.pitch",
+          "mode": "set",
+          "from": 9,
+          "to": -14
+        },
+        {
+          "path": "tracks.babble.fx.mouth.size",
+          "mode": "set",
+          "from": 0.42,
+          "to": 1.1
+        },
+        {
+          "path": "tracks.question.fx.0.size",
+          "mode": "set",
+          "from": 0.42,
+          "to": 1.1
+        }
+      ]
+    },
+    {
+      "id": "talk",
+      "label": "Talk speed",
+      "hint": "Slow, deliberate words to an excited gabble.",
+      "value": 0.5,
+      "vary": 0.1,
+      "targets": [
+        {
+          "path": "tracks.babble.source.rate.mod.0.rate",
+          "mode": "set",
+          "from": 6,
+          "to": 24
+        },
+        {
+          "path": "tracks.babble.source.rate.mod.1.rate",
+          "mode": "set",
+          "from": 6,
+          "to": 24
+        },
+        {
+          "path": "tracks.babble.fx.syllables.rate",
+          "mode": "set",
+          "from": 6,
+          "to": 24
+        }
+      ]
+    },
+    {
+      "id": "expression",
+      "label": "Expression",
+      "hint": "A monotone drone to wild leaps of pitch.",
+      "value": 0.5,
+      "vary": 0.1,
+      "targets": [
+        {
+          "path": "tracks.babble.source.rate.mod.0.depth",
+          "mode": "set",
+          "from": 1.5,
+          "to": 20
+        }
+      ]
+    },
+    {
+      "id": "glitch",
+      "label": "Glitch",
+      "hint": "A healthy clean voice to a damaged, crackling one.",
+      "value": 0.3,
+      "targets": [
+        {
+          "path": "tracks.babble.source.chaos.value",
+          "mode": "set",
+          "from": 0.1,
+          "to": 0.85
+        },
+        {
+          "path": "tracks.babble.source.smooth",
+          "mode": "set",
+          "from": 0.6,
+          "to": 0.1
+        }
+      ]
+    },
+    {
+      "id": "servo",
+      "label": "Servo",
+      "hint": "How loudly its head motor twitches at the end.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.servo.gain",
+          "mode": "set",
+          "from": -30,
+          "to": 9
+        }
+      ]
+    }
+  ]
+}

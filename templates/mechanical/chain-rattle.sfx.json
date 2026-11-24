@@ -1,0 +1,314 @@
+{
+  "format": "sfxgen/1",
+  "name": "Chain rattle",
+  "description": "Two metres of steel chain hauled off a hook and dropped in a heap on a concrete floor. 0 to 500 ms: the chain is dragged, links clinking against each other in a busy uneven patter, a few big links clanking low; around 550 ms the run thickens into a rush as it slides off; by 1 s the pile lands and the last links trickle down and settle with a few separate clinks. A bare concrete room.",
+  "tags": [
+    "mechanical",
+    "chain",
+    "rattle",
+    "metal",
+    "links",
+    "clink",
+    "dungeon",
+    "shackles",
+    "prison"
+  ],
+  "duration": "auto",
+  "seed": 29,
+  "output": {
+    "channels": 2
+  },
+  "tracks": [
+    {
+      "id": "links",
+      "note": "The links hitting each other: many small steel rings, busy then a rush then a trickle.",
+      "source": {
+        "type": "particles",
+        "distribution": "random",
+        "density": [
+          [
+            0,
+            45
+          ],
+          [
+            0.3,
+            28
+          ],
+          [
+            0.55,
+            150
+          ],
+          [
+            0.85,
+            110
+          ],
+          [
+            1.05,
+            14
+          ],
+          [
+            1.4,
+            3
+          ]
+        ],
+        "duration": 1.4,
+        "spread": 0.6,
+        "grain": {
+          "kind": "modal",
+          "material": "metal",
+          "shape": "bowl",
+          "lo": 950,
+          "hi": 3800,
+          "decayLo": 0.015,
+          "decayHi": 0.09,
+          "levelJitter": 16,
+          "size": 0.6
+        }
+      },
+      "fx": [
+        {
+          "type": "eq",
+          "bands": [
+            {
+              "mode": "highshelf",
+              "freq": 6500,
+              "gain": -12
+            },
+            {
+              "mode": "highcut",
+              "freq": 14000,
+              "slope": "24"
+            }
+          ]
+        }
+      ],
+      "sends": {
+        "cell": -13
+      }
+    },
+    {
+      "id": "heavy",
+      "note": "The weight of it: slack loops and big links clanking low, fewer and louder.",
+      "gain": 0,
+      "source": {
+        "type": "particles",
+        "distribution": "random",
+        "density": [
+          [
+            0,
+            9
+          ],
+          [
+            0.5,
+            7
+          ],
+          [
+            0.7,
+            26
+          ],
+          [
+            1,
+            5
+          ],
+          [
+            1.3,
+            1
+          ]
+        ],
+        "duration": 1.3,
+        "spread": 0.3,
+        "grain": {
+          "kind": "modal",
+          "material": "metal",
+          "shape": "bar",
+          "lo": 380,
+          "hi": 1100,
+          "decayLo": 0.04,
+          "decayHi": 0.16,
+          "levelJitter": 12,
+          "size": 0.8
+        }
+      },
+      "sends": {
+        "cell": -13
+      }
+    },
+    {
+      "id": "floor",
+      "note": "The heap landing on concrete: a gritty low scrape under the rush.",
+      "start": 0.6,
+      "gain": -12,
+      "source": {
+        "type": "modal",
+        "material": "stone",
+        "shape": "plate",
+        "freq": 155,
+        "decay": 0.08,
+        "modes": 14,
+        "exciter": {
+          "kind": "scrape",
+          "hardness": 0.4,
+          "duration": 0.4,
+          "density": [
+            [
+              0,
+              260
+            ],
+            [
+              0.4,
+              60
+            ]
+          ],
+          "roughness": 0.9
+        }
+      }
+    }
+  ],
+  "buses": [
+    {
+      "id": "cell",
+      "fx": [
+        {
+          "type": "reverb",
+          "space": "chamber",
+          "size": 6,
+          "decay": 0.7,
+          "predelay": 6
+        }
+      ]
+    }
+  ],
+  "controls": [
+    {
+      "id": "gauge",
+      "label": "Gauge",
+      "hint": "A fine necklace chain that tinkles to ship's anchor chain that clanks.",
+      "value": 0.5,
+      "vary": 0.03,
+      "targets": [
+        {
+          "path": "tracks.links.source.pitch",
+          "mode": "set",
+          "from": 15,
+          "to": -15,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.heavy.source.pitch",
+          "mode": "set",
+          "from": 12,
+          "to": -13,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.links.source.grain.decayHi",
+          "mode": "set",
+          "from": 0.04,
+          "to": 0.22
+        },
+        {
+          "path": "tracks.heavy.gain",
+          "mode": "set",
+          "from": -18,
+          "to": 2
+        }
+      ]
+    },
+    {
+      "id": "busy",
+      "label": "Busy",
+      "hint": "A lazy sway with single clinks, to a frantic shake.",
+      "value": 0.5,
+      "vary": 0.1,
+      "targets": [
+        {
+          "path": "tracks.links.source.density",
+          "mode": "mul",
+          "from": 0.2,
+          "to": 3.5
+        },
+        {
+          "path": "tracks.heavy.source.density",
+          "mode": "mul",
+          "from": 0.3,
+          "to": 2.6
+        }
+      ]
+    },
+    {
+      "id": "length",
+      "label": "Length",
+      "hint": "A short jerk on the chain, or a long haul.",
+      "value": 0.47,
+      "targets": [
+        {
+          "path": "tracks.links.source.density",
+          "mode": "stretch",
+          "from": 0.35,
+          "to": 3.2
+        },
+        {
+          "path": "tracks.links.source.duration",
+          "mode": "mul",
+          "from": 0.35,
+          "to": 3.2
+        },
+        {
+          "path": "tracks.heavy.source.density",
+          "mode": "stretch",
+          "from": 0.35,
+          "to": 3.2
+        },
+        {
+          "path": "tracks.heavy.source.duration",
+          "mode": "mul",
+          "from": 0.35,
+          "to": 3.2
+        },
+        {
+          "path": "tracks.floor.start",
+          "mode": "mul",
+          "from": 0.35,
+          "to": 3.2
+        }
+      ]
+    },
+    {
+      "id": "floor",
+      "label": "Floor",
+      "hint": "Held in the air, or dragged and dumped on concrete.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.floor.gain",
+          "mode": "set",
+          "from": -40,
+          "to": -3,
+          "curve": -0.438
+        }
+      ]
+    },
+    {
+      "id": "cell",
+      "label": "Cell",
+      "hint": "Dry, or a bare stone cell.",
+      "value": 0.4,
+      "targets": [
+        {
+          "path": "tracks.links.sends.cell",
+          "mode": "set",
+          "from": -40,
+          "to": -3,
+          "curve": -0.513
+        },
+        {
+          "path": "tracks.heavy.sends.cell",
+          "mode": "set",
+          "from": -40,
+          "to": -3,
+          "curve": -0.513
+        }
+      ]
+    }
+  ]
+}

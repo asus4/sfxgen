@@ -1,0 +1,218 @@
+{
+  "format": "sfxgen/1",
+  "name": "Engine idling (loop)",
+  "description": "An older four-cylinder petrol car idling at the kerb, bonnet shut, heard from beside the front wheel: 780 rpm, 26 firings a second with one cylinder a little weak so it lopes, the valve gear ticking lightly on top, and the exhaust burbling at the back. A 2 s loop that holds exactly 13 engine cycles (two turns each), crossfaded over 150 ms on a cycle boundary.",
+  "tags": [
+    "vehicle",
+    "engine",
+    "idle",
+    "car",
+    "loop",
+    "motor",
+    "exhaust"
+  ],
+  "duration": 2,
+  "loop": {
+    "mode": "crossfade",
+    "crossfade": 0.15
+  },
+  "seed": 2,
+  "tracks": [
+    {
+      "id": "engine",
+      "note": "The firing pulses through the exhaust: the engine itself. Roughness is what makes it an old car and not a test tone.",
+      "source": {
+        "type": "machine",
+        "kind": "engine",
+        "cylinders": 4,
+        "rpm": 780,
+        "load": 0.22,
+        "roughness": 0.42,
+        "whine": 0.08,
+        "env": {
+          "attack": 0.005,
+          "sustain": 1
+        }
+      }
+    },
+    {
+      "id": "valves",
+      "note": "Tappets: a light metallic tick at twice the firing rate (52 a second), slightly uneven. The mechanical top end you hear standing next to it.",
+      "gain": 6,
+      "source": {
+        "type": "particles",
+        "distribution": "regular",
+        "density": 52,
+        "jitter": 0.08,
+        "duration": 3,
+        "grain": {
+          "kind": "modal",
+          "material": "metal",
+          "shape": "bar",
+          "lo": 2600,
+          "hi": 3400,
+          "decayLo": 0.004,
+          "decayHi": 0.009,
+          "levelJitter": 6
+        }
+      }
+    },
+    {
+      "id": "burble",
+      "note": "Exhaust gas pulsing out of the tailpipe: low noise chopped at the firing rate, so the idle has breath as well as tone.",
+      "gain": -2,
+      "source": {
+        "type": "noise",
+        "color": "brown",
+        "env": {
+          "attack": 0.005
+        },
+        "filter": {
+          "mode": "bandpass",
+          "cutoff": 260,
+          "q": 0.8
+        }
+      },
+      "fx": [
+        {
+          "id": "chop",
+          "type": "tremolo",
+          "rate": 26,
+          "depth": 0.8,
+          "shape": "saw"
+        }
+      ]
+    }
+  ],
+  "master": {
+    "fx": [
+      {
+        "type": "eq",
+        "bands": [
+          {
+            "mode": "lowcut",
+            "freq": 35,
+            "slope": "24"
+          },
+          {
+            "mode": "peak",
+            "freq": 180,
+            "gain": 2.5,
+            "q": 0.8
+          }
+        ]
+      },
+      {
+        "id": "kerb",
+        "type": "reverb",
+        "space": "car",
+        "mix": 0.08
+      }
+    ]
+  },
+  "controls": [
+    {
+      "id": "revs",
+      "label": "Idle speed",
+      "hint": "A slow, lumpy tick-over to a fast, cold-start idle. (Away from the middle the loop relies on its crossfade.)",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.engine.source.rpm",
+          "mode": "set",
+          "from": 540,
+          "to": 1320,
+          "curve": "exp"
+        },
+        {
+          "path": "tracks.valves.source.density",
+          "mode": "set",
+          "from": 36,
+          "to": 88,
+          "curve": "exp"
+        },
+        {
+          "path": "tracks.burble.fx.chop.rate",
+          "mode": "set",
+          "from": 18,
+          "to": 44,
+          "curve": "exp"
+        }
+      ]
+    },
+    {
+      "id": "size",
+      "label": "Size",
+      "hint": "A scooter-sized engine to a lorry diesel: lower pipe, heavier pulses.",
+      "value": 0.4,
+      "targets": [
+        {
+          "path": "tracks.engine.source.size",
+          "mode": "set",
+          "from": 0.55,
+          "to": 2.6
+        },
+        {
+          "path": "tracks.burble.source.filter.cutoff",
+          "mode": "set",
+          "from": 480,
+          "to": 110
+        }
+      ]
+    },
+    {
+      "id": "wear",
+      "label": "Wear",
+      "hint": "Fresh from the factory to a tired engine that misses and lopes.",
+      "value": 0.45,
+      "targets": [
+        {
+          "path": "tracks.engine.source.roughness",
+          "mode": "set",
+          "from": 0.05,
+          "to": 0.9
+        },
+        {
+          "path": "tracks.valves.source.jitter",
+          "mode": "set",
+          "from": 0,
+          "to": 0.3
+        }
+      ]
+    },
+    {
+      "id": "tappets",
+      "label": "Tappets",
+      "hint": "Bonnet shut and quiet, to a noisy, ticking top end.",
+      "value": 0.4,
+      "targets": [
+        {
+          "path": "tracks.valves.gain",
+          "mode": "set",
+          "from": -24,
+          "to": 12
+        }
+      ]
+    },
+    {
+      "id": "exhaust",
+      "label": "Exhaust",
+      "hint": "A whisper-quiet silencer to an open, burbling pipe.",
+      "value": 0.45,
+      "targets": [
+        {
+          "path": "tracks.burble.gain",
+          "mode": "set",
+          "from": -22,
+          "to": 7
+        },
+        {
+          "path": "tracks.engine.source.load",
+          "mode": "set",
+          "from": 0.1,
+          "to": 0.5
+        }
+      ]
+    }
+  ]
+}

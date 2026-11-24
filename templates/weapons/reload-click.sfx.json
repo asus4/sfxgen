@@ -1,0 +1,157 @@
+{
+  "format": "sfxgen/1",
+  "name": "Reload",
+  "description": "A pistol reloaded in a quiet room, close to the microphone. 0 ms: a fresh magazine is slapped into the grip, a steel box seating in a polymer frame with a palm thump behind it. 260 to 400 ms: the slide is racked back, steel dragged over steel for 140 ms, its ridges slowing as the spring loads. 410 ms: let go, the slide slams home (the hardest, brightest hit) and its recoil spring twangs for a moment inside the frame.",
+  "tags": ["weapon", "gun", "reload", "click", "pistol", "magazine", "slide", "rack", "mechanical", "foley"],
+  "duration": "auto",
+  "seed": 7,
+  "tracks": [
+    {
+      "id": "magazine",
+      "note": "Mag seating: a small steel box hit inside the grip. Dented and damped, because it is full of rounds and held in a hand.",
+      "source": {
+        "type": "modal",
+        "material": "metal",
+        "shape": "box",
+        "freq": 720,
+        "decay": 0.07,
+        "damping": 2.2,
+        "dent": 0.5,
+        "position": 0.6,
+        "variant": 5,
+        "exciter": { "kind": "mallet", "hardness": 0.73 }
+      }
+    },
+    {
+      "id": "palm",
+      "note": "The palm and the polymer frame taking the slap: the low part of the click, 2 ms late.",
+      "start": 0.002,
+      "gain": -5.7,
+      "source": {
+        "type": "modal",
+        "material": "plastic",
+        "shape": "box",
+        "freq": 205,
+        "decay": 0.08,
+        "position": 0.3,
+        "exciter": { "kind": "mallet", "hardness": 0.4 }
+      }
+    },
+    {
+      "id": "rack",
+      "note": "The slide pulled back: a scrape with fairly regular ridges (machined rails), slowing. Quieter than the hits either side of it.",
+      "start": 0.26,
+      "gain": -5.2,
+      "source": {
+        "type": "modal",
+        "material": "metal",
+        "shape": "tube",
+        "freq": 1150,
+        "decay": 0.05,
+        "damping": 1.5,
+        "modes": 18,
+        "dent": 0.3,
+        "exciter": { "kind": "scrape", "hardness": 0.75, "duration": 0.14, "density": [[0, 520], [0.14, 160]], "roughness": 0.3 }
+      }
+    },
+    {
+      "id": "slam",
+      "note": "Slide home: steel on steel, a bar this time so it has a pitch different from the magazine. The loudest moment.",
+      "start": 0.41,
+      "gain": 2,
+      "source": {
+        "type": "modal",
+        "material": "metal",
+        "shape": "bar",
+        "freq": 1040,
+        "decay": 0.1,
+        "damping": 1.8,
+        "dent": 0.35,
+        "position": 0.85,
+        "variant": 9,
+        "exciter": { "kind": "mallet", "hardness": 0.8 }
+      },
+      "fx": [{ "type": "transient", "attack": 4.8, "window": 0.005 }]
+    },
+    {
+      "id": "spring",
+      "note": "The recoil spring ringing after the slam: a very stiff string, choked quickly. Small, but it is the detail that says 'mechanism'.",
+      "start": 0.413,
+      "gain": -24.8,
+      "source": {
+        "type": "pluck",
+        "freq": 137,
+        "decay": 0.269,
+        "stiffness": 0.92,
+        "brightness": 0.75,
+        "position": 0.08,
+        "excite": "strike",
+        "hardness": 0.8,
+        "mute": [[0, 0.1], [0.12, 0.7]]
+      }
+    }
+  ],
+  "master": { "fx": [{ "type": "reverb", "id": "room", "space": "room", "decay": 0.324, "mix": 0.12 }] },
+  "controls": [
+    {
+      "id": "weight",
+      "label": "Weight",
+      "hint": "A pocket pistol's ticks to a heavy rifle's clunks.",
+      "value": 0.45,
+      "vary": 0.05,
+      "targets": [
+        { "path": "tracks.magazine.source.freq", "mode": "mul", "from": 1.8, "to": 0.5 },
+        { "path": "tracks.palm.source.freq", "mode": "mul", "from": 1.6, "to": 0.55 },
+        { "path": "tracks.palm.gain", "from": -12, "to": 2 },
+        { "path": "tracks.rack.source.freq", "mode": "mul", "from": 1.7, "to": 0.55 },
+        { "path": "tracks.slam.source.freq", "mode": "mul", "from": 1.8, "to": 0.5 },
+        { "path": "tracks.spring.source.freq", "mode": "mul", "from": 1.6, "to": 0.6 }
+      ]
+    },
+    {
+      "id": "speed",
+      "label": "Hands",
+      "hint": "A slow, deliberate reload to a fast practised one.",
+      "value": 0.5,
+      "vary": 0.08,
+      "targets": [
+        { "path": "tracks.rack.start", "mode": "mul", "from": 1.9, "to": 0.5 },
+        { "path": "tracks.slam.start", "mode": "mul", "from": 1.9, "to": 0.5 },
+        { "path": "tracks.spring.start", "mode": "mul", "from": 1.9, "to": 0.5 },
+        { "path": "tracks.rack.source.exciter.duration", "mode": "mul", "from": 1.9, "to": 0.5 },
+        { "path": "tracks.rack.source.exciter.density", "mode": "stretch", "from": 1.9, "to": 0.5 }
+      ]
+    },
+    {
+      "id": "snap",
+      "label": "Snap",
+      "hint": "Oiled and soft to dry, hard and clacking.",
+      "value": 0.6,
+      "vary": 0.1,
+      "targets": [
+        { "path": "tracks.slam.source.exciter.hardness", "from": 0.5, "to": 1 },
+        { "path": "tracks.magazine.source.exciter.hardness", "from": 0.4, "to": 0.95 },
+        { "path": "tracks.slam.fx.0.attack", "from": -3, "to": 10 }
+      ]
+    },
+    {
+      "id": "spring",
+      "label": "Spring",
+      "hint": "A tight new gun, or a loose one that twangs and rattles.",
+      "value": 0.4,
+      "vary": 0.1,
+      "targets": [
+        { "path": "tracks.spring.gain", "from": -40, "to": -2 },
+        { "path": "tracks.spring.source.decay", "from": 0.12, "to": 0.9 },
+        { "path": "tracks.rack.gain", "from": -10, "to": 2 }
+      ]
+    },
+    {
+      "id": "room",
+      "label": "Room",
+      "hint": "Dead close-up foley to a bare concrete room.",
+      "value": 0.3,
+      "targets": [{ "path": "master.fx.room.mix", "from": 0, "to": 0.4, "curve": "linear" }, { "path": "master.fx.room.decay", "from": 0.2, "to": 1 }]
+    }
+  ]
+}

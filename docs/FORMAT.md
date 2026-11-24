@@ -66,10 +66,10 @@ comes from the code: run `sfxgen guide` (or call the `describe_format` tool), so
 | `duration` | Seconds, or `"auto"`: until every layer has rung out (capped by `maxDuration`, default 10). |
 | `seed` | Every random choice comes from it. Change it for a new take of the same design. |
 | `output` | `sampleRate` (default 48000), `channels` 1 or 2 (default 1), `bitDepth` 16, 24 or 32 for WAV export. |
-| `loop` | Present only for a seamless loop of exactly `duration` seconds: `{ "mode": "wrap" }` adds whatever rings past the end back onto the start; `{ "mode": "crossfade", "crossfade": 0.1 }` fades the end into the start. |
+| `loop` | Present only for a seamless loop of exactly `duration` seconds: `{ "mode": "wrap" }` adds whatever rings past the end back onto the start (a sound that never ends is cut exactly at the loop's end instead, since it carries on into the start by itself); `{ "mode": "crossfade", "crossfade": 0.1 }` fades the end into the start. |
 | `tracks` | The layers. |
 | `buses` | Shared effect chains that tracks send to, such as one reverb for several layers. |
-| `master` | `fx`, `gain` (dB), `normalize` (`{ "mode": "peak", "target": -1 }` default, or `"loudness"` in LUFS, or `"none"`), `fadeIn`, `fadeOut`, `dcBlock`. |
+| `master` | `fx`, `gain` (dB), `normalize` (`{ "mode": "peak", "target": -1 }` default; `{ "mode": "loudness", "target": -18, "ceiling": -3 }` levels by LUFS without letting the peak pass the ceiling; or `"none"`), `fadeIn`, `fadeOut`, `dcBlock`. |
 | `controls` | The knobs a person sees first. |
 | `meta` | Anything else: provenance, the template it came from, notes. The renderer ignores it. |
 
@@ -117,7 +117,8 @@ Any parameter the catalog marks as a *signal* takes one of three forms:
 ```
 
 - **Breakpoints** are `[seconds, value]` or `[seconds, value, curve]`, measured from the start of the event (in a
-  voice) or of the track (in an effect). Before the first point the value is the first point's; after the last,
+  voice) or of the track (in an effect: a track with `start: 0.5` counts its effects' times from 0.5 s into the
+  patch). Before the first point the value is the first point's; after the last,
   the last's. The optional curve shapes the segment that *ends* at that point: `linear`, `exp` (constant ratio, the
   natural glide for frequencies and times), `smooth`, `hold`, or a number from -1 (fast first) to 1 (slow first).
   Parameters on a log scale (frequencies, times) glide `exp` by default; the rest `linear`.
@@ -162,6 +163,8 @@ tracks.body.source.filter.cutoff
 tracks.body.fx.space.mix          (the effect with "id": "space")
 tracks.body.fx.0.amount           (the first effect)
 tracks.body.repeat.interval
+tracks.body.source.freq.1.1       (the value of the second breakpoint: [t, value] is an array too)
+tracks.body.events                (the whole event list, for a Speed control with `stretch`)
 tracks.body.gain
 buses.room.fx.0.decay
 master.gain
@@ -196,13 +199,22 @@ full view.
   - `set` (default): the parameter becomes a value between `from` and `to` (defaults: the parameter's range).
   - `mul`: multiplies the parameter, breakpoints and all. The right move for pitch and time on a moving parameter.
   - `add`: adds to it (dB on gains, semitones on `pitch`).
-  - `stretch`: multiplies the times of the parameter's breakpoints, or every time of an ADSR envelope.
+  - `stretch`: multiplies the times of the parameter's breakpoints, every time of an ADSR envelope, the times
+    (and `dur`) of a track's `events`, or a `repeat`'s `interval`, `jitter` and `dur`: a Speed control.
+  - To move one note of a sweep, `set` a single breakpoint's value: `tracks.lead.source.pitch.2.1`.
+  - `via`: the value at the control's `default` (or its middle): the mapping runs `from` → `via` → `to`. Use it so a
+    level or tone control rests exactly on the mixed value: `{ "path": "tracks.air.gain", "from": -30, "via": -8, "to": 0 }`.
   - `curve`: how the position maps: `linear`, `exp` (the default when both ends are positive and the parameter is
     on a log scale, or for `mul` and `stretch`), `smooth`, or a bend number.
 - `widget: "select"` or `"toggle"` with `options: [{ "label": "Steel", "set": { "tracks.shell.source.material": "metal" } }, ...]`
   picks one of several settings; `value` is the option's index.
 - `vary` is how far variations may move the control (± in its units), for round-robin takes.
 - Controls apply in order, to a copy of the patch, just before rendering. The patch keeps its base values.
+- A `set` target (or a chosen option) overrides the base value at its path on every render, so editing that value
+  by hand changes nothing you can hear. Change the control's value instead, or run `sfxgen sync patch.sfx.json` (the
+  `sync_controls` tool): it writes what each control currently applies into the base values at those paths, so the
+  file says what renders. `mul`, `add` and `stretch` targets are left alone, since baking them in would apply them
+  twice. `sfxgen sync --check` changes nothing and exits 1 if a patch is out of sync (for CI).
 
 **Choosing controls.** Three to seven, each one a perceptual move (Size, Weight, Grit, Distance, Speed, Brightness,
 Wetness), never a raw DSP name. Each should change the sound audibly across its whole range and never break it.
@@ -213,3 +225,42 @@ control per parameter. Write the `hint` as what the listener hears.
 
 `sfxgen validate file.sfx.json` (or the `set_patch` tool) checks a patch against the format and the catalog.
 Errors stop a render; warnings are advice, such as an unknown parameter name with the closest valid one.
+
+## Projects
+
+A project is a set of sounds made to be heard together, such as one game's sound effects. A project file,
+`sfxgen.project.json`, sits in a folder with its patches:
+
+```json
+{
+  "format": "sfxgen-project/1",
+  "name": "Cave crawler",
+  "output": { "sampleRate": 44100, "channels": 1, "bitDepth": 16 },
+  "normalize": { "mode": "peak", "target": -3 },
+  "master": { "fx": [{ "type": "reverb", "space": "cave", "mix": 0.12 }] },
+  "outDir": "build",
+  "groups": [
+    { "id": "ui", "label": "Interface", "color": "#7C93C4", "normalize": { "mode": "loudness", "target": -24 } },
+    { "id": "combat", "label": "Combat" }
+  ],
+  "sounds": [
+    { "file": "sword-hit.sfx.json", "group": "combat", "export": "../game/audio/sword-hit.wav" },
+    { "file": "ui/click.sfx.json", "group": "ui", "gain": -2, "note": "Every menu move." }
+  ]
+}
+```
+
+| Field | Meaning |
+| --- | --- |
+| `output` | Every sound renders with these settings, whatever its patch says, so the set is consistent. |
+| `normalize` | How every sound is levelled. A group's `normalize` overrides it; without either, each patch's own applies. |
+| `master` | `fx` run after each sound's own master chain (the set's shared character); `gain` in dB. |
+| `outDir` | Where builds go, relative to the project file. Default `out`. |
+| `groups` | Families of sounds with an ink and their own levelling. |
+| `sounds` | `file` (a patch next to the project) or `patch` (inline), plus `gain` (dB after levelling: the sound's place in the set), `group`, `export` (the WAV path for builds), `skip`, `note`. |
+
+A sound in its project renders as its patch with the project's output, levelling and master chain applied, then its
+`gain`. The patch files stay ordinary patches: opened on their own they sound as their author made them.
+
+`sfxgen build` renders every sound of a project to its export path; `sfxgen serve` opens a folder with a project file
+as a project in the editor, where the sounds sit side by side, play in turn, and are balanced on a mixer.

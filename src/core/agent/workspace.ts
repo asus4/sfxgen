@@ -10,6 +10,23 @@
  */
 import type { Patch } from '../format/types';
 import type { RenderResult } from '../render';
+import type { Project } from '../project/project';
+
+/** One row of a project build: what was written and how it measures. */
+export interface ProjectBuildRow {
+  /** The sound's name (its file name without .sfx.json). */
+  name: string;
+  /** Patch file, relative to the project, when the sound is a file. */
+  file?: string;
+  /** Where the WAV went (a path, or a download name in the browser). */
+  export: string;
+  duration: number;
+  peakDb: number;
+  lufs: number;
+  warnings: string[];
+  /** Set when the sound could not be built (its patch is missing or invalid); the other fields are then 0. */
+  error?: string;
+}
 
 export interface WorkspacePatchRef {
   /** A file path (Node), or an id the editor understands (browser). Omitted: the current patch. */
@@ -42,4 +59,13 @@ export interface Workspace {
   getHumanChanges?(ref?: string): Promise<ChangeRecord[]>;
   /** Patch files the workspace can see (file workspace), or open documents (browser). */
   list?(): Promise<string[]>;
+  /**
+   * The project being worked on, if any: a file workspace reads `sfxgen.project.json` in its root (or describes the
+   * folder's patches as an unsaved project); the editor returns the open project. `path` is the project file.
+   */
+  getProject?(): Promise<{ project: Project; path?: string; saved: boolean } | null>;
+  /** Replaces the project (validated by the caller). Sound files are not touched. */
+  setProject?(project: Project, opts?: { origin?: 'agent' | 'human' }): Promise<void>;
+  /** Renders every sound (or `only` those names) in project context to its export path. */
+  buildProject?(opts?: { only?: string[] }): Promise<ProjectBuildRow[]>;
 }

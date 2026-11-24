@@ -1,94 +1,245 @@
 {
   "format": "sfxgen/1",
-  "name": "Body thud",
-  "description": "A soft heavy object landing: a falling sine with a short dark noise slap.",
+  "name": "Heavy sack thud",
+  "description": "A 25 kg sack of grain dropped off a shoulder onto the plank floor of a barn. 0 ms: a soft, wide whump with no click at all, the burlap spreading for 40 ms rather than hitting; the floor planks boom once underneath around 100 Hz and its neighbours; from 30 ms the grain inside slumps with a short dry hiss; a little dust and a wooden room around it.",
   "tags": [
     "impact",
     "thud",
     "body",
-    "land"
+    "land",
+    "drop",
+    "sack",
+    "fall",
+    "heavy",
+    "soft"
   ],
   "duration": "auto",
   "seed": 2,
   "tracks": [
     {
-      "id": "body",
-      "start": 0.002,
+      "id": "whump",
+      "note": "The sack landing: dark noise that opens and closes in 60 ms. A spread, not a hit.",
       "source": {
-        "type": "osc",
-        "wave": "sine",
-        "freq": [
-          [
-            0,
-            170
-          ],
-          [
-            0.09,
-            55
-          ]
-        ],
+        "type": "noise",
+        "color": "pink",
         "env": {
-          "attack": 0.001,
-          "decay": 0.4
+          "attack": 0.006,
+          "hold": 0.012,
+          "decay": 0.16
+        },
+        "filter": {
+          "mode": "lowpass",
+          "cutoff": [
+            [
+              0,
+              1700
+            ],
+            [
+              0.03,
+              800
+            ],
+            [
+              0.15,
+              240
+            ]
+          ],
+          "q": 0.9,
+          "slope": "24"
+        }
+      },
+      "fx": [
+        {
+          "type": "drive",
+          "mode": "tanh",
+          "amount": 8
+        }
+      ]
+    },
+    {
+      "id": "floor",
+      "note": "The planks: a big wooden cavity kicked by something soft, the pitch of the thud.",
+      "start": 0.004,
+      "gain": -1,
+      "source": {
+        "type": "modal",
+        "material": "wood",
+        "shape": "box",
+        "freq": 97,
+        "decay": 0.38,
+        "damping": 1.6,
+        "brightness": 0.45,
+        "modes": 16,
+        "dent": 0.25,
+        "position": 0.45,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.28
         }
       },
       "fx": [
         {
           "type": "drive",
           "mode": "tube",
-          "amount": 9
+          "amount": 10,
+          "tone": 3000
         }
       ]
     },
     {
-      "id": "slap",
-      "gain": -6,
+      "id": "grain",
+      "note": "The contents slumping after the landing: a dry hiss of small grains.",
+      "start": 0.03,
+      "gain": -11,
       "source": {
-        "type": "noise",
-        "color": "brown",
-        "env": {
-          "attack": 0.0005,
-          "decay": 0.06
-        },
-        "filter": {
-          "mode": "lowpass",
-          "cutoff": 1200
+        "type": "particles",
+        "distribution": "burst",
+        "density": 900,
+        "duration": 0.28,
+        "grain": {
+          "kind": "tick",
+          "lo": 1400,
+          "hi": 5200,
+          "decayLo": 0.002,
+          "decayHi": 0.006,
+          "levelJitter": 10
         }
       }
     }
   ],
+  "master": {
+    "fx": [
+      {
+        "type": "eq",
+        "bands": [
+          {
+            "mode": "lowcut",
+            "freq": 58,
+            "slope": "12"
+          }
+        ]
+      },
+      {
+        "type": "reverb",
+        "id": "barn",
+        "space": "room",
+        "size": 9,
+        "decay": 0.6,
+        "damping": 0.75,
+        "mix": 0.12
+      }
+    ]
+  },
   "controls": [
     {
       "id": "weight",
       "label": "Weight",
-      "hint": "A sack to a fridge.",
+      "hint": "A pillow to a body: lower, longer, more floor.",
       "value": 0.5,
+      "vary": 0.07,
       "targets": [
         {
-          "path": "tracks.body.source.freq",
+          "path": "tracks.floor.source.freq",
           "mode": "mul",
-          "from": 1.7,
-          "to": 0.6
+          "from": 1.8,
+          "to": 0.62
         },
         {
-          "path": "tracks.body.source.env.decay",
+          "path": "tracks.floor.source.decay",
+          "mode": "set",
           "from": 0.2,
-          "to": 0.8,
-          "curve": "exp"
+          "to": 0.8
+        },
+        {
+          "path": "tracks.whump.source.env.decay",
+          "mode": "set",
+          "from": 0.08,
+          "to": 0.3
+        },
+        {
+          "path": "tracks.whump.source.filter.cutoff",
+          "mode": "mul",
+          "from": 1.5,
+          "to": 0.7
+        }
+      ]
+    },
+    {
+      "id": "floor",
+      "label": "Floor",
+      "hint": "Packed earth that gives nothing back, or a hollow stage that booms.",
+      "value": 0.55,
+      "vary": 0.05,
+      "targets": [
+        {
+          "path": "tracks.floor.gain",
+          "mode": "set",
+          "from": -24,
+          "to": 4,
+          "curve": -0.535
+        },
+        {
+          "path": "tracks.floor.source.damping",
+          "mode": "set",
+          "from": 3.5,
+          "to": 0.9
+        }
+      ]
+    },
+    {
+      "id": "filling",
+      "label": "Filling",
+      "hint": "A solid lump, or loose grain that hisses as it settles.",
+      "value": 0.45,
+      "vary": 0.1,
+      "targets": [
+        {
+          "path": "tracks.grain.gain",
+          "mode": "set",
+          "from": -40,
+          "to": 0,
+          "curve": -0.437
+        },
+        {
+          "path": "tracks.grain.source.duration",
+          "mode": "set",
+          "from": 0.12,
+          "to": 0.5
         }
       ]
     },
     {
       "id": "slap",
       "label": "Slap",
-      "hint": "Soft cushion to a hard floor: more contact noise on top.",
-      "value": 0.5,
+      "hint": "A soft slump, or a flat landing with a leathery slap.",
+      "value": 0.3,
+      "vary": 0.08,
       "targets": [
         {
-          "path": "tracks.slap.gain",
+          "path": "tracks.whump.source.filter.cutoff",
+          "mode": "mul",
+          "from": 0.7,
+          "to": 3.2
+        },
+        {
+          "path": "tracks.whump.source.env.attack",
           "mode": "set",
-          "from": -24,
-          "to": 0
+          "from": 0.012,
+          "to": 0.0008
+        }
+      ]
+    },
+    {
+      "id": "barn",
+      "label": "Barn",
+      "hint": "Dry and close, or in a big wooden room.",
+      "value": 0.35,
+      "targets": [
+        {
+          "path": "master.fx.barn.mix",
+          "mode": "set",
+          "from": 0,
+          "to": 0.35,
+          "curve": "linear"
         }
       ]
     }

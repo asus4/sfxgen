@@ -1,0 +1,235 @@
+{
+  "format": "sfxgen/1",
+  "name": "Footstep: gravel",
+  "description": "One step of a walking boot on a loose gravel drive, outdoors. 0 ms: the heel digs in and a hundred pea-sized stones grind and click against each other for 90 ms; 80 ms later the ball of the foot rolls forward with a second, longer and finer crunch as stones are pushed away; a soft low thump of the packed ground sits under the heel. No echo: open air. Use the variations for a walk.",
+  "tags": [
+    "footstep",
+    "step",
+    "gravel",
+    "crunch",
+    "walk",
+    "outdoor",
+    "stones",
+    "foley"
+  ],
+  "duration": "auto",
+  "seed": 23,
+  "tracks": [
+    {
+      "id": "heel",
+      "note": "Heel crunch: a dense burst of small stones, coarse and loud.",
+      "source": {
+        "type": "particles",
+        "distribution": "burst",
+        "density": 520,
+        "duration": 0.1,
+        "grain": {
+          "kind": "modal",
+          "material": "stone",
+          "shape": "random",
+          "lo": 1100,
+          "hi": 6200,
+          "decayLo": 0.003,
+          "decayHi": 0.014,
+          "levelJitter": 16,
+          "size": 0.6
+        }
+      }
+    },
+    {
+      "id": "toe",
+      "note": "Toe roll: a longer, finer, quieter crunch as the foot pushes off.",
+      "start": 0.08,
+      "gain": -5,
+      "source": {
+        "type": "particles",
+        "distribution": "random",
+        "density": [
+          [
+            0,
+            380
+          ],
+          [
+            0.09,
+            240
+          ],
+          [
+            0.17,
+            20
+          ]
+        ],
+        "duration": 0.17,
+        "grain": {
+          "kind": "tick",
+          "lo": 1900,
+          "hi": 8500,
+          "decayLo": 0.002,
+          "decayHi": 0.009,
+          "levelJitter": 18
+        },
+        "env": {
+          "attack": 0.012,
+          "hold": 0.07,
+          "decay": 0.12
+        }
+      }
+    },
+    {
+      "id": "ground",
+      "note": "The packed earth under the stones: a soft thump so the step has a body.",
+      "gain": -15,
+      "source": {
+        "type": "modal",
+        "material": "cardboard",
+        "shape": "membrane",
+        "freq": 104,
+        "decay": 0.07,
+        "modes": 8,
+        "position": 0.2,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.3
+        }
+      }
+    }
+  ],
+  "master": {
+    "normalize": {
+      "mode": "peak",
+      "target": -2
+    },
+    "fx": [
+      {
+        "type": "eq",
+        "bands": [
+          {
+            "mode": "peak",
+            "freq": 3200,
+            "gain": 2,
+            "q": 0.8
+          },
+          {
+            "id": "air",
+            "mode": "highshelf",
+            "freq": 9000,
+            "gain": 0
+          }
+        ]
+      }
+    ]
+  },
+  "controls": [
+    {
+      "id": "stones",
+      "label": "Stones",
+      "hint": "Fine grit and sand to coarse river pebbles that clack.",
+      "value": 0.45,
+      "vary": 0.05,
+      "targets": [
+        {
+          "path": "tracks.heel.source.pitch",
+          "mode": "set",
+          "from": 12,
+          "to": -14,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.toe.source.pitch",
+          "mode": "set",
+          "from": 10,
+          "to": -12,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.heel.source.density",
+          "mode": "set",
+          "from": 1500,
+          "to": 130
+        },
+        {
+          "path": "tracks.heel.source.grain.decayHi",
+          "mode": "set",
+          "from": 0.006,
+          "to": 0.035
+        }
+      ]
+    },
+    {
+      "id": "weight",
+      "label": "Weight",
+      "hint": "A child tiptoeing to a soldier with a pack.",
+      "value": 0.5,
+      "vary": 0.1,
+      "targets": [
+        {
+          "path": "tracks.ground.gain",
+          "mode": "set",
+          "from": -28,
+          "to": -6,
+          "curve": -0.133
+        },
+        {
+          "path": "tracks.heel.source.duration",
+          "mode": "set",
+          "from": 0.05,
+          "to": 0.19
+        },
+        {
+          "path": "tracks.toe.gain",
+          "mode": "set",
+          "from": -10,
+          "to": -1
+        }
+      ]
+    },
+    {
+      "id": "pace",
+      "label": "Pace",
+      "hint": "A slow careful step with a long toe roll, to a run that lands all at once.",
+      "value": 0.4,
+      "vary": 0.1,
+      "targets": [
+        {
+          "path": "tracks.toe.start",
+          "mode": "set",
+          "from": 0.15,
+          "to": 0.02
+        },
+        {
+          "path": "tracks.toe.source.env.hold",
+          "mode": "set",
+          "from": 0.12,
+          "to": 0.02
+        },
+        {
+          "path": "tracks.toe.source.duration",
+          "mode": "set",
+          "from": 0.26,
+          "to": 0.08
+        }
+      ]
+    },
+    {
+      "id": "wet",
+      "label": "Wet",
+      "hint": "Dry dusty gravel, crisp and bright, or rain-soaked and dull.",
+      "value": 0.2,
+      "targets": [
+        {
+          "path": "master.fx.0.bands.air.gain",
+          "mode": "set",
+          "from": 4,
+          "to": -16,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.heel.source.grain.levelJitter",
+          "mode": "set",
+          "from": 20,
+          "to": 8,
+          "curve": "linear"
+        }
+      ]
+    }
+  ]
+}

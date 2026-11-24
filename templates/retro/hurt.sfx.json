@@ -1,0 +1,188 @@
+{
+  "format": "sfxgen/1",
+  "name": "Hurt",
+  "description": "The player takes a hit on an 8-bit console. The noise channel cracks for 50 ms while a thin 12.5% pulse drops more than an octave in 130 ms, its pitch thrown up and down 45 times a second so it sounds scrambled rather than sung. Cut dead at 140 ms. Harsh and short, as damage should be.",
+  "tags": [
+    "retro",
+    "8-bit",
+    "chiptune",
+    "hurt",
+    "damage",
+    "hit",
+    "ouch"
+  ],
+  "duration": "auto",
+  "seed": 4,
+  "tracks": [
+    {
+      "id": "yelp",
+      "note": "The pain: a falling pulse with a violent square wobble.",
+      "source": {
+        "type": "osc",
+        "wave": "pulse",
+        "pw": 0.125,
+        "freq": {
+          "env": [
+            [
+              0,
+              540
+            ],
+            [
+              0.13,
+              190
+            ]
+          ],
+          "mod": [
+            {
+              "id": "shake",
+              "type": "lfo",
+              "shape": "square",
+              "rate": 45,
+              "depth": 3.5,
+              "unit": "st"
+            }
+          ]
+        },
+        "env": {
+          "points": [
+            [
+              0,
+              1
+            ],
+            [
+              0.13,
+              0.6
+            ],
+            [
+              0.145,
+              0
+            ]
+          ],
+          "curve": "linear"
+        }
+      },
+      "fx": [
+        {
+          "type": "crush",
+          "bits": 4
+        },
+        {
+          "type": "eq",
+          "bands": [
+            {
+              "mode": "lowcut",
+              "freq": 90
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "crack",
+      "note": "The impact: the noise channel at a low clock rate, so it is gritty, not hissy.",
+      "gain": -3,
+      "source": {
+        "type": "noise",
+        "color": "digital",
+        "density": [
+          [
+            0,
+            9000
+          ],
+          [
+            0.06,
+            1800
+          ]
+        ],
+        "env": {
+          "points": [
+            [
+              0,
+              1
+            ],
+            [
+              0.03,
+              0.5
+            ],
+            [
+              0.07,
+              0
+            ]
+          ],
+          "curve": "linear"
+        }
+      },
+      "fx": [
+        {
+          "type": "crush",
+          "bits": 4
+        }
+      ]
+    }
+  ],
+  "controls": [
+    {
+      "id": "pitch",
+      "label": "Pitch",
+      "hint": "A big boss grunt to a small critter squeal.",
+      "value": 0.5,
+      "vary": 0.05,
+      "targets": [
+        {
+          "path": "tracks.yelp.source.freq",
+          "mode": "mul",
+          "from": 0.45,
+          "to": 2.2
+        }
+      ]
+    },
+    {
+      "id": "shake",
+      "label": "Shake",
+      "hint": "A plain falling tone to a scrambled, glitching one.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.yelp.source.freq.mod.0.depth",
+          "from": 0,
+          "to": 7,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "crack",
+      "label": "Crack",
+      "hint": "Only the yelp to a hard noisy smack on the front.",
+      "value": 0.6,
+      "targets": [
+        {
+          "path": "tracks.crack.gain",
+          "from": -40,
+          "to": 3,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "length",
+      "label": "Length",
+      "hint": "A quick flinch to a long, sinking defeat.",
+      "value": 0.3,
+      "targets": [
+        {
+          "path": "tracks.yelp.source.freq",
+          "mode": "stretch",
+          "from": 0.6,
+          "to": 3.5
+        },
+        {
+          "path": "tracks.yelp.source.env",
+          "mode": "stretch",
+          "from": 0.6,
+          "to": 3.5
+        }
+      ]
+    }
+  ]
+}

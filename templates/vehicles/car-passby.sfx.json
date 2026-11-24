@@ -1,0 +1,228 @@
+{
+  "format": "sfxgen/1",
+  "name": "Car passing by",
+  "description": "A family hatchback passing on a two-lane road at 70 km/h, heard from the pavement six metres from its path: the engine note climbs out of the distance, a four-cylinder at 2800 rpm, the tyres hiss on the asphalt louder than the engine as it draws level at 1.9 s, the whole sound drops a tone as it passes, and the exhaust is what you hear last. Left to right, stereo, four seconds.",
+  "tags": [
+    "vehicle",
+    "car",
+    "pass-by",
+    "traffic",
+    "doppler",
+    "road",
+    "engine",
+    "city"
+  ],
+  "duration": 4,
+  "seed": 16,
+  "output": {
+    "channels": 2
+  },
+  "tracks": [
+    {
+      "id": "engine",
+      "note": "The four-cylinder under light load, holding its speed. Its firing pulses are what the Doppler shift is heard on.",
+      "gain": 2,
+      "source": {
+        "type": "machine",
+        "kind": "engine",
+        "cylinders": 4,
+        "rpm": {
+          "value": 2800,
+          "mod": [
+            {
+              "type": "wander",
+              "rate": 0.6,
+              "depth": 0.25,
+              "unit": "st"
+            }
+          ]
+        },
+        "load": 0.35,
+        "roughness": 0.25,
+        "env": {
+          "attack": 0.01,
+          "hold": 3.9,
+          "decay": 0.2
+        }
+      }
+    },
+    {
+      "id": "tyres",
+      "note": "Rubber on asphalt: a broad hiss around 1 kHz, the loudest thing when the car is close.",
+      "gain": -5,
+      "source": {
+        "type": "noise",
+        "color": "pink",
+        "env": {
+          "attack": 0.01,
+          "hold": 3.9,
+          "decay": 0.2
+        },
+        "filter": {
+          "mode": "bandpass",
+          "cutoff": {
+            "value": 1100,
+            "mod": [
+              {
+                "type": "wander",
+                "rate": 3,
+                "depth": 1.5,
+                "unit": "st"
+              }
+            ]
+          },
+          "q": 0.6
+        }
+      }
+    },
+    {
+      "id": "wake",
+      "note": "The air the car pushes aside: a low buffeting rush that gives the pass its body.",
+      "gain": -7,
+      "source": {
+        "type": "noise",
+        "color": "brown",
+        "env": {
+          "attack": 0.01,
+          "hold": 3.9,
+          "decay": 0.2
+        },
+        "filter": {
+          "mode": "bandpass",
+          "cutoff": 210,
+          "q": 0.7
+        }
+      }
+    }
+  ],
+  "master": {
+    "fx": [
+      {
+        "id": "pass",
+        "type": "doppler",
+        "speed": 19.5,
+        "distance": 6,
+        "time": 1.9,
+        "air": 1.5
+      },
+      {
+        "type": "eq",
+        "bands": [
+          {
+            "mode": "lowcut",
+            "freq": 50,
+            "slope": "24"
+          }
+        ]
+      }
+    ],
+    "fadeIn": 0.25,
+    "fadeOut": 0.5
+  },
+  "controls": [
+    {
+      "id": "speed",
+      "label": "Speed",
+      "hint": "Rolling through a car park to flat out on a motorway: a quicker, deeper drop in pitch, higher revs, more tyre.",
+      "value": 0.4,
+      "targets": [
+        {
+          "path": "master.fx.pass.speed",
+          "mode": "set",
+          "from": 6,
+          "to": 50
+        },
+        {
+          "path": "tracks.engine.source.rpm.value",
+          "mode": "set",
+          "from": 1500,
+          "to": 5200
+        },
+        {
+          "path": "tracks.tyres.gain",
+          "mode": "set",
+          "from": -14,
+          "to": 1
+        },
+        {
+          "path": "tracks.tyres.source.filter.cutoff.value",
+          "mode": "set",
+          "from": 700,
+          "to": 1900
+        }
+      ]
+    },
+    {
+      "id": "closeness",
+      "label": "Closeness",
+      "hint": "A road across the field to standing on the kerb.",
+      "value": 0.55,
+      "targets": [
+        {
+          "path": "master.fx.pass.distance",
+          "mode": "set",
+          "from": 40,
+          "to": 1.2
+        }
+      ]
+    },
+    {
+      "id": "engine",
+      "label": "Engine",
+      "hint": "A small city car, to a van, to a truck: bigger, lower, louder against the tyres.",
+      "value": 0.3,
+      "targets": [
+        {
+          "path": "tracks.engine.source.size",
+          "mode": "set",
+          "from": 0.7,
+          "to": 2.4
+        },
+        {
+          "path": "tracks.engine.gain",
+          "mode": "set",
+          "from": -4,
+          "to": 9
+        },
+        {
+          "path": "tracks.engine.source.load",
+          "mode": "set",
+          "from": 0.2,
+          "to": 0.7
+        },
+        {
+          "path": "tracks.wake.gain",
+          "mode": "set",
+          "from": -12,
+          "to": 0
+        }
+      ]
+    },
+    {
+      "id": "wet",
+      "label": "Wet road",
+      "hint": "Dry asphalt to a road running with water: a bright, spraying hiss.",
+      "value": 0.1,
+      "targets": [
+        {
+          "path": "tracks.tyres.source.filter.q",
+          "mode": "set",
+          "from": 0.6,
+          "to": 0.35
+        },
+        {
+          "path": "tracks.tyres.source.filter.cutoff",
+          "mode": "mul",
+          "from": 1,
+          "to": 3.2
+        },
+        {
+          "path": "tracks.tyres.gain",
+          "mode": "add",
+          "from": 0,
+          "to": 5
+        }
+      ]
+    }
+  ]
+}

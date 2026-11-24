@@ -1,0 +1,375 @@
+{
+  "format": "sfxgen/1",
+  "name": "Metal hatch slams",
+  "description": "A watertight steel hatch on a ship swung shut and dogged, from inside the compartment. 0 to 300 ms: the hatch swings on a dry hinge with a rising metallic groan; at 320 ms the door meets its frame, a heavy boxy boom with a hard steel edge, its rubber seal stopping it ringing for long; at 520 ms the locking lever is thrown and the dog lands with a second, smaller, brighter clank; the steel compartment rings round all of it.",
+  "tags": [
+    "door",
+    "hatch",
+    "metal",
+    "slam",
+    "ship",
+    "submarine",
+    "bulkhead",
+    "close",
+    "clank",
+    "scifi"
+  ],
+  "duration": "auto",
+  "seed": 37,
+  "tracks": [
+    {
+      "id": "groan",
+      "note": "The dry hinge as the hatch swings: a rough, rising metallic moan that stops at the slam.",
+      "gain": -11,
+      "length": 0.325,
+      "source": {
+        "type": "fm",
+        "freq": {
+          "env": [
+            [
+              0,
+              148
+            ],
+            [
+              0.2,
+              205
+            ],
+            [
+              0.32,
+              262
+            ]
+          ],
+          "mod": [
+            {
+              "type": "wander",
+              "rate": 14,
+              "depth": 60,
+              "unit": "cents"
+            }
+          ]
+        },
+        "algorithm": "stack",
+        "ops": [
+          {
+            "ratio": 1
+          },
+          {
+            "ratio": 2.76,
+            "index": [
+              [
+                0,
+                2
+              ],
+              [
+                0.3,
+                5.5
+              ]
+            ],
+            "feedback": 0.7
+          },
+          {
+            "fixed": 31,
+            "index": 3
+          }
+        ],
+        "env": {
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              0.003,
+              0.7
+            ],
+            [
+              0.06,
+              0.6
+            ],
+            [
+              0.28,
+              1
+            ],
+            [
+              0.32,
+              0.7
+            ],
+            [
+              0.33,
+              0
+            ]
+          ],
+          "curve": "linear"
+        }
+      },
+      "fx": [
+        {
+          "type": "filter",
+          "mode": "bandpass",
+          "cutoff": 1100,
+          "q": 0.7
+        }
+      ],
+      "sends": {
+        "hull": -10
+      }
+    },
+    {
+      "id": "hatch",
+      "note": "The slam: a thick steel door as a closed box, hit all along its edge; the seal damps the highs.",
+      "start": 0.32,
+      "source": {
+        "type": "modal",
+        "material": "metal",
+        "shape": "box",
+        "freq": 79,
+        "decay": 0.75,
+        "damping": 1.6,
+        "brightness": 0.8,
+        "modes": 48,
+        "dent": 0.3,
+        "variant": 6,
+        "position": 1,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.8
+        }
+      },
+      "fx": [
+        {
+          "type": "drive",
+          "mode": "tube",
+          "amount": 9
+        },
+        {
+          "type": "transient",
+          "attack": 5,
+          "sustain": -2
+        }
+      ],
+      "sends": {
+        "hull": -9
+      }
+    },
+    {
+      "id": "edge",
+      "note": "Steel edge on steel frame: the hard bright clack on the front of the boom.",
+      "start": 0.321,
+      "gain": -9,
+      "source": {
+        "type": "modal",
+        "material": "metal",
+        "shape": "plate",
+        "freq": 530,
+        "decay": 0.14,
+        "damping": 2,
+        "brightness": 0.7,
+        "modes": 30,
+        "dent": 0.5,
+        "variant": 2,
+        "position": 0.95,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.95
+        }
+      },
+      "sends": {
+        "hull": -9
+      }
+    },
+    {
+      "id": "dog",
+      "note": "The locking lever thrown home 200 ms later: a smaller, harder clank and its rebound.",
+      "start": 0.52,
+      "gain": -1,
+      "source": {
+        "type": "modal",
+        "material": "metal",
+        "shape": "bar",
+        "freq": 388,
+        "decay": 0.22,
+        "damping": 2.4,
+        "brightness": 0.6,
+        "modes": 18,
+        "dent": 0.4,
+        "position": 0.85,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.9
+        }
+      },
+      "events": [
+        {
+          "t": 0,
+          "vel": 1
+        },
+        {
+          "t": 0.042,
+          "vel": 0.3,
+          "pitch": 0.7
+        }
+      ],
+      "sends": {
+        "hull": -9
+      }
+    }
+  ],
+  "buses": [
+    {
+      "id": "hull",
+      "fx": [
+        {
+          "type": "reverb",
+          "space": "tank",
+          "size": 9,
+          "decay": 1.3,
+          "predelay": 10,
+          "lowcut": 110
+        }
+      ]
+    }
+  ],
+  "controls": [
+    {
+      "id": "weight",
+      "label": "Weight",
+      "hint": "A locker door to a vault: lower, longer, heavier.",
+      "value": 0.5,
+      "vary": 0.04,
+      "targets": [
+        {
+          "path": "tracks.hatch.source.freq",
+          "mode": "mul",
+          "from": 2.4,
+          "to": 0.55
+        },
+        {
+          "path": "tracks.hatch.source.decay",
+          "mode": "set",
+          "from": 0.3,
+          "to": 1.8
+        },
+        {
+          "path": "tracks.dog.source.freq",
+          "mode": "mul",
+          "from": 1.8,
+          "to": 0.6
+        },
+        {
+          "path": "tracks.hatch.fx.0.amount",
+          "mode": "set",
+          "from": 3,
+          "to": 16
+        }
+      ]
+    },
+    {
+      "id": "rust",
+      "label": "Hinge",
+      "hint": "A greased hinge that swings silently, or a rusted one that groans.",
+      "value": 0.5,
+      "vary": 0.1,
+      "targets": [
+        {
+          "path": "tracks.groan.gain",
+          "mode": "set",
+          "from": -48,
+          "to": -4,
+          "curve": -0.667
+        },
+        {
+          "path": "tracks.groan.source.ops.1.feedback",
+          "mode": "set",
+          "from": 0.2,
+          "to": 1.2,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "seal",
+      "label": "Seal",
+      "hint": "A rubber gasket that deadens it to a thunk, or bare steel on steel that clangs.",
+      "value": 0.4,
+      "vary": 0.06,
+      "targets": [
+        {
+          "path": "tracks.hatch.source.damping",
+          "mode": "set",
+          "from": 3.6,
+          "to": 0.7
+        },
+        {
+          "path": "tracks.hatch.source.brightness",
+          "mode": "set",
+          "from": 0.45,
+          "to": 0.95
+        },
+        {
+          "path": "tracks.hatch.source.exciter.hardness",
+          "mode": "set",
+          "from": 0.45,
+          "to": 0.95
+        },
+        {
+          "path": "tracks.edge.gain",
+          "mode": "set",
+          "from": -30,
+          "to": 0,
+          "curve": -0.454
+        }
+      ]
+    },
+    {
+      "id": "dog",
+      "label": "Lock",
+      "hint": "Just the slam, or the locking lever clanking home after it.",
+      "value": 0.5,
+      "vary": 0.1,
+      "targets": [
+        {
+          "path": "tracks.dog.gain",
+          "mode": "set",
+          "from": -40,
+          "to": 4,
+          "curve": -0.841
+        },
+        {
+          "path": "tracks.dog.start",
+          "mode": "set",
+          "from": 0.44,
+          "to": 0.62,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "hull",
+      "label": "Compartment",
+      "hint": "On an open deck, or sealed inside a steel hull.",
+      "value": 0.45,
+      "targets": [
+        {
+          "path": "tracks.hatch.sends.hull",
+          "mode": "set",
+          "from": -36,
+          "to": 0,
+          "curve": -0.491
+        },
+        {
+          "path": "tracks.dog.sends.hull",
+          "mode": "set",
+          "from": -36,
+          "to": 0,
+          "curve": -0.491
+        },
+        {
+          "path": "buses.hull.fx.0.decay",
+          "mode": "set",
+          "from": 0.5,
+          "to": 3
+        }
+      ]
+    }
+  ]
+}

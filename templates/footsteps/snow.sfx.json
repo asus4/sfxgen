@@ -1,0 +1,337 @@
+{
+  "format": "sfxgen/1",
+  "name": "Footstep: snow",
+  "description": "One step in ankle-deep cold snow on a still winter day. No impact at all: the boot presses down over 180 ms and the snow compacts with a creaking, squeaking crunch that swells as the weight comes on and stops when the foot is down; under it a soft muffled whumpf; then 60 ms of fine crystals falling back into the print. Close, dead, no echo: snow swallows everything. Use the variations for a walk.",
+  "tags": [
+    "footstep",
+    "step",
+    "snow",
+    "crunch",
+    "winter",
+    "walk",
+    "cold",
+    "squeak",
+    "foley"
+  ],
+  "duration": "auto",
+  "seed": 27,
+  "tracks": [
+    {
+      "id": "squeak",
+      "note": "Snow compacting: crackling noise through a narrow resonance that slides down as the snow packs. The creak of cold snow.",
+      "source": {
+        "type": "noise",
+        "color": "crackle",
+        "density": [
+          [
+            0,
+            2600
+          ],
+          [
+            0.12,
+            5200
+          ],
+          [
+            0.2,
+            900
+          ]
+        ],
+        "env": {
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              0.02,
+              0.45
+            ],
+            [
+              0.12,
+              1
+            ],
+            [
+              0.185,
+              0.5
+            ],
+            [
+              0.22,
+              0
+            ]
+          ],
+          "curve": "linear"
+        },
+        "filter": {
+          "mode": "bandpass",
+          "cutoff": [
+            [
+              0,
+              2500
+            ],
+            [
+              0.1,
+              1650
+            ],
+            [
+              0.2,
+              1250
+            ]
+          ],
+          "q": 3.2
+        }
+      },
+      "fx": [
+        {
+          "type": "drive",
+          "mode": "soft",
+          "amount": 6
+        }
+      ]
+    },
+    {
+      "id": "crunch",
+      "note": "The crust and grains breaking under the sole: many small dull ticks, thickest in the middle of the step.",
+      "gain": -5,
+      "source": {
+        "type": "particles",
+        "distribution": "random",
+        "density": [
+          [
+            0,
+            150
+          ],
+          [
+            0.1,
+            520
+          ],
+          [
+            0.2,
+            60
+          ]
+        ],
+        "duration": 0.21,
+        "grain": {
+          "kind": "crackle",
+          "lo": 500,
+          "hi": 3600,
+          "decayLo": 0.004,
+          "decayHi": 0.02,
+          "levelJitter": 20
+        },
+        "env": {
+          "attack": 0.02,
+          "hold": 0.13,
+          "decay": 0.1
+        }
+      }
+    },
+    {
+      "id": "whumpf",
+      "note": "The weight going into the snow pack: a soft low push, no attack.",
+      "gain": -13,
+      "source": {
+        "type": "noise",
+        "color": "brown",
+        "env": {
+          "attack": 0.035,
+          "hold": 0.04,
+          "decay": 0.2
+        },
+        "filter": {
+          "mode": "bandpass",
+          "cutoff": [
+            [
+              0,
+              260
+            ],
+            [
+              0.2,
+              120
+            ]
+          ],
+          "q": 0.8
+        }
+      }
+    },
+    {
+      "id": "crystals",
+      "note": "Loose crystals falling back into the footprint after the step.",
+      "start": 0.2,
+      "gain": -19,
+      "source": {
+        "type": "particles",
+        "distribution": "burst",
+        "density": 500,
+        "duration": 0.09,
+        "grain": {
+          "kind": "tick",
+          "lo": 4500,
+          "hi": 11000,
+          "decayLo": 0.001,
+          "decayHi": 0.004,
+          "levelJitter": 14
+        },
+        "env": {
+          "attack": 0.004,
+          "hold": 0.03,
+          "decay": 0.09
+        }
+      }
+    }
+  ],
+  "master": {
+    "fx": [
+      {
+        "type": "eq",
+        "bands": [
+          {
+            "mode": "highcut",
+            "freq": 9500,
+            "slope": "12"
+          }
+        ]
+      }
+    ]
+  },
+  "controls": [
+    {
+      "id": "cold",
+      "label": "Cold",
+      "hint": "Wet slushy snow that squelches dully, to dry powder at -20 that squeaks.",
+      "value": 0.6,
+      "vary": 0.04,
+      "targets": [
+        {
+          "path": "tracks.squeak.gain",
+          "mode": "set",
+          "from": -18,
+          "to": 4
+        },
+        {
+          "path": "tracks.squeak.source.filter.q",
+          "mode": "set",
+          "from": 1,
+          "to": 6
+        },
+        {
+          "path": "tracks.squeak.source.filter.cutoff",
+          "mode": "mul",
+          "from": 0.6,
+          "to": 1.5
+        },
+        {
+          "path": "master.fx.0.bands.0.freq",
+          "mode": "set",
+          "from": 3800,
+          "to": 15000
+        }
+      ]
+    },
+    {
+      "id": "depth",
+      "label": "Depth",
+      "hint": "A dusting over hard ground, or knee-deep drifts: a longer, lower press.",
+      "value": 0.5,
+      "vary": 0.07,
+      "targets": [
+        {
+          "path": "tracks.squeak.source.env",
+          "mode": "stretch",
+          "from": 0.55,
+          "to": 1.9
+        },
+        {
+          "path": "tracks.squeak.source.filter.cutoff",
+          "mode": "stretch",
+          "from": 0.55,
+          "to": 1.9
+        },
+        {
+          "path": "tracks.squeak.source.density",
+          "mode": "stretch",
+          "from": 0.55,
+          "to": 1.9
+        },
+        {
+          "path": "tracks.crunch.source.duration",
+          "mode": "set",
+          "from": 0.11,
+          "to": 0.4
+        },
+        {
+          "path": "tracks.crunch.source.env.hold",
+          "mode": "set",
+          "from": 0.05,
+          "to": 0.3
+        },
+        {
+          "path": "tracks.whumpf.gain",
+          "mode": "set",
+          "from": -22,
+          "to": -7
+        },
+        {
+          "path": "tracks.crystals.start",
+          "mode": "set",
+          "from": 0.11,
+          "to": 0.39
+        }
+      ]
+    },
+    {
+      "id": "crust",
+      "label": "Crust",
+      "hint": "Soft fresh snow, or an icy crust that cracks under the boot.",
+      "value": 0.4,
+      "vary": 0.12,
+      "targets": [
+        {
+          "path": "tracks.crunch.gain",
+          "mode": "set",
+          "from": -22,
+          "to": 2
+        },
+        {
+          "path": "tracks.crunch.source.grain.hi",
+          "mode": "set",
+          "from": 1800,
+          "to": 7500
+        },
+        {
+          "path": "tracks.crunch.source.grain.levelJitter",
+          "mode": "set",
+          "from": 10,
+          "to": 30,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "weight",
+      "label": "Weight",
+      "hint": "A light step to a heavy one that sinks.",
+      "value": 0.5,
+      "vary": 0.08,
+      "targets": [
+        {
+          "path": "tracks.whumpf.source.filter.cutoff",
+          "mode": "mul",
+          "from": 1.5,
+          "to": 0.7
+        },
+        {
+          "path": "tracks.whumpf.source.env.decay",
+          "mode": "set",
+          "from": 0.1,
+          "to": 0.36
+        },
+        {
+          "path": "tracks.squeak.fx.0.amount",
+          "mode": "set",
+          "from": 0,
+          "to": 16
+        }
+      ]
+    }
+  ]
+}

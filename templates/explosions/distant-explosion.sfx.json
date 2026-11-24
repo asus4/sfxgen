@@ -1,0 +1,117 @@
+{
+  "format": "sfxgen/1",
+  "name": "Distant explosion in a valley",
+  "description": "Artillery landing four kilometres away on the far side of a mountain valley, heard from a hillside on a still evening. There is no crack: the air has taken everything above 600 Hz. What arrives is a soft, round thump at 90 Hz, felt as much as heard, and then the valley playing with it: the first echo off the near slope 700 ms later, another off the far wall, each darker and softer, merging into a low roll that wanders and takes six seconds to die.",
+  "tags": ["explosion", "distant", "far", "rumble", "valley", "echo", "artillery", "thunder", "ambience", "war"],
+  "duration": "auto",
+  "seed": 51,
+  "output": { "channels": 2 },
+  "tracks": [
+    {
+      "id": "thump",
+      "note": "The blast as it arrives: a very large membrane hit with a soft beater. No transient on purpose. Tube drive adds harmonics at 180 and 270 Hz so the thump exists on small speakers.",
+      "source": {
+        "type": "modal",
+        "material": "skin",
+        "shape": "membrane",
+        "freq": [[0, 104], [0.2, 86]],
+        "decay": 0.894,
+        "position": 0.2,
+        "brightness": 0.35,
+        "exciter": { "kind": "mallet", "hardness": 0.297 }
+      },
+      "fx": [
+        { "type": "drive", "mode": "tube", "amount": 22, "tone": 1500 },
+        { "type": "eq", "bands": [{ "mode": "peak", "freq": 300, "gain": 6, "q": 0.8 }] },
+        { "type": "filter", "id": "air", "mode": "lowpass", "cutoff": 782, "slope": "24" }
+      ],
+      "sends": { "valley": -3 },
+      "gain": -1.95
+    },
+    {
+      "id": "roll",
+      "note": "The rumble that follows the thump along the ground: brown noise, slowly heaving (wander on level and cutoff), never above 300 Hz.",
+      "start": 0.05,
+      "gain": -18,
+      "source": {
+        "type": "noise",
+        "color": "brown",
+        "width": 0.7,
+        "env": { "attack": 0.25, "hold": 0.5, "decay": 3.24 },
+        "filter": { "mode": "lowpass", "slope": "24", "cutoff": { "value": 260, "mod": [{ "type": "wander", "rate": 1.3, "depth": 0.8, "unit": "oct" }] } }
+      },
+      "fx": [
+        { "type": "tremolo", "rate": 1.7, "depth": 0.45, "shape": "random" },
+        { "type": "eq", "bands": [{ "mode": "lowcut", "freq": 65, "slope": "24" }, { "mode": "peak", "freq": 170, "gain": 4, "q": 0.9 }] }
+      ],
+      "sends": { "valley": -6 }
+    }
+  ],
+  "buses": [
+    {
+      "id": "valley",
+      "fx": [
+        {
+          "type": "delay",
+          "id": "slopes",
+          "time": 648,
+          "feedback": 0.44,
+          "tone": 700,
+          "highpass": 70,
+          "modulation": 8,
+          "pingpong": true,
+          "mix": 0.54
+        },
+        { "type": "reverb", "id": "basin", "space": "cave", "size": 120, "decay": 4.74, "damping": 0.85, "highcut": 1500, "lowcut": 60, "mix": 0.6 }
+      ]
+    }
+  ],
+  "controls": [
+    {
+      "id": "distance",
+      "label": "Distance",
+      "hint": "A kilometre off, with some knock left in it, to far beyond the ridge: only a soft pressure.",
+      "value": 0.55,
+      "targets": [
+        { "path": "tracks.thump.fx.air.cutoff", "from": 3000, "to": 260 },
+        { "path": "tracks.thump.source.exciter.hardness", "from": 0.6, "to": 0.05 },
+        { "path": "tracks.thump.gain", "from": 3, "to": -6 }
+      ]
+    },
+    {
+      "id": "size",
+      "label": "Size",
+      "hint": "A mortar round to a magazine going up.",
+      "value": 0.5,
+      "targets": [
+        { "path": "tracks.thump.source.freq", "mode": "mul", "from": 1.6, "to": 0.7 },
+        { "path": "tracks.thump.source.decay", "from": 0.4, "to": 2 },
+        { "path": "tracks.roll.source.env.decay", "from": 1.5, "to": 7 }
+      ]
+    },
+    {
+      "id": "echoes",
+      "label": "Echoes",
+      "hint": "Flat open plain, one thump, to a deep valley that answers again and again.",
+      "value": 0.55,
+      "targets": [
+        { "path": "buses.valley.fx.slopes.feedback", "from": 0, "to": 0.8 },
+        { "path": "buses.valley.fx.slopes.mix", "from": 0.1, "to": 0.9, "curve": "linear" }
+      ]
+    },
+    {
+      "id": "width",
+      "label": "Valley width",
+      "hint": "A narrow gorge with quick echoes to a wide basin with slow ones.",
+      "value": 0.5,
+      "targets": [{ "path": "buses.valley.fx.slopes.time", "from": 280, "to": 1500 }, { "path": "buses.valley.fx.basin.decay", "from": 2.5, "to": 9 }]
+    },
+    {
+      "id": "roll",
+      "label": "Rumble",
+      "hint": "Just the thump and its echoes, or a long ground-rolling rumble after it.",
+      "value": 0.5,
+      "targets": [{ "path": "tracks.roll.gain", "from": -36, "to": 0 }]
+    }
+  ]
+}

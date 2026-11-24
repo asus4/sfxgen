@@ -21,6 +21,10 @@ partials, perfectly aligned, perfectly clean. sfxgen gives agents a better palet
   spectrogram image.
 - **A person in the loop**: the agent exposes perceptual controls (Size, Weight, Grit, Distance) and the person
   decides by ear. Everything else stays one click away.
+- **Projects**: a game's whole set of sounds side by side, with shared output settings, levelling per group, a shared
+  master chain, a mixer to balance them and one build that writes every WAV where the game wants it.
+- **108 templates** in 15 categories (impacts, footsteps, mechanical, doors, sci-fi, magic, weapons, explosions, UI,
+  retro, creatures, nature, movement, vehicles, ambience), each with controls chosen for tweaking.
 
 ## Quick start
 
@@ -36,6 +40,8 @@ npm run sfxgen -- templates                          # browse the library
 npm run sfxgen -- new impacts/thud -o thud.sfx.json  # start from a template
 npm run sfxgen -- render thud.sfx.json --analyze --png
 npm run sfxgen -- serve .                            # edit the same files in the browser
+npm run sfxgen -- project init sounds/               # make a folder of patches a project
+npm run sfxgen -- build sounds/                      # render every sound to its export path
 ```
 
 ## For agents
@@ -43,7 +49,7 @@ npm run sfxgen -- serve .                            # edit the same files in th
 | Agent | Connect with |
 | --- | --- |
 | Coding agents (Claude Code, Codex, ...) | Files and the CLI: write `*.sfx.json`, run `sfxgen render --analyze --png`, read the PNG. `sfxgen guide` prints the catalog. |
-| MCP clients | `sfxgen mcp <dir>`: the same operations as tools, with spectrograms as images. |
+| MCP clients | `sfxgen mcp <dir>`: the same operations as tools, with spectrograms as images. Claude Code: `claude mcp add sfxgen -- npx tsx /path/to/sfxgen/src/node/cli.ts mcp .` |
 | In-browser agents | WebMCP: the editor registers its tools on `document.modelContext` when the browser offers it (Chrome and Edge origin trials). |
 
 Start with [docs/SOUND-DESIGN.md](docs/SOUND-DESIGN.md): how to make sounds that don't sound generated.

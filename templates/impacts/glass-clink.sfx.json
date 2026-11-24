@@ -1,0 +1,240 @@
+{
+  "format": "sfxgen/1",
+  "name": "Two glasses clink",
+  "description": "Two wine glasses touched rim to rim in a toast, close to the ear at a dinner table. The two bowls are slightly different sizes, so two clear notes a wide third apart ring together; the second glass speaks 3 ms after the first; each is not quite round, so its note shimmers; the wine inside dulls the top of the ring.",
+  "tags": [
+    "impact",
+    "glass",
+    "clink",
+    "toast",
+    "cheers",
+    "ring",
+    "ping"
+  ],
+  "duration": "auto",
+  "seed": 3,
+  "output": {
+    "channels": 2
+  },
+  "tracks": [
+    {
+      "id": "left",
+      "note": "Your glass: the lower note.",
+      "pan": -0.3,
+      "source": {
+        "type": "modal",
+        "material": "glass",
+        "shape": "bowl",
+        "freq": 1467,
+        "decay": 1.5,
+        "damping": 1.1,
+        "brightness": 0.45,
+        "modes": 14,
+        "beat": 2.3,
+        "position": 0.95,
+        "dent": 0.04,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.88
+        }
+      },
+      "sends": {
+        "table": -18
+      }
+    },
+    {
+      "id": "right",
+      "note": "Their glass: a little smaller and thinner, 3 ms late.",
+      "start": 0.003,
+      "gain": -2,
+      "pan": 0.3,
+      "source": {
+        "type": "modal",
+        "material": "glass",
+        "shape": "bowl",
+        "freq": 1873,
+        "decay": 1.15,
+        "damping": 1.2,
+        "brightness": 0.5,
+        "modes": 14,
+        "beat": 3.4,
+        "position": 0.95,
+        "dent": 0.07,
+        "variant": 4,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.9
+        }
+      },
+      "sends": {
+        "table": -18
+      }
+    },
+    {
+      "id": "touch",
+      "note": "The contact itself: a dry glassy tick.",
+      "gain": -14,
+      "source": {
+        "type": "noise",
+        "color": "blue",
+        "env": {
+          "attack": 0.0002,
+          "decay": 0.004
+        }
+      }
+    }
+  ],
+  "buses": [
+    {
+      "id": "table",
+      "fx": [
+        {
+          "type": "reverb",
+          "space": "room",
+          "decay": 0.5,
+          "predelay": 8
+        }
+      ]
+    }
+  ],
+  "controls": [
+    {
+      "id": "size",
+      "label": "Glass size",
+      "hint": "Shot glasses that tink to big balloon glasses that sing low.",
+      "value": 0.5,
+      "vary": 0.02,
+      "targets": [
+        {
+          "path": "tracks.left.source.freq",
+          "mode": "mul",
+          "from": 2.1,
+          "to": 0.5
+        },
+        {
+          "path": "tracks.right.source.freq",
+          "mode": "mul",
+          "from": 2.1,
+          "to": 0.5
+        },
+        {
+          "path": "tracks.left.source.decay",
+          "mode": "mul",
+          "from": 0.5,
+          "to": 1.6
+        },
+        {
+          "path": "tracks.right.source.decay",
+          "mode": "mul",
+          "from": 0.5,
+          "to": 1.6
+        }
+      ]
+    },
+    {
+      "id": "fill",
+      "label": "Fill",
+      "hint": "Empty crystal that rings on, or full glasses whose ring is short and dull.",
+      "value": 0.3,
+      "targets": [
+        {
+          "path": "tracks.left.source.damping",
+          "mode": "set",
+          "from": 0.6,
+          "to": 3.5
+        },
+        {
+          "path": "tracks.right.source.damping",
+          "mode": "set",
+          "from": 0.7,
+          "to": 3.8
+        },
+        {
+          "path": "tracks.left.source.decay",
+          "mode": "mul",
+          "from": 1.4,
+          "to": 0.2
+        },
+        {
+          "path": "tracks.right.source.decay",
+          "mode": "mul",
+          "from": 1.4,
+          "to": 0.2
+        },
+        {
+          "path": "tracks.left.source.pitch",
+          "mode": "set",
+          "from": 0.3,
+          "to": -1.6,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "toast",
+      "label": "Toast",
+      "hint": "A careful touch to an enthusiastic clack.",
+      "value": 0.55,
+      "vary": 0.1,
+      "targets": [
+        {
+          "path": "tracks.left.source.exciter.hardness",
+          "mode": "set",
+          "from": 0.55,
+          "to": 1
+        },
+        {
+          "path": "tracks.right.source.exciter.hardness",
+          "mode": "set",
+          "from": 0.55,
+          "to": 1
+        },
+        {
+          "path": "tracks.touch.gain",
+          "mode": "set",
+          "from": -30,
+          "to": -6,
+          "curve": -0.187
+        }
+      ]
+    },
+    {
+      "id": "match",
+      "label": "Mismatch",
+      "hint": "A matched pair on one note, or two odd glasses far apart.",
+      "value": 0.5,
+      "vary": 0.03,
+      "targets": [
+        {
+          "path": "tracks.right.source.pitch",
+          "mode": "set",
+          "from": -3.9,
+          "to": 4,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "room",
+      "label": "Room",
+      "hint": "Dry at the ear, or across a dining room.",
+      "value": 0.3,
+      "targets": [
+        {
+          "path": "tracks.left.sends.table",
+          "mode": "set",
+          "from": -40,
+          "to": -6,
+          "curve": -0.489
+        },
+        {
+          "path": "tracks.right.sends.table",
+          "mode": "set",
+          "from": -40,
+          "to": -6,
+          "curve": -0.489
+        }
+      ]
+    }
+  ]
+}

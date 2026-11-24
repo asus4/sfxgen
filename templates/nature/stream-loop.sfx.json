@@ -1,0 +1,196 @@
+{
+  "format": "sfxgen/1",
+  "name": "Stream (loop)",
+  "description": "A shallow brook running over stones in a wood, heard from the bank: hundreds of small bubbles a second gurgling between the stones (each a little rising note between 300 Hz and 2 kHz), a deeper, slower glug where the water drops into a hollow, and the soft continuous hiss of the riffle. A 6 s stereo loop; everything is random, and the seam is crossfaded over 0.6 s.",
+  "tags": [
+    "nature",
+    "water",
+    "stream",
+    "brook",
+    "river",
+    "loop",
+    "ambience",
+    "babble",
+    "forest"
+  ],
+  "duration": 6,
+  "loop": {
+    "mode": "crossfade",
+    "crossfade": 0.6
+  },
+  "seed": 19,
+  "output": {
+    "channels": 2
+  },
+  "tracks": [
+    {
+      "id": "babble",
+      "note": "The gurgle: a dense cloud of rising-pitch bubbles spread across the stream. The voice of the water.",
+      "source": {
+        "type": "particles",
+        "density": 260,
+        "duration": 7,
+        "spread": 0.9,
+        "grain": {
+          "kind": "drop",
+          "lo": 420,
+          "hi": 2600,
+          "decayLo": 0.012,
+          "decayHi": 0.05,
+          "levelJitter": 18,
+          "size": 0.6
+        }
+      }
+    },
+    {
+      "id": "glug",
+      "note": "The hollow under a small fall: big slow bubbles, 6 to 9 a second, in the 150 to 400 Hz range. Gives the stream depth.",
+      "gain": 2,
+      "pan": -0.25,
+      "source": {
+        "type": "particles",
+        "density": 8,
+        "duration": 7,
+        "grain": {
+          "kind": "drop",
+          "lo": 150,
+          "hi": 420,
+          "decayLo": 0.04,
+          "decayHi": 0.11,
+          "levelJitter": 10,
+          "size": 0.8
+        }
+      }
+    },
+    {
+      "id": "riffle",
+      "note": "White water over the shallow stones: an airy hiss that shifts slowly, so the bubbles sit in moving water.",
+      "gain": -17,
+      "source": {
+        "type": "noise",
+        "color": "white",
+        "width": 1,
+        "env": {
+          "attack": 0.01
+        },
+        "filter": {
+          "mode": "bandpass",
+          "cutoff": {
+            "value": 4200,
+            "mod": [
+              {
+                "type": "wander",
+                "rate": 0.6,
+                "depth": 3,
+                "unit": "st"
+              }
+            ]
+          },
+          "q": 0.5
+        }
+      }
+    }
+  ],
+  "master": {
+    "fx": [
+      {
+        "type": "eq",
+        "bands": [
+          {
+            "mode": "lowcut",
+            "freq": 90,
+            "slope": "12"
+          }
+        ]
+      },
+      {
+        "id": "wood",
+        "type": "reverb",
+        "space": "forest",
+        "mix": 0.1
+      }
+    ]
+  },
+  "controls": [
+    {
+      "id": "flow",
+      "label": "Flow",
+      "hint": "A trickle after a dry week to a brook in full spate.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.babble.source.density",
+          "mode": "set",
+          "from": 25,
+          "to": 1300
+        },
+        {
+          "path": "tracks.riffle.gain",
+          "mode": "set",
+          "from": -34,
+          "to": -8
+        },
+        {
+          "path": "tracks.glug.source.density",
+          "mode": "set",
+          "from": 2,
+          "to": 22
+        }
+      ]
+    },
+    {
+      "id": "size",
+      "label": "Size",
+      "hint": "A finger-wide rivulet to a wide, deep stream: lower, rounder bubbles.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.babble.source.pitch",
+          "mode": "set",
+          "from": 10,
+          "to": -9
+        },
+        {
+          "path": "tracks.glug.source.pitch",
+          "mode": "set",
+          "from": 9,
+          "to": -8
+        }
+      ]
+    },
+    {
+      "id": "depth",
+      "label": "Pools",
+      "hint": "Flat shallows to deep hollows that glug.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.glug.gain",
+          "mode": "set",
+          "from": -22,
+          "to": 10
+        }
+      ]
+    },
+    {
+      "id": "distance",
+      "label": "Distance",
+      "hint": "Feet in the water to somewhere through the trees.",
+      "value": 0.15,
+      "targets": [
+        {
+          "path": "master.fx.wood.mix",
+          "mode": "set",
+          "from": 0,
+          "to": 0.6
+        },
+        {
+          "path": "tracks.babble.source.grain.levelJitter",
+          "mode": "set",
+          "from": 22,
+          "to": 8
+        }
+      ]
+    }
+  ]
+}

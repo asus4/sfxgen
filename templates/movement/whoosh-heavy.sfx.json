@@ -1,0 +1,224 @@
+{
+  "format": "sfxgen/1",
+  "name": "Heavy whoosh",
+  "description": "Something the size of a wrecking ball swinging past your head at 18 m/s, closest at 450 ms and a metre away: a low pressure wave you feel before you hear it, the roar of displaced air combing against itself as it passes (the hollow, jet-like sweep), and the pitch of everything sagging as it goes away. Gone by one second.",
+  "tags": [
+    "movement",
+    "whoosh",
+    "heavy",
+    "swing",
+    "pass-by",
+    "giant",
+    "hammer",
+    "doppler",
+    "air"
+  ],
+  "duration": 1.05,
+  "seed": 27,
+  "output": {
+    "channels": 2
+  },
+  "tracks": [
+    {
+      "id": "roar",
+      "note": "The displaced air: pink noise through a resonant comb that sweeps (the turbulence interfering with itself), then moved past the listener.",
+      "source": {
+        "type": "noise",
+        "color": "pink",
+        "env": {
+          "attack": 0.004,
+          "hold": 0.87,
+          "decay": 0.15
+        },
+        "filter": {
+          "mode": "lowpass",
+          "cutoff": 3800
+        }
+      },
+      "fx": [
+        {
+          "id": "comb",
+          "type": "flanger",
+          "delay": [
+            [
+              0,
+              0.007
+            ],
+            [
+              0.45,
+              0.0011
+            ],
+            [
+              1,
+              0.006
+            ]
+          ],
+          "depth": 0,
+          "feedback": 0.72
+        },
+        {
+          "id": "pass",
+          "type": "doppler",
+          "speed": 18,
+          "distance": 1,
+          "time": 0.45,
+          "rolloff": 1.5,
+          "air": 2
+        }
+      ]
+    },
+    {
+      "id": "mass",
+      "note": "The weight: a fluttering low thrum at 100 to 300 Hz that swells as the object passes. Remove it and the whoosh becomes light.",
+      "gain": 5,
+      "source": {
+        "type": "noise",
+        "color": "brown",
+        "env": {
+          "attack": 0.004,
+          "hold": 0.87,
+          "decay": 0.15
+        },
+        "filter": {
+          "mode": "bandpass",
+          "cutoff": 170,
+          "q": 1.1
+        }
+      },
+      "fx": [
+        {
+          "id": "flutter",
+          "type": "tremolo",
+          "rate": [
+            [
+              0,
+              14
+            ],
+            [
+              0.45,
+              30
+            ],
+            [
+              1,
+              12
+            ]
+          ],
+          "depth": 0.6,
+          "shape": "sine"
+        },
+        {
+          "type": "drive",
+          "mode": "tanh",
+          "amount": 12,
+          "tone": 2500
+        },
+        {
+          "id": "pass",
+          "type": "doppler",
+          "speed": 18,
+          "distance": 1,
+          "time": 0.45,
+          "rolloff": 1.5
+        }
+      ]
+    }
+  ],
+  "master": {
+    "fx": [
+      {
+        "type": "eq",
+        "bands": [
+          {
+            "mode": "lowcut",
+            "freq": 60,
+            "slope": "24"
+          }
+        ]
+      }
+    ]
+  },
+  "controls": [
+    {
+      "id": "weight",
+      "label": "Weight",
+      "hint": "A swung sandbag to a passing truck: more low thrum, darker air.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.mass.gain",
+          "mode": "set",
+          "from": -10,
+          "to": 11
+        },
+        {
+          "path": "tracks.mass.source.filter.cutoff",
+          "mode": "set",
+          "from": 280,
+          "to": 110
+        },
+        {
+          "path": "tracks.roar.source.filter.cutoff",
+          "mode": "set",
+          "from": 7000,
+          "to": 1800
+        }
+      ]
+    },
+    {
+      "id": "speed",
+      "label": "Speed",
+      "hint": "A slow, looming pass to a violent one.",
+      "value": 0.45,
+      "vary": 0.06,
+      "targets": [
+        {
+          "path": "tracks.roar.fx.pass.speed",
+          "mode": "set",
+          "from": 6,
+          "to": 45
+        },
+        {
+          "path": "tracks.mass.fx.pass.speed",
+          "mode": "set",
+          "from": 6,
+          "to": 45
+        }
+      ]
+    },
+    {
+      "id": "closeness",
+      "label": "Closeness",
+      "hint": "Passing across the room to grazing your hair.",
+      "value": 0.6,
+      "vary": 0.06,
+      "targets": [
+        {
+          "path": "tracks.roar.fx.pass.distance",
+          "mode": "set",
+          "from": 6,
+          "to": 0.25
+        },
+        {
+          "path": "tracks.mass.fx.pass.distance",
+          "mode": "set",
+          "from": 6,
+          "to": 0.25
+        }
+      ]
+    },
+    {
+      "id": "hollow",
+      "label": "Hollowness",
+      "hint": "Plain rushing air to a resonant, jet-like sweep.",
+      "value": 0.55,
+      "targets": [
+        {
+          "path": "tracks.roar.fx.comb.feedback",
+          "mode": "set",
+          "from": 0,
+          "to": 0.9
+        }
+      ]
+    }
+  ]
+}

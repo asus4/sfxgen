@@ -1,0 +1,166 @@
+{
+  "format": "sfxgen/1",
+  "name": "Jump",
+  "description": "A character jumping on an 8-bit console. A 25% pulse sweeps up an octave and a half in 190 ms, its volume stepping down as it goes, and the noise channel spits a 25 ms scuff at take-off for the feet leaving the ground. It is cut off, not faded: the channel is needed for the next sound.",
+  "tags": [
+    "retro",
+    "8-bit",
+    "chiptune",
+    "jump",
+    "hop",
+    "platformer",
+    "pulse"
+  ],
+  "duration": "auto",
+  "seed": 2,
+  "tracks": [
+    {
+      "id": "pulse",
+      "note": "The jump: pitch is height.",
+      "source": {
+        "type": "osc",
+        "wave": "pulse",
+        "pw": 0.25,
+        "freq": 215,
+        "pitch": [
+          [
+            0,
+            0
+          ],
+          [
+            0.19,
+            19,
+            0.35
+          ]
+        ],
+        "env": {
+          "points": [
+            [
+              0,
+              1
+            ],
+            [
+              0.19,
+              0.35
+            ],
+            [
+              0.205,
+              0
+            ]
+          ],
+          "curve": "linear"
+        }
+      },
+      "fx": [
+        {
+          "type": "crush",
+          "id": "dac",
+          "bits": 4
+        },
+        {
+          "type": "eq",
+          "bands": [
+            {
+              "mode": "lowcut",
+              "freq": 90
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "feet",
+      "note": "Take-off: one short burst from the noise channel.",
+      "gain": -6,
+      "source": {
+        "type": "noise",
+        "color": "digital",
+        "density": [
+          [
+            0,
+            9000
+          ],
+          [
+            0.04,
+            2500
+          ]
+        ],
+        "env": {
+          "attack": 0,
+          "decay": 0.045
+        }
+      }
+    }
+  ],
+  "controls": [
+    {
+      "id": "pitch",
+      "label": "Pitch",
+      "hint": "A heavy hero to a tiny, springy one.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.pulse.source.freq",
+          "mode": "mul",
+          "from": 0.5,
+          "to": 2
+        }
+      ]
+    },
+    {
+      "id": "height",
+      "label": "Height",
+      "hint": "A small hop to a huge leap: how far the pitch climbs.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.pulse.source.pitch",
+          "mode": "mul",
+          "from": 0.35,
+          "to": 1.65,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.pulse.source.pitch",
+          "mode": "stretch",
+          "from": 0.6,
+          "to": 1.6
+        },
+        {
+          "path": "tracks.pulse.source.env",
+          "mode": "stretch",
+          "from": 0.6,
+          "to": 1.6
+        }
+      ]
+    },
+    {
+      "id": "duty",
+      "label": "Duty",
+      "hint": "A thin, nasal 12.5% pulse to a full hollow square.",
+      "value": 0.33,
+      "targets": [
+        {
+          "path": "tracks.pulse.source.pw",
+          "from": 0.125,
+          "to": 0.5,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "feet",
+      "label": "Feet",
+      "hint": "A clean synthetic jump to one that kicks off the ground.",
+      "value": 0.6,
+      "targets": [
+        {
+          "path": "tracks.feet.gain",
+          "from": -40,
+          "to": 6,
+          "curve": "linear"
+        }
+      ]
+    }
+  ]
+}

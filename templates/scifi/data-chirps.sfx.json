@@ -1,0 +1,101 @@
+{
+  "format": "sfxgen/1",
+  "name": "Computer data chirps",
+  "description": "A starship console working something out, heard through its small panel speaker. Eleven short bursts of data in about a second, uneven like a teletype: each is a slice of an integer bytebeat formula at a different pitch, so they are little broken melodies rather than beeps. Between them a relay ticks. At 1.15 s the answer arrives: two clean notes, up a fourth.",
+  "tags": ["scifi", "computer", "data", "chirp", "console", "processing", "retro", "ui", "glitch"],
+  "duration": "auto",
+  "seed": 31,
+  "tracks": [
+    {
+      "id": "data",
+      "note": "The thinking: bytebeat slices. Every event has its own randomness, pitch and length.",
+      "source": {
+        "type": "chaos",
+        "mode": "bytebeat",
+        "formula": "bitshift",
+        "rate": 11000,
+        "chaos": 0.3,
+        "smooth": 0.15,
+        "env": { "attack": 0.001, "sustain": 1, "release": 0.012 },
+        "filter": { "mode": "bandpass", "cutoff": 2300, "q": 0.8, "keytrack": 0.6 }
+      },
+      "repeat": { "count": 11, "interval": 0.095, "jitter": 0.022, "pitchJitter": 9, "velJitter": 0.3, "dur": 0.05 }
+    },
+    {
+      "id": "relay",
+      "note": "Hardware behind the panel: gives the bursts a machine to live in.",
+      "start": 0.04,
+      "gain": -14,
+      "source": {
+        "type": "particles",
+        "distribution": "regular",
+        "density": 10.5,
+        "jitter": 0.35,
+        "duration": 1.05,
+        "grain": { "kind": "click", "lo": 2500, "hi": 5000, "levelJitter": 8 }
+      }
+    },
+    {
+      "id": "answer",
+      "note": "The result: the only clean, pitched thing, so it reads as 'done'.",
+      "start": 1.15,
+      "gain": -13,
+      "source": {
+        "type": "fm",
+        "freq": 1245,
+        "algorithm": "stack",
+        "ops": [{ "ratio": 1 }, { "ratio": 2, "index": 1.4, "env": { "decay": 0.12, "sustain": 0.2 } }],
+        "env": { "attack": 0.002, "decay": 0.22 }
+      },
+      "events": [{ "t": 0, "pitch": 0 }, { "t": 0.085, "pitch": 5 }]
+    }
+  ],
+  "master": { "fx": [{ "type": "medium", "id": "speaker", "mode": "intercom", "amount": 0.55, "noise": 0.22, "age": 0.3 }] },
+  "controls": [
+    {
+      "id": "speed",
+      "label": "Speed",
+      "hint": "A slow, pondering mainframe to a frantic burst of traffic.",
+      "value": 0.5,
+      "targets": [
+        { "path": "tracks.data.repeat.interval", "mode": "mul", "from": 2, "to": 0.45 },
+        { "path": "tracks.data.repeat.dur", "mode": "mul", "from": 1.8, "to": 0.5 },
+        { "path": "tracks.relay.source.duration", "mode": "mul", "from": 2, "to": 0.45 },
+        { "path": "tracks.relay.source.density", "mode": "mul", "from": 0.5, "to": 2.2 },
+        { "path": "tracks.answer.start", "mode": "mul", "from": 2, "to": 0.45 }
+      ]
+    },
+    {
+      "id": "pitch",
+      "label": "Pitch",
+      "hint": "A big old low-voiced machine to a tiny chirpy droid.",
+      "value": 0.5,
+      "targets": [
+        { "path": "tracks.data.source.rate", "mode": "mul", "from": 0.4, "to": 2.3 },
+        { "path": "tracks.answer.source.freq", "mode": "mul", "from": 0.5, "to": 1.8 }
+      ]
+    },
+    {
+      "id": "corruption",
+      "label": "Corruption",
+      "hint": "Tidy patterns to skipping, stuttering, bit-flipped garbage.",
+      "value": 0.3,
+      "vary": 0.1,
+      "targets": [{ "path": "tracks.data.source.chaos", "from": 0, "to": 1 }]
+    },
+    {
+      "id": "answer",
+      "label": "Answer",
+      "hint": "No result tone at all, or a clear two-note 'done'.",
+      "value": 0.7,
+      "targets": [{ "path": "tracks.answer.gain", "from": -48, "to": 2 }]
+    },
+    {
+      "id": "speaker",
+      "label": "Panel speaker",
+      "hint": "Clean and direct to a cheap buzzing speaker in a metal box.",
+      "value": 0.55,
+      "targets": [{ "path": "master.fx.speaker.amount", "from": 0, "to": 1 }, { "path": "master.fx.speaker.noise", "from": 0, "to": 0.4 }]
+    }
+  ]
+}

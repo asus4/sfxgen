@@ -1,0 +1,212 @@
+{
+  "format": "sfxgen/1",
+  "name": "Spring boing",
+  "description": "A doorstop spring flicked with a toe: the cartoon boing. 0 ms: the coil is bent and let go with a metallic twang; it whips back and forth so the pitch wobbles widely about seven times a second, the wobble dying over 600 ms while the whole note sags a little; the coil's overtones run away sharp of the pitch and chirp, the way spring reverbs do; a short plastic thunk from the skirting board it is screwed to.",
+  "tags": [
+    "mechanical",
+    "spring",
+    "boing",
+    "twang",
+    "cartoon",
+    "bounce",
+    "comedy",
+    "doorstop",
+    "jump"
+  ],
+  "duration": "auto",
+  "seed": 13,
+  "tracks": [
+    {
+      "id": "coil",
+      "note": "The spring: a very stiff string, so its overtones go sharp and chirp. The LFO is the coil whipping about.",
+      "source": {
+        "type": "pluck",
+        "freq": {
+          "env": [
+            [
+              0,
+              118
+            ],
+            [
+              0.9,
+              96
+            ]
+          ],
+          "mod": [
+            {
+              "type": "lfo",
+              "rate": [
+                [
+                  0,
+                  9
+                ],
+                [
+                  0.8,
+                  6
+                ]
+              ],
+              "depth": [
+                [
+                  0,
+                  2.6
+                ],
+                [
+                  0.65,
+                  0.3
+                ],
+                [
+                  1.1,
+                  0
+                ]
+              ],
+              "unit": "st",
+              "shape": "sine"
+            }
+          ]
+        },
+        "decay": 1.3,
+        "brightness": 0.82,
+        "position": 0.07,
+        "stiffness": 0.88,
+        "excite": "pluck",
+        "hardness": 0.75
+      },
+      "fx": [
+        {
+          "type": "reverb",
+          "id": "spring",
+          "space": "spring",
+          "mix": 0.18
+        }
+      ]
+    },
+    {
+      "id": "mount",
+      "note": "The wall it is screwed to: a short dull thunk at the flick.",
+      "gain": -9,
+      "source": {
+        "type": "modal",
+        "material": "wood",
+        "shape": "box",
+        "freq": 197,
+        "decay": 0.07,
+        "brightness": 0.3,
+        "modes": 10,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.5
+        }
+      }
+    }
+  ],
+  "controls": [
+    {
+      "id": "size",
+      "label": "Size",
+      "hint": "A ballpoint pen spring to a car suspension coil.",
+      "value": 0.5,
+      "vary": 0.03,
+      "targets": [
+        {
+          "path": "tracks.coil.source.pitch",
+          "mode": "set",
+          "from": 19,
+          "to": -17,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.coil.source.decay",
+          "mode": "set",
+          "from": 0.5,
+          "to": 2.6
+        },
+        {
+          "path": "tracks.mount.source.freq",
+          "mode": "mul",
+          "from": 1.6,
+          "to": 0.6
+        }
+      ]
+    },
+    {
+      "id": "wobble",
+      "label": "Wobble",
+      "hint": "A plain twang, or a wild whipping boing-oing-oing.",
+      "value": 0.55,
+      "vary": 0.08,
+      "targets": [
+        {
+          "path": "tracks.coil.source.freq.mod.0.depth",
+          "mode": "mul",
+          "from": 0.02,
+          "to": 2.2,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "rate",
+      "label": "Wobble speed",
+      "hint": "A slow drunken sway to a fast shiver.",
+      "value": 0.5,
+      "vary": 0.06,
+      "targets": [
+        {
+          "path": "tracks.coil.source.freq.mod.0.rate",
+          "mode": "mul",
+          "from": 0.45,
+          "to": 2.4
+        }
+      ]
+    },
+    {
+      "id": "coil",
+      "label": "Coil",
+      "hint": "A tight wire that just twangs, to a loose slinky that chirps and splashes.",
+      "value": 0.6,
+      "targets": [
+        {
+          "path": "tracks.coil.source.stiffness",
+          "mode": "set",
+          "from": 0.3,
+          "to": 1,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.coil.fx.spring.mix",
+          "mode": "set",
+          "from": 0.02,
+          "to": 0.45,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "flick",
+      "label": "Flick",
+      "hint": "A soft thumb to a hard fingernail: brighter twang.",
+      "value": 0.6,
+      "vary": 0.1,
+      "targets": [
+        {
+          "path": "tracks.coil.source.hardness",
+          "mode": "set",
+          "from": 0.2,
+          "to": 1
+        },
+        {
+          "path": "tracks.coil.source.brightness",
+          "mode": "set",
+          "from": 0.6,
+          "to": 0.92
+        },
+        {
+          "path": "tracks.mount.gain",
+          "mode": "set",
+          "from": -20,
+          "to": -4
+        }
+      ]
+    }
+  ]
+}

@@ -114,6 +114,7 @@ export function buildSchema(): Schema {
     description: 'A wobble added on top of a parameter.',
     type: 'object',
     properties: {
+      id: { type: 'string', description: 'Names it for paths: tracks.x.source.freq.mod.<id>.depth.' },
       type: { enum: ['lfo', 'wander'], description: 'lfo repeats a shape; wander is smooth random drift.' },
       rate: { ...numberOrBreakpoints, description: 'Hz; breakpoints make the rate move.' },
       depth: { ...numberOrBreakpoints, description: 'Peak deviation in `unit`; breakpoints fade it in or out.' },
@@ -231,6 +232,7 @@ export function buildSchema(): Schema {
         properties: {
           mode: { enum: ['peak', 'loudness', 'none'], description: 'peak sets the highest sample, loudness the integrated loudness (LUFS).' },
           target: { type: 'number', description: 'dBFS for peak (default -1), LUFS for loudness (default -16).' },
+          ceiling: { type: 'number', description: 'For loudness: the highest peak allowed, dBFS (default -0.3).' },
         },
         required: ['mode'],
         additionalProperties: false,
@@ -242,9 +244,10 @@ export function buildSchema(): Schema {
     type: 'object',
     properties: {
       path: { type: 'string', description: 'Dot path to a parameter: tracks.body.source.freq, tracks.body.fx.space.mix, master.gain.' },
-      mode: { enum: ['set', 'mul', 'add', 'stretch'], description: 'set (default), mul (multiplies, breakpoints and all), add, stretch (breakpoint times).' },
+      mode: { enum: ['set', 'mul', 'add', 'stretch'], description: 'set (default), mul (multiplies, breakpoints and all), add, stretch (breakpoint, envelope, event and repeat times).' },
       from: { type: 'number', description: 'Value (or factor) at the control minimum.' },
       to: { type: 'number', description: 'Value (or factor) at the control maximum.' },
+      via: { type: 'number', description: "Value at the control's default (or middle): from -> via -> to." },
       curve: { anyOf: [{ enum: ['linear', 'exp', 'smooth'] }, { type: 'number', minimum: -1, maximum: 1 }] },
     },
     required: ['path'],

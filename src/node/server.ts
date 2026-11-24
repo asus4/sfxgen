@@ -12,7 +12,9 @@ import { spawn } from 'node:child_process';
 import { dirname, extname, join, normalize, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { AddressInfo } from 'node:net';
+import type { Project } from '../core/project/project';
 import { validatePatch } from '../core/format/validate';
+import { validateProject } from '../core/project/project';
 import { FileWorkspace, PATCH_EXT, listPatchFiles, type EditorBridge } from './file-workspace';
 import pkg from '../../package.json';
 
@@ -164,12 +166,12 @@ export async function startServer(opts: ServerOptions): Promise<RunningServer> {
       mtime = Math.round((await stat(join(root, ...path.split('/')))).mtimeMs);
     } catch {
       known.delete(path);
-      broadcast('file', { path, mtime: 0, origin: 'disk', deleted: true });
+      broadcast(path === ws.projectFile ? 'project' : 'file', { path, mtime: 0, origin: 'disk', deleted: true });
       return;
     }
     if (known.get(path) === text) return;
     known.set(path, text);
-    broadcast('file', { path, mtime, origin: 'disk' });
+    broadcast(path === ws.projectFile ? 'project' : 'file', { path, mtime, origin: 'disk' });
   }
 
   let watcher: FSWatcher | undefined;
@@ -179,7 +181,7 @@ export async function startServer(opts: ServerOptions): Promise<RunningServer> {
       const parts = filename.toString().split(sep);
       if (parts.some((p) => IGNORED.has(p))) return;
       const path = parts.join('/');
-      if (!path.endsWith(PATCH_EXT)) return;
+      if (!path.endsWith(PATCH_EXT) && path !== ws.projectFile) return;
       clearTimeout(pending.get(path));
       pending.set(
         path,
@@ -260,6 +262,53 @@ export async function startServer(opts: ServerOptions): Promise<RunningServer> {
       await mkdir(dirname(abs), { recursive: true });
       await writeFile(abs, body);
       return sendJson(res, 200, { path, bytes: body.length });
+    }
+    if (route === '/project' && method === 'GET') {
+      const got = await ws.getProject();
+      return sendJson(res, 200, { path: got?.path ?? ws.projectFile, saved: got?.saved ?? false, project: got?.project ?? null });
+    }
+    if (route === '/project' && method === 'PUT') {
+      const origin = url.searchParams.get('origin') === 'agent' ? 'agent' : 'human';
+      let project: unknown;
+      try {
+        project = JSON.parse((await readBody(req, MAX_JSON)).toString('utf8'));
+      } catch (err) {
+        if (err instanceof HttpError) throw err;
+        throw new HttpError(400, `The body is not valid JSON: ${(err as Error).message}`);
+      }
+      const v = validateProject(project);
+      if (!v.ok) return sendJson(res, 422, { error: 'The project has errors; nothing was written.', errors: v.errors, warnings: v.warnings });
+      known.set(ws.projectFile, `${JSON.stringify(project, null, 2)}\n`);
+      try {
+        await ws.setProject(project as Project, { origin });
+      } catch (err) {
+        known.delete(ws.projectFile);
+        return sendJson(res, 422, { error: (err as Error).message, errors: [{ path: 'sounds', message: (err as Error).message }], warnings: [] });
+      }
+      const mtime = Math.round((await stat(ws.projectPath)).mtimeMs);
+      broadcast('project', { path: ws.projectFile, mtime, origin });
+      return sendJson(res, 200, { path: ws.projectFile, mtime, warnings: v.warnings });
+    }
+    if (route === '/build' && method === 'POST') {
+      let only: string[] | undefined;
+      const raw = (await readBody(req, MAX_JSON)).toString('utf8').trim();
+      if (raw) {
+        try {
+          const body = JSON.parse(raw) as { only?: unknown };
+          if (body.only !== undefined) {
+            if (!Array.isArray(body.only) || body.only.some((n) => typeof n !== 'string')) throw new HttpError(400, '`only` is a list of sound names.');
+            only = body.only as string[];
+          }
+        } catch (err) {
+          if (err instanceof HttpError) throw err;
+          throw new HttpError(400, `The body is not valid JSON: ${(err as Error).message}`);
+        }
+      }
+      try {
+        return sendJson(res, 200, { rows: await ws.buildProject({ only }) });
+      } catch (err) {
+        throw new HttpError(422, (err as Error).message);
+      }
     }
     if (route === '/play' && method === 'POST') {
       const path = rel(url);
@@ -369,7 +418,8 @@ export async function startServer(opts: ServerOptions): Promise<RunningServer> {
   boundPort = (server.address() as AddressInfo).port;
   const base = `http://${host}:${boundPort}`;
   const url = opts.file ? `${base}/?file=${encodeURIComponent(opts.file)}` : `${base}/`;
-  log(`sfxgen editor: ${url}\n  patch files: ${root}`);
+  const proj = await ws.getProject().catch(() => null);
+  log(`sfxgen editor: ${url}\n  patch files: ${root}\n  ${proj?.saved ? `project: ${proj.project.name} (${ws.projectFile}, ${proj.project.sounds.length} sound${proj.project.sounds.length === 1 ? '' : 's'})` : `no project file (${ws.projectFile}); create one with \`sfxgen project init\` or from the editor`}`);
   if (!existsSync(join(webDir, 'index.html'))) log('  (the editor is not built: run `npm run build:web`; the API still works)');
   if (opts.open) openBrowser(url);
 

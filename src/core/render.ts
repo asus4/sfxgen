@@ -132,7 +132,15 @@ export function voiceLength(source: SourceSpec, gate: number): number {
 }
 
 /** Renders one event: the source, its voice filter, envelope, gain and velocity. Mono or stereo. */
-export function renderVoice(source: SourceSpec, ev: ResolvedEvent, n: number, sr: number, rng: Rng, warnings: string[]): Buf[] {
+export function renderVoice(
+  source: SourceSpec,
+  ev: ResolvedEvent,
+  n: number,
+  sr: number,
+  rng: Rng,
+  warnings: string[],
+  opts: { fadeTail?: boolean } = {},
+): Buf[] {
   const def = getSource(source.type);
   if (!def || n <= 0) return [new Float64Array(Math.max(n, 0))];
   // The voice's pitch curve: its `pitch` parameter (semitones, may move) plus the event's transposition.
@@ -185,7 +193,7 @@ export function renderVoice(source: SourceSpec, ev: ResolvedEvent, n: number, sr
   const tailFade = Math.min(n, Math.round(0.003 * sr));
   for (const ch of out) {
     for (let i = 0; i < n; i++) ch[i] *= env[i] * level;
-    if (env[n - 1] > 1e-3) for (let i = 0; i < tailFade; i++) ch[n - 1 - i] *= i / tailFade;
+    if (opts.fadeTail !== false && env[n - 1] > 1e-3) for (let i = 0; i < tailFade; i++) ch[n - 1 - i] *= i / tailFade;
   }
   return out;
 }
@@ -231,8 +239,14 @@ export function runChain(
       sr,
       rng: fxRng,
       loop,
-      signal: (name, n, value) =>
-        compileSignal((value ?? spec[name]) as ParamValue | undefined, effectMeta(spec, name), { sr, n, rng: fxRng.fork(name) }),
+      signal: (name, n, value) => {
+        const v = (value ?? spec[name]) as ParamValue | undefined;
+        const first = firstBreakpointTime(v);
+        if (first !== undefined && first >= n / sr) {
+          warnings.push(`${where}: ${spec.type}.${name}'s breakpoints start at ${first} s, after its buffer ends (${(n / sr).toFixed(2)} s); effect times count from the start of the track`);
+        }
+        return compileSignal(v, effectMeta(spec, name), { sr, n, rng: fxRng.fork(name) });
+      },
       num: (name, value) => constantOf((value ?? spec[name]) as ParamValue | undefined, effectMeta(spec, name)),
       signalOf: (value, meta, n, key) => compileSignal(value, meta, { sr, n, rng: fxRng.fork('nested', key ?? meta.doc) }),
       numOf: (value, meta) => constantOf(value, meta),
@@ -282,6 +296,13 @@ export function runChain(
  * Seconds of buffer a chain needs for `seconds` of input: tails add, time effects stretch or shrink (`length`), and
  * the buffer must hold the longest stage (a sped-up sound still needs room for its source before the speed-up).
  */
+/** Time of a parameter's first breakpoint, if it has breakpoints. */
+function firstBreakpointTime(v: ParamValue | undefined): number | undefined {
+  const pts = Array.isArray(v) ? v : v && typeof v === 'object' && Array.isArray(v.env) ? v.env : undefined;
+  if (!pts || pts.length === 0 || !Array.isArray(pts[0])) return undefined;
+  return Math.min(...pts.map((p) => (Array.isArray(p) ? p[0] : Infinity)));
+}
+
 function chainEnd(chain: EffectSpec[] | undefined, seconds: number): number {
   let t = seconds;
   let longest = seconds;
@@ -311,6 +332,7 @@ function renderTrackBody(
   loop: boolean,
   rng: Rng,
   warnings: string[],
+  loopEnd?: number,
 ): Buf[] {
   const source = track.source;
   if (!source || !getSource(source.type)) {
@@ -334,8 +356,15 @@ function renderTrackBody(
     const at = Math.round(ev.t * sr);
     if (at >= length) return;
     const len = voiceLength(source, ev.dur);
-    const n = Number.isFinite(len) ? Math.min(Math.ceil((len + 0.005) * sr), length - at) : length - at;
-    const voice = renderVoice(source, ev, n, sr, rng.fork('event', k), warnings);
+    // In a wrap loop a sound that never ends is cut exactly at the loop's end, unfaded: it continues into the start
+    // by itself, and what rang past the end would otherwise be added onto the start a second time.
+    const sustainedInLoop = !Number.isFinite(len) && loopEnd !== undefined;
+    const n = Number.isFinite(len)
+      ? Math.min(Math.ceil((len + 0.005) * sr), length - at)
+      : sustainedInLoop
+        ? Math.max(0, Math.min(loopEnd! - at, length - at))
+        : length - at;
+    const voice = renderVoice(source, ev, n, sr, rng.fork('event', k), warnings, { fadeTail: !sustainedInLoop });
     if (voice.length === 2 && stereo && channels === 1) {
       bufs.push(bufs[0].slice());
       channels = 2;
@@ -392,7 +421,7 @@ export function estimateDuration(patch: Patch, warnings: string[] = []): number 
     for (const ev of events) {
       let len = voiceLength(track.source, ev.dur);
       if (!Number.isFinite(len)) {
-        warnings.push(`track ${track.id}: its sound never ends; give the envelope a decay or gate, or set a fixed duration`);
+        if (typeof track.length !== 'number') warnings.push(`track ${track.id}: its sound never ends; give the envelope a decay or gate, set the track's length, or set a fixed duration`);
         len = 2;
       }
       trackEnd = Math.max(trackEnd, ev.t + len);
@@ -454,10 +483,11 @@ export function render(input: Patch, opts: RenderOptions = {}): RenderResult {
     const at = Math.round(startS * sr);
     const length = total - at;
     if (length <= 0) continue;
-    const key = trackKey(track, sr, stereo, total, seed, !!loop);
+    const key = trackKey(track, sr, stereo, total, seed, !!loop) + (loop ? `|${loop.mode}:${N}` : '');
     let body = opts.cache?.get(key);
     if (!body) {
-      body = renderTrackBody(track, length, sr, stereo, !!loop, root.fork('track', track.id), warnings);
+      const loopEnd = loop?.mode === 'wrap' ? N - at : undefined;
+      body = renderTrackBody(track, length, sr, stereo, !!loop, root.fork('track', track.id), warnings, loopEnd);
       opts.cache?.set(key, body);
     }
     const placed = applyGainPan(body, track.gain ?? 0, track.pan ?? 0, stereo);
@@ -543,9 +573,10 @@ export function render(input: Patch, opts: RenderOptions = {}): RenderResult {
   }
   let length = out[0].length;
   if (auto && !loop) {
-    // Trim what has faded below -80 dB of the peak.
+    // Trim what has faded below -70 dB of the peak: below that a 16-bit export is near silence anyway, and the final
+    // fade takes care of what is left.
     const p = Math.max(...out.map(peak));
-    const floor = p * 1e-4;
+    const floor = p * Math.pow(10, -70 / 20);
     let last = 0;
     for (const ch of out) for (let i = ch.length - 1; i > last; i--) if (Math.abs(ch[i]) > floor) { last = i; break; }
     length = Math.min(length, last + Math.round(0.01 * sr) + 1);
@@ -558,6 +589,20 @@ export function render(input: Patch, opts: RenderOptions = {}): RenderResult {
     for (const ch of out) {
       for (let i = 0; i < fadeIn; i++) ch[i] *= smoothstep(i / fadeIn);
       for (let i = 0; i < fadeOut; i++) ch[length - 1 - i] *= smoothstep(i / fadeOut);
+    }
+    if (master.dcBlock !== false) {
+      // A 10 Hz high-pass can't settle within a very short clip, and the fades shift the mean again, so take out what
+      // DC is left with a window that is zero at both ends: the mean goes to zero and the edges stay untouched.
+      for (const ch of out) {
+        let sum = 0;
+        let wsum = 0;
+        for (let i = 0; i < length; i++) {
+          sum += ch[i];
+          wsum += Math.sin((Math.PI * (i + 0.5)) / length) ** 2;
+        }
+        const k = wsum > 0 ? sum / wsum : 0;
+        for (let i = 0; i < length; i++) ch[i] -= k * Math.sin((Math.PI * (i + 0.5)) / length) ** 2;
+      }
     }
   }
 
@@ -573,9 +618,11 @@ export function render(input: Patch, opts: RenderOptions = {}): RenderResult {
     if (Number.isFinite(l)) {
       normalizeGainDb = (norm.target ?? -16) - l;
       const peakAfter = 20 * Math.log10(p) + normalizeGainDb;
-      if (peakAfter > -0.3) {
-        warnings.push(`loudness target ${norm.target ?? -16} LUFS would clip; limited to a -0.3 dBFS peak`);
-        normalizeGainDb -= peakAfter + 0.3;
+      const ceiling = norm.ceiling ?? -0.3;
+      if (peakAfter > ceiling) {
+        // A ceiling chosen in the patch is a decision, not a problem; only the safety ceiling warns.
+        if (norm.ceiling === undefined) warnings.push(`loudness target ${norm.target ?? -16} LUFS would clip; limited to a -0.3 dBFS peak`);
+        normalizeGainDb -= peakAfter - ceiling;
       }
     }
   } else if (p > 1) {

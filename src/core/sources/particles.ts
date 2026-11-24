@@ -151,7 +151,8 @@ const PARAMS: ParamMap = {
     doc:
       'Particles per second. 2 to 10 scattered drips and clicks, 20 to 100 a patter, 200 to 1000 a shower or sizzle, ' +
       '3000+ a hiss. Breakpoints over the event build or thin it: [[0, 5], [2, 400]] is rain setting in. For burst ' +
-      'it is the rate at the first instant. Ignored by bounce.',
+      'it is the rate at the first instant and thins as exp(-5 t / duration), so a burst emits about density x duration / 5 ' +
+      'grains. Ignored by bounce.',
     default: 40,
     min: 0.5,
     max: 2000,
@@ -267,7 +268,8 @@ function emit(dist: Distribution, density: Buf, end: number, sr: number, rng: Rn
     while (acc >= next && at.length < MAX_GRAINS) {
       let when = i;
       if (dist === 'regular') {
-        when = Math.round(i + (jitter * rng.uniform(-0.5, 0.5) * sr) / Math.max(density[i], 0.01));
+        // Jitter may pull the first grain before 0: hold it at 0 rather than lose it (the pattern would start late).
+        when = Math.max(0, Math.round(i + (jitter * rng.uniform(-0.5, 0.5) * sr) / Math.max(density[i], 0.01)));
         next += 1;
       } else {
         next += rng.exponential(1);

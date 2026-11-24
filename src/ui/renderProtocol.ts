@@ -38,16 +38,20 @@ export interface RenderJobOptions {
 }
 
 export type WorkerRequest =
-  | { kind: 'live'; id: number; patch: Patch }
+  /** `gainDb`: the sound's level in its project, applied after the render. */
+  | { kind: 'live'; id: number; patch: Patch; gainDb: number }
   | { kind: 'render'; id: number; patch: Patch; opts: RenderJobOptions }
-  | { kind: 'wav'; id: number; patch: Patch; opts: RenderJobOptions; bitDepth: 16 | 24 | 32 }
+  | { kind: 'wav'; id: number; patch: Patch; opts: RenderJobOptions; bitDepth: 16 | 24 | 32; gainDb: number }
+  /** One sound of a project, measured: its audio, loudness, peak and a small waveform. */
+  | { kind: 'sound'; id: number; patch: Patch; bins: number }
   | { kind: 'thumb'; id: number; patch: Patch; bins: number }
   | { kind: 'spectro'; id: number; width: number; height: number };
 
 export type WorkerResponse =
   | { kind: 'live'; id: number; ok: true; view: RenderView }
   | { kind: 'render'; id: number; ok: true; view: RenderView }
-  | { kind: 'wav'; id: number; ok: true; bytes: Uint8Array; duration: number; warnings: string[] }
+  | { kind: 'wav'; id: number; ok: true; bytes: Uint8Array; duration: number; warnings: string[]; peakDb: number; lufs: number }
+  | { kind: 'sound'; id: number; ok: true; view: RenderView; lufs: number; peakDb: number; peaks: Float32Array }
   | { kind: 'thumb'; id: number; ok: true; peaks: Float32Array; duration: number }
   | { kind: 'spectro'; id: number; ok: true; grid: SpectrogramGrid | null }
   | { kind: WorkerRequest['kind']; id: number; ok: false; error: string };

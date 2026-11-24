@@ -1,0 +1,355 @@
+{
+  "format": "sfxgen/1",
+  "name": "Motorbike rev",
+  "description": "A rider on a big V-twin at a red light, blipping the throttle: off the idle (1100 rpm) a first short blip to 4500 at 250 ms, back down, then a longer, harder one to 6800 at 1.0 s that hangs for a moment before the revs fall, pop and burble on the overrun and settle back into the lumpy idle by 2.3 s. Open pipes, a street with buildings on both sides.",
+  "tags": [
+    "vehicle",
+    "motorbike",
+    "motorcycle",
+    "rev",
+    "engine",
+    "exhaust",
+    "bike",
+    "throttle"
+  ],
+  "duration": "auto",
+  "maxDuration": 4,
+  "seed": 20,
+  "tracks": [
+    {
+      "id": "engine",
+      "gain": -7,
+      "note": "The twin: two cylinders firing unevenly, revs and load drawn by hand so the throttle leads and the engine follows.",
+      "source": {
+        "type": "machine",
+        "kind": "engine",
+        "cylinders": 2,
+        "size": 0.85,
+        "roughness": 0.4,
+        "rpm": [
+          [
+            0,
+            1100
+          ],
+          [
+            0.14,
+            1150
+          ],
+          [
+            0.27,
+            4500
+          ],
+          [
+            0.5,
+            1500
+          ],
+          [
+            0.72,
+            1250
+          ],
+          [
+            1.02,
+            6800
+          ],
+          [
+            1.22,
+            6400
+          ],
+          [
+            1.75,
+            1700
+          ],
+          [
+            2.1,
+            1150
+          ],
+          [
+            2.6,
+            1100
+          ]
+        ],
+        "load": [
+          [
+            0,
+            0.2
+          ],
+          [
+            0.14,
+            0.85
+          ],
+          [
+            0.27,
+            0.6
+          ],
+          [
+            0.32,
+            0.05
+          ],
+          [
+            0.72,
+            0.9
+          ],
+          [
+            1.02,
+            0.8
+          ],
+          [
+            1.22,
+            0.05
+          ],
+          [
+            2.6,
+            0.2
+          ]
+        ],
+        "env": {
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              0.01,
+              1
+            ],
+            [
+              2.35,
+              1
+            ],
+            [
+              2.6,
+              0
+            ]
+          ],
+          "curve": "linear"
+        }
+      },
+      "fx": [
+        {
+          "id": "pipes",
+          "type": "drive",
+          "mode": "tube",
+          "amount": [
+            [
+              0,
+              5
+            ],
+            [
+              0.27,
+              14
+            ],
+            [
+              0.5,
+              5
+            ],
+            [
+              1.02,
+              18
+            ],
+            [
+              1.4,
+              6
+            ]
+          ],
+          "bias": 0.2,
+          "tone": 9000
+        }
+      ]
+    },
+    {
+      "id": "overrun",
+      "note": "Unburnt fuel popping in the pipes as the throttle shuts: a scatter of sharp cracks from 1.25 to 1.9 s.",
+      "start": 1.25,
+      "gain": 12,
+      "source": {
+        "type": "particles",
+        "distribution": "burst",
+        "density": 28,
+        "duration": 0.65,
+        "grain": {
+          "kind": "crackle",
+          "lo": 300,
+          "hi": 1700,
+          "decayLo": 0.01,
+          "decayHi": 0.04,
+          "levelJitter": 6,
+          "size": 0.7
+        }
+      },
+      "fx": [
+        {
+          "type": "resonator",
+          "mode": "tube",
+          "freq": 170,
+          "decay": 0.07,
+          "brightness": 0.6,
+          "mix": 0.6
+        }
+      ]
+    },
+    {
+      "id": "intake",
+      "note": "The carburettors gulping air on each twist of the throttle: a short rising rush under each blip.",
+      "gain": -14,
+      "events": [
+        {
+          "t": 0.13,
+          "dur": 0.15,
+          "vel": 0.7
+        },
+        {
+          "t": 0.71,
+          "dur": 0.34
+        }
+      ],
+      "source": {
+        "type": "noise",
+        "color": "pink",
+        "env": {
+          "attack": 0.03,
+          "sustain": 1,
+          "release": 0.08
+        },
+        "filter": {
+          "mode": "bandpass",
+          "cutoff": [
+            [
+              0,
+              500
+            ],
+            [
+              0.3,
+              2000
+            ]
+          ],
+          "q": 1.2
+        }
+      }
+    }
+  ],
+  "master": {
+    "fx": [
+      {
+        "type": "eq",
+        "bands": [
+          {
+            "mode": "lowcut",
+            "freq": 45,
+            "slope": "24"
+          },
+          {
+            "mode": "peak",
+            "freq": 220,
+            "gain": 2,
+            "q": 0.9
+          }
+        ]
+      },
+      {
+        "id": "street",
+        "type": "reverb",
+        "space": "stairwell",
+        "size": 14,
+        "decay": 0.8,
+        "mix": 0.12
+      }
+    ]
+  },
+  "controls": [
+    {
+      "id": "revs",
+      "label": "Revs",
+      "hint": "A gentle twist of the wrist to bouncing it off the limiter.",
+      "value": 0.5,
+      "vary": 0.06,
+      "targets": [
+        {
+          "path": "tracks.engine.source.rpm",
+          "mode": "mul",
+          "from": 0.6,
+          "to": 1.5
+        },
+        {
+          "path": "tracks.engine.source.load",
+          "mode": "mul",
+          "from": 0.6,
+          "to": 1.25
+        }
+      ]
+    },
+    {
+      "id": "size",
+      "label": "Bike",
+      "hint": "A buzzing 125, a mid-size twin, to a big slow cruiser.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.engine.source.size",
+          "mode": "set",
+          "from": 0.45,
+          "to": 1.7
+        },
+        {
+          "path": "tracks.overrun.fx.0.freq",
+          "mode": "set",
+          "from": 320,
+          "to": 95
+        }
+      ]
+    },
+    {
+      "id": "pipes",
+      "label": "Pipes",
+      "hint": "A legal, muffled silencer to straight-through open pipes.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.engine.fx.pipes.amount",
+          "mode": "mul",
+          "from": 0.2,
+          "to": 1.8
+        },
+        {
+          "path": "tracks.engine.fx.pipes.tone",
+          "mode": "set",
+          "from": 2200,
+          "to": 12000
+        }
+      ]
+    },
+    {
+      "id": "pops",
+      "label": "Pops",
+      "hint": "A clean engine to one that bangs and crackles when the throttle closes.",
+      "value": 0.45,
+      "targets": [
+        {
+          "path": "tracks.overrun.gain",
+          "mode": "set",
+          "from": -18,
+          "to": 12
+        },
+        {
+          "path": "tracks.overrun.source.density",
+          "mode": "set",
+          "from": 8,
+          "to": 70
+        }
+      ]
+    },
+    {
+      "id": "wear",
+      "label": "Wear",
+      "hint": "A tight, even engine to a loose old one.",
+      "value": 0.4,
+      "targets": [
+        {
+          "path": "tracks.engine.source.roughness",
+          "mode": "set",
+          "from": 0.05,
+          "to": 0.9
+        }
+      ]
+    }
+  ]
+}

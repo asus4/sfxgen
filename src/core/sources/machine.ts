@@ -210,10 +210,13 @@ function brushNoise(c: Ctx, hum: Buf, centre: number, level: Buf): Buf {
   return w;
 }
 
-/** Electric hum: a band-limited saw and a square an octave up, darker unless strained. */
+/**
+ * Electric hum: a band-limited saw and a square an octave up, darker unless strained. The octave is exact: detuned,
+ * it beat slowly against the saw's second harmonic and the hum swelled by 3 dB over a few seconds at constant speed.
+ */
 function humOf(c: Ctx, fh: Buf, saw: number, square: number, base: number, open: number): Buf {
   const a = oscillator('saw', fh, c.sr, c.rng.next());
-  const fh2 = fh.map((f) => f * 2.003);
+  const fh2 = fh.map((f) => f * 2);
   const b = oscillator('square', fh2, c.sr, c.rng.next());
   const y = new Float64Array(c.n);
   for (let i = 0; i < c.n; i++) y[i] = saw * a[i] + square * b[i];

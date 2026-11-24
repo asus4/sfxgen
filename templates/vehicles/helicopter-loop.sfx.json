@@ -1,0 +1,227 @@
+{
+  "format": "sfxgen/1",
+  "name": "Helicopter (loop)",
+  "description": "A light two-blade helicopter in a hover 150 m away: the main rotor slapping ten times a second (300 rpm), the tail rotor buzzing at 80 Hz, the turbine whining above both, and the downwash hissing in time with the blades. A 2 s stereo loop holding exactly 20 blade slaps, crossfaded over 200 ms.",
+  "tags": [
+    "vehicle",
+    "helicopter",
+    "chopper",
+    "rotor",
+    "aircraft",
+    "loop",
+    "military"
+  ],
+  "duration": 2,
+  "loop": {
+    "mode": "crossfade",
+    "crossfade": 0.2
+  },
+  "seed": 10,
+  "output": {
+    "channels": 2
+  },
+  "tracks": [
+    {
+      "id": "main",
+      "note": "The main rotor: two blades at 300 rpm, a slap every 100 ms. The \"wop-wop\" that is the whole character.",
+      "source": {
+        "type": "machine",
+        "kind": "rotor",
+        "blades": 2,
+        "rpm": 300,
+        "load": 0.45,
+        "roughness": 0.2,
+        "size": 1.1,
+        "env": {
+          "attack": 0.005,
+          "sustain": 1
+        }
+      }
+    },
+    {
+      "id": "tail",
+      "note": "The tail rotor: four small blades at 1200 rpm, an 80 Hz buzz with a hard edge. Heard most from the side.",
+      "gain": -11,
+      "pan": 0.2,
+      "source": {
+        "type": "machine",
+        "kind": "rotor",
+        "blades": 4,
+        "rpm": 1200,
+        "size": 0.4,
+        "load": 0.3,
+        "roughness": 0.15,
+        "env": {
+          "attack": 0.005,
+          "sustain": 1
+        }
+      }
+    },
+    {
+      "id": "turbine",
+      "note": "The engine: a steady jet whine and hiss above the rotors. What separates a helicopter from a big fan.",
+      "gain": -10,
+      "source": {
+        "type": "machine",
+        "kind": "turbine",
+        "rpm": 9600,
+        "blades": 19,
+        "load": 0.35,
+        "whine": 0.5,
+        "env": {
+          "attack": 0.005,
+          "sustain": 1
+        }
+      }
+    },
+    {
+      "id": "wash",
+      "note": "Downwash: air noise that pulses with each blade passing, the soft part of the slap.",
+      "gain": -12,
+      "source": {
+        "type": "noise",
+        "color": "pink",
+        "width": 0.8,
+        "env": {
+          "attack": 0.005
+        },
+        "filter": {
+          "mode": "bandpass",
+          "cutoff": 700,
+          "q": 0.5
+        }
+      },
+      "fx": [
+        {
+          "id": "chop",
+          "type": "tremolo",
+          "rate": 10,
+          "depth": 0.75,
+          "shape": "saw"
+        }
+      ]
+    }
+  ],
+  "master": {
+    "fx": [
+      {
+        "id": "air",
+        "type": "filter",
+        "mode": "lowpass",
+        "cutoff": 9000
+      },
+      {
+        "type": "eq",
+        "bands": [
+          {
+            "mode": "lowcut",
+            "freq": 40,
+            "slope": "24"
+          }
+        ]
+      }
+    ]
+  },
+  "controls": [
+    {
+      "id": "distance",
+      "label": "Distance",
+      "hint": "Standing under the disc to a speck on the horizon: only the thump of the blades carries.",
+      "value": 0.35,
+      "targets": [
+        {
+          "path": "master.fx.air.cutoff",
+          "mode": "set",
+          "from": 16000,
+          "to": 450
+        },
+        {
+          "path": "tracks.turbine.gain",
+          "mode": "set",
+          "from": -3,
+          "to": -26
+        },
+        {
+          "path": "tracks.wash.gain",
+          "mode": "set",
+          "from": -5,
+          "to": -28
+        },
+        {
+          "path": "tracks.tail.gain",
+          "mode": "set",
+          "from": -7,
+          "to": -20
+        }
+      ]
+    },
+    {
+      "id": "size",
+      "label": "Size",
+      "hint": "A two-seat trainer to a heavy-lift transport: slower, deeper blades.",
+      "value": 0.35,
+      "targets": [
+        {
+          "path": "tracks.main.source.size",
+          "mode": "set",
+          "from": 0.75,
+          "to": 2.3
+        },
+        {
+          "path": "tracks.main.source.rpm",
+          "mode": "set",
+          "from": 360,
+          "to": 180,
+          "curve": "exp"
+        },
+        {
+          "path": "tracks.wash.fx.chop.rate",
+          "mode": "set",
+          "from": 12,
+          "to": 6,
+          "curve": "exp"
+        }
+      ]
+    },
+    {
+      "id": "strain",
+      "label": "Strain",
+      "hint": "Idling on the pad to hauling a load in a hard turn: louder, harsher slaps.",
+      "value": 0.45,
+      "targets": [
+        {
+          "path": "tracks.main.source.load",
+          "mode": "set",
+          "from": 0.1,
+          "to": 0.95
+        },
+        {
+          "path": "tracks.tail.source.load",
+          "mode": "set",
+          "from": 0.1,
+          "to": 0.8
+        }
+      ]
+    },
+    {
+      "id": "turbine",
+      "label": "Turbine",
+      "hint": "How much jet whine sits over the rotors.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.turbine.source.whine",
+          "mode": "set",
+          "from": 0.1,
+          "to": 1
+        },
+        {
+          "path": "tracks.turbine.source.rpm",
+          "mode": "set",
+          "from": 7000,
+          "to": 12500
+        }
+      ]
+    }
+  ]
+}

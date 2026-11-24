@@ -1,0 +1,231 @@
+{
+  "format": "sfxgen/1",
+  "name": "Cardboard box dropped",
+  "description": "A half-full moving box dropped from knee height onto a laminate floor. 0 ms: it lands on one bottom edge with a dead papery whump; at 95 ms it tips flat with a second, softer and lower thump; from 20 ms the things inside (books, loose cutlery) slide and knock against the walls for a third of a second. No ring anywhere: cardboard eats it.",
+  "tags": [
+    "impact",
+    "cardboard",
+    "box",
+    "drop",
+    "package",
+    "parcel",
+    "thump",
+    "foley"
+  ],
+  "duration": "auto",
+  "seed": 9,
+  "tracks": [
+    {
+      "id": "box",
+      "note": "The box: a dead cardboard cavity. Two events: the edge lands, then it tips flat.",
+      "source": {
+        "type": "modal",
+        "material": "cardboard",
+        "shape": "box",
+        "freq": 118,
+        "decay": 0.11,
+        "brightness": 0.55,
+        "modes": 26,
+        "dent": 0.4,
+        "position": 0.8,
+        "exciter": {
+          "kind": "noise",
+          "hardness": 0.45,
+          "duration": 0.03
+        }
+      },
+      "events": [
+        {
+          "t": 0,
+          "vel": 1
+        },
+        {
+          "t": 0.095,
+          "vel": 0.55,
+          "pitch": -3
+        }
+      ]
+    },
+    {
+      "id": "slap",
+      "note": "The flat face slapping the floor: papery mid noise, on the second landing.",
+      "start": 0.094,
+      "gain": -11,
+      "source": {
+        "type": "noise",
+        "color": "pink",
+        "env": {
+          "attack": 0.002,
+          "decay": 0.07
+        },
+        "filter": {
+          "mode": "bandpass",
+          "cutoff": [
+            [
+              0,
+              1900
+            ],
+            [
+              0.06,
+              700
+            ]
+          ],
+          "q": 0.8
+        }
+      }
+    },
+    {
+      "id": "contents",
+      "note": "What is inside, sliding and knocking the walls.",
+      "start": 0.02,
+      "gain": -3,
+      "source": {
+        "type": "particles",
+        "distribution": "burst",
+        "density": 70,
+        "duration": 0.34,
+        "grain": {
+          "kind": "modal",
+          "material": "wood",
+          "shape": "box",
+          "lo": 260,
+          "hi": 1500,
+          "decayLo": 0.012,
+          "decayHi": 0.05,
+          "levelJitter": 14,
+          "size": 0.8
+        }
+      },
+      "fx": [
+        {
+          "type": "filter",
+          "mode": "lowpass",
+          "cutoff": 2600
+        }
+      ]
+    }
+  ],
+  "master": {
+    "fx": [
+      {
+        "type": "reverb",
+        "id": "room",
+        "space": "room",
+        "decay": 0.4,
+        "mix": 0.1
+      }
+    ]
+  },
+  "controls": [
+    {
+      "id": "size",
+      "label": "Size",
+      "hint": "A shoebox to a wardrobe carton.",
+      "value": 0.5,
+      "vary": 0.05,
+      "targets": [
+        {
+          "path": "tracks.box.source.freq",
+          "mode": "mul",
+          "from": 2,
+          "to": 0.5
+        },
+        {
+          "path": "tracks.box.source.decay",
+          "mode": "mul",
+          "from": 0.7,
+          "to": 1.6
+        },
+        {
+          "path": "tracks.slap.source.filter.cutoff",
+          "mode": "mul",
+          "from": 1.5,
+          "to": 0.65
+        }
+      ]
+    },
+    {
+      "id": "contents",
+      "label": "Contents",
+      "hint": "Empty, or packed with things that slide and knock.",
+      "value": 0.55,
+      "vary": 0.1,
+      "targets": [
+        {
+          "path": "tracks.contents.gain",
+          "mode": "set",
+          "from": -40,
+          "to": -1,
+          "curve": -1
+        },
+        {
+          "path": "tracks.contents.source.density",
+          "mode": "set",
+          "from": 20,
+          "to": 160
+        }
+      ]
+    },
+    {
+      "id": "fill",
+      "label": "Hard stuff",
+      "hint": "Soft clothes and books inside, or cutlery and tins.",
+      "value": 0.3,
+      "targets": [
+        {
+          "path": "tracks.contents.fx.0.cutoff",
+          "mode": "set",
+          "from": 900,
+          "to": 9000
+        },
+        {
+          "path": "tracks.contents.source.grain.hi",
+          "mode": "set",
+          "from": 700,
+          "to": 4200
+        },
+        {
+          "path": "tracks.contents.source.grain.decayHi",
+          "mode": "set",
+          "from": 0.03,
+          "to": 0.12
+        },
+        {
+          "path": "tracks.contents.source.pitch",
+          "mode": "set",
+          "from": -6,
+          "to": 8,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "drop",
+      "label": "Drop",
+      "hint": "Set down gently to dropped from the shoulder: harder, with a livelier tumble.",
+      "value": 0.5,
+      "vary": 0.1,
+      "targets": [
+        {
+          "path": "tracks.box.source.exciter.hardness",
+          "mode": "set",
+          "from": 0.2,
+          "to": 0.75
+        },
+        {
+          "path": "tracks.slap.gain",
+          "mode": "set",
+          "from": -24,
+          "to": -5,
+          "curve": -0.29
+        },
+        {
+          "path": "tracks.contents.source.duration",
+          "mode": "set",
+          "from": 0.15,
+          "to": 0.6
+        }
+      ]
+    }
+  ]
+}

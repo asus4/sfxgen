@@ -1,0 +1,245 @@
+{
+  "format": "sfxgen/1",
+  "name": "Rock on rock",
+  "description": "A fist-sized river stone thrown down onto a boulder in a dry gorge. 0 ms: a hard, pitchless stony clack, both lumps answering at once with their own irregular modes, over in 60 ms; from 8 ms a few chips and grit skip off; about 170 ms later the far wall of the gorge sends the clack back, darker, and again fainter comes back.",
+  "tags": [
+    "impact",
+    "rock",
+    "stone",
+    "clack",
+    "pebble",
+    "gorge",
+    "echo",
+    "nature"
+  ],
+  "duration": "auto",
+  "seed": 31,
+  "tracks": [
+    {
+      "id": "stone",
+      "note": "The thrown stone: a small irregular lump, hit hard.",
+      "source": {
+        "type": "modal",
+        "material": "stone",
+        "shape": "random",
+        "variant": 12,
+        "freq": 1340,
+        "decay": 0.07,
+        "brightness": 0.6,
+        "modes": 22,
+        "position": 0.8,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.95
+        }
+      },
+      "sends": {
+        "gorge": -5
+      }
+    },
+    {
+      "id": "boulder",
+      "note": "The boulder it lands on: bigger, lower, deader, 1 ms behind.",
+      "start": 0.001,
+      "gain": -2,
+      "source": {
+        "type": "modal",
+        "material": "stone",
+        "shape": "random",
+        "variant": 5,
+        "freq": 415,
+        "decay": 0.05,
+        "damping": 1.6,
+        "brightness": 0.4,
+        "modes": 18,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.8
+        }
+      },
+      "sends": {
+        "gorge": -5
+      }
+    },
+    {
+      "id": "chips",
+      "note": "Chips and grit skipping away after the hit.",
+      "start": 0.008,
+      "gain": -13,
+      "source": {
+        "type": "particles",
+        "distribution": "burst",
+        "density": 110,
+        "duration": 0.22,
+        "grain": {
+          "kind": "modal",
+          "material": "stone",
+          "shape": "random",
+          "lo": 2300,
+          "hi": 7500,
+          "decayLo": 0.004,
+          "decayHi": 0.02,
+          "levelJitter": 18
+        }
+      },
+      "sends": {
+        "gorge": -14
+      }
+    }
+  ],
+  "buses": [
+    {
+      "id": "gorge",
+      "fx": [
+        {
+          "type": "delay",
+          "id": "wall",
+          "time": 240,
+          "feedback": 0.42,
+          "tone": 2400,
+          "highpass": 300
+        },
+        {
+          "type": "reverb",
+          "space": "cave",
+          "decay": 1.1,
+          "mix": 0.35
+        }
+      ]
+    }
+  ],
+  "master": {
+    "fx": [
+      {
+        "type": "transient",
+        "attack": 5,
+        "window": 0.004
+      }
+    ]
+  },
+  "controls": [
+    {
+      "id": "size",
+      "label": "Size",
+      "hint": "Two pebbles clicking to boulders colliding.",
+      "value": 0.5,
+      "vary": 0.06,
+      "targets": [
+        {
+          "path": "tracks.stone.source.freq",
+          "mode": "mul",
+          "from": 2.6,
+          "to": 0.32
+        },
+        {
+          "path": "tracks.boulder.source.freq",
+          "mode": "mul",
+          "from": 2.6,
+          "to": 0.32
+        },
+        {
+          "path": "tracks.stone.source.decay",
+          "mode": "mul",
+          "from": 0.6,
+          "to": 2.2
+        },
+        {
+          "path": "tracks.boulder.source.decay",
+          "mode": "mul",
+          "from": 0.6,
+          "to": 2.6
+        }
+      ]
+    },
+    {
+      "id": "force",
+      "label": "Force",
+      "hint": "A tap to a hard throw that knocks chips off.",
+      "value": 0.6,
+      "vary": 0.1,
+      "targets": [
+        {
+          "path": "tracks.stone.source.exciter.hardness",
+          "mode": "set",
+          "from": 0.5,
+          "to": 1
+        },
+        {
+          "path": "tracks.chips.gain",
+          "mode": "set",
+          "from": -36,
+          "to": -5,
+          "curve": -0.258
+        },
+        {
+          "path": "tracks.chips.source.density",
+          "mode": "set",
+          "from": 30,
+          "to": 260
+        }
+      ]
+    },
+    {
+      "id": "stone",
+      "label": "Stone",
+      "hint": "Soft crumbly sandstone to glassy flint that clicks.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.stone.source.damping",
+          "mode": "set",
+          "from": 2.6,
+          "to": 0.5
+        },
+        {
+          "path": "tracks.stone.source.brightness",
+          "mode": "set",
+          "from": 0.3,
+          "to": 0.85
+        },
+        {
+          "path": "tracks.boulder.source.brightness",
+          "mode": "set",
+          "from": 0.2,
+          "to": 0.65
+        }
+      ]
+    },
+    {
+      "id": "gorge",
+      "label": "Gorge",
+      "hint": "No echo, or a rock wall that throws the clack back.",
+      "value": 0.7,
+      "targets": [
+        {
+          "path": "tracks.stone.sends.gorge",
+          "mode": "set",
+          "from": -40,
+          "to": 0,
+          "curve": -0.472
+        },
+        {
+          "path": "tracks.boulder.sends.gorge",
+          "mode": "set",
+          "from": -40,
+          "to": 0,
+          "curve": -0.472
+        }
+      ]
+    },
+    {
+      "id": "far",
+      "label": "Wall distance",
+      "hint": "A wall 15 metres off to one 100 metres away: a later echo.",
+      "value": 0.35,
+      "targets": [
+        {
+          "path": "buses.gorge.fx.wall.time",
+          "mode": "set",
+          "from": 90,
+          "to": 600
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "format": "sfxgen/1",
+  "name": "Plasma charge-up",
+  "description": "A plasma cannon's coil charging for 1.6 s before it is ready to fire. Two unstable oscillators feed each other inside the coil: at first a low warm buzz, then as the charge builds they rise two octaves and begin to tear. A containment pulse throbs under it, slow at first and blurring into a buzz at the top. A thin capacitor whine climbs above everything. At 1.6 s the charge locks with a small relay tick and the coil rings out for a moment in the housing.",
+  "tags": ["scifi", "charge", "riser", "plasma", "power", "weapon", "build-up"],
+  "duration": "auto",
+  "seed": 5,
+  "tracks": [
+    {
+      "id": "coil",
+      "note": "The charge itself: cross-modulated sines that climb and lose stability. The tremolo is the containment pulse speeding up.",
+      "source": {
+        "type": "chaos",
+        "mode": "feedback",
+        "ratio": 1.41,
+        "smooth": 0.325,
+        "rate": [[0, 68], [1.6, 540, 0.5]],
+        "chaos": [[0, 0.15], [1.1, 0.5], [1.6, 0.8]],
+        "env": { "attack": 1.5, "hold": 0.1, "decay": 0.12, "curve": "exp" },
+        "filter": { "mode": "lowpass", "cutoff": [[0, 700], [1.6, 12000]], "q": 1.6 }
+      },
+      "fx": [
+        { "type": "tremolo", "id": "pulse", "rate": [[0, 5], [1.6, 46]], "depth": 0.7, "shape": "saw" },
+        { "type": "resonator", "id": "housing", "mode": "metal", "freq": 173, "decay": 0.5, "brightness": 0.4, "mix": 0.3 }
+      ]
+    },
+    {
+      "id": "whine",
+      "note": "Capacitor whine: the thin tone that tells you how full it is.",
+      "gain": -23,
+      "source": { "type": "osc", "wave": "sine", "drift": 6, "freq": [[0, 900], [1.6, 6800, 0.4]], "env": { "attack": 1.4, "hold": 0.2, "decay": 0.06 } }
+    },
+    {
+      "id": "lock",
+      "note": "The relay that says ready, right as the rise ends.",
+      "start": 1.6,
+      "gain": 0,
+      "source": {
+        "type": "modal",
+        "material": "metal",
+        "shape": "tine",
+        "freq": 1240,
+        "decay": 0.35,
+        "position": 0.8,
+        "exciter": { "kind": "mallet", "hardness": 0.9 }
+      }
+    }
+  ],
+  "controls": [
+    {
+      "id": "time",
+      "label": "Charge time",
+      "hint": "A half-second snap charge to a three-second build.",
+      "value": 0.5,
+      "targets": [
+        { "path": "tracks.coil.source.rate", "mode": "stretch", "from": 0.4, "to": 2.5 },
+        { "path": "tracks.coil.source.chaos", "mode": "stretch", "from": 0.4, "to": 2.5 },
+        { "path": "tracks.coil.source.filter.cutoff", "mode": "stretch", "from": 0.4, "to": 2.5 },
+        { "path": "tracks.coil.source.env.attack", "mode": "mul", "from": 0.4, "to": 2.5 },
+        { "path": "tracks.coil.fx.pulse.rate", "mode": "stretch", "from": 0.4, "to": 2.5 },
+        { "path": "tracks.whine.source.freq", "mode": "stretch", "from": 0.4, "to": 2.5 },
+        { "path": "tracks.whine.source.env.attack", "mode": "mul", "from": 0.4, "to": 2.5 },
+        { "path": "tracks.lock.start", "mode": "mul", "from": 0.4, "to": 2.5 }
+      ]
+    },
+    {
+      "id": "size",
+      "label": "Size",
+      "hint": "A pistol cell to a ship's main gun: lower and heavier.",
+      "value": 0.5,
+      "targets": [
+        { "path": "tracks.coil.source.rate", "mode": "mul", "from": 2.2, "to": 0.5 },
+        { "path": "tracks.coil.fx.housing.freq", "mode": "mul", "from": 2, "to": 0.5 },
+        { "path": "tracks.lock.source.freq", "mode": "mul", "from": 1.8, "to": 0.5 }
+      ]
+    },
+    {
+      "id": "instability",
+      "label": "Instability",
+      "hint": "A clean, controlled hum to a charge that tears and screams near the top.",
+      "value": 0.5,
+      "targets": [
+        { "path": "tracks.coil.source.chaos", "mode": "mul", "from": 0.25, "to": 1.35 },
+        { "path": "tracks.coil.source.smooth", "from": 0.6, "to": 0.05 }
+      ]
+    },
+    {
+      "id": "pulse",
+      "label": "Pulse",
+      "hint": "How hard the containment field throbs.",
+      "value": 0.7,
+      "targets": [{ "path": "tracks.coil.fx.pulse.depth", "from": 0, "to": 1 }]
+    },
+    {
+      "id": "whine",
+      "label": "Whine",
+      "hint": "The thin rising capacitor tone: none to piercing.",
+      "value": 0.5,
+      "targets": [{ "path": "tracks.whine.gain", "from": -40, "to": -6 }]
+    }
+  ]
+}

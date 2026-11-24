@@ -1,0 +1,300 @@
+{
+  "format": "sfxgen/1",
+  "name": "Water splash",
+  "description": "A rock the size of two fists thrown into a pond from the bank, four metres away: the flat slap as it breaks the surface, the deep hollow \"gloop\" of the air pocket closing behind it at 60 ms (its pitch rising as the cavity shrinks), the hiss of the crown of water going up, and its droplets raining back from 200 to 900 ms, big ones first. Open air, a short reflection from the far bank.",
+  "tags": [
+    "nature",
+    "water",
+    "splash",
+    "plunge",
+    "pond",
+    "dive",
+    "impact",
+    "liquid"
+  ],
+  "duration": "auto",
+  "seed": 12,
+  "tracks": [
+    {
+      "id": "slap",
+      "note": "The first 30 ms: the surface breaking. A hard broad noise burst; it tells how flat and how fast the thing hit.",
+      "source": {
+        "type": "noise",
+        "color": "white",
+        "env": {
+          "attack": 0.0006,
+          "decay": 0.14
+        },
+        "filter": {
+          "mode": "lowpass",
+          "cutoff": [
+            [
+              0,
+              9000
+            ],
+            [
+              0.1,
+              1500
+            ]
+          ],
+          "q": 0.7
+        }
+      },
+      "fx": [
+        {
+          "type": "transient",
+          "attack": 3,
+          "window": 0.006
+        }
+      ]
+    },
+    {
+      "id": "gloop",
+      "note": "The cavity collapsing under water: a low resonant bubble at 150 to 400 Hz whose pitch climbs. The weight of the splash, in the range small speakers have.",
+      "start": 0.058,
+      "gain": -2,
+      "source": {
+        "type": "modal",
+        "material": "rubber",
+        "shape": "tube",
+        "freq": [
+          [
+            0,
+            135
+          ],
+          [
+            0.08,
+            190
+          ],
+          [
+            0.22,
+            420
+          ]
+        ],
+        "decay": 0.3,
+        "modes": 4,
+        "brightness": 0.25,
+        "exciter": {
+          "kind": "noise",
+          "hardness": 0.25,
+          "duration": 0.09
+        }
+      }
+    },
+    {
+      "id": "crown",
+      "note": "The sheet of water thrown up: a wash of noise that opens and dies over 400 ms.",
+      "start": 0.02,
+      "gain": -8,
+      "source": {
+        "type": "noise",
+        "color": "pink",
+        "env": {
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              0.05,
+              1
+            ],
+            [
+              0.2,
+              0.35
+            ],
+            [
+              0.55,
+              0
+            ]
+          ],
+          "curve": "linear"
+        },
+        "filter": {
+          "mode": "bandpass",
+          "cutoff": [
+            [
+              0,
+              1400
+            ],
+            [
+              0.1,
+              4200
+            ],
+            [
+              0.5,
+              2200
+            ]
+          ],
+          "q": 0.6
+        }
+      }
+    },
+    {
+      "id": "droplets",
+      "note": "The water coming back down: drops with rising pitch, the heavy ones first and the fine spray last.",
+      "start": 0.2,
+      "gain": -6,
+      "source": {
+        "type": "particles",
+        "distribution": "burst",
+        "density": 130,
+        "duration": 0.75,
+        "grain": {
+          "kind": "drop",
+          "lo": [
+            [
+              0,
+              500
+            ],
+            [
+              0.7,
+              1500
+            ]
+          ],
+          "hi": [
+            [
+              0,
+              2400
+            ],
+            [
+              0.7,
+              5200
+            ]
+          ],
+          "decayLo": 0.012,
+          "decayHi": 0.05,
+          "levelJitter": 16,
+          "size": 0.7
+        }
+      }
+    }
+  ],
+  "master": {
+    "fx": [
+      {
+        "type": "compressor",
+        "threshold": -18,
+        "ratio": 3,
+        "attack": 0.004,
+        "release": 0.15,
+        "autoMakeup": true
+      },
+      {
+        "type": "limiter",
+        "gain": 6
+      },
+      {
+        "id": "bank",
+        "type": "reverb",
+        "space": "forest",
+        "decay": 0.9,
+        "predelay": 35,
+        "mix": 0.12
+      }
+    ]
+  },
+  "controls": [
+    {
+      "id": "size",
+      "label": "Size",
+      "hint": "A pebble to a boulder (or a body): deeper gloop, longer rain of drops.",
+      "value": 0.5,
+      "vary": 0.06,
+      "targets": [
+        {
+          "path": "tracks.gloop.source.freq",
+          "mode": "mul",
+          "from": 2.6,
+          "to": 0.5
+        },
+        {
+          "path": "tracks.gloop.source.decay",
+          "mode": "set",
+          "from": 0.12,
+          "to": 0.6
+        },
+        {
+          "path": "tracks.gloop.gain",
+          "mode": "set",
+          "from": -12,
+          "to": 3
+        },
+        {
+          "path": "tracks.droplets.source.duration",
+          "mode": "set",
+          "from": 0.3,
+          "to": 1.5
+        },
+        {
+          "path": "tracks.droplets.source.pitch",
+          "mode": "set",
+          "from": 8,
+          "to": -7
+        }
+      ]
+    },
+    {
+      "id": "impact",
+      "label": "Impact",
+      "hint": "Slipping in edge-first to a flat, stinging belly flop.",
+      "value": 0.5,
+      "vary": 0.08,
+      "targets": [
+        {
+          "path": "tracks.slap.gain",
+          "mode": "set",
+          "from": -18,
+          "to": 4
+        },
+        {
+          "path": "tracks.slap.fx.0.attack",
+          "mode": "set",
+          "from": -6,
+          "to": 9
+        }
+      ]
+    },
+    {
+      "id": "spray",
+      "label": "Spray",
+      "hint": "A clean plunge to a wide, hissing crown and a shower of droplets.",
+      "value": 0.5,
+      "vary": 0.05,
+      "targets": [
+        {
+          "path": "tracks.crown.gain",
+          "mode": "set",
+          "from": -24,
+          "to": -1
+        },
+        {
+          "path": "tracks.droplets.source.density",
+          "mode": "set",
+          "from": 30,
+          "to": 420
+        }
+      ]
+    },
+    {
+      "id": "distance",
+      "label": "Distance",
+      "hint": "At your feet to across the lake.",
+      "value": 0.3,
+      "targets": [
+        {
+          "path": "master.fx.bank.mix",
+          "mode": "set",
+          "from": 0,
+          "to": 0.45
+        },
+        {
+          "path": "master.fx.bank.decay",
+          "mode": "set",
+          "from": 0.5,
+          "to": 2
+        }
+      ]
+    }
+  ]
+}

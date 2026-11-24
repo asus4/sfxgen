@@ -1,11 +1,12 @@
 /** The template gallery: every sound in the library, one click to load and hear. */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { getTemplate, listTemplates, templateCategories, type TemplateSummary } from '../../core/templates';
-import { loadTemplate } from '../controller';
+import { addBlankSound, importFile, pickTemplate } from '../controller';
 import { inkAt, textOn } from '../lib/inks';
 import { renderClient } from '../renderClient';
 import { useEditor } from '../store';
 import { Icon } from './Icon';
+import { Segmented } from './Widgets';
 
 const BINS = 72;
 const thumbs = new Map<string, Promise<Float32Array | null>>();
@@ -68,14 +69,14 @@ function categoryInk(category: string): string {
 function Card({ t, loaded }: { t: TemplateSummary; loaded: boolean }) {
   const ink = categoryInk(t.category);
   return (
-    <button type="button" className={`card${loaded ? ' is-loaded' : ''}`} style={{ '--c': ink, '--on-ink': textOn(ink) } as React.CSSProperties} onClick={() => loadTemplate(t.id)}>
+    <button type="button" className={`card${loaded ? ' is-loaded' : ''}`} style={{ '--c': ink, '--on-ink': textOn(ink) } as React.CSSProperties} onClick={() => pickTemplate(t.id)}>
       <span className="card-wave">
         <MiniWave id={t.id} />
         <span className="card-play">
           <Icon name="play" size={18} fill />
         </span>
       </span>
-      <span className="card-name display">{t.name}</span>
+      <span className="card-name">{t.name}</span>
       <span className="card-desc">{t.description}</span>
       <span className="card-meta">
         <span className="chip chip-ink">{t.category}</span>
@@ -86,20 +87,23 @@ function Card({ t, loaded }: { t: TemplateSummary; loaded: boolean }) {
         ))}
         {t.controls.length > 3 && <span className="chip">+{t.controls.length - 3}</span>}
       </span>
-      {loaded && <span className="card-stamp">On the press</span>}
+      {loaded && <span className="card-stamp">loaded</span>}
     </button>
   );
 }
 
 export function Gallery() {
-  const open = useEditor((s) => s.galleryOpen);
+  const open = useEditor((s) => s.gallery.open);
+  const mode = useEditor((s) => s.gallery.mode);
+  const file = useRef<HTMLInputElement>(null);
   const current = useEditor((s) => (s.patch.meta as { template?: string } | undefined)?.template);
   const [category, setCategory] = useState('');
   const [query, setQuery] = useState('');
   const search = useRef<HTMLInputElement>(null);
   const categories = useMemo(() => templateCategories(), []);
   const items = useMemo(() => listTemplates({ category: category || undefined, query }), [category, query]);
-  const close = () => useEditor.setState({ galleryOpen: false });
+  const close = () => useEditor.setState({ gallery: { open: false, mode } });
+  const setMode = (m: 'replace' | 'add') => useEditor.setState({ gallery: { open: true, mode: m } });
 
   useEffect(() => {
     if (open) search.current?.focus();
@@ -111,12 +115,42 @@ export function Gallery() {
       <div className="scrim" onClick={close} />
       <aside className="drawer" role="dialog" aria-modal="true" aria-label="Template gallery">
         <header className="drawer-head">
-          <h2 className="display misreg">Gallery</h2>
-          <button type="button" className="btn btn-icon" onClick={close} aria-label="Close the gallery">
+          <h2 className="panel-title">Gallery</h2>
+          <button type="button" className="key key-icon" onClick={close} aria-label="Close the gallery">
             <Icon name="close" />
           </button>
         </header>
         <div className="drawer-tools">
+          <div className="row">
+            <Segmented
+              label="What a click does"
+              size="sm"
+              value={mode}
+              onChange={setMode}
+              options={[
+                { value: 'replace', label: 'Replace the open sound' },
+                { value: 'add', label: 'Add as a new pad' },
+              ]}
+            />
+            <span className="spacer" />
+            <button type="button" className="key key-sm" onClick={addBlankSound}>
+              <Icon name="plus" size={12} /> Blank
+            </button>
+            <button type="button" className="key key-sm" onClick={() => file.current?.click()}>
+              <Icon name="open" size={12} /> File
+            </button>
+            <input
+              ref={file}
+              type="file"
+              accept=".json,application/json"
+              hidden
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) void importFile(f);
+                e.target.value = '';
+              }}
+            />
+          </div>
           <label className="search">
             <Icon name="search" size={16} />
             <input ref={search} type="search" placeholder="Search sounds: laser, thud, click…" value={query} onChange={(e) => setQuery(e.target.value)} aria-label="Search templates" />
@@ -147,7 +181,7 @@ export function Gallery() {
           {items.length === 0 && <p className="empty">Nothing matches “{query}”. Try fewer words.</p>}
         </div>
         <footer className="drawer-foot">
-          {items.length} of {listTemplates().length} sounds · click a card to load it and hear it
+          {items.length} of {listTemplates().length} sounds · a click {mode === 'add' ? 'adds a pad' : 'loads it into the open pad'} and plays it
         </footer>
       </aside>
     </div>

@@ -1,0 +1,399 @@
+{
+  "format": "sfxgen/1",
+  "name": "Kaiju roar",
+  "description": "A skyscraper-sized monster roaring over a city, made the way the classic one was: a resined glove dragged down a slack bass string, slowed down. A metallic shriek climbs for 400 ms, holds and wavers, then falls away over two seconds, on top of a chest roar an octave and more below it and a blast of air. The roar hits the far buildings and comes back 180 ms later.",
+  "tags": [
+    "creature",
+    "kaiju",
+    "roar",
+    "giant",
+    "monster",
+    "dinosaur",
+    "boss"
+  ],
+  "duration": "auto",
+  "maxDuration": 5,
+  "seed": 3,
+  "tracks": [
+    {
+      "id": "shriek",
+      "note": "The signature: a bowed, gritty string with a pitch arc, pushed through a giant mouth. This is what makes it a kaiju and not a lion.",
+      "events": [
+        {
+          "t": 0,
+          "dur": 2.2
+        }
+      ],
+      "source": {
+        "type": "pluck",
+        "excite": "bow",
+        "hardness": 0.85,
+        "freq": {
+          "env": [
+            [
+              0,
+              330
+            ],
+            [
+              0.38,
+              660
+            ],
+            [
+              0.8,
+              610
+            ],
+            [
+              1.5,
+              400
+            ],
+            [
+              2.3,
+              185
+            ]
+          ],
+          "mod": [
+            {
+              "type": "lfo",
+              "rate": [
+                [
+                  0,
+                  5
+                ],
+                [
+                  2,
+                  9
+                ]
+              ],
+              "depth": 0.5,
+              "unit": "st",
+              "delay": 0.4,
+              "fade": 0.4
+            }
+          ]
+        },
+        "decay": 1.1,
+        "brightness": 0.86,
+        "stiffness": 0.35,
+        "position": 0.07
+      },
+      "fx": [
+        {
+          "type": "drive",
+          "mode": "fuzz",
+          "amount": 16,
+          "tone": 6500
+        },
+        {
+          "type": "formant",
+          "vowel": [
+            [
+              0,
+              3
+            ],
+            [
+              0.4,
+              0.2
+            ],
+            [
+              1.5,
+              0.6
+            ],
+            [
+              2.5,
+              3.5
+            ]
+          ],
+          "size": 1.7,
+          "resonance": 0.9,
+          "mix": 0.8
+        }
+      ]
+    },
+    {
+      "id": "chest",
+      "note": "The body under the shriek: a kaiju-sized throat growling at 50 to 70 Hz with harmonics up to 400 Hz so laptops still get the weight.",
+      "start": 0.05,
+      "gain": -11,
+      "source": {
+        "type": "voice",
+        "freq": [
+          [
+            0,
+            46
+          ],
+          [
+            0.4,
+            71
+          ],
+          [
+            1.3,
+            60
+          ],
+          [
+            2.5,
+            37
+          ]
+        ],
+        "vowel": [
+          [
+            0,
+            3.5
+          ],
+          [
+            0.5,
+            0
+          ],
+          [
+            2.4,
+            3
+          ]
+        ],
+        "size": 3.4,
+        "growl": 0.85,
+        "rasp": [
+          [
+            0,
+            0.3
+          ],
+          [
+            0.5,
+            0.6
+          ],
+          [
+            2.4,
+            0.2
+          ]
+        ],
+        "tension": 0.75,
+        "breath": 0.2,
+        "jitter": 3,
+        "env": {
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              0.2,
+              0.7
+            ],
+            [
+              0.5,
+              1
+            ],
+            [
+              1.5,
+              0.75
+            ],
+            [
+              2.6,
+              0
+            ]
+          ],
+          "curve": "linear"
+        }
+      },
+      "fx": [
+        {
+          "type": "drive",
+          "mode": "tanh",
+          "amount": 14,
+          "tone": 3000
+        }
+      ]
+    },
+    {
+      "id": "blast",
+      "note": "The air leaving a mouth the size of a bus: a noise swell that peaks with the shriek and outlasts it a little.",
+      "start": 0.1,
+      "gain": -4,
+      "source": {
+        "type": "noise",
+        "color": "pink",
+        "env": {
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              0.35,
+              1
+            ],
+            [
+              1.2,
+              0.6
+            ],
+            [
+              2.6,
+              0
+            ]
+          ],
+          "curve": "linear"
+        },
+        "filter": {
+          "mode": "bandpass",
+          "cutoff": [
+            [
+              0,
+              700
+            ],
+            [
+              0.4,
+              2400
+            ],
+            [
+              2.5,
+              500
+            ]
+          ],
+          "q": 0.7
+        }
+      }
+    }
+  ],
+  "master": {
+    "fx": [
+      {
+        "type": "compressor",
+        "threshold": -16,
+        "ratio": 3,
+        "attack": 0.02,
+        "release": 0.25,
+        "autoMakeup": true
+      },
+      {
+        "id": "city",
+        "type": "delay",
+        "time": 180,
+        "feedback": 0.18,
+        "tone": 2200,
+        "highpass": 150,
+        "mix": 0.2
+      },
+      {
+        "id": "sky",
+        "type": "reverb",
+        "space": "hall",
+        "size": 55,
+        "decay": 2.2,
+        "predelay": 60,
+        "damping": 0.6,
+        "lowcut": 220,
+        "mix": 0.24
+      }
+    ]
+  },
+  "controls": [
+    {
+      "id": "size",
+      "label": "Size",
+      "hint": "A dinosaur to a monster that blocks out the sky: everything drops and slows.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.shriek.source.pitch",
+          "mode": "set",
+          "from": 8,
+          "to": -8
+        },
+        {
+          "path": "tracks.shriek.fx.1.size",
+          "mode": "set",
+          "from": 1.1,
+          "to": 2.6
+        },
+        {
+          "path": "tracks.chest.source.size",
+          "mode": "set",
+          "from": 2.2,
+          "to": 5
+        },
+        {
+          "path": "tracks.chest.source.pitch",
+          "mode": "set",
+          "from": 7,
+          "to": -6
+        }
+      ]
+    },
+    {
+      "id": "shriek",
+      "label": "Shriek",
+      "hint": "How much of the metallic scream rides on top: a deep bellow to a piercing screech.",
+      "value": 0.55,
+      "targets": [
+        {
+          "path": "tracks.shriek.gain",
+          "mode": "set",
+          "from": -18,
+          "to": 4
+        },
+        {
+          "path": "tracks.shriek.source.brightness",
+          "mode": "set",
+          "from": 0.6,
+          "to": 0.95
+        }
+      ]
+    },
+    {
+      "id": "rage",
+      "label": "Rage",
+      "hint": "A tired call to a furious, distorted, air-blasting roar.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.chest.fx.0.amount",
+          "mode": "set",
+          "from": 4,
+          "to": 28
+        },
+        {
+          "path": "tracks.blast.gain",
+          "mode": "set",
+          "from": -18,
+          "to": 3
+        },
+        {
+          "path": "tracks.chest.source.rasp",
+          "mode": "mul",
+          "from": 0.3,
+          "to": 1.6
+        }
+      ]
+    },
+    {
+      "id": "distance",
+      "label": "Distance",
+      "hint": "Standing under it to hearing it from across the bay: more city echo, less top.",
+      "value": 0.35,
+      "targets": [
+        {
+          "path": "master.fx.sky.mix",
+          "mode": "set",
+          "from": 0.06,
+          "to": 0.6
+        },
+        {
+          "path": "master.fx.city.mix",
+          "mode": "set",
+          "from": 0.05,
+          "to": 0.42
+        },
+        {
+          "path": "master.fx.city.time",
+          "mode": "set",
+          "from": 90,
+          "to": 420
+        },
+        {
+          "path": "master.fx.sky.highcut",
+          "mode": "set",
+          "from": 14000,
+          "to": 2500
+        }
+      ]
+    }
+  ]
+}

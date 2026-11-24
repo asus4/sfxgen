@@ -1,0 +1,178 @@
+{
+  "format": "sfxgen/1",
+  "name": "Warning ping",
+  "description": "Look here: the rim of a small glass bowl tapped twice with a fingernail, 170 ms apart, the same note both times and the second softer. The bowl is not quite round, so its modes beat slowly, and a tiled room rings briefly behind it. Insistent because it repeats, not because it is harsh.",
+  "tags": [
+    "ui",
+    "warning",
+    "ping",
+    "attention",
+    "caution",
+    "alert",
+    "glass",
+    "double"
+  ],
+  "duration": "auto",
+  "seed": 16,
+  "tracks": [
+    {
+      "id": "bowl",
+      "note": "The note: rim modes of a glass bowl, a little imperfect.",
+      "source": {
+        "type": "modal",
+        "material": "glass",
+        "shape": "bowl",
+        "freq": 1180,
+        "decay": 0.55,
+        "beat": 4,
+        "dent": 0.12,
+        "position": 0.6,
+        "modes": 14,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.6
+        }
+      },
+      "repeat": {
+        "count": 2,
+        "interval": 0.17,
+        "decay": -4
+      },
+      "fx": [
+        {
+          "type": "reverb",
+          "id": "tiles",
+          "space": "bathroom",
+          "mix": 0.1
+        }
+      ]
+    },
+    {
+      "id": "nail",
+      "note": "The fingernail: 3 ms of bright contact so both taps are counted clearly.",
+      "gain": -24,
+      "source": {
+        "type": "noise",
+        "color": "white",
+        "env": {
+          "attack": 0.0003,
+          "decay": 0.006
+        },
+        "filter": {
+          "mode": "bandpass",
+          "cutoff": 5200,
+          "q": 1.1
+        }
+      },
+      "repeat": {
+        "count": 2,
+        "interval": 0.17,
+        "decay": -4
+      }
+    }
+  ],
+  "controls": [
+    {
+      "id": "pitch",
+      "label": "Pitch",
+      "hint": "A larger bowl for a calm caution, a small one for a sharp ping.",
+      "value": 0,
+      "min": -12,
+      "max": 12,
+      "step": 1,
+      "unit": "st",
+      "targets": [
+        {
+          "path": "tracks.bowl.source.pitch",
+          "mode": "add",
+          "from": -12,
+          "to": 12,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "urgency",
+      "label": "Urgency",
+      "hint": "Two patient taps to a fast, even double knock.",
+      "value": 0.4,
+      "targets": [
+        {
+          "path": "tracks.bowl.repeat.interval",
+          "from": 0.3,
+          "to": 0.08
+        },
+        {
+          "path": "tracks.nail.repeat.interval",
+          "from": 0.3,
+          "to": 0.08
+        },
+        {
+          "path": "tracks.bowl.repeat.decay",
+          "from": -8,
+          "to": 0,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.nail.repeat.decay",
+          "from": -8,
+          "to": 0,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "ring",
+      "label": "Ring",
+      "hint": "A damped tink to a bowl left to sing.",
+      "value": 0.45,
+      "targets": [
+        {
+          "path": "tracks.bowl.source.decay",
+          "from": 0.12,
+          "to": 1.6
+        }
+      ]
+    },
+    {
+      "id": "hardness",
+      "label": "Hardness",
+      "hint": "A fingertip to a metal spoon.",
+      "value": 0.47,
+      "targets": [
+        {
+          "path": "tracks.bowl.source.exciter.hardness",
+          "from": 0.25,
+          "to": 1,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.nail.gain",
+          "from": -40,
+          "to": -8,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "wobble",
+      "label": "Wobble",
+      "hint": "A perfect bowl to one whose ring beats and wavers.",
+      "value": 0.3,
+      "targets": [
+        {
+          "path": "tracks.bowl.source.beat",
+          "from": 0,
+          "to": 14,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.bowl.source.dent",
+          "from": 0,
+          "to": 0.4,
+          "curve": "linear"
+        }
+      ]
+    }
+  ]
+}

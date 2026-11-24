@@ -1,5 +1,6 @@
 /** The local editor server (`sfxgen serve`): files on disk, saved both ways. See docs/DESIGN.md. */
-import type { Patch } from '../core';
+import type { Patch, Project } from '../core';
+import type { ProjectBuildRow } from '../core/agent/workspace';
 
 export interface ServeInfo {
   mode: 'serve';
@@ -70,7 +71,61 @@ export async function writeWav(path: string, bytes: Uint8Array): Promise<void> {
   if (!res.ok) throw new Error(`could not write ${path} (${res.status})`);
 }
 
+export interface ServedProject {
+  /** The project file, relative to the root (or where it would be written). */
+  path: string | null;
+  /** False: there is no project file; `project` lists the folder's patches. */
+  saved: boolean;
+  project: Project;
+}
+
+/** The server's project, or null when this server has no project routes (an older build). */
+export async function readProject(): Promise<ServedProject | null> {
+  const res = await fetch('api/project', { headers: { accept: 'application/json' } });
+  if (res.status === 404 || !(res.headers.get('content-type') ?? '').includes('json')) return null;
+  if (!res.ok) throw new Error(`could not read the project (${res.status})`);
+  const body = (await res.json()) as Partial<ServedProject>;
+  if (!body.project) return null;
+  return { path: body.path ?? null, saved: body.saved !== false, project: body.project };
+}
+
+async function failure(res: Response, what: string): Promise<Error> {
+  let detail = '';
+  try {
+    type Issues = { path: string; message: string }[];
+    const body = (await res.json()) as { issues?: Issues; errors?: Issues; error?: string };
+    detail = (body.errors ?? body.issues)?.map((i) => `${i.path}: ${i.message}`).join('; ') || body.error || '';
+  } catch {
+    // No JSON body.
+  }
+  return new Error(`${what} (${res.status})${detail ? `: ${detail}` : ''}`);
+}
+
+export async function writeProject(project: Project, origin: 'human' | 'agent' = 'human'): Promise<{ path?: string }> {
+  const res = await fetch(`api/project?origin=${origin}`, {
+    method: 'PUT',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(project, null, 2),
+  });
+  if (!res.ok) throw await failure(res, 'could not save the project');
+  try {
+    return (await res.json()) as { path?: string };
+  } catch {
+    return {};
+  }
+}
+
+/** Asks the server to render the project's sounds to their export paths. Null: this server cannot build. */
+export async function build(only?: string[]): Promise<ProjectBuildRow[] | null> {
+  const res = await fetch('api/build', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(only ? { only } : {}) });
+  if (res.status === 404 || res.status === 405) return null;
+  if (!res.ok) throw await failure(res, 'the build failed');
+  const body = (await res.json()) as { rows?: ProjectBuildRow[]; built?: ProjectBuildRow[] } | ProjectBuildRow[];
+  return Array.isArray(body) ? body : (body.rows ?? body.built ?? []);
+}
+
 export interface ServeEvents {
+  project(e: { path?: string; mtime?: number; origin?: string }): void;
   file(e: { path: string; mtime?: number; origin?: string; deleted?: boolean }): void;
   play(e: { path?: string }): void;
   focus(e: { path?: string; control?: string }): void;
@@ -88,6 +143,7 @@ export function followEvents(handlers: ServeEvents): () => void {
       }
     });
   on('file');
+  on('project');
   on('play');
   on('focus');
   return () => source.close();

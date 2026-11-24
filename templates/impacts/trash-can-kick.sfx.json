@@ -1,0 +1,264 @@
+{
+  "format": "sfxgen/1",
+  "name": "Trash can kicked",
+  "description": "A dented galvanised trash can kicked hard in a back alley. 0 ms: the boot lands on the thin steel wall with a dull bong (rubber sole, so no tick); the wall is creased, so the clang is sour and uneven and buckles downward in pitch for the first 60 ms; from 30 ms the loose lid chatters on the rim for half a second, slowing down; brick walls throw back a short hard echo.",
+  "tags": [
+    "impact",
+    "metal",
+    "trash can",
+    "bin",
+    "kick",
+    "clang",
+    "alley",
+    "dented"
+  ],
+  "duration": "auto",
+  "seed": 17,
+  "tracks": [
+    {
+      "id": "can",
+      "note": "The can wall: thin dented sheet steel hit by a soft boot. The pitch sag is the sheet buckling.",
+      "source": {
+        "type": "modal",
+        "material": "metal",
+        "shape": "plate",
+        "freq": [
+          [
+            0,
+            163
+          ],
+          [
+            0.06,
+            139
+          ]
+        ],
+        "decay": 0.85,
+        "damping": 2.2,
+        "brightness": 0.5,
+        "modes": 44,
+        "dent": 0.75,
+        "variant": 7,
+        "position": 0.55,
+        "stretch": 0.9,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.42
+        }
+      },
+      "fx": [
+        {
+          "type": "drive",
+          "mode": "tube",
+          "amount": 8
+        }
+      ],
+      "sends": {
+        "alley": -11
+      }
+    },
+    {
+      "id": "lid",
+      "note": "The loose lid rattling on the rim: a rolling chatter that slows to a stop.",
+      "start": 0.03,
+      "gain": -5,
+      "source": {
+        "type": "modal",
+        "material": "metal",
+        "shape": "plate",
+        "freq": 520,
+        "decay": 0.3,
+        "damping": 1.8,
+        "modes": 30,
+        "dent": 0.5,
+        "variant": 3,
+        "position": 0.9,
+        "exciter": {
+          "kind": "roll",
+          "hardness": 0.7,
+          "duration": 0.55,
+          "density": [
+            [
+              0,
+              75
+            ],
+            [
+              0.5,
+              22
+            ]
+          ],
+          "roughness": 0.7
+        }
+      },
+      "sends": {
+        "alley": -11
+      }
+    },
+    {
+      "id": "air",
+      "note": "The empty drum: the low breath of the can body under the clang.",
+      "gain": -6,
+      "source": {
+        "type": "modal",
+        "material": "metal",
+        "shape": "tube",
+        "freq": 88,
+        "decay": 0.32,
+        "damping": 3,
+        "brightness": 0.2,
+        "modes": 6,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.2
+        }
+      }
+    }
+  ],
+  "buses": [
+    {
+      "id": "alley",
+      "fx": [
+        {
+          "type": "delay",
+          "time": 68,
+          "feedback": 0.22,
+          "tone": 3200,
+          "highpass": 250,
+          "mix": 0.6
+        },
+        {
+          "type": "reverb",
+          "space": "stairwell",
+          "size": 8,
+          "decay": 0.7,
+          "mix": 0.6
+        }
+      ]
+    }
+  ],
+  "controls": [
+    {
+      "id": "size",
+      "label": "Size",
+      "hint": "A paint tin to an oil drum.",
+      "value": 0.5,
+      "vary": 0.04,
+      "targets": [
+        {
+          "path": "tracks.can.source.freq",
+          "mode": "mul",
+          "from": 2.2,
+          "to": 0.5
+        },
+        {
+          "path": "tracks.can.source.decay",
+          "mode": "mul",
+          "from": 0.6,
+          "to": 1.7
+        },
+        {
+          "path": "tracks.air.source.freq",
+          "mode": "mul",
+          "from": 2.2,
+          "to": 0.5
+        },
+        {
+          "path": "tracks.lid.source.freq",
+          "mode": "mul",
+          "from": 1.7,
+          "to": 0.6
+        }
+      ]
+    },
+    {
+      "id": "kick",
+      "label": "Kick",
+      "hint": "A nudge with a sneaker to a full swing with a steel toecap.",
+      "value": 0.45,
+      "vary": 0.1,
+      "targets": [
+        {
+          "path": "tracks.can.source.exciter.hardness",
+          "mode": "set",
+          "from": 0.15,
+          "to": 0.9
+        },
+        {
+          "path": "tracks.can.fx.0.amount",
+          "mode": "set",
+          "from": 0,
+          "to": 20
+        },
+        {
+          "path": "tracks.air.gain",
+          "mode": "set",
+          "from": -14,
+          "to": -2
+        }
+      ]
+    },
+    {
+      "id": "dents",
+      "label": "Dents",
+      "hint": "A new can with a clean clang to battered junk.",
+      "value": 0.75,
+      "targets": [
+        {
+          "path": "tracks.can.source.dent",
+          "mode": "set",
+          "from": 0,
+          "to": 1
+        },
+        {
+          "path": "tracks.can.source.damping",
+          "mode": "set",
+          "from": 1,
+          "to": 3
+        }
+      ]
+    },
+    {
+      "id": "lid",
+      "label": "Lid",
+      "hint": "No lid, or a loose one that chatters on.",
+      "value": 0.5,
+      "vary": 0.1,
+      "targets": [
+        {
+          "path": "tracks.lid.gain",
+          "mode": "set",
+          "from": -40,
+          "to": -2,
+          "curve": -1
+        },
+        {
+          "path": "tracks.lid.source.exciter.duration",
+          "mode": "set",
+          "from": 0.25,
+          "to": 1.1
+        }
+      ]
+    },
+    {
+      "id": "alley",
+      "label": "Alley",
+      "hint": "Open yard to a narrow brick alley.",
+      "value": 0.45,
+      "targets": [
+        {
+          "path": "tracks.can.sends.alley",
+          "mode": "set",
+          "from": -40,
+          "to": -3,
+          "curve": -0.571
+        },
+        {
+          "path": "tracks.lid.sends.alley",
+          "mode": "set",
+          "from": -40,
+          "to": -3,
+          "curve": -0.571
+        }
+      ]
+    }
+  ]
+}

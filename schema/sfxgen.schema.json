@@ -184,6 +184,10 @@
       "description": "A wobble added on top of a parameter.",
       "type": "object",
       "properties": {
+        "id": {
+          "type": "string",
+          "description": "Names it for paths: tracks.x.source.freq.mod.<id>.depth."
+        },
         "type": {
           "enum": [
             "lfo",
@@ -3598,7 +3602,7 @@
           "additionalProperties": false
         },
         "density": {
-          "description": "Particles per second. 2 to 10 scattered drips and clicks, 20 to 100 a patter, 200 to 1000 a shower or sizzle, 3000+ a hiss. Breakpoints over the event build or thin it: [[0, 5], [2, 400]] is rain setting in. For burst it is the rate at the first instant. Ignored by bounce. (0.5 to 2000 Hz, log scale)",
+          "description": "Particles per second. 2 to 10 scattered drips and clicks, 20 to 100 a patter, 200 to 1000 a shower or sizzle, 3000+ a hiss. Breakpoints over the event build or thin it: [[0, 5], [2, 400]] is rain setting in. For burst it is the rate at the first instant and thins as exp(-5 t / duration), so a burst emits about density x duration / 5 grains. Ignored by bounce. (0.5 to 2000 Hz, log scale)",
           "default": 40,
           "anyOf": [
             {
@@ -7250,6 +7254,10 @@
             "target": {
               "type": "number",
               "description": "dBFS for peak (default -1), LUFS for loudness (default -16)."
+            },
+            "ceiling": {
+              "type": "number",
+              "description": "For loudness: the highest peak allowed, dBFS (default -0.3)."
             }
           },
           "required": [
@@ -7292,7 +7300,7 @@
             "add",
             "stretch"
           ],
-          "description": "set (default), mul (multiplies, breakpoints and all), add, stretch (breakpoint times)."
+          "description": "set (default), mul (multiplies, breakpoints and all), add, stretch (breakpoint, envelope, event and repeat times)."
         },
         "from": {
           "type": "number",
@@ -7301,6 +7309,10 @@
         "to": {
           "type": "number",
           "description": "Value (or factor) at the control maximum."
+        },
+        "via": {
+          "type": "number",
+          "description": "Value at the control's default (or middle): from -> via -> to."
         },
         "curve": {
           "anyOf": [

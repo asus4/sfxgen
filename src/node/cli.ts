@@ -17,10 +17,15 @@ import {
   setPath,
   suggest,
   takeFileName,
+  projectPatch,
+  renderProjectSound,
   validatePatch,
+  validateProject,
   variationTakes,
   type Control,
   type Patch,
+  type Project,
+  type ProjectSound,
   type ValidationResult,
 } from '../core';
 import { analyze, describeLines, encodePng, formatHz, formatSeconds, noteName, spectrogram, type Analysis } from '../core/analysis';
@@ -28,6 +33,10 @@ import { buildGuide, type GuideSection } from '../core/agent/guide';
 import { buildSchema } from '../core/agent/schema';
 import { diffValues } from '../core/agent/diff';
 import { getTemplate, listTemplates, templateCategories } from '../core/templates';
+import { callTool, formatTable, measureProject, measureTracks, trackTable, type MeasuredSound, type ToolResult, type TrackLevel } from '../core/agent/tools';
+import { controlsSetting, newProject, soundName, syncControlBases } from '../core';
+import { FileWorkspace, PATCH_EXT, listPatchFiles } from './file-workspace';
+import { PROJECT_FILE } from '../core/project/project';
 import pkg from '../../package.json';
 
 const VERSION: string = (pkg as { version?: string }).version ?? '0.0.0';
@@ -187,6 +196,8 @@ function applySets(patch: Patch, sets: string[]): string[] {
       continue;
     }
     const v = parseValue(raw);
+    const owner = controlsSetting(patch).get(key);
+    if (owner) err(`warning: ${key} is set by control "${owner}"; use --set ${owner}=<value>, or sfxgen sync after editing`);
     const known = getPath(patch, key) !== undefined || metaAt(patch, key) !== undefined || key === 'seed' || key === 'duration';
     if (!known || !setPath(patch, key, v)) {
       const ids = (patch.controls ?? []).map((c) => c.id);
@@ -250,8 +261,8 @@ const f1 = (x: number) => x.toFixed(1);
 const f2 = (x: number) => x.toFixed(2);
 
 /** The plain lines, then every number, in a fixed layout. */
-function analysisText(a: Analysis): string[] {
-  const lines = [...describeLines(a)];
+function analysisText(a: Analysis, loop = false): string[] {
+  const lines = [...describeLines(a, { loop })];
   if (a.peakDb <= -100) return lines;
   const top = Math.max(...a.envelopeDb);
   lines.push('');
@@ -283,7 +294,7 @@ function analysisText(a: Analysis): string[] {
   if (a.peaks.length) lines.push(`peaks     ${a.peaks.map((p) => `${formatHz(p.hz)} ${p.db === 0 ? '0' : f1(p.db)} dB`).join(', ')}`);
   if (a.onsets.length) lines.push(`onsets    ${a.onsets.map((t) => f2(t)).join(', ')} s${a.onsets.length >= 64 ? ' (first 64)' : ''}`);
   lines.push(
-    `edges     first sample ${f1(a.firstSampleDb)} dBFS | last ${f1(a.lastSampleDb)} dBFS | DC ${(Math.abs(a.dcOffset) < 0.00005 ? 0 : a.dcOffset).toFixed(4)} | clipped samples ${a.clippedSamples}` +
+    `edges     first sample ${f1(a.firstSampleDb)} dBFS | last ${f1(a.lastSampleDb)} dBFS | seam ${f1(a.seamDb)} dBFS (largest inner step ${f1(a.maxStepDb)}) | DC ${(Math.abs(a.dcOffset) < 0.00005 ? 0 : a.dcOffset).toFixed(4)} | clipped samples ${a.clippedSamples}` +
       (a.stereoCorrelation !== null ? ` | L/R correlation ${f2(a.stereoCorrelation)}` : ''),
   );
   return lines;
@@ -344,11 +355,12 @@ async function writeSpectrogram(channels: Float32Array[], sampleRate: number, fi
 const renderCommand: Command = {
   name: 'render',
   summary: 'Render a patch to WAV; optionally its spectrogram and its analysis',
-  usage: 'sfxgen render <patch.sfx.json> [options]',
+  usage: 'sfxgen render <patch.sfx.json...> [options]',
   description:
-    'Renders a patch (with its controls applied) to a WAV file next to it. --png also writes the spectrogram image, --analyze prints what the sound measures like. With --variations N it writes N takes named name-01.wav, name-02.wav, ...: the patch itself, then versions where every control with a `vary` range moves a little and the seed changes (the same takes the editor exports).',
+    'Renders one or more patches (with their controls applied) to WAV files next to them, or into the folder given with -o. With --project the patch is rendered as its project hears it: the project\'s output, levelling and shared master chain, and the sound\'s gain. --png also writes the spectrogram image, --analyze prints what the sound measures like. With --variations N it writes N takes named name-01.wav, name-02.wav, ...: the patch itself, then versions where every control with a `vary` range moves a little and the seed changes (the same takes the editor exports).',
   options: [
-    { name: 'out', alias: 'o', value: 'required', arg: '<file.wav>', help: 'Output WAV (default: the patch path with .wav). A directory puts it there.' },
+    { name: 'out', alias: 'o', value: 'required', arg: '<file.wav|dir/>', help: 'Output WAV for one patch (default: the patch path with .wav), or a folder (required form for several patches; default: next to each patch).' },
+    { name: 'project', value: 'required', arg: '<project.json|dir>', help: 'Render in this project\'s context: its output, levelling, master chain and the sound\'s gain.' },
     SR,
     CHANNELS,
     { name: 'bits', value: 'required', arg: '<16|24|32>', help: 'WAV bit depth: 16 or 24-bit integer, 32-bit float (default: the patch\'s, else 16).' },
@@ -356,6 +368,7 @@ const renderCommand: Command = {
     SET,
     { name: 'variations', value: 'required', arg: '<n>', help: 'Write n takes (2 to 64) for round-robin: name-01.wav ... name-NN.wav.' },
     { name: 'png', help: 'Also write the spectrogram next to each WAV (name.png).' },
+    { name: 'tracks', help: 'Also render each track on its own and print its peak, loudness and share of the mix (tracks 30 dB under the loudest are marked inaudible).' },
     { name: 'analyze', help: 'Print the analysis: a plain-language summary, then the numbers.' },
     JSON_OUT,
   ],
@@ -363,95 +376,151 @@ const renderCommand: Command = {
     'sfxgen render door.sfx.json --analyze --png',
     'sfxgen render door.sfx.json --set weight=1 -o heavy-door.wav --analyze',
     'sfxgen render door.sfx.json --variations 5 --bits 24',
+    'sfxgen render hits/*.sfx.json -o build/ --project sfxgen.project.json',
   ],
   async run(args) {
-    const file = args.positional[0];
-    if (!file) throw new UsageError('which patch? sfxgen render <patch.sfx.json>');
-    if (args.positional.length > 1) throw new UsageError(`one patch at a time (got ${args.positional.join(', ')})`);
+    const files = args.positional;
+    if (files.length === 0) throw new UsageError('which patch? sfxgen render <patch.sfx.json...>');
     const json = args.flags.has('json');
-    const { patch, validation, sets } = preparePatch(file, args, json);
-    const opts = renderOptions(args);
-    const bits = (numberOption(args, 'bits', (n) => n === 16 || n === 24 || n === 32, '16, 24 or 32') ?? patch.output?.bitDepth ?? 16) as 16 | 24 | 32;
-    const count = numberOption(args, 'variations', (n) => Number.isInteger(n) && n >= 1 && n <= 64, 'a whole number from 1 to 64') ?? 1;
-    let wavPath = value(args, 'out') ?? `${stem(file)}.wav`;
-    if (wavPath.endsWith('/') || (existsSync(wavPath) && statSync(wavPath).isDirectory())) wavPath = join(wavPath, `${basename(stem(file))}.wav`);
-    if (!isWav(wavPath)) wavPath += '.wav';
-
-    // The takes: the editor's convention, so the CLI and the editor write the same files.
-    const takes: { patch: Patch; path: string }[] = [];
-    if (count === 1) takes.push({ patch, path: wavPath });
-    else {
-      variationTakes(patch, count).forEach((p, take) => takes.push({ patch: p, path: takeFileName(stem(wavPath), take, count) }));
+    const outArg = value(args, 'out');
+    const many = files.length > 1;
+    const outIsDir = outArg !== undefined && (outArg.endsWith('/') || (existsSync(outArg) && statSync(outArg).isDirectory()));
+    if (many && outArg !== undefined && !outIsDir && extname(outArg)) {
+      throw new UsageError(`${files.length} patches need -o to be a folder (such as -o build/), or leave it out to write each WAV next to its patch`);
     }
-    const results = [];
-    for (const take of takes) {
-      const r = render(take.patch, opts);
-      const wav = encodeWav(r.channels, r.sampleRate, bits);
-      writeFile(take.path, wav);
-      const png = args.flags.has('png') ? await writeSpectrogram(r.channels, r.sampleRate, `${stem(take.path)}.png`) : undefined;
-      const analysis = args.flags.has('analyze') ? analyze(r.channels, r.sampleRate) : undefined;
-      results.push({ take, r, bytes: wav.length, png, analysis });
-    }
-
-    if (json) {
-      out(
-        JSON.stringify(
-          {
-            patch: file,
-            set: sets,
-            validationWarnings: validation.warnings,
-            takes: results.map(({ take, r, bytes, png, analysis }) => ({
-              wav: take.path,
-              bytes,
-              seed: take.patch.seed ?? 1,
-              controls: Object.fromEntries((take.patch.controls ?? []).map((c) => [c.id, c.value])),
-              duration: r.duration,
-              sampleRate: r.sampleRate,
-              channels: r.channels.length,
-              bitDepth: bits,
-              renderMs: Math.round(r.timeMs),
-              warnings: r.warnings,
-              ...(png ? { png: png.path, spectrogram: png.caption } : {}),
-              ...(analysis ? { summary: describeLines(analysis), analysis } : {}),
-            })),
-          },
-          null,
-          2,
-        ),
-      );
-      return 0;
-    }
-
-    if (sets.length) out(`Set ${sets.join(', ')}`);
-    if (results.length === 1) {
-      const { take, r, bytes } = results[0];
-      out(
-        `Rendered ${file} -> ${take.path} (${formatSeconds(r.duration)}, ${r.sampleRate} Hz ${channelsText(r.channels.length)} ${bits === 32 ? '32-bit float' : `${bits}-bit`}, ${kb(bytes)}) in ${Math.round(r.timeMs)} ms`,
-      );
-    } else {
-      out(`Rendered ${file}: ${results.length} takes (the patch, then ${results.length - 1} variations), ${bits === 32 ? '32-bit float' : `${bits}-bit`}`);
-      for (const { take, r } of results) {
-        const ctl = (take.patch.controls ?? []).filter((c) => c.vary).map((c) => `${c.id} ${Number(c.value.toFixed(3))}`);
-        out(`  ${take.path}  ${formatSeconds(r.duration)}  seed ${take.patch.seed ?? 1}${ctl.length ? `  ${ctl.join(', ')}` : ''}`);
-      }
-      if (!(patch.controls ?? []).some((c) => c.vary)) out('  (no control has a `vary` range, so the takes differ only by seed)');
-    }
-    const pngs = results.filter((x) => x.png);
-    if (pngs.length) {
-      out(`${SPECTROGRAM_NOTE} ${pngs.map((x) => x.png!.path).join(', ')}`);
-      out(`  ${pngs[0].png!.caption}`);
-    }
-    for (const { take, r, analysis } of results) {
-      if (analysis) {
-        out('');
-        if (results.length > 1) out(`${take.path}:`);
-        for (const line of results.length > 1 ? describeLines(analysis) : analysisText(analysis)) out(results.length > 1 && line ? `  ${line}` : line);
-      }
-      for (const w of r.warnings) err(`warning: ${results.length > 1 ? `${take.path}: ` : ''}${w}`);
-    }
+    const project = await loadProjectContext(value(args, 'project'));
+    const entries = [];
+    for (const file of files) entries.push(await renderOne(file, args, { json, many, outArg, outIsDir, project }));
+    if (json) out(JSON.stringify(many ? entries : entries[0], null, 2));
     return 0;
   },
 };
+
+function printTracks(tracks: TrackLevel[]): void {
+  out('');
+  out('Tracks on their own, at their level in the mix (energy % is each track\'s share of the mix; overlapping layers need not add up to 100):');
+  for (const line of trackTable(tracks)) out(line);
+  const quiet = tracks.filter((t) => t.inaudible).map((t) => t.id);
+  if (quiet.length) out(`${quiet.join(', ')} ${quiet.length === 1 ? 'is' : 'are'} 30 dB or more under the loudest track: raise ${quiet.length === 1 ? 'its' : 'their'} gain or drop ${quiet.length === 1 ? 'it' : 'them'}.`);
+}
+
+/** `--project <dir|file>`: the project and the folder its files are relative to. */
+async function loadProjectContext(projectArg: string | undefined): Promise<{ project: Project; dir: string } | undefined> {
+  if (!projectArg) return undefined;
+  const ws = projectWorkspace(projectArg);
+  const got = await ws.getProject();
+  if (!got?.saved) throw new CliError(`${projectArg}: no project file there (sfxgen project init creates one)`);
+  const v = validateProject(got.project);
+  if (!v.ok) throw new CliError(`${projectArg}: the project has errors\n${formatIssues(v)}`);
+  return { project: got.project, dir: dirname(ws.projectPath) };
+}
+
+/** The project's sound for a patch file; one the project doesn't list still gets the project's settings. */
+function soundInProject(project: { project: Project; dir: string }, file: string): ProjectSound {
+  const found = project.project.sounds.find((s) => s.file !== undefined && resolve(project.dir, s.file) === resolve(file));
+  if (!found) err(`warning: ${file} is not listed in the project; rendered with the project's settings, no group, gain 0`);
+  return found ?? { file };
+}
+
+interface RenderContext {
+  json: boolean;
+  many: boolean;
+  outArg?: string;
+  outIsDir: boolean;
+  project?: { project: Project; dir: string };
+}
+
+/** Renders one patch (its takes, PNG and analysis), prints the text report, and returns its JSON entry. */
+async function renderOne(file: string, args: Args, ctx: RenderContext): Promise<unknown> {
+  const { json, project } = ctx;
+  const { patch, validation, sets } = preparePatch(file, args, json);
+  const opts = renderOptions(args);
+  // In a project the sound is rendered as the project hears it; a patch the project doesn't list still gets its settings.
+  let sound: ProjectSound | undefined;
+  if (project) {
+    sound = soundInProject(project, file);
+  }
+  const bits = (numberOption(args, 'bits', (n) => n === 16 || n === 24 || n === 32, '16, 24 or 32') ?? project?.project.output?.bitDepth ?? patch.output?.bitDepth ?? 16) as 16 | 24 | 32;
+  const count = numberOption(args, 'variations', (n) => Number.isInteger(n) && n >= 1 && n <= 64, 'a whole number from 1 to 64') ?? 1;
+  let wavPath = ctx.outArg ?? `${stem(file)}.wav`;
+  if (ctx.outIsDir || (ctx.outArg !== undefined && !ctx.many && (wavPath.endsWith('/') || (existsSync(wavPath) && statSync(wavPath).isDirectory())))) {
+    wavPath = join(ctx.outArg as string, `${basename(stem(file))}.wav`);
+  }
+  if (!isWav(wavPath)) wavPath += '.wav';
+
+  // The takes: the editor's convention, so the CLI and the editor write the same files.
+  const takes: { patch: Patch; path: string }[] = [];
+  if (count === 1) takes.push({ patch, path: wavPath });
+  else {
+    variationTakes(patch, count).forEach((p, take) => takes.push({ patch: p, path: takeFileName(stem(wavPath), take, count) }));
+  }
+  const results = [];
+  for (const take of takes) {
+    const r = project && sound ? renderProjectSound(project.project, sound, take.patch, opts) : render(take.patch, opts);
+    const wav = encodeWav(r.channels, r.sampleRate, bits);
+    writeFile(take.path, wav);
+    const png = args.flags.has('png') ? await writeSpectrogram(r.channels, r.sampleRate, `${stem(take.path)}.png`) : undefined;
+    const analysis = args.flags.has('analyze') ? analyze(r.channels, r.sampleRate) : undefined;
+    results.push({ take, r, bytes: wav.length, png, analysis });
+  }
+
+  // --tracks: each track on its own, from the first take.
+  const tracks = args.flags.has('tracks')
+    ? await measureTracks(project && sound ? projectPatch(project.project, sound, results[0].take.patch) : results[0].take.patch, results[0].r, (p) => render(p, opts))
+    : undefined;
+  const entry = {
+    patch: file,
+    ...(project ? { project: project.project.name } : {}),
+    set: sets,
+    validationWarnings: validation.warnings,
+    takes: results.map(({ take, r, bytes, png, analysis }) => ({
+      wav: take.path,
+      bytes,
+      seed: take.patch.seed ?? 1,
+      controls: Object.fromEntries((take.patch.controls ?? []).map((c) => [c.id, c.value])),
+      duration: r.duration,
+      sampleRate: r.sampleRate,
+      channels: r.channels.length,
+      bitDepth: bits,
+      renderMs: Math.round(r.timeMs),
+      warnings: r.warnings,
+      ...(png ? { png: png.path, spectrogram: png.caption } : {}),
+      ...(analysis ? { summary: describeLines(analysis, { loop: !!take.patch.loop }), analysis } : {}),
+    })).map((t, i) => (i === 0 && tracks ? { ...t, tracks } : t)),
+  };
+  if (json) return entry;
+
+  if (sets.length) out(`Set ${sets.join(', ')}`);
+  const inProject = project ? ` in project "${project.project.name}"` : '';
+  if (results.length === 1) {
+    const { take, r, bytes } = results[0];
+    out(
+      `Rendered ${file}${inProject} -> ${take.path} (${formatSeconds(r.duration)}, ${r.sampleRate} Hz ${channelsText(r.channels.length)} ${bits === 32 ? '32-bit float' : `${bits}-bit`}, ${kb(bytes)}) in ${Math.round(r.timeMs)} ms`,
+    );
+  } else {
+    out(`Rendered ${file}${inProject}: ${results.length} takes (the patch, then ${results.length - 1} variations), ${bits === 32 ? '32-bit float' : `${bits}-bit`}`);
+    for (const { take, r } of results) {
+      const ctl = (take.patch.controls ?? []).filter((c) => c.vary).map((c) => `${c.id} ${Number(c.value.toFixed(3))}`);
+      out(`  ${take.path}  ${formatSeconds(r.duration)}  seed ${take.patch.seed ?? 1}${ctl.length ? `  ${ctl.join(', ')}` : ''}`);
+    }
+    if (!(patch.controls ?? []).some((c) => c.vary)) out('  (no control has a `vary` range, so the takes differ only by seed)');
+  }
+  const pngs = results.filter((x) => x.png);
+  if (pngs.length) {
+    out(`${SPECTROGRAM_NOTE} ${pngs.map((x) => x.png!.path).join(', ')}`);
+    out(`  ${pngs[0].png!.caption}`);
+  }
+  for (const { take, r, analysis } of results) {
+    if (analysis) {
+      out('');
+      if (results.length > 1) out(`${take.path}:`);
+      for (const line of results.length > 1 ? describeLines(analysis, { loop: !!take.patch.loop }) : analysisText(analysis, !!take.patch.loop)) out(results.length > 1 && line ? `  ${line}` : line);
+    }
+    for (const w of r.warnings) err(`warning: ${results.length > 1 ? `${take.path}: ` : ''}${w}`);
+  }
+  if (tracks) printTracks(tracks);
+  return entry;
+}
 
 const analyzeCommand: Command = {
   name: 'analyze',
@@ -462,12 +531,14 @@ const analyzeCommand: Command = {
   options: [
     { name: 'png', value: 'optional', accepts: (n) => n.toLowerCase().endsWith('.png'), arg: '[out.png]', help: 'Write the spectrogram (default: next to the input, name.png).' },
     JSON_OUT,
+    { name: 'tracks', help: 'Also render each track on its own: peak, loudness and share of the mix per track, with tracks 30 dB under the loudest marked inaudible (patches only).' },
+    { name: 'project', value: 'required', arg: '<project.json|dir>', help: 'Analyse the patch as this project renders it (patches only).' },
     SR,
     CHANNELS,
     SEED,
     SET,
   ],
-  examples: ['sfxgen analyze door.wav', 'sfxgen analyze door.sfx.json --png', 'sfxgen analyze door.wav --png /tmp/door.png --json'],
+  examples: ['sfxgen analyze door.wav', 'sfxgen analyze door.sfx.json --tracks', 'sfxgen analyze door.sfx.json --png', 'sfxgen analyze door.wav --png /tmp/door.png --json'],
   async run(args) {
     const file = args.positional[0];
     if (!file) throw new UsageError('which file? sfxgen analyze <file.wav | patch.sfx.json>');
@@ -477,10 +548,12 @@ const analyzeCommand: Command = {
     let sampleRate: number;
     let header: string;
     let warnings: string[] = [];
+    let loop = false;
+    let tracks: TrackLevel[] | undefined;
     const wav = isWav(file) || (existsSync(file) && readFileSync(file).subarray(0, 4).toString('latin1') === 'RIFF');
     if (wav) {
-      if (args.values.has('set') || args.values.has('seed') || args.values.has('sr') || args.values.has('channels')) {
-        throw new UsageError('--set, --seed, --sr and --channels apply to patches, not WAV files');
+      if (args.values.has('set') || args.values.has('seed') || args.values.has('sr') || args.values.has('channels') || args.values.has('project') || args.flags.has('tracks')) {
+        throw new UsageError('--set, --seed, --sr, --channels, --project and --tracks apply to patches, not WAV files');
       }
       if (!existsSync(file)) throw new CliError(`${file}: no such file`);
       try {
@@ -491,7 +564,12 @@ const analyzeCommand: Command = {
       header = `${file}: ${formatSeconds((channels[0]?.length ?? 0) / sampleRate)}, ${sampleRate} Hz, ${channelsText(channels.length)}`;
     } else {
       const { patch } = preparePatch(file, args, json);
-      const r = render(patch, renderOptions(args));
+      const opts = renderOptions(args);
+      const project = await loadProjectContext(value(args, 'project'));
+      const sound = project ? soundInProject(project, file) : undefined;
+      const r = project && sound ? renderProjectSound(project.project, sound, patch, opts) : render(patch, opts);
+      loop = !!patch.loop;
+      if (args.flags.has('tracks')) tracks = await measureTracks(project && sound ? projectPatch(project.project, sound, patch) : patch, r, (p) => render(p, opts));
       channels = r.channels;
       sampleRate = r.sampleRate;
       warnings = r.warnings;
@@ -501,7 +579,7 @@ const analyzeCommand: Command = {
     let png: { path: string; caption: string } | undefined;
     if (has(args, 'png')) png = await writeSpectrogram(channels, sampleRate, value(args, 'png') ?? `${stem(file)}.png`);
     if (json) {
-      out(JSON.stringify({ file, summary: describeLines(analysis), analysis, warnings, ...(png ? { png: png.path, spectrogram: png.caption } : {}) }, null, 2));
+      out(JSON.stringify({ file, summary: describeLines(analysis, { loop }), analysis, warnings, ...(tracks ? { tracks } : {}), ...(png ? { png: png.path, spectrogram: png.caption } : {}) }, null, 2));
       return 0;
     }
     out(header);
@@ -510,7 +588,8 @@ const analyzeCommand: Command = {
       out(`  ${png.caption}`);
     }
     out('');
-    for (const line of analysisText(analysis)) out(line);
+    for (const line of analysisText(analysis, loop)) out(line);
+    if (tracks) printTracks(tracks);
     for (const w of warnings) err(`warning: ${w}`);
     return 0;
   },
@@ -709,12 +788,209 @@ const diffCommand: Command = {
   },
 };
 
+
+// ---- Projects ------------------------------------------------------------------------------------------
+
+/** A workspace for `[dir | project.json]`: the folder's sfxgen.project.json, or that project file. */
+function projectWorkspace(target = '.'): FileWorkspace {
+  const abs = resolve(target);
+  if (!existsSync(abs)) throw new CliError(`${target}: no such file or folder`);
+  if (statSync(abs).isFile()) {
+    if (!/\.json$/i.test(abs)) throw new CliError(`${target}: expected a folder or a project .json file`);
+    return new FileWorkspace(dirname(abs), { projectFile: basename(abs) });
+  }
+  return new FileWorkspace(abs);
+}
+
+async function loadProjectOrFail(ws: FileWorkspace, target: string): Promise<Project> {
+  const got = await ws.getProject();
+  if (!got?.saved) throw new CliError(`${target === '.' ? 'this folder' : target} has no ${ws.projectFile}. Create one with: sfxgen project init ${target === '.' ? '' : target}`.trim());
+  const v = validateProject(got.project);
+  if (!v.ok) throw new CliError(`${ws.projectFile} has errors:\n${formatIssues(v)}`);
+  for (const w of v.warnings) err(`warning: ${ws.projectFile}: ${w.path ? `${w.path}: ` : ''}${w.message}`);
+  return got.project;
+}
+
+const f1n = (x: number | undefined) => (x === undefined || !Number.isFinite(x) ? '-' : x.toFixed(1));
+
+const buildCommand: Command = {
+  name: 'build',
+  summary: 'Render every sound of a project to its export path',
+  usage: 'sfxgen build [dir | project.json] [--only a,b] [--dry-run] [--json]',
+  description:
+    'Renders each sound of the project (sfxgen.project.json in dir, default .) as the project hears it: its output settings, levelling and shared master chain, then the sound\'s gain. Each WAV goes to the sound\'s `export` path (default <outDir>/<name>.wav, relative to the project file; folders are created) and a table lists duration, peak, loudness, gain and any warnings. Exits with 1 if any sound fails to build.',
+  options: [
+    { name: 'only', value: 'required', arg: '<a,b>', help: 'Build only these sounds, by name (comma separated).' },
+    { name: 'dry-run', help: 'Render and measure, but write no files.' },
+    JSON_OUT,
+  ],
+  examples: ['sfxgen build', 'sfxgen build sounds/ --only sword-hit,ui-click', 'sfxgen build game/sfxgen.project.json --dry-run'],
+  async run(args) {
+    if (args.positional.length > 1) throw new UsageError('one project at a time: sfxgen build [dir | project.json]');
+    const target = args.positional[0] ?? '.';
+    const ws = projectWorkspace(target);
+    const project = await loadProjectOrFail(ws, target);
+    const only = value(args, 'only')?.split(',').map((n) => n.trim()).filter(Boolean);
+    const names = project.sounds.map(soundName);
+    for (const n of only ?? []) if (!names.includes(n)) throw new UsageError(`--only: no sound "${n}"${suggest(n, names)}. Sounds: ${names.join(', ')}`);
+    const dry = args.flags.has('dry-run');
+    const rows = await ws.buildProject({ only, dryRun: dry });
+    const failed = rows.filter((r) => r.error);
+    const gainOf = (name: string) => project.sounds.find((s) => soundName(s) === name)?.gain ?? 0;
+    if (args.flags.has('json')) {
+      out(JSON.stringify({ project: project.name, dryRun: dry, rows: rows.map((r) => ({ ...r, gain: gainOf(r.name) })) }, null, 2));
+      return failed.length ? 1 : 0;
+    }
+    if (rows.length === 0) {
+      out(`${project.name}: nothing to build (${project.sounds.length ? 'every sound is skipped or filtered out' : 'the project has no sounds; add some with sfxgen project init --force, or edit it'}).`);
+      return 0;
+    }
+    out(`${dry ? 'Dry run' : 'Built'} project "${project.name}": ${rows.length - failed.length} of ${rows.length} sound${rows.length === 1 ? '' : 's'}${dry ? ' (nothing written)' : ''}`);
+    const table = formatTable(
+      ['name', 'dur s', 'peak dBFS', 'LUFS', 'gain dB', 'export', 'warnings'],
+      rows.map((r) => [r.name, r.error ? '-' : r.duration.toFixed(2), r.error ? '-' : f1n(r.peakDb), r.error ? '-' : f1n(r.lufs), f1n(gainOf(r.name)), r.export, r.error ? 'ERROR' : r.warnings.join('; ')]),
+      [1, 2, 3, 4],
+    );
+    for (const l of table) out(l);
+    for (const r of failed) err(`error: ${r.name}: ${r.error}`);
+    for (const r of rows) for (const w of r.warnings) err(`warning: ${r.name}: ${w}`);
+    return failed.length ? 1 : 0;
+  },
+};
+
+const projectCommand: Command = {
+  name: 'project',
+  summary: 'Create a project from a folder of patches, and report or balance its levels',
+  usage: 'sfxgen project init [dir] [--name n] [--force]   |   sfxgen project report [dir|project.json] [--match <LUFS> [--group g] [--ceiling dB] [--write]]',
+  description:
+    'A project is a set of sounds made to be heard together (docs/FORMAT.md, "Projects"). `init` writes sfxgen.project.json listing the folder\'s patches. `report` renders every sound as the project hears it and prints its loudness and peak, then per group the spread; with --match <LUFS> it also works out the gain per sound that brings each to that loudness without a peak above the ceiling (default -1 dBFS), and --write saves those gains into the project. Then `sfxgen build` writes the WAVs.',
+  options: [
+    { name: 'name', value: 'required', arg: '<name>', help: 'init: the project\'s name (default: the folder\'s).' },
+    { name: 'force', help: 'init: overwrite an existing project file.' },
+    { name: 'match', value: 'required', arg: '<LUFS>', help: 'report: suggest gains that bring every sound (or the --group) to this loudness.' },
+    { name: 'group', value: 'required', arg: '<id>', help: 'report --match: only the sounds of this group.' },
+    { name: 'ceiling', value: 'required', arg: '<dBFS>', help: 'report --match: highest peak allowed after the new gain (default -1).' },
+    { name: 'write', help: 'report --match: save the suggested gains into the project file.' },
+    JSON_OUT,
+  ],
+  examples: ['sfxgen project init sounds/ --name "Cave crawler"', 'sfxgen project report', 'sfxgen project report --match -20 --group combat', 'sfxgen project report --match -18 --write'],
+  async run(args) {
+    const [sub, target] = args.positional;
+    if (args.positional.length > 2) throw new UsageError('too many arguments');
+    if (sub === 'init') return projectInit(args, target ?? '.');
+    if (sub === 'report') return projectReport(args, target ?? '.');
+    throw new UsageError(sub ? `unknown subcommand "${sub}"${suggest(sub, ['init', 'report'])}` : 'which subcommand? init or report');
+  },
+};
+
+async function projectInit(args: Args, dir: string): Promise<number> {
+  const root = resolve(dir);
+  if (!existsSync(root) || !statSync(root).isDirectory()) throw new CliError(`${dir}: not a directory`);
+  const file = join(root, PROJECT_FILE);
+  if (existsSync(file) && !args.flags.has('force')) throw new CliError(`${join(dir, PROJECT_FILE)} exists; use --force to overwrite it`);
+  const files = (await listPatchFiles(root)).map((f) => f.path);
+  const project = newProject(value(args, 'name') ?? (basename(root) || 'Project'), files);
+  writeFile(file, `${JSON.stringify(project, null, 2)}\n`);
+  out(`Wrote ${join(dir, PROJECT_FILE)}: project "${project.name}" with ${files.length} sound${files.length === 1 ? '' : 's'}${files.length ? '' : ` (no *${PATCH_EXT} files found yet)`}.`);
+  for (const f of files.slice(0, 12)) out(`  ${f}`);
+  if (files.length > 12) out(`  ... and ${files.length - 12} more`);
+  out('Next: edit the project (groups, gains, export paths; see docs/FORMAT.md "Projects"), then `sfxgen project report` and `sfxgen build`.');
+  return 0;
+}
+
+async function projectReport(args: Args, target: string): Promise<number> {
+  const ws = projectWorkspace(target);
+  const project = await loadProjectOrFail(ws, target);
+  const measured = await measureProject(ws, project);
+  const live = measured.filter((m) => !m.skip);
+  const json = args.flags.has('json');
+  const match = numberOption(args, 'match', (n) => n >= -70 && n <= 0, 'a loudness from -70 to 0 LUFS');
+  const ceiling = numberOption(args, 'ceiling', (n) => n >= -20 && n <= 0, 'a level from -20 to 0 dBFS');
+  if (match === undefined && (has(args, 'group') || has(args, 'ceiling') || args.flags.has('write'))) throw new UsageError('--group, --ceiling and --write go with --match <LUFS>');
+  const group = value(args, 'group');
+  if (group && !(project.groups ?? []).some((g) => g.id === group)) throw new CliError(`no group "${group}"${suggest(group, (project.groups ?? []).map((g) => g.id))}. Groups: ${(project.groups ?? []).map((g) => g.id).join(', ') || 'none'}`);
+
+  const groups = new Map<string, MeasuredSound[]>();
+  for (const m of live) if (!m.error && m.lufs !== undefined && Number.isFinite(m.lufs)) groups.set(m.group ?? '(none)', [...(groups.get(m.group ?? '(none)') ?? []), m]);
+  const summary = [...groups].map(([g, ms]) => {
+    const l = ms.map((m) => m.lufs as number);
+    return { group: g, sounds: ms.length, minLufs: Math.min(...l), maxLufs: Math.max(...l), meanLufs: l.reduce((a, b) => a + b, 0) / l.length, maxPeakDb: Math.max(...ms.map((m) => m.peakDb as number)) };
+  });
+
+  let balance: ToolResult | undefined;
+  if (match !== undefined) {
+    balance = await callTool(ws, 'balance_project', { target_lufs: match, group, ceiling_db: ceiling, apply: args.flags.has('write') });
+    if (balance.isError) throw new CliError(balance.text);
+  }
+  if (json) {
+    out(JSON.stringify({ project: project.name, sounds: measured, groups: summary, ...(balance ? { balance: balance.data } : {}) }, null, 2));
+    return 0;
+  }
+  out(`Project "${project.name}": ${live.length} sound${live.length === 1 ? '' : 's'} measured as the project renders them (gain included)`);
+  for (const l of formatTable(
+    ['name', 'group', 'dur s', 'peak dBFS', 'LUFS', 'gain dB'],
+    measured.filter((m) => !m.skip).map((m) => [m.name, m.group ?? '', m.error ? '-' : (m.duration ?? 0).toFixed(2), m.error ? '-' : f1n(m.peakDb), m.error ? 'ERROR' : f1n(m.lufs), f1n(m.gain)]),
+    [2, 3, 4, 5],
+  )) out(l);
+  for (const m of measured) if (m.error) err(`error: ${m.name}: ${m.error}`);
+  if (summary.length) {
+    out('');
+    for (const l of formatTable(
+      ['group', 'sounds', 'LUFS min', 'LUFS max', 'LUFS mean', 'spread dB', 'loudest peak'],
+      summary.map((g) => [g.group, String(g.sounds), f1n(g.minLufs), f1n(g.maxLufs), f1n(g.meanLufs), f1n(g.maxLufs - g.minLufs), f1n(g.maxPeakDb)]),
+      [1, 2, 3, 4, 5, 6],
+    )) out(l);
+  }
+  if (balance) {
+    out('');
+    out(balance.text.replace('Call again with apply: true to write these gains.', 'Add --write to save these gains into the project.').replace('Run build_project to write the WAVs.', 'Run `sfxgen build` to write the WAVs.'));
+  } else out('\nTo even them out: sfxgen project report --match <LUFS> (add --write to save the gains).');
+  return measured.some((m) => m.error) ? 1 : 0;
+}
+
+
+const syncCommand: Command = {
+  name: 'sync',
+  summary: 'Write what the controls apply into the patch, so the file says what renders',
+  usage: 'sfxgen sync <patch.sfx.json...> [--check]',
+  description:
+    'A control\'s `set` targets and options override the base value at their path every time the patch renders, so a value edited by hand at that path does nothing. sync writes the value each control currently applies into the base at those paths and prints what changed. Relative targets (mul, add, stretch) are left alone: baking them in would apply them twice. With --check nothing is written and the exit code is 1 if any patch would change (for CI).',
+  options: [{ name: 'check', help: 'Change nothing; exit 1 if any patch is out of sync.' }, JSON_OUT],
+  examples: ['sfxgen sync door.sfx.json', 'sfxgen sync sounds/*.sfx.json --check'],
+  async run(args) {
+    if (args.positional.length === 0) throw new UsageError('which patches? sfxgen sync <patch.sfx.json...> [--check]');
+    const check = args.flags.has('check');
+    const report: { file: string; changes: { path: string; before: unknown; after: unknown }[] }[] = [];
+    for (const file of args.positional) {
+      const patch = loadPatch(file);
+      const { patch: synced, changes } = syncControlBases(patch);
+      report.push({ file, changes });
+      if (changes.length && !check) writeFile(file, JSON.stringify(synced, null, 2) + '\n');
+    }
+    const dirty = report.filter((r) => r.changes.length > 0);
+    if (args.flags.has('json')) {
+      out(JSON.stringify(report, null, 2));
+    } else {
+      for (const r of report) {
+        if (r.changes.length === 0) {
+          out(`${r.file}: in sync`);
+          continue;
+        }
+        out(`${r.file}: ${check ? 'out of sync' : 'synced'}, ${r.changes.length} path${r.changes.length === 1 ? '' : 's'}`);
+        for (const c of r.changes) out(`  ${c.path}: ${compact(c.before, 50)} -> ${compact(c.after, 50)}`);
+      }
+      if (check && dirty.length) err(`${dirty.length} patch${dirty.length === 1 ? ' is' : 'es are'} out of sync: run sfxgen sync ${dirty.map((r) => r.file).join(' ')}`);
+    }
+    return check && dirty.length > 0 ? 1 : 0;
+  },
+};
+
 const serveCommand: Command = {
   name: 'serve',
   summary: 'Open the editor on the patches in a folder (live, both ways)',
   usage: 'sfxgen serve [dir] [--port 5179] [--open] [--file f]',
   description:
-    'Serves the editor and a small API over the *.sfx.json files under dir (default .). The editor live-reloads when a file changes on disk, and a person\'s tweaks are saved back to the file.',
+    'Serves the editor and a small API over the *.sfx.json files under dir (default .). The editor live-reloads when a file changes on disk, and a person\'s tweaks are saved back to the file. If dir has an sfxgen.project.json the editor opens it as a project (sounds side by side, a mixer to balance them); the startup lines say whether one was found.',
   options: [
     { name: 'port', value: 'required', arg: '<n>', help: 'Port (default 5179).' },
     { name: 'open', help: 'Open the editor in the default browser.' },
@@ -763,6 +1039,9 @@ const COMMANDS: Command[] = [
   templatesCommand,
   newCommand,
   diffCommand,
+  syncCommand,
+  buildCommand,
+  projectCommand,
   serveCommand,
   mcpCommand,
 ];
@@ -801,8 +1080,15 @@ function mainHelp(): string {
     '  sfxgen templates --search "metal door"       find a starting point',
     '  sfxgen new impacts/thud -o door.sfx.json     copy it; edit the JSON',
     '  sfxgen render door.sfx.json --analyze --png  read the numbers, look at door.png',
+    '  sfxgen analyze door.sfx.json --tracks        find layers that are too quiet to matter',
+    '  sfxgen sync door.sfx.json                    after editing: make the file say what the controls render',
     '  sfxgen serve .                               a person tunes the controls by ear',
     '  sfxgen diff before.sfx.json door.sfx.json    see what they changed',
+    '',
+    'A set of sounds for one game:',
+    '  sfxgen project init sounds/                  list the folder\'s patches in sfxgen.project.json',
+    '  sfxgen project report --match -20            levels per sound and group, and the gains that even them out',
+    '  sfxgen build                                 render every sound to its export path',
   ].join('\n');
 }
 
@@ -857,6 +1143,15 @@ function invokedDirectly(): boolean {
 }
 
 if (invokedDirectly()) {
+  // `npm --prefix <sfxgen> run sfxgen -- ...` runs in sfxgen's folder; npm keeps the caller's folder in INIT_CWD, so
+  // relative paths mean what the caller meant.
+  if (process.env.npm_lifecycle_event === 'sfxgen' && process.env.INIT_CWD) {
+    try {
+      process.chdir(process.env.INIT_CWD);
+    } catch {
+      /* keep the current folder */
+    }
+  }
   // `sfxgen guide | head` closes the pipe early: stop quietly instead of crashing on EPIPE.
   process.stdout.on('error', (e: NodeJS.ErrnoException) => {
     if (e.code === 'EPIPE') process.exit(0);

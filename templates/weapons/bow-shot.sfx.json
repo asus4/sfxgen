@@ -1,0 +1,101 @@
+{
+  "format": "sfxgen/1",
+  "name": "Bow shot",
+  "description": "A longbow loosed beside your ear in a wood. 0 ms: the fingers let go and the string snaps forward, a short dull twang at 82 Hz, slapped silent against the bracer within 150 ms (a real waveguide string, muted fast). 3 ms: the limbs kick, a wooden knock in the bow's body. 10 ms on: the arrow leaves, a thin hiss with fletching flutter that drops in pitch as it flies away at 55 m/s. The trees give back a soft scatter.",
+  "tags": ["weapon", "bow", "arrow", "shot", "twang", "archery", "release", "ranged", "string"],
+  "duration": "auto",
+  "seed": 22,
+  "tracks": [
+    {
+      "id": "string",
+      "note": "The bowstring: plucked close to its middle with soft fingers, a little stiff, and choked by the mute curve the way a bracer stops it.",
+      "source": {
+        "type": "pluck",
+        "freq": [[0, 88], [0.05, 82]],
+        "decay": 0.5,
+        "brightness": 0.52,
+        "position": 0.4,
+        "stiffness": 0.25,
+        "hardness": 0.45,
+        "mute": [[0, 0.1], [0.07, 0.25], [0.15, 0.95]]
+      },
+      "fx": [{ "type": "drive", "mode": "tube", "amount": 8, "tone": 5000 }],
+      "sends": { "wood": -14 }
+    },
+    {
+      "id": "limbs",
+      "note": "The bow stave kicking in the hand: a small hollow wooden box. This is the 'thock' that makes it a bow and not a guitar.",
+      "start": 0.003,
+      "gain": -5.5,
+      "source": {
+        "type": "modal",
+        "material": "wood",
+        "shape": "tube",
+        "freq": 265,
+        "decay": 0.14,
+        "position": 0.6,
+        "dent": 0.2,
+        "exciter": { "kind": "mallet", "hardness": 0.55 }
+      },
+      "sends": { "wood": -12 }
+    },
+    {
+      "id": "arrow",
+      "note": "The arrow in flight: a narrow hiss, fluttered by the fletching (fast tremolo), carried away by the doppler so it falls in pitch and fades.",
+      "start": 0.01,
+      "gain": -6.9,
+      "source": {
+        "type": "noise",
+        "color": "white",
+        "env": { "attack": 0.004, "hold": 0.1, "decay": 0.511 },
+        "filter": { "mode": "bandpass", "cutoff": 4110, "q": 2.4 }
+      },
+      "fx": [
+        { "type": "tremolo", "id": "fletch", "rate": 58, "depth": 0.475, "shape": "triangle" },
+        { "type": "doppler", "id": "flight", "speed": 52, "distance": 0.6, "time": 0, "direction": "front-to-back", "air": 2.5, "rolloff": 0.8 }
+      ],
+      "sends": { "wood": -9 }
+    }
+  ],
+  "buses": [{ "id": "wood", "fx": [{ "type": "reverb", "id": "trees", "space": "forest", "decay": 0.6 }] }],
+  "controls": [
+    {
+      "id": "draw",
+      "label": "Draw weight",
+      "hint": "A light hunting bow to a heavy war bow: deeper twang, harder kick, faster arrow.",
+      "value": 0.5,
+      "vary": 0.06,
+      "targets": [
+        { "path": "tracks.string.source.freq", "mode": "mul", "from": 1.7, "to": 0.62 },
+        { "path": "tracks.limbs.source.freq", "mode": "mul", "from": 1.6, "to": 0.65 },
+        { "path": "tracks.limbs.gain", "from": -12, "to": 1 },
+        { "path": "tracks.arrow.fx.flight.speed", "from": 30, "to": 90 }
+      ]
+    },
+    {
+      "id": "twang",
+      "label": "Twang",
+      "hint": "A well-silenced thump to a long buzzing string.",
+      "value": 0.4,
+      "vary": 0.08,
+      "targets": [
+        { "path": "tracks.string.source.mute", "mode": "stretch", "from": 0.4, "to": 4 },
+        { "path": "tracks.string.source.brightness", "from": 0.3, "to": 0.85 }
+      ]
+    },
+    {
+      "id": "arrow",
+      "label": "Arrow",
+      "hint": "Just the bow, or a loud hissing shaft leaving it.",
+      "value": 0.55,
+      "targets": [{ "path": "tracks.arrow.gain", "from": -30, "to": 12 }, { "path": "tracks.arrow.source.env.decay", "from": 0.2, "to": 1.1 }]
+    },
+    {
+      "id": "fletching",
+      "label": "Fletching",
+      "hint": "A smooth bolt to big fluttering feathers.",
+      "value": 0.5,
+      "targets": [{ "path": "tracks.arrow.fx.fletch.depth", "from": 0, "to": 0.95 }, { "path": "tracks.arrow.source.filter.cutoff", "from": 6500, "to": 2600 }]
+    }
+  ]
+}

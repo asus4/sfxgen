@@ -202,7 +202,12 @@ function stereoLine(a: Analysis): string | null {
   return `Warning: left and right are out of phase (correlation ${c.toFixed(2)}): it thins out or vanishes in mono.`;
 }
 
-function warnings(a: Analysis): string[] {
+export interface DescribeOptions {
+  /** The sound is a seamless loop: its start and end are not judged as a one-shot's, the seam is. */
+  loop?: boolean;
+}
+
+function warnings(a: Analysis, loop = false): string[] {
   const out: string[] = [];
   if (a.clippedSamples > 0) {
     out.push(`Warning: ${a.clippedSamples} sample${a.clippedSamples === 1 ? '' : 's'} at full scale: clipping. Keep master.normalize on (peak -1 dB) or lower the gain.`);
@@ -210,10 +215,17 @@ function warnings(a: Analysis): string[] {
     out.push(`Warning: true peak ${db1(a.truePeakDb)} dBTP: it clips between samples on playback; lower the peak target (master.normalize.target -2) or soften the sharpest transient.`);
   }
   if (Math.abs(a.dcOffset) >= 0.01) out.push(`Warning: DC offset ${a.dcOffset.toFixed(3)}: thumps on start and stop; keep master.dcBlock on.`);
-  if (a.firstSampleDb > -40) out.push(`Warning: starts at ${Math.round(a.firstSampleDb)} dBFS instead of silence: a click. Add a fade-in (master.fadeIn).`);
-  if (a.lastSampleDb > -40) out.push(`Warning: ends at ${Math.round(a.lastSampleDb)} dBFS instead of silence: a click when it stops. Add a fade-out (master.fadeOut).`);
-  else if (a.tailDb > -30) {
-    out.push(`Warning: still sounding at the end (${Math.round(a.tailDb)} dB below the peak): cut off. Use "duration": "auto" or a longer duration, unless it is a loop.`);
+  if (loop) {
+    // Where the end meets the start there should be no step bigger than the ones inside the sound.
+    if (a.seamDb > a.maxStepDb + 3 && a.seamDb > -50) {
+      out.push(`Warning: the loop seam jumps ${db1(a.seamDb)} dBFS between the last and first sample, ${db1(a.seamDb - a.maxStepDb)} dB more than the largest step inside (${db1(a.maxStepDb)}): it will tick on every repeat. Use loop mode "crossfade" or let every layer start and end from silence.`);
+    }
+  } else {
+    if (a.firstSampleDb > -40) out.push(`Warning: starts at ${Math.round(a.firstSampleDb)} dBFS instead of silence: a click. Add a fade-in (master.fadeIn).`);
+    if (a.lastSampleDb > -40) out.push(`Warning: ends at ${Math.round(a.lastSampleDb)} dBFS instead of silence: a click when it stops. Add a fade-out (master.fadeOut).`);
+    else if (a.tailDb > -30) {
+      out.push(`Warning: still sounding at the end (${Math.round(a.tailDb)} dB below the peak): cut off. Use "duration": "auto" or a longer duration, unless it is a loop.`);
+    }
   }
   if (a.startSeconds > 0.02) out.push(`Warning: ${formatSeconds(a.startSeconds)} of silence before it starts; a game sound should start at once.`);
   const sub = a.bands.find((b) => bandKey(b) === 'sub');
@@ -228,7 +240,7 @@ function warnings(a: Analysis): string[] {
 }
 
 /** The summary as separate lines (4 to 8 for a normal sound). */
-export function describeLines(a: Analysis): string[] {
+export function describeLines(a: Analysis, opts: DescribeOptions = {}): string[] {
   if (a.peakDb <= -100 || a.duration <= 0) {
     return ['Silent: nothing above -100 dBFS. Check for muted tracks, very low gains, or envelopes that never open.'];
   }
@@ -237,10 +249,11 @@ export function describeLines(a: Analysis): string[] {
   const lines = [levelLine(a), timeLine(a)];
   const hits = onsetLine(a);
   if (hits) lines.push(hits);
+  if (opts.loop) lines.push(`Loop: seam ${db1(a.seamDb)} dBFS against a largest inner step of ${db1(a.maxStepDb)}${a.seamDb <= a.maxStepDb + 3 ? ': seamless' : ''}.`);
   lines.push(spectrumLine(a), centroidLine(a, glide <= -2, glide >= 2), pitchLine(a));
   const stereo = stereoLine(a);
   if (stereo) lines.push(stereo);
-  const warn = warnings(a);
+  const warn = warnings(a, opts.loop === true);
   if (lines.length + warn.length <= 8) return [...lines, ...warn];
   // Keep it to 8 lines: fold the warnings into one.
   if (warn.length > 0) lines.push('Warnings: ' + warn.map((w) => w.replace(/^Warning: /, '')).join(' '));
@@ -248,6 +261,6 @@ export function describeLines(a: Analysis): string[] {
 }
 
 /** Plain-language summary of an analysis, a few short lines. */
-export function describe(a: Analysis): string {
-  return describeLines(a).join('\n');
+export function describe(a: Analysis, opts: DescribeOptions = {}): string {
+  return describeLines(a, opts).join('\n');
 }

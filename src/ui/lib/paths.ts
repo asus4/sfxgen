@@ -139,3 +139,29 @@ export function summarize(changes: Change[], limit = 3): string {
   if (changes.length > limit) parts.push(`+${changes.length - limit} more`);
   return parts.join(' · ');
 }
+
+/** The tracks a control acts on: their ids, or `all` when it reaches the master, a bus or the patch itself. */
+export function controlTracks(patch: Patch, control: Control): Set<string> | 'all' {
+  const ids = new Set<string>();
+  const paths = [...(control.targets ?? []).map((t) => t.path), ...(control.options ?? []).flatMap((o) => Object.keys(o.set ?? {}))];
+  for (const path of paths) {
+    const segs = splitPath(path);
+    if (segs[0] !== 'tracks' || !segs[1]) return 'all';
+    const byId = patch.tracks.find((t) => t.id === segs[1]);
+    const track = byId ?? (/^\d+$/.test(segs[1]) ? patch.tracks[Number(segs[1])] : undefined);
+    if (track) ids.add(track.id);
+  }
+  return ids;
+}
+
+/** What a control does, in a few words for the display: "zap · freq ×, env ↔". */
+export function describeControl(patch: Patch, control: Control): string {
+  const sign = { set: '', mul: ' ×', add: ' +', stretch: ' ↔' } as const;
+  const parts = (control.targets ?? []).map((t) => {
+    const segs = splitPath(t.path).filter((x) => !['tracks', 'source', 'fx'].includes(x));
+    return `${segs.join('.')}${sign[t.mode ?? 'set']}`;
+  });
+  if (control.options?.length) parts.push(`${control.options.length} choices`);
+  void patch;
+  return parts.join('  ') || 'no targets';
+}

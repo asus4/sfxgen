@@ -1,0 +1,133 @@
+{
+  "format": "sfxgen/1",
+  "name": "Text blip",
+  "description": "One syllable of a small character talking, for dialogue that types itself out: a 55 ms voiced \"eh\" from a tiny throat, its pitch dipping a little as it stops. Trigger one per letter with variations and the Pitch and Vowel controls wander into babble.",
+  "tags": [
+    "ui",
+    "text",
+    "typing",
+    "dialogue",
+    "blip",
+    "voice",
+    "talk",
+    "babble"
+  ],
+  "duration": "auto",
+  "seed": 14,
+  "tracks": [
+    {
+      "id": "syllable",
+      "note": "The whole sound: a throat, not a beep, so each character can have a voice.",
+      "source": {
+        "type": "voice",
+        "freq": [
+          [
+            0,
+            340
+          ],
+          [
+            0.05,
+            300
+          ]
+        ],
+        "vowel": 1,
+        "size": 0.6,
+        "resonance": 1.4,
+        "tension": 0.75,
+        "breath": 0.08,
+        "jitter": 0.5,
+        "shimmer": 0.3,
+        "env": {
+          "attack": 0.004,
+          "gate": 0.04,
+          "release": 0.02
+        }
+      }
+    }
+  ],
+  "controls": [
+    {
+      "id": "pitch",
+      "label": "Pitch",
+      "hint": "A low grumble to a high chirpy speaker.",
+      "value": 0.5,
+      "vary": 0.07,
+      "targets": [
+        {
+          "path": "tracks.syllable.source.freq",
+          "mode": "mul",
+          "from": 0.45,
+          "to": 2.2
+        }
+      ]
+    },
+    {
+      "id": "vowel",
+      "label": "Vowel",
+      "hint": "ah, eh, ee, oh, oo: vary it per letter for babble.",
+      "value": 1,
+      "min": 0,
+      "max": 4,
+      "vary": 1.2,
+      "targets": [
+        {
+          "path": "tracks.syllable.source.vowel",
+          "from": 0,
+          "to": 4,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "size",
+      "label": "Size",
+      "hint": "A mouse to an ogre: the throat, not the pitch.",
+      "value": 0.3,
+      "targets": [
+        {
+          "path": "tracks.syllable.source.size",
+          "from": 0.4,
+          "to": 2.2
+        }
+      ]
+    },
+    {
+      "id": "length",
+      "label": "Length",
+      "hint": "A clipped tick of a voice to a full syllable.",
+      "value": 0.3,
+      "targets": [
+        {
+          "path": "tracks.syllable.source.env.gate",
+          "from": 0.015,
+          "to": 0.14
+        }
+      ]
+    },
+    {
+      "id": "robot",
+      "label": "Robot",
+      "hint": "A soft living voice to a pressed, whistling machine.",
+      "value": 0.25,
+      "targets": [
+        {
+          "path": "tracks.syllable.source.tension",
+          "from": 0.3,
+          "to": 1,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.syllable.source.resonance",
+          "from": 0.9,
+          "to": 3.2
+        },
+        {
+          "path": "tracks.syllable.source.jitter",
+          "from": 0.9,
+          "to": 0,
+          "curve": "linear"
+        }
+      ]
+    }
+  ]
+}

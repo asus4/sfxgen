@@ -1,0 +1,294 @@
+{
+  "format": "sfxgen/1",
+  "name": "Door latch click",
+  "description": "An interior door pulled shut by its handle until the latch catches. 0 ms: the angled latch bolt meets the strike plate and is pushed back with a short brassy scrape of 45 ms; at 50 ms its spring fires it into the hole in the frame with the click itself, small, hard and metallic; 4 ms after that the door leaf meets the stop and the whole door gives one soft, deep wooden bump; a faint zing of the handle spring settling.",
+  "tags": [
+    "door",
+    "latch",
+    "click",
+    "close",
+    "shut",
+    "handle",
+    "lock",
+    "room",
+    "foley"
+  ],
+  "duration": "auto",
+  "seed": 22,
+  "master": {
+    "normalize": {
+      "mode": "peak",
+      "target": -2
+    }
+  },
+  "tracks": [
+    {
+      "id": "scrape",
+      "note": "The bolt riding over the strike plate: a short brass scrape, speeding up.",
+      "gain": -12,
+      "source": {
+        "type": "modal",
+        "material": "metal",
+        "shape": "bar",
+        "freq": 1650,
+        "decay": 0.03,
+        "damping": 2.5,
+        "brightness": 0.5,
+        "modes": 12,
+        "dent": 0.3,
+        "exciter": {
+          "kind": "scrape",
+          "hardness": 0.6,
+          "duration": 0.045,
+          "density": [
+            [
+              0,
+              500
+            ],
+            [
+              0.045,
+              1400
+            ]
+          ],
+          "roughness": 0.8
+        }
+      }
+    },
+    {
+      "id": "bolt",
+      "note": "The click: the sprung bolt snapping into the frame.",
+      "start": 0.05,
+      "source": {
+        "type": "modal",
+        "material": "metal",
+        "shape": "bar",
+        "freq": 1240,
+        "decay": 0.05,
+        "damping": 2.8,
+        "brightness": 0.55,
+        "modes": 14,
+        "dent": 0.25,
+        "position": 0.75,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.88
+        }
+      },
+      "events": [
+        {
+          "t": 0,
+          "vel": 1
+        },
+        {
+          "t": 0.013,
+          "vel": 0.25,
+          "pitch": 1.2
+        }
+      ],
+      "sends": {
+        "room": -18
+      }
+    },
+    {
+      "id": "leaf",
+      "note": "The door meeting its stop: one soft deep bump from the whole leaf and frame.",
+      "start": 0.054,
+      "gain": -9,
+      "source": {
+        "type": "modal",
+        "material": "wood",
+        "shape": "plate",
+        "freq": 93,
+        "decay": 0.19,
+        "damping": 1.7,
+        "brightness": 0.3,
+        "modes": 20,
+        "dent": 0.2,
+        "position": 0.9,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.35
+        }
+      },
+      "sends": {
+        "room": -15
+      }
+    },
+    {
+      "id": "spring",
+      "note": "The handle spring settling: a faint short zing.",
+      "start": 0.052,
+      "gain": -22,
+      "source": {
+        "type": "pluck",
+        "freq": 410,
+        "decay": 0.16,
+        "stiffness": 0.9,
+        "brightness": 0.8,
+        "position": 0.06,
+        "hardness": 0.8
+      }
+    }
+  ],
+  "buses": [
+    {
+      "id": "room",
+      "fx": [
+        {
+          "type": "reverb",
+          "space": "room",
+          "size": 5,
+          "decay": 0.45
+        }
+      ]
+    }
+  ],
+  "controls": [
+    {
+      "id": "door",
+      "label": "Door",
+      "hint": "A light hollow door that pats shut, to a heavy solid one that thuds.",
+      "value": 0.45,
+      "vary": 0.05,
+      "targets": [
+        {
+          "path": "tracks.leaf.source.freq",
+          "mode": "mul",
+          "from": 1.8,
+          "to": 0.55
+        },
+        {
+          "path": "tracks.leaf.source.decay",
+          "mode": "set",
+          "from": 0.1,
+          "to": 0.36
+        },
+        {
+          "path": "tracks.leaf.gain",
+          "mode": "set",
+          "from": -15,
+          "to": -3
+        }
+      ]
+    },
+    {
+      "id": "push",
+      "label": "Push",
+      "hint": "Eased shut so only the latch speaks, or pushed firmly home.",
+      "value": 0.5,
+      "vary": 0.08,
+      "targets": [
+        {
+          "path": "tracks.leaf.source.exciter.hardness",
+          "mode": "set",
+          "from": 0.15,
+          "to": 0.7
+        },
+        {
+          "path": "tracks.bolt.source.exciter.hardness",
+          "mode": "set",
+          "from": 0.6,
+          "to": 1
+        },
+        {
+          "path": "tracks.scrape.source.exciter.duration",
+          "mode": "set",
+          "from": 0.11,
+          "to": 0.02
+        },
+        {
+          "path": "tracks.bolt.start",
+          "mode": "set",
+          "from": 0.115,
+          "to": 0.024
+        },
+        {
+          "path": "tracks.leaf.start",
+          "mode": "set",
+          "from": 0.119,
+          "to": 0.028
+        },
+        {
+          "path": "tracks.spring.start",
+          "mode": "set",
+          "from": 0.117,
+          "to": 0.026
+        }
+      ]
+    },
+    {
+      "id": "latch",
+      "label": "Latch",
+      "hint": "A small cupboard catch to a big old mortice lock.",
+      "value": 0.45,
+      "vary": 0.03,
+      "targets": [
+        {
+          "path": "tracks.bolt.source.pitch",
+          "mode": "set",
+          "from": 12,
+          "to": -13,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.scrape.source.pitch",
+          "mode": "set",
+          "from": 9,
+          "to": -10,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.bolt.source.decay",
+          "mode": "set",
+          "from": 0.025,
+          "to": 0.12
+        }
+      ]
+    },
+    {
+      "id": "spring",
+      "label": "Spring",
+      "hint": "A dead latch, or a rattly handle whose spring zings.",
+      "value": 0.35,
+      "vary": 0.1,
+      "targets": [
+        {
+          "path": "tracks.spring.gain",
+          "mode": "set",
+          "from": -48,
+          "to": -6,
+          "curve": -0.377
+        },
+        {
+          "path": "tracks.scrape.gain",
+          "mode": "set",
+          "from": -24,
+          "to": -5,
+          "curve": -0.397
+        }
+      ]
+    },
+    {
+      "id": "room",
+      "label": "Room",
+      "hint": "Dry, or an empty room.",
+      "value": 0.35,
+      "targets": [
+        {
+          "path": "tracks.bolt.sends.room",
+          "mode": "set",
+          "from": -40,
+          "to": -6,
+          "curve": -0.423
+        },
+        {
+          "path": "tracks.leaf.sends.room",
+          "mode": "set",
+          "from": -40,
+          "to": -4,
+          "curve": -0.509
+        }
+      ]
+    }
+  ]
+}

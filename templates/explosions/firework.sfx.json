@@ -1,0 +1,140 @@
+{
+  "format": "sfxgen/1",
+  "name": "Firework rocket",
+  "description": "A rocket at a town display, watched from the square. 0 ms: the fuse lights and it leaves the tube with a short fizzing 'fsst'. 0 to 1.1 s: it climbs, screaming: a whistle (noise in a narrow pipe) that rises from 1.4 to 3.3 kHz with a fast warble and thins as it gets higher and farther. 1.1 to 1.3 s: silence. 1.3 s: the shell bursts 150 m up, a deep 'boomp' with a soft crack on it, already rounded by the distance. Then the stars: two seconds of crackling as they burn out, drifting down, and the bang coming back off the buildings.",
+  "tags": ["explosion", "firework", "rocket", "whistle", "celebration", "burst", "crackle", "sky", "festival"],
+  "duration": "auto",
+  "seed": 58,
+  "output": { "channels": 2 },
+  "tracks": [
+    {
+      "id": "launch",
+      "note": "Lift-off: a fizz of violet noise and a small hollow thump from the mortar tube.",
+      "gain": -8,
+      "source": {
+        "type": "noise",
+        "color": "violet",
+        "env": { "attack": 0.003, "decay": 0.22 },
+        "filter": { "mode": "bandpass", "cutoff": [[0, 2500], [0.2, 6000]], "q": 0.8 }
+      },
+      "fx": [{ "type": "resonator", "mode": "tube", "freq": 240, "decay": 0.12, "mix": 0.45 }]
+    },
+    {
+      "id": "whistle",
+      "note": "The screamer: noise forced through a tube resonator that climbs. The 26 Hz warble is the whistle composition burning unevenly; the gain curve is the rocket getting farther away.",
+      "start": 0.03,
+      "gain": -8.4,
+      "source": { "type": "noise", "color": "white", "env": { "attack": 0.03, "hold": 0.95, "decay": 0.12 } },
+      "fx": [
+        {
+          "type": "resonator",
+          "id": "pipe",
+          "mode": "tube",
+          "decay": 0.222,
+          "brightness": 0.2,
+          "freq": { "env": [[0, 1400], [1.05, 3300, 0.3]], "mod": [{ "type": "lfo", "shape": "triangle", "rate": 26, "depth": 0.6, "unit": "st" }] }
+        },
+        { "type": "eq", "bands": [{ "mode": "lowcut", "freq": 900, "slope": "24" }, { "mode": "highcut", "freq": 9000 }] },
+        { "type": "gain", "gain": [[0, 0], [1.05, -14]] }
+      ],
+      "sends": { "square": -12 }
+    },
+    {
+      "id": "burst",
+      "note": "The shell breaking: a soft-edged boom high overhead. Membrane plus noise exciter gives thump and crack in one; the lowpass is 150 m of air.",
+      "start": 1.3,
+      "gain": 3,
+      "source": {
+        "type": "modal",
+        "material": "skin",
+        "shape": "membrane",
+        "freq": [[0, 150], [0.15, 92]],
+        "decay": 0.57,
+        "position": 0.4,
+        "brightness": 0.6,
+        "exciter": { "kind": "noise", "hardness": 0.8, "duration": 0.04 }
+      },
+      "fx": [{ "type": "drive", "mode": "tube", "amount": 12 }, { "type": "filter", "id": "height", "mode": "lowpass", "cutoff": 3420 }],
+      "sends": { "square": -5 }
+    },
+    {
+      "id": "stars",
+      "note": "The stars burning out: crackle that starts thick right after the burst and thins for two seconds, spread across the sky.",
+      "start": 1.42,
+      "gain": -6.4,
+      "source": {
+        "type": "particles",
+        "distribution": "burst",
+        "density": 363,
+        "duration": 1.94,
+        "spread": 1,
+        "grain": { "kind": "crackle", "lo": 1500, "hi": 9000, "decayLo": 0.003, "decayHi": 0.03, "levelJitter": 20 }
+      },
+      "fx": [{ "type": "filter", "mode": "lowpass", "cutoff": [[0, 11000], [2.2, 3500]] }],
+      "sends": { "square": -10 }
+    }
+  ],
+  "buses": [
+    {
+      "id": "square",
+      "fx": [
+        { "type": "delay", "time": 240, "feedback": 0.2, "tone": 1800, "mix": 0.5 },
+        { "type": "reverb", "id": "town", "space": "stairwell", "size": 45, "decay": 1.8, "damping": 0.6, "predelay": 40, "mix": 0.6 }
+      ],
+      "gain": -12
+    }
+  ],
+  "controls": [
+    {
+      "id": "height",
+      "label": "Height",
+      "hint": "A low garden rocket, bursting soon and bright, to a big shell high up: a longer climb and a duller, later boom.",
+      "value": 0.5,
+      "targets": [
+        { "path": "tracks.whistle.source.env.hold", "mode": "mul", "from": 0.4, "to": 2.2 },
+        { "path": "tracks.whistle.fx.pipe.freq.env", "mode": "stretch", "from": 0.4, "to": 2.2 },
+        { "path": "tracks.whistle.fx.2.gain", "mode": "stretch", "from": 0.4, "to": 2.2 },
+        { "path": "tracks.burst.start", "mode": "mul", "from": 0.42, "to": 2.15 },
+        { "path": "tracks.stars.start", "mode": "mul", "from": 0.43, "to": 2.1 },
+        { "path": "tracks.burst.fx.height.cutoff", "from": 9000, "to": 1300 }
+      ]
+    },
+    {
+      "id": "size",
+      "label": "Shell size",
+      "hint": "A small pop of colour to a chest-thumping aerial shell.",
+      "value": 0.5,
+      "vary": 0.08,
+      "targets": [
+        { "path": "tracks.burst.source.freq", "mode": "mul", "from": 1.8, "to": 0.6 },
+        { "path": "tracks.burst.source.decay", "from": 0.25, "to": 1.3 }
+      ]
+    },
+    {
+      "id": "whistle",
+      "label": "Whistle",
+      "hint": "A silent climb, or a loud screaming one.",
+      "value": 0.6,
+      "targets": [{ "path": "tracks.whistle.gain", "from": -30, "to": 6 }, { "path": "tracks.whistle.fx.pipe.decay", "from": 0.05, "to": 0.6 }]
+    },
+    {
+      "id": "crackle",
+      "label": "Crackle",
+      "hint": "A plain burst, or a long glittering crackle of stars.",
+      "value": 0.55,
+      "vary": 0.12,
+      "targets": [
+        { "path": "tracks.stars.gain", "from": -24, "to": 8 },
+        { "path": "tracks.stars.source.duration", "from": 0.8, "to": 4 },
+        { "path": "tracks.stars.source.density", "from": 120, "to": 900 }
+      ]
+    },
+    {
+      "id": "square",
+      "label": "Town",
+      "hint": "Open field to a square ringed with buildings throwing the bang back.",
+      "value": 0.5,
+      "targets": [{ "path": "buses.square.gain", "mode": "set", "from": -30, "to": 6 }]
+    }
+  ]
+}

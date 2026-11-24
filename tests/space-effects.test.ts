@@ -92,7 +92,7 @@ describe('catalog', () => {
 describe('reverb', () => {
   it('adds a decaying tail in every space', () => {
     for (const space of getEffect('reverb')!.params.space.options!) {
-      const r = render(patch(burst, [{ type: 'reverb', space, mix: 0.5 }]));
+      const r = render(patch(burst, [{ type: 'reverb', space, mix: 0.5 }], { duration: 1.2 }));
       expectHealthy(r);
       const x = r.channels[0];
       // Sound after the dry burst has died (60 dB in 0.08 s), fading away by the end.
@@ -279,7 +279,7 @@ describe('varispeed', () => {
 
 describe('pitch', () => {
   it('shifts a tone and keeps the duration', () => {
-    const p = (semitones: number) => patch(tone(220, 0.6), [{ type: 'pitch', semitones }], { master: { normalize: { mode: 'none' } } });
+    const p = (semitones: number) => patch(tone(220, 0.6), [{ type: 'pitch', semitones }], { duration: 0.8, master: { normalize: { mode: 'none' } } });
     const dry = render(p(0));
     for (const st of [12, -12, 7]) {
       const r = render(p(st));

@@ -1,0 +1,122 @@
+{
+  "format": "sfxgen/1",
+  "name": "Menu select",
+  "description": "The cursor moving in an 8-bit menu, played on the triangle channel, which has no volume control: it is either on or off. A 16-step triangle at 660 Hz for 35 ms, then an octave up for 45 ms, switched off dead. The staircase of the 4-bit wave gives it a faint buzzing edge that a clean triangle does not have.",
+  "tags": [
+    "retro",
+    "8-bit",
+    "chiptune",
+    "menu",
+    "select",
+    "cursor",
+    "blip",
+    "triangle"
+  ],
+  "duration": "auto",
+  "seed": 7,
+  "tracks": [
+    {
+      "id": "tri",
+      "note": "One channel, two pitches, no envelope.",
+      "source": {
+        "type": "osc",
+        "wave": "triangle",
+        "freq": 660,
+        "pitch": [
+          [
+            0,
+            0
+          ],
+          [
+            0.035,
+            12,
+            "hold"
+          ]
+        ],
+        "env": {
+          "attack": 0,
+          "gate": 0.08,
+          "release": 0.012
+        }
+      },
+      "fx": [
+        {
+          "type": "crush",
+          "id": "steps",
+          "bits": 4
+        }
+      ]
+    }
+  ],
+  "controls": [
+    {
+      "id": "pitch",
+      "label": "Pitch",
+      "hint": "Move it per menu row, or drop it for a back sound.",
+      "value": 0,
+      "min": -12,
+      "max": 12,
+      "step": 1,
+      "unit": "st",
+      "vary": 1,
+      "targets": [
+        {
+          "path": "tracks.tri.source.pitch",
+          "mode": "add",
+          "from": -12,
+          "to": 12,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "leap",
+      "label": "Leap",
+      "hint": "A flat double blip to a jump of an octave and a fifth.",
+      "value": 0.63,
+      "targets": [
+        {
+          "path": "tracks.tri.source.pitch",
+          "mode": "mul",
+          "from": 0.0001,
+          "to": 1.584,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "length",
+      "label": "Length",
+      "hint": "A tick to two clear notes.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.tri.source.pitch",
+          "mode": "stretch",
+          "from": 0.4,
+          "to": 2.5
+        },
+        {
+          "path": "tracks.tri.source.env.gate",
+          "mode": "mul",
+          "from": 0.4,
+          "to": 2.5
+        }
+      ]
+    },
+    {
+      "id": "steps",
+      "label": "Steps",
+      "hint": "A buzzing 4-level staircase to a smooth, flute-like triangle.",
+      "value": 0.4,
+      "targets": [
+        {
+          "path": "tracks.tri.fx.steps.bits",
+          "from": 2,
+          "to": 7,
+          "curve": "linear"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,123 @@
+{
+  "format": "sfxgen/1",
+  "name": "Warp jump",
+  "description": "A starship jumps to light speed, heard from just behind it. 0 to 1.2 s: space is pulled in: the ring of a huge struck hull plate played backwards in a cathedral-sized reverb, swelling out of nothing, while the drive's chord is stretched upward two octaves through a jet-like flanger. 1.2 s: the jump, a slammed low boom with a cracking front edge. After it the ship is already gone: its wake tears away past you (noise with real Doppler at 140 m/s) and the boom rolls off into empty space for three seconds.",
+  "tags": ["scifi", "warp", "hyperspace", "jump", "spaceship", "ftl", "whoosh", "boom", "riser"],
+  "duration": "auto",
+  "seed": 21,
+  "output": { "channels": 2 },
+  "tracks": [
+    {
+      "id": "inhale",
+      "note": "The suck-in: a metal plate hit, drowned in reverb, then reversed so it climaxes exactly at the jump (the reversed sound is 1.2 s long).",
+      "gain": -6.8,
+      "source": {
+        "type": "modal",
+        "material": "metal",
+        "shape": "plate",
+        "freq": 140,
+        "decay": 1.2,
+        "modes": 40,
+        "dent": 0.3,
+        "position": 0.8,
+        "exciter": { "kind": "mallet", "hardness": 0.8 }
+      },
+      "length": 1.19,
+      "fx": [
+        { "type": "reverb", "space": "cathedral", "decay": 1.1, "mix": 0.6, "predelay": 0 },
+        { "type": "gate", "threshold": -34, "release": 0.02, "hold": 0.005 },
+        { "type": "reverse" }
+      ]
+    },
+    {
+      "id": "stretch",
+      "note": "The drive spooling: a stacked saw chord dragged up two octaves, faster and faster. The flanger's delay closes to almost nothing, like a jet passing.",
+      "gain": -3.8,
+      "source": {
+        "type": "osc",
+        "wave": "saw",
+        "freq": 61,
+        "unison": 7,
+        "detune": 38,
+        "width": 1,
+        "pitch": [[0, 0], [0.7, 5, "linear"], [1.2, 26, 0.6]],
+        "env": { "points": [[0, 0], [0.03, 0.2], [0.3, 0.3], [1.15, 1], [1.2, 0]], "curve": "linear" },
+        "filter": { "mode": "lowpass", "cutoff": [[0, 400], [1.2, 14000]], "q": 1.5 }
+      },
+      "fx": [{ "type": "flanger", "delay": [[0, 0.009], [1.2, 0.0004]], "depth": 0, "feedback": 0.82 }]
+    },
+    {
+      "id": "jump",
+      "note": "The moment: a huge soft-struck membrane for the boom (weight at 60 to 200 Hz), a 30 ms noise crack on its front, pushed into a tube for harmonics small speakers can play.",
+      "start": 1.2,
+      "gain": -4,
+      "source": {
+        "type": "modal",
+        "material": "skin",
+        "shape": "membrane",
+        "freq": [[0, 124], [0.25, 60]],
+        "decay": 1.34,
+        "position": 0.6,
+        "brightness": 0.75,
+        "exciter": { "kind": "noise", "hardness": 0.95, "duration": 0.06 }
+      },
+      "fx": [
+        { "type": "drive", "mode": "tube", "amount": 13.9, "tone": 5000 },
+        { "type": "transient", "attack": 7 },
+        { "type": "eq", "bands": [{ "mode": "lowcut", "freq": 55, "slope": "24" }] }
+      ],
+      "sends": { "void": -14 }
+    },
+    {
+      "id": "wake",
+      "note": "The ship leaving: the doppler puts the closest pass at the jump, so only the falling, receding half is heard.",
+      "start": 1.17,
+      "gain": -9,
+      "source": {
+        "type": "noise",
+        "color": "pink",
+        "width": 0.6,
+        "env": { "attack": 0.02, "hold": 0.5, "decay": 1.22 },
+        "filter": { "mode": "bandpass", "cutoff": [[0, 5200], [0.9, 420]], "q": 0.8 }
+      },
+      "fx": [{ "type": "doppler", "id": "away", "speed": 140, "distance": 6, "time": 0.03, "direction": "front-to-back", "air": 2 }],
+      "sends": { "void": -8 }
+    }
+  ],
+  "buses": [{ "id": "void", "fx": [{ "type": "reverb", "id": "tail", "space": "cathedral", "decay": 2.65, "damping": 0.6, "predelay": 35, "lowcut": 140 }] }],
+  "controls": [
+    {
+      "id": "power",
+      "label": "Power",
+      "hint": "A small courier's hop to a capital ship tearing a hole.",
+      "value": 0.55,
+      "targets": [
+        { "path": "tracks.jump.source.freq", "mode": "mul", "from": 1.6, "to": 0.8 },
+        { "path": "tracks.jump.source.decay", "from": 0.6, "to": 2.6 },
+        { "path": "tracks.jump.fx.0.amount", "from": 4, "to": 22, "curve": "linear" },
+        { "path": "tracks.stretch.source.freq", "mode": "mul", "from": 1.5, "to": 0.9 }
+      ]
+    },
+    {
+      "id": "inhale",
+      "label": "Pull",
+      "hint": "How strongly space is sucked in before the jump.",
+      "value": 0.6,
+      "targets": [{ "path": "tracks.inhale.gain", "from": -26, "to": 6 }, { "path": "tracks.stretch.gain", "from": -14, "to": 3 }]
+    },
+    {
+      "id": "wake",
+      "label": "Wake",
+      "hint": "A clean vanish, or a long tearing whoosh as it leaves.",
+      "value": 0.5,
+      "targets": [{ "path": "tracks.wake.gain", "from": -24, "to": 6 }, { "path": "tracks.wake.source.env.decay", "from": 0.5, "to": 3 }]
+    },
+    {
+      "id": "tail",
+      "label": "Void",
+      "hint": "A dry thump to a boom rolling away through an enormous space.",
+      "value": 0.5,
+      "targets": [{ "path": "tracks.jump.sends.void", "from": -30, "to": 2 }, { "path": "buses.void.fx.tail.decay", "from": 1, "to": 7 }]
+    }
+  ]
+}

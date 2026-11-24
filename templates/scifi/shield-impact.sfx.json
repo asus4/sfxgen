@@ -1,0 +1,103 @@
+{
+  "format": "sfxgen/1",
+  "name": "Energy shield impact",
+  "description": "A shot stops against a personal energy shield. The field behaves like a huge thin glass bowl: at 0 ms it is struck and rings with a wobbling, beating hum (two detuned sets of modes), but a ring modulator turns that ring electric and wrong. 0 to 250 ms: the surface crackles where it was hit as the charge spreads. A soft low 'bwom' is the field flexing inward and recovering over 300 ms.",
+  "tags": ["scifi", "shield", "energy", "impact", "deflect", "barrier", "force field"],
+  "duration": "auto",
+  "seed": 8,
+  "tracks": [
+    {
+      "id": "field",
+      "note": "The shield as an object: a glass bowl 2 m wide, its modes beating. The ring modulator keeps some of the bowl and adds inharmonic sidebands, so it is glassy but not glass.",
+      "source": {
+        "type": "modal",
+        "material": "glass",
+        "shape": "bowl",
+        "freq": [[0, 232], [0.06, 205], [0.9, 211]],
+        "decay": 1.65,
+        "beat": 6.24,
+        "modes": 28,
+        "position": 0.69,
+        "brightness": 0.6,
+        "dent": 0.15,
+        "exciter": { "kind": "mallet", "hardness": 0.72 }
+      },
+      "fx": [
+        { "type": "ringmod", "id": "charge", "freq": 437, "shape": "sine", "bias": 0.55 },
+        { "type": "phaser", "freq": 1300, "depth": 2, "rate": 1.7, "stages": "8", "feedback": 0.55 }
+      ]
+    },
+    {
+      "id": "flex",
+      "note": "The field bowing in and springing back: the weight of the hit. A buzzing low tone, not a clean sine.",
+      "start": 0.004,
+      "gain": -12.6,
+      "source": { "type": "osc", "wave": "triangle", "freq": [[0, 190], [0.09, 74], [0.3, 92]], "env": { "attack": 0.004, "decay": 0.38 } },
+      "fx": [{ "type": "tremolo", "rate": 38, "depth": 0.55, "shape": "sine" }]
+    },
+    {
+      "id": "crackle",
+      "note": "The charge spreading across the surface from the point of impact.",
+      "start": 0.006,
+      "gain": -17.3,
+      "source": {
+        "type": "particles",
+        "distribution": "burst",
+        "density": 420,
+        "duration": 0.291,
+        "grain": { "kind": "crackle", "lo": 1800, "hi": 8000, "decayLo": 0.003, "decayHi": 0.02, "levelJitter": 18 }
+      },
+      "fx": [{ "type": "filter", "mode": "highpass", "cutoff": 1500 }]
+    }
+  ],
+  "master": { "fx": [{ "type": "limiter", "gain": 13, "release": 0.12 }] },
+  "controls": [
+    {
+      "id": "size",
+      "label": "Shield size",
+      "hint": "A wrist buckler to a ship's deflector: lower, longer ring.",
+      "value": 0.45,
+      "vary": 0.05,
+      "targets": [
+        { "path": "tracks.field.source.freq", "mode": "mul", "from": 2.4, "to": 0.45 },
+        { "path": "tracks.field.source.decay", "from": 0.8, "to": 4 },
+        { "path": "tracks.flex.source.freq", "mode": "mul", "from": 1.7, "to": 0.6 },
+        { "path": "tracks.field.fx.charge.freq", "mode": "mul", "from": 1.9, "to": 0.55 }
+      ]
+    },
+    {
+      "id": "force",
+      "label": "Hit force",
+      "hint": "A glancing pebble to a cannon round: harder, brighter, with more flex.",
+      "value": 0.6,
+      "vary": 0.1,
+      "targets": [
+        { "path": "tracks.field.source.exciter.hardness", "from": 0.3, "to": 1 },
+        { "path": "tracks.field.source.position", "from": 0.3, "to": 0.95 },
+        { "path": "tracks.flex.gain", "from": -24, "to": -5 }
+      ]
+    },
+    {
+      "id": "charge",
+      "label": "Charge",
+      "hint": "Nearly plain glass to a fully electric, alien clang.",
+      "value": 0.45,
+      "targets": [{ "path": "tracks.field.fx.charge.bias", "from": 1, "to": 0 }]
+    },
+    {
+      "id": "wobble",
+      "label": "Wobble",
+      "hint": "A steady ring to a fast shimmering flutter.",
+      "value": 0.5,
+      "targets": [{ "path": "tracks.field.source.beat", "from": 1.5, "to": 26, "curve": "exp" }]
+    },
+    {
+      "id": "crackle",
+      "label": "Crackle",
+      "hint": "Surface discharge: none to a shower.",
+      "value": 0.55,
+      "vary": 0.1,
+      "targets": [{ "path": "tracks.crackle.gain", "from": -36, "to": -2 }, { "path": "tracks.crackle.source.duration", "from": 0.12, "to": 0.6 }]
+    }
+  ]
+}

@@ -1,27 +1,35 @@
-/** The controls: the few knobs the agent chose for a person to try. The default view. */
+/**
+ * The two control zones. Easy control: the few knobs the agent chose for a person to try, in one row, each in its
+ * own colour (the display shows that colour where the control acts, and full control outlines what it drives).
+ * Full control: every parameter of the open sound; its tabs turn it into the mixer, the project or the notes.
+ */
 import { useEffect, useMemo, useRef } from 'react';
 import type { Control } from '../../core';
 import { audition } from '../controller';
-import { inkAt } from '../lib/inks';
+import { controlColor } from '../lib/inks';
 import { controlDefault, removeControl, setControlValue } from '../lib/patchOps';
-import { useEditor } from '../store';
+import { useEditor, versionIn, type Surface as SurfaceMode } from '../store';
+import { Everything } from './Everything';
 import { Icon } from './Icon';
 import { Knob } from './Knob';
+import { Mixer } from './Mixer';
+import { ProjectSettings } from './ProjectSettings';
+import { Notes } from './Display';
 import { Flash, Segmented, Switch } from './Widgets';
 
-function ControlCard({ control, index, big }: { control: Control; index: number; big: boolean }) {
+function ControlCard({ control, index, size }: { control: Control; index: number; size: number }) {
   const edit = useEditor((s) => s.edit);
   const seal = useEditor((s) => s.seal);
-  const everything = useEditor((s) => s.everything);
-  const saved = useEditor((s) => s.saved.controls?.find((c) => c.id === control.id));
+  const saved = useEditor((s) => versionIn(s.saved, s.project.sounds[s.current])?.patch?.controls?.find((c) => c.id === control.id));
   const focus = useEditor((s) => (s.focus?.control === control.id ? s.focus.nonce : 0));
+  const active = useEditor((s) => s.activeControl === control.id);
   const card = useRef<HTMLDivElement>(null);
-  const ink = inkAt(index);
+  const color = controlColor(index);
   const hintId = `hint-${control.id}`;
 
   useEffect(() => {
     if (!focus || !card.current) return;
-    card.current.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    card.current.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
     card.current.querySelector<HTMLElement>('[role="slider"],button')?.focus({ preventScroll: true });
   }, [focus]);
 
@@ -29,6 +37,12 @@ function ControlCard({ control, index, big }: { control: Control; index: number;
   const commit = () => {
     seal();
     audition();
+  };
+  // The display follows the control under the pointer or the keyboard.
+  const follow = (on: boolean) => {
+    const now = useEditor.getState().activeControl;
+    if (on && now !== control.id) useEditor.setState({ activeControl: control.id });
+    else if (!on && now === control.id) useEditor.setState({ activeControl: null });
   };
 
   const options = control.options ?? [];
@@ -39,9 +53,21 @@ function ControlCard({ control, index, big }: { control: Control; index: number;
   const log = control.scale === 'exp' && min > 0 && max > 0;
 
   return (
-    <div ref={card} className={`control${isSelect ? ' control-select' : ''}`} style={{ '--c': ink } as React.CSSProperties}>
+    <div
+      ref={card}
+      className={`control${isSelect ? ' control-select' : ''}${active ? ' is-active' : ''}`}
+      title={control.hint}
+      style={{ '--c': color } as React.CSSProperties}
+      onPointerEnter={() => follow(true)}
+      onPointerLeave={() => follow(false)}
+      onFocus={() => follow(true)}
+      onBlur={(e) => !e.currentTarget.contains(e.relatedTarget as Node | null) && follow(false)}
+    >
       <Flash id={`c:${control.id}`} />
-      <div className="control-label display">{control.label}</div>
+      <div className="control-label">
+        <i className="control-dot" />
+        {control.label}
+      </div>
       {isToggle ? (
         <Switch
           label={options[Math.round(control.value)]?.label ?? ''}
@@ -70,29 +96,31 @@ function ControlCard({ control, index, big }: { control: Control; index: number;
           range={{ min, max, scale: log ? 'log' : 'linear', step: control.step }}
           unit={control.unit}
           defaultValue={controlDefault(control, saved)}
-          size={big ? 128 : 104}
-          ink={ink}
+          size={size}
+          ink={color}
           describedBy={control.hint ? hintId : undefined}
           onChange={set}
           onCommit={commit}
         />
       )}
       {control.hint && (
-        <p id={hintId} className="control-hint">
+        <p id={hintId} className="sr-only">
           {control.hint}
         </p>
       )}
-      {everything && (
-        <button type="button" className="control-remove" aria-label={`Remove the ${control.label} control`} title="Remove this control" onClick={() => edit((p) => removeControl(p, control.id))}>
-          <Icon name="close" size={14} />
-        </button>
-      )}
+      <button type="button" className="control-remove" aria-label={`Remove the ${control.label} control`} title="Remove this control" onClick={() => edit((p) => removeControl(p, control.id))}>
+        <Icon name="close" size={12} />
+      </button>
     </div>
   );
 }
 
-export function ControlsPanel() {
+const KNOB = 50;
+
+/** Easy control: the patch's controls in one row. It scrolls sideways when there are many. */
+export function EasyStrip() {
   const controls = useEditor((s) => s.patch.controls);
+  const hint = useEditor((s) => s.patch.controls?.find((c) => c.id === s.activeControl)?.hint);
   const groups = useMemo(() => {
     const out: { name: string; items: { control: Control; index: number }[] }[] = [];
     (controls ?? []).forEach((control, index) => {
@@ -103,31 +131,69 @@ export function ControlsPanel() {
     });
     return out;
   }, [controls]);
-
-  // A few controls get bigger knobs: the fewer the moves, the more each one matters.
-  const big = (controls?.length ?? 0) <= 4;
   return (
-    <section className={`controls sheet${big ? ' is-big' : ''}`} aria-label="Controls">
-      <header className="panel-head">
-        <h2 className="display">Controls</h2>
-        <p>The moves that matter for this sound. Drag a knob up or down, double-click to reset.</p>
-      </header>
-      {groups.length === 0 ? (
-        <p className="empty">
-          This patch has no controls yet. Open <b>Everything</b> and pin the parameters worth playing with.
+    <section className="zone zone-easy" aria-label="Easy control">
+      <div className="easy-side">
+        <span className="zone-num">04</span>
+        <h2 className="zone-title">Easy control</h2>
+        <p className="zone-note" aria-hidden="true">
+          {hint ?? 'drag up or down · double-click resets · plays on release'}
         </p>
-      ) : (
-        groups.map((g) => (
-          <div key={g.name} className="control-group">
-            {g.name && <h3 className="group-name">{g.name}</h3>}
-            <div className="control-grid">
-              {g.items.map(({ control, index }) => (
-                <ControlCard key={control.id} control={control} index={index} big={big} />
-              ))}
-            </div>
+      </div>
+      <div className="easy-row">
+        {groups.length === 0 && <p className="empty">This sound has no easy controls yet: pin the parameters worth playing with from Full control.</p>}
+        {groups.map((g) => (
+          <div key={g.name} className="easy-group">
+            {g.name && <span className="legend">{g.name}</span>}
+            {g.items.map(({ control, index }) => (
+              <ControlCard key={control.id} control={control} index={index} size={KNOB} />
+            ))}
           </div>
-        ))
-      )}
+        ))}
+      </div>
+    </section>
+  );
+}
+
+const TABS: { id: SurfaceMode; label: string; title: string }[] = [
+  { id: 'sound', label: 'Sound', title: 'Every parameter of the open sound (E)' },
+  { id: 'mixer', label: 'Mix', title: 'Balance the set (M)' },
+  { id: 'project', label: 'Project', title: 'What the whole set shares' },
+  { id: 'notes', label: 'Notes', title: 'What the agent wrote, and who changed what' },
+];
+
+const NOTES = {
+  sound: 'every parameter · pin one to make it an easy control',
+  mixer: 'each sound’s level in the set, after levelling',
+  project: 'what every sound in the set shares',
+  notes: 'what the agent wrote, and who changed what',
+} as const;
+
+/** Full control: everything about the open sound, or the mixer, the project, the notes. */
+export function Surface() {
+  const surface = useEditor((s) => s.surface);
+  const fresh = useEditor((s) => (s.surface !== 'notes' && s.activity[0]?.origin === 'agent' ? s.activity[0].id : 0));
+  return (
+    <section className={`zone zone-surface surface-${surface}`} aria-label="Full control">
+      <header className="zone-head">
+        <span className="zone-num">05</span>
+        <h2 className="zone-title">Full control</h2>
+        <div className="seg" role="tablist" aria-label="What full control shows">
+          {TABS.map((t) => (
+            <button key={t.id} type="button" role="tab" aria-selected={surface === t.id} className={surface === t.id ? 'is-on' : ''} title={t.title} onClick={() => useEditor.setState({ surface: t.id })}>
+              {t.label}
+              {t.id === 'notes' && fresh > 0 && <i key={fresh} className="led led-agent" />}
+            </button>
+          ))}
+        </div>
+        <span className="zone-note">{NOTES[surface]}</span>
+      </header>
+      <div className="zone-body">
+        {surface === 'sound' && <Everything />}
+        {surface === 'mixer' && <Mixer />}
+        {surface === 'project' && <ProjectSettings />}
+        {surface === 'notes' && <Notes />}
+      </div>
     </section>
   );
 }

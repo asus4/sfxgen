@@ -1,0 +1,105 @@
+{
+  "format": "sfxgen/1",
+  "name": "Firecracker pop",
+  "description": "A single firecracker going off on a pavement three metres away. 0 ms: the crack, 4 ms of full-band noise as the paper tube bursts. 1 ms: the tube itself, a short hollow cardboard 'pok' at 480 Hz that gives the bang its small size. 15 to 250 ms: shreds of paper and grit scatter on the ground. 55 ms: one hard echo off the house across the street, duller, then a short street tail.",
+  "tags": ["explosion", "pop", "firecracker", "bang", "small", "cap", "snap", "burst"],
+  "duration": "auto",
+  "seed": 2,
+  "tracks": [
+    {
+      "id": "crack",
+      "note": "The burst: as short and bright as possible. Everything else is context for these 4 ms.",
+      "source": {
+        "type": "noise",
+        "color": "white",
+        "env": { "attack": 0.0002, "decay": 0.0297 },
+        "filter": { "mode": "lowpass", "cutoff": [[0, 16000], [0.03, 2500]] }
+      },
+      "fx": [{ "type": "drive", "mode": "hard", "amount": 12 }],
+      "sends": { "street": -8 },
+      "gain": -3
+    },
+    {
+      "id": "tube",
+      "note": "The paper tube: a cardboard pipe has almost no ring, just a hollow knock. This is what says 'small and paper' rather than 'gun'.",
+      "start": 0.001,
+      "gain": -0.35,
+      "source": {
+        "type": "modal",
+        "material": "cardboard",
+        "shape": "tube",
+        "freq": [[0, 560], [0.03, 470]],
+        "decay": 0.099,
+        "position": 0.8,
+        "brightness": 0.6,
+        "exciter": { "kind": "noise", "hardness": 0.9, "duration": 0.012 }
+      },
+      "sends": { "street": -8 }
+    },
+    {
+      "id": "shreds",
+      "note": "Paper and grit landing: sparse dry ticks, thinning out.",
+      "start": 0.015,
+      "gain": -23,
+      "source": {
+        "type": "particles",
+        "distribution": "burst",
+        "density": 140,
+        "duration": 0.245,
+        "grain": { "kind": "tick", "lo": 1200, "hi": 7000, "decayLo": 0.003, "decayHi": 0.015, "levelJitter": 16 }
+      }
+    }
+  ],
+  "buses": [
+    {
+      "id": "street",
+      "fx": [
+        { "type": "delay", "id": "wall", "time": 55.5, "feedback": 0.225, "tone": 3000, "highpass": 200, "mix": 0.6 },
+        { "type": "reverb", "id": "tail", "space": "stairwell", "size": 14, "decay": 0.6, "damping": 0.5, "mix": 0.5 }
+      ],
+      "gain": -12
+    }
+  ],
+  "controls": [
+    {
+      "id": "size",
+      "label": "Size",
+      "hint": "A toy cap, a tiny snap, to a fat banger with a hollow thump.",
+      "value": 0.45,
+      "vary": 0.08,
+      "targets": [
+        { "path": "tracks.tube.source.freq", "mode": "mul", "from": 2.2, "to": 0.4 },
+        { "path": "tracks.tube.source.decay", "from": 0.04, "to": 0.3 },
+        { "path": "tracks.tube.gain", "from": -8, "to": 9 },
+        { "path": "tracks.crack.source.env.decay", "from": 0.012, "to": 0.09 }
+      ]
+    },
+    {
+      "id": "snap",
+      "label": "Snap",
+      "hint": "A dull damp pop to an ear-stinging crack.",
+      "value": 0.6,
+      "vary": 0.08,
+      "targets": [{ "path": "tracks.crack.source.filter.cutoff", "mode": "mul", "from": 0.25, "to": 1.3 }, { "path": "tracks.crack.gain", "from": -12, "to": 3 }]
+    },
+    {
+      "id": "shreds",
+      "label": "Shreds",
+      "hint": "Paper and grit raining down afterwards.",
+      "value": 0.5,
+      "vary": 0.15,
+      "targets": [{ "path": "tracks.shreds.gain", "from": -40, "to": -6 }, { "path": "tracks.shreds.source.duration", "from": 0.1, "to": 0.6 }]
+    },
+    {
+      "id": "street",
+      "label": "Street",
+      "hint": "Open field, no echo, to a narrow alley slapping it back.",
+      "value": 0.5,
+      "targets": [
+        { "path": "buses.street.gain", "mode": "set", "from": -30, "to": 6 },
+        { "path": "buses.street.fx.wall.time", "from": 110, "to": 28 },
+        { "path": "buses.street.fx.wall.feedback", "from": 0, "to": 0.45 }
+      ]
+    }
+  ]
+}

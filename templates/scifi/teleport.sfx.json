@@ -1,0 +1,122 @@
+{
+  "format": "sfxgen/1",
+  "name": "Teleport out",
+  "description": "Someone is beamed away from a quiet room. 0 to 900 ms: the body dissolves into a column of glittering grains of tone that thicken and climb from 700 Hz to 9 kHz. Under them a hollow chord of the transporter beam swells and swirls. At 950 ms the column is gone and the air it left behind claps shut: a soft dull pop, and the room rings for a moment.",
+  "tags": ["scifi", "teleport", "transporter", "beam", "warp", "vanish", "shimmer"],
+  "duration": "auto",
+  "seed": 23,
+  "output": { "channels": 2 },
+  "tracks": [
+    {
+      "id": "glitter",
+      "note": "The body coming apart: hundreds of small tonal grains whose range climbs. Density builds, then thins as there is nothing left.",
+      "gain": -5,
+      "source": {
+        "type": "particles",
+        "distribution": "random",
+        "duration": 0.95,
+        "spread": 0.8,
+        "density": [[0, 30], [0.5, 520], [0.85, 300], [0.95, 20]],
+        "grain": {
+          "kind": "grain",
+          "tone": 0.85,
+          "lo": [[0, 700], [0.95, 3800]],
+          "hi": [[0, 1900], [0.95, 9500]],
+          "decayLo": 0.015,
+          "decayHi": 0.07,
+          "levelJitter": 10,
+          "size": 0.2
+        },
+        "pitch": 0
+      },
+      "sends": { "room": -10 }
+    },
+    {
+      "id": "beam",
+      "note": "The carrier beam: a hollow, odd-harmonic chord that opens up and is swirled by a phaser.",
+      "gain": -9.05,
+      "source": {
+        "type": "additive",
+        "freq": [[0, 196], [0.95, 262, "smooth"]],
+        "harmonics": 14,
+        "odd": 0.9,
+        "decay": 0,
+        "width": 0.7,
+        "tilt": [[0, -14], [0.8, -4]],
+        "env": { "points": [[0, 0], [0.35, 0.5], [0.8, 1], [0.95, 0]], "curve": "linear" },
+        "pitch": 0
+      },
+      "fx": [
+        { "type": "phaser", "id": "swirl", "freq": 900, "depth": 2.2, "rate": 1.54, "stages": "6", "feedback": 0.65 },
+        { "type": "chorus", "rate": 0.9, "depth": 0.3, "voices": 3 }
+      ],
+      "sends": { "room": -8 }
+    },
+    {
+      "id": "clap",
+      "note": "Air rushing into the space the body left: a dull, pitchless pop. Without it the sound has no ending.",
+      "start": 0.95,
+      "gain": -10.8,
+      "source": {
+        "type": "modal",
+        "material": "skin",
+        "shape": "membrane",
+        "freq": 118,
+        "decay": 0.16,
+        "position": 0.1,
+        "exciter": { "kind": "mallet", "hardness": 0.42 }
+      },
+      "sends": { "room": -6 }
+    }
+  ],
+  "buses": [{ "id": "room", "fx": [{ "type": "reverb", "id": "space", "space": "chamber", "decay": 1.1, "predelay": 12 }] }],
+  "controls": [
+    {
+      "id": "time",
+      "label": "Beam time",
+      "hint": "A quick blink away to a slow, ceremonial dissolve.",
+      "value": 0.5,
+      "targets": [
+        { "path": "tracks.glitter.source.duration", "mode": "mul", "from": 0.5, "to": 2 },
+        { "path": "tracks.glitter.source.density", "mode": "stretch", "from": 0.5, "to": 2 },
+        { "path": "tracks.glitter.source.grain.lo", "mode": "stretch", "from": 0.5, "to": 2 },
+        { "path": "tracks.glitter.source.grain.hi", "mode": "stretch", "from": 0.5, "to": 2 },
+        { "path": "tracks.beam.source.freq", "mode": "stretch", "from": 0.5, "to": 2 },
+        { "path": "tracks.beam.source.tilt", "mode": "stretch", "from": 0.5, "to": 2 },
+        { "path": "tracks.beam.source.env.points", "mode": "stretch", "from": 0.5, "to": 2 },
+        { "path": "tracks.clap.start", "mode": "mul", "from": 0.5, "to": 2 }
+      ]
+    },
+    {
+      "id": "glitter",
+      "label": "Glitter",
+      "hint": "A few sparse motes to a dense sparkling column.",
+      "value": 0.5,
+      "targets": [{ "path": "tracks.glitter.source.density", "mode": "mul", "from": 0.12, "to": 3 }, { "path": "tracks.glitter.gain", "from": -10, "to": 0 }]
+    },
+    {
+      "id": "pitch",
+      "label": "Pitch",
+      "hint": "A deep cargo transporter to a small, high personal one.",
+      "value": 0.5,
+      "targets": [
+        { "path": "tracks.beam.source.pitch", "mode": "set", "from": -9, "to": 9 },
+        { "path": "tracks.glitter.source.pitch", "mode": "set", "from": -7, "to": 7 }
+      ]
+    },
+    {
+      "id": "swirl",
+      "label": "Swirl",
+      "hint": "A steady beam to a fast, bubbling vortex.",
+      "value": 0.45,
+      "targets": [{ "path": "tracks.beam.fx.swirl.rate", "from": 0.4, "to": 8 }, { "path": "tracks.beam.gain", "from": -14, "to": -3 }]
+    },
+    {
+      "id": "pop",
+      "label": "Pop",
+      "hint": "How hard the air claps shut at the end.",
+      "value": 0.6,
+      "targets": [{ "path": "tracks.clap.gain", "from": -30, "to": 2 }, { "path": "tracks.clap.source.exciter.hardness", "from": 0.15, "to": 0.6 }]
+    }
+  ]
+}

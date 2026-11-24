@@ -1,0 +1,201 @@
+{
+  "format": "sfxgen/1",
+  "name": "Knock on a wooden door",
+  "description": "Knuckles on a panelled interior door, heard from the hallway side: three raps about 170 ms apart, uneven as a hand is, the second the firmest. Each rap is a bony knuckle click and then the door panel answering as a wide shallow wooden box; the room behind the door gives a short muffled bloom.",
+  "tags": [
+    "impact",
+    "knock",
+    "door",
+    "wood",
+    "knuckles",
+    "foley"
+  ],
+  "duration": "auto",
+  "seed": 5,
+  "tracks": [
+    {
+      "id": "panel",
+      "note": "The door panel: a thin wooden box that booms low and dies fast.",
+      "source": {
+        "type": "modal",
+        "material": "wood",
+        "shape": "box",
+        "freq": 148,
+        "decay": 0.16,
+        "damping": 1.5,
+        "brightness": 0.42,
+        "modes": 20,
+        "dent": 0.2,
+        "position": 0.35,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.5
+        }
+      },
+      "repeat": {
+        "count": 3,
+        "interval": 0.172,
+        "accel": 1.06,
+        "jitter": 0.008,
+        "velJitter": 0.3,
+        "pitchJitter": 0.35,
+        "decay": -0.5
+      },
+      "sends": {
+        "room": -14
+      }
+    },
+    {
+      "id": "knuckle",
+      "note": "Bone on wood: the small hard click on top of each rap.",
+      "gain": -9,
+      "start": 0.0005,
+      "source": {
+        "type": "modal",
+        "material": "wood",
+        "shape": "bar",
+        "freq": 1180,
+        "decay": 0.03,
+        "damping": 2.2,
+        "modes": 8,
+        "position": 0.7,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.75
+        }
+      },
+      "repeat": {
+        "count": 3,
+        "interval": 0.172,
+        "accel": 1.06,
+        "jitter": 0.008,
+        "velJitter": 0.3,
+        "pitchJitter": 0.8,
+        "decay": -0.5
+      }
+    }
+  ],
+  "buses": [
+    {
+      "id": "room",
+      "fx": [
+        {
+          "type": "reverb",
+          "space": "room",
+          "size": 4.5,
+          "decay": 0.45,
+          "damping": 0.7,
+          "highcut": 2600,
+          "predelay": 6
+        }
+      ]
+    }
+  ],
+  "controls": [
+    {
+      "id": "knocks",
+      "label": "Knocks",
+      "hint": "One rap to five.",
+      "value": 3,
+      "min": 1,
+      "max": 5,
+      "targets": [
+        {
+          "path": "tracks.panel.repeat.count",
+          "mode": "set",
+          "from": 1,
+          "to": 5,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.knuckle.repeat.count",
+          "mode": "set",
+          "from": 1,
+          "to": 5,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "urgency",
+      "label": "Urgency",
+      "hint": "A slow polite tap to fast hard pounding.",
+      "value": 0.4,
+      "vary": 0.06,
+      "targets": [
+        {
+          "path": "tracks.panel.repeat.interval",
+          "mode": "set",
+          "from": 0.3,
+          "to": 0.095
+        },
+        {
+          "path": "tracks.knuckle.repeat.interval",
+          "mode": "set",
+          "from": 0.3,
+          "to": 0.095
+        },
+        {
+          "path": "tracks.panel.source.exciter.hardness",
+          "mode": "set",
+          "from": 0.35,
+          "to": 0.72
+        },
+        {
+          "path": "tracks.knuckle.gain",
+          "mode": "set",
+          "from": -16,
+          "to": -4
+        }
+      ]
+    },
+    {
+      "id": "door",
+      "label": "Door",
+      "hint": "A thin hollow-core door that booms, to a thick oak one that barely answers.",
+      "value": 0.4,
+      "vary": 0.03,
+      "targets": [
+        {
+          "path": "tracks.panel.source.freq",
+          "mode": "mul",
+          "from": 0.75,
+          "to": 1.5
+        },
+        {
+          "path": "tracks.panel.source.decay",
+          "mode": "set",
+          "from": 0.26,
+          "to": 0.07
+        },
+        {
+          "path": "tracks.panel.source.brightness",
+          "mode": "set",
+          "from": 0.3,
+          "to": 0.6
+        },
+        {
+          "path": "tracks.knuckle.source.freq",
+          "mode": "mul",
+          "from": 0.85,
+          "to": 1.3
+        }
+      ]
+    },
+    {
+      "id": "room",
+      "label": "Room behind",
+      "hint": "Nothing behind the door, or an empty room that answers.",
+      "value": 0.45,
+      "targets": [
+        {
+          "path": "tracks.panel.sends.room",
+          "mode": "set",
+          "from": -40,
+          "to": -2,
+          "curve": -0.358
+        }
+      ]
+    }
+  ]
+}

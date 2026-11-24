@@ -3,7 +3,7 @@
  * time and keeps only the newest patch waiting (latest wins). A TrackCache lives here: turning one track's knob
  * re-renders that track alone.
  */
-import { TrackCache, encodeWav, render, type Patch, type RenderResult } from '../core';
+import { TrackCache, encodeWav, loudness, render, type Patch, type RenderResult } from '../core';
 import { magnitudeSpectrum } from '../core/dsp/fft';
 import { computePeaks } from '../ui/lib/peaks';
 import type { RenderJobOptions, RenderView, SpectrogramGrid, WorkerRequest, WorkerResponse } from '../ui/renderProtocol';
@@ -35,6 +35,18 @@ function mono(channels: Float32Array[]): Float32Array {
   const out = new Float32Array(channels[0].length);
   for (let i = 0; i < out.length; i++) out[i] = (channels[0][i] + channels[1][i]) * 0.5;
   return out;
+}
+
+function scale(buffers: Float32Array[], gainDb: number): void {
+  if (!gainDb) return;
+  const g = Math.pow(10, gainDb / 20);
+  for (const b of buffers) for (let i = 0; i < b.length; i++) b[i] *= g;
+}
+
+function peakDb(channels: Float32Array[]): number {
+  let p = 0;
+  for (const ch of channels) for (let i = 0; i < ch.length; i++) if (Math.abs(ch[i]) > p) p = Math.abs(ch[i]);
+  return p > 0 ? 20 * Math.log10(p) : -Infinity;
 }
 
 function job(patch: Patch, opts: RenderJobOptions): RenderResult {
@@ -89,6 +101,7 @@ function handle(req: WorkerRequest): { res: WorkerResponse; transfer: ArrayBuffe
   switch (req.kind) {
     case 'live': {
       const r = render(req.patch, { keepTracks: true, cache });
+      scale([...r.channels, ...(r.tracks ?? []).map((t) => t.buffer)], req.gainDb);
       lastMix = { id: req.id, samples: mono(r.channels), sampleRate: r.sampleRate };
       const view = toView(req.id, r);
       return { res: { kind: 'live', id: req.id, ok: true, view }, transfer: buffersOf(view) };
@@ -99,10 +112,22 @@ function handle(req: WorkerRequest): { res: WorkerResponse; transfer: ArrayBuffe
     }
     case 'wav': {
       const r = job(req.patch, req.opts);
+      scale(r.channels, req.gainDb);
       const bytes = encodeWav(r.channels, r.sampleRate, req.bitDepth);
+      const pk = peakDb(r.channels);
+      const warnings = pk > 0 ? [...r.warnings, `peaks at ${pk.toFixed(1)} dBFS: it will clip`] : r.warnings;
       return {
-        res: { kind: 'wav', id: req.id, ok: true, bytes, duration: r.duration, warnings: r.warnings },
+        res: { kind: 'wav', id: req.id, ok: true, bytes, duration: r.duration, warnings, peakDb: pk, lufs: loudness(r.channels, r.sampleRate).integrated },
         transfer: [bytes.buffer as ArrayBuffer],
+      };
+    }
+    case 'sound': {
+      const r = render(req.patch, {});
+      const view = toView(req.id, r);
+      const peaks = computePeaks(mono(r.channels), r.sampleRate, 0, r.duration, req.bins).data;
+      return {
+        res: { kind: 'sound', id: req.id, ok: true, view, lufs: loudness(r.channels, r.sampleRate).integrated, peakDb: peakDb(r.channels), peaks },
+        transfer: [...buffersOf(view), peaks.buffer as ArrayBuffer],
       };
     }
     case 'thumb': {

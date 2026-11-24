@@ -1,0 +1,328 @@
+{
+  "format": "sfxgen/1",
+  "name": "Thunder",
+  "description": "Lightning strikes about 600 m away over open country. The crack arrives first: a tearing, splitting burst of 250 ms. Then the boom of the main channel at 120 ms, and after it the rumble rolls on for five seconds as sound from the farther parts of the bolt arrives, in three or four uneven surges (near 0.9, 1.7 and 2.8 s), each darker than the last, until only a low murmur is left.",
+  "tags": [
+    "nature",
+    "thunder",
+    "storm",
+    "weather",
+    "lightning",
+    "rumble",
+    "boom"
+  ],
+  "duration": "auto",
+  "maxDuration": 6.5,
+  "seed": 23,
+  "tracks": [
+    {
+      "id": "crack",
+      "note": "The tearing crack of the near part of the bolt: a ragged cluster of sharp pops, not a single click. Only present when the strike is close.",
+      "gain": 12,
+      "source": {
+        "type": "particles",
+        "distribution": "burst",
+        "density": 1500,
+        "duration": 0.28,
+        "grain": {
+          "kind": "crackle",
+          "lo": 700,
+          "hi": 7000,
+          "decayLo": 0.004,
+          "decayHi": 0.03,
+          "levelJitter": 8,
+          "size": 0.5
+        }
+      },
+      "fx": [
+        {
+          "type": "drive",
+          "mode": "hard",
+          "amount": 8,
+          "tone": 9000
+        }
+      ]
+    },
+    {
+      "id": "boom",
+      "gain": -11,
+      "note": "The main body: dark noise that slams in at 120 ms and darkens as it decays. Kept strong from 80 to 300 Hz so it is felt on small speakers.",
+      "start": 0.12,
+      "source": {
+        "type": "noise",
+        "color": "brown",
+        "env": {
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              0.025,
+              1
+            ],
+            [
+              0.35,
+              0.5
+            ],
+            [
+              1.4,
+              0.12
+            ],
+            [
+              2.6,
+              0
+            ]
+          ],
+          "curve": "linear"
+        },
+        "filter": {
+          "mode": "lowpass",
+          "cutoff": [
+            [
+              0,
+              4000
+            ],
+            [
+              0.3,
+              800
+            ],
+            [
+              2.5,
+              200
+            ]
+          ],
+          "q": 0.8
+        }
+      },
+      "fx": [
+        {
+          "id": "push",
+          "type": "drive",
+          "mode": "tanh",
+          "amount": 10,
+          "tone": 4000
+        }
+      ]
+    },
+    {
+      "id": "roll",
+      "note": "The rolling rumble: the same thunder from farther along the bolt, arriving in uneven surges and fading over five seconds.",
+      "start": 0.5,
+      "gain": 0,
+      "source": {
+        "type": "noise",
+        "color": "brown",
+        "env": {
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              0.4,
+              0.8
+            ],
+            [
+              0.8,
+              0.4
+            ],
+            [
+              1.2,
+              1
+            ],
+            [
+              1.8,
+              0.35
+            ],
+            [
+              2.3,
+              0.6
+            ],
+            [
+              3.4,
+              0.18
+            ],
+            [
+              5,
+              0
+            ]
+          ],
+          "curve": "linear"
+        },
+        "filter": {
+          "mode": "lowpass",
+          "cutoff": [
+            [
+              0,
+              650
+            ],
+            [
+              2,
+              320
+            ],
+            [
+              5,
+              130
+            ]
+          ],
+          "slope": "24"
+        }
+      },
+      "fx": [
+        {
+          "type": "tremolo",
+          "rate": {
+            "value": 6,
+            "mod": [
+              {
+                "type": "wander",
+                "rate": 1,
+                "depth": 3
+              }
+            ]
+          },
+          "depth": 0.6,
+          "shape": "random"
+        }
+      ]
+    }
+  ],
+  "master": {
+    "fx": [
+      {
+        "id": "air",
+        "type": "eq",
+        "bands": [
+          {
+            "mode": "lowcut",
+            "freq": 55,
+            "slope": "24"
+          },
+          {
+            "id": "far",
+            "mode": "highcut",
+            "freq": 12000,
+            "slope": "12"
+          },
+          {
+            "mode": "peak",
+            "freq": 180,
+            "gain": 4,
+            "q": 0.8
+          }
+        ]
+      },
+      {
+        "id": "sky",
+        "type": "reverb",
+        "space": "hall",
+        "size": 60,
+        "decay": 3.5,
+        "damping": 0.75,
+        "predelay": 40,
+        "mix": 0.3
+      }
+    ]
+  },
+  "controls": [
+    {
+      "id": "distance",
+      "label": "Distance",
+      "hint": "Right overhead (all crack) to a storm beyond the hills (all rumble).",
+      "value": 0.3,
+      "targets": [
+        {
+          "path": "tracks.crack.gain",
+          "mode": "set",
+          "from": 12,
+          "to": -30
+        },
+        {
+          "path": "master.fx.air.bands.far.freq",
+          "mode": "set",
+          "from": 16000,
+          "to": 500
+        },
+        {
+          "path": "tracks.boom.source.env.points",
+          "mode": "stretch",
+          "from": 0.7,
+          "to": 1.5
+        },
+        {
+          "path": "master.fx.sky.mix",
+          "mode": "set",
+          "from": 0.15,
+          "to": 0.6
+        }
+      ]
+    },
+    {
+      "id": "power",
+      "label": "Power",
+      "hint": "A small bolt to one that shakes the windows.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.boom.fx.push.amount",
+          "mode": "set",
+          "from": 2,
+          "to": 26
+        },
+        {
+          "path": "tracks.boom.gain",
+          "mode": "set",
+          "from": -17,
+          "to": -6
+        }
+      ]
+    },
+    {
+      "id": "roll",
+      "label": "Roll",
+      "hint": "One clap and done, to a rumble that goes on and on.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.roll.gain",
+          "mode": "set",
+          "from": -20,
+          "to": 6
+        },
+        {
+          "path": "tracks.roll.source.env.points",
+          "mode": "stretch",
+          "from": 0.5,
+          "to": 1.4
+        },
+        {
+          "path": "tracks.roll.source.filter.cutoff",
+          "mode": "stretch",
+          "from": 0.5,
+          "to": 1.4
+        }
+      ]
+    },
+    {
+      "id": "tear",
+      "label": "Tear",
+      "hint": "A single snap to a long ripping crackle before the boom.",
+      "value": 0.45,
+      "targets": [
+        {
+          "path": "tracks.crack.source.duration",
+          "mode": "set",
+          "from": 0.08,
+          "to": 0.7
+        },
+        {
+          "path": "tracks.crack.source.density",
+          "mode": "set",
+          "from": 700,
+          "to": 2600
+        }
+      ]
+    }
+  ]
+}

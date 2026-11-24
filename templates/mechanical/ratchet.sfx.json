@@ -1,0 +1,226 @@
+{
+  "format": "sfxgen/1",
+  "name": "Ratchet",
+  "description": "A socket wrench swung back on its ratchet in a garage: fourteen pawl clicks in about half a second, starting quick and slowing a little as the wrist reaches the end of its swing, each one a hard steel click into a tooth with the hollow handle ringing shortly after it; uneven the way a hand is.",
+  "tags": [
+    "mechanical",
+    "ratchet",
+    "wrench",
+    "tool",
+    "clicks",
+    "gear",
+    "pawl",
+    "winch"
+  ],
+  "duration": "auto",
+  "seed": 18,
+  "tracks": [
+    {
+      "id": "pawl",
+      "note": "The pawl dropping into each tooth: a run of hard steel clicks, slowing slightly.",
+      "source": {
+        "type": "modal",
+        "material": "metal",
+        "shape": "tine",
+        "freq": 2480,
+        "decay": 0.03,
+        "damping": 2.8,
+        "brightness": 0.55,
+        "modes": 10,
+        "dent": 0.3,
+        "position": 0.85,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.92
+        }
+      },
+      "repeat": {
+        "count": 14,
+        "interval": 0.03,
+        "accel": 1.035,
+        "jitter": 0.003,
+        "velJitter": 0.3,
+        "pitchJitter": 0.35
+      },
+      "fx": [
+        {
+          "type": "resonator",
+          "id": "handle",
+          "mode": "metal",
+          "freq": 612,
+          "decay": 0.07,
+          "brightness": 0.4,
+          "mix": 0.3
+        }
+      ]
+    },
+    {
+      "id": "gear",
+      "note": "The gear body under the clicks: a low-mid knock so it is a tool, not a toy.",
+      "gain": -9,
+      "start": 0.0006,
+      "source": {
+        "type": "modal",
+        "material": "metal",
+        "shape": "box",
+        "freq": 345,
+        "decay": 0.022,
+        "damping": 3.5,
+        "brightness": 0.3,
+        "modes": 8,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.6
+        }
+      },
+      "repeat": {
+        "count": 14,
+        "interval": 0.03,
+        "accel": 1.035,
+        "jitter": 0.003,
+        "velJitter": 0.4
+      }
+    }
+  ],
+  "master": {
+    "fx": [
+      {
+        "type": "reverb",
+        "id": "garage",
+        "space": "room",
+        "decay": 0.4,
+        "mix": 0.07
+      }
+    ]
+  },
+  "controls": [
+    {
+      "id": "speed",
+      "label": "Speed",
+      "hint": "A slow deliberate click, click, click to a fast zip.",
+      "value": 0.55,
+      "vary": 0.06,
+      "targets": [
+        {
+          "path": "tracks.pawl.repeat.interval",
+          "mode": "set",
+          "from": 0.11,
+          "to": 0.012
+        },
+        {
+          "path": "tracks.gear.repeat.interval",
+          "mode": "set",
+          "from": 0.11,
+          "to": 0.012
+        }
+      ]
+    },
+    {
+      "id": "clicks",
+      "label": "Clicks",
+      "hint": "A short flick of three teeth to a long swing.",
+      "value": 14,
+      "min": 3,
+      "max": 40,
+      "targets": [
+        {
+          "path": "tracks.pawl.repeat.count",
+          "mode": "set",
+          "from": 3,
+          "to": 40,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.gear.repeat.count",
+          "mode": "set",
+          "from": 3,
+          "to": 40,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "size",
+      "label": "Size",
+      "hint": "A watchmaker's ratchet to a winch on a boat.",
+      "value": 0.45,
+      "targets": [
+        {
+          "path": "tracks.pawl.source.pitch",
+          "mode": "set",
+          "from": 14,
+          "to": -18,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.gear.source.pitch",
+          "mode": "set",
+          "from": 12,
+          "to": -14,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.pawl.fx.handle.freq",
+          "mode": "mul",
+          "from": 2.2,
+          "to": 0.4
+        },
+        {
+          "path": "tracks.pawl.source.decay",
+          "mode": "set",
+          "from": 0.012,
+          "to": 0.09
+        },
+        {
+          "path": "tracks.gear.gain",
+          "mode": "set",
+          "from": -16,
+          "to": -2
+        }
+      ]
+    },
+    {
+      "id": "swing",
+      "label": "Slow down",
+      "hint": "Even clicks like a machine, or a swing that runs out of travel.",
+      "value": 0.4,
+      "targets": [
+        {
+          "path": "tracks.pawl.repeat.accel",
+          "mode": "set",
+          "from": 0.985,
+          "to": 1.11,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.gear.repeat.accel",
+          "mode": "set",
+          "from": 0.985,
+          "to": 1.11,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "handle",
+      "label": "Handle",
+      "hint": "A solid tool, or a hollow chrome handle that rings with each click.",
+      "value": 0.4,
+      "targets": [
+        {
+          "path": "tracks.pawl.fx.handle.mix",
+          "mode": "set",
+          "from": 0,
+          "to": 0.75,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.pawl.fx.handle.decay",
+          "mode": "set",
+          "from": 0.03,
+          "to": 0.25
+        }
+      ]
+    }
+  ]
+}
