@@ -680,7 +680,7 @@ button.pill:hover {
   margin: 0 6px;
 }
 
-/* Another take and surprise me: the two ways to let chance decide. */
+/* The dice and surprise me: the two ways to let chance decide. */
 .chance {
   flex: none;
   display: flex;
@@ -703,6 +703,13 @@ button.pill:hover {
 
 .key-chance:active:not(:disabled) {
   background: var(--well);
+}
+
+/* The dice: a new seed, with nothing to read. */
+.key-dice {
+  min-width: 0;
+  width: 58px;
+  padding: 8px;
 }
 
 .key-chance small {
@@ -933,6 +940,87 @@ button.pill:hover {
 
 .pads-foot .key {
   width: 100%;
+}
+
+/* Approve or Needs work, under the open sound's pad: lit when given; either one moves on to the next to review. */
+.review-keys {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 5px;
+  margin-bottom: 3px;
+}
+
+.review-keys .key {
+  min-width: 0;
+  min-height: 28px;
+  padding: 0 6px;
+  gap: 5px;
+  border-radius: 7px;
+  font-size: 9.5px;
+}
+
+.review-keys .key small {
+  display: inline-grid;
+  place-items: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: var(--led-edit);
+  color: #17181b;
+  font: 700 10px var(--font-mono);
+  letter-spacing: 0;
+}
+
+.key-approve[aria-pressed='true'] {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--body);
+}
+
+.key-needs-work[aria-pressed='true'] {
+  border-color: var(--led-hot);
+  box-shadow: inset 0 0 0 1px var(--led-hot);
+  color: var(--led-hot);
+}
+
+/* How many sounds wait for a verdict, in the head of the sounds. */
+.pads-review,
+.pads-reviewed {
+  margin-left: auto;
+  font: 600 10.5px var(--font-mono);
+  white-space: nowrap;
+}
+
+.pads-review {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 24px;
+  padding: 0 8px;
+  border: 1px solid var(--line-2);
+  border-radius: 6px;
+  background: var(--key);
+}
+
+.pads-review:hover {
+  border-color: var(--ink);
+}
+
+.pads-reviewed {
+  color: var(--ink-2);
+}
+
+.pad-review-mark {
+  width: 9px;
+  height: 9px;
+}
+
+.pad-review-mark path {
+  fill: var(--led-hot);
+  stroke: var(--led-hot);
+  stroke-width: 2;
+  stroke-linejoin: round;
 }
 
 /* ---- The screen --------------------------------------------------------------------------------- */
@@ -2033,6 +2121,117 @@ button.pill:hover {
 .pad.is-skipped .pad-wave,
 .pad.is-skipped .pad-name {
   opacity: 0.4;
+}
+
+/* Not reviewed yet: a red fold in the pad's corner. Flagged as needing work: the fold as an outline. Approved: none. */
+.pad-review {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 15px;
+  height: 15px;
+}
+
+.pad-review path {
+  fill: var(--led-hot);
+  stroke: var(--led-hot);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.pad[data-review='needs-work'] .pad-review path {
+  fill: none;
+}
+
+.pad-item {
+  display: grid;
+  gap: 3px;
+}
+
+/* A sound's takes: a folder under its pad. */
+.pad-takes-toggle {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  margin-left: 26px;
+  padding: 1px 6px;
+  border: 0;
+  border-radius: 5px;
+  background: none;
+  color: var(--ink-2);
+  font: 500 10.5px var(--font-mono);
+  text-align: left;
+}
+
+.pad-takes-toggle span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pad-takes-toggle:hover {
+  color: var(--ink);
+}
+
+.pad-takes-toggle[aria-expanded='false'] .icon {
+  transform: rotate(-90deg);
+}
+
+.pad-takes {
+  display: grid;
+  gap: 3px;
+  margin: 0 0 3px 30px;
+  padding-left: 8px;
+  border-left: 1px solid var(--line-2);
+}
+
+.take {
+  display: grid;
+  grid-template-columns: 10px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 7px;
+  height: 28px;
+  padding: 0 9px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--key);
+  font-size: 12px;
+  font-weight: 600;
+  text-align: left;
+}
+
+.take:hover {
+  border-color: var(--ink);
+}
+
+.take[aria-pressed='true'] {
+  border-color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--ink);
+}
+
+.take-radio {
+  width: 10px;
+  height: 10px;
+  border: 1.5px solid var(--ink-2);
+  border-radius: 50%;
+}
+
+.take[aria-pressed='true'] .take-radio {
+  border-color: var(--ink);
+  background: radial-gradient(var(--ink) 0 2px, transparent 2.5px);
+}
+
+.take-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.take .led {
+  width: 7px;
+  height: 7px;
+  background: var(--led-edit);
 }
 
 /* ---- Mixer -------------------------------------------------------------------------------------- */
@@ -3257,6 +3456,20 @@ textarea.text {
   .pad-add {
     width: 150px;
     margin: 10px 10px 10px 0;
+  }
+
+  .pad-item {
+    flex: none;
+    width: 168px;
+  }
+
+  /* The open sound's item is wider, so its review keys keep their words. */
+  .pad-item.is-open {
+    width: 196px;
+  }
+
+  .pad-item.is-open .pad {
+    width: 100%;
   }
 
   .pads-foot {

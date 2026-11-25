@@ -5,7 +5,14 @@
  */
 import {
   PROJECT_FORMAT_ID,
+  deepClone,
   newProject,
+  readReview,
+  reviewKey,
+  takeFileFor,
+  takeLabel,
+  takeOwner,
+  withVerdict,
   projectPatch,
   soundExportPath,
   soundName,
@@ -16,6 +23,8 @@ import {
   type Patch,
   type Project,
   type ProjectSound,
+  type ReviewEntry,
+  type ReviewVerdict,
 } from '../core';
 import type { ProjectBuildRow } from '../core/agent/workspace';
 import { getTemplate } from '../core/templates';
@@ -42,7 +51,8 @@ import { makeZip } from './lib/zip';
 import { renderClient } from './renderClient';
 import type { RenderView } from './renderProtocol';
 import * as serve from './serve';
-import { editor, followsSystemTheme, useEditor, type Library, type Origin } from './store';
+import { editor, followsSystemTheme, useEditor, type Library, type Origin, type Take } from './store';
+import { changesOf, nextUnreviewed, reviewVersion, statusOf, takeInUse, takesOf, versionOf } from './lib/review';
 import { createBrowserWorkspace } from './workspace';
 
 const SPECTRO_W = 360;
@@ -539,6 +549,7 @@ function openBrowserProject(id: string, project: Project, note?: string): void {
   player.stop();
   audio.clear();
   useEditor.setState((s) => ({ library: { ...s.library, current: id } }));
+  loadBrowserReview();
   editor().loadProject(project, { origin: 'system', fresh: true, note });
   persistBrowserProject();
 }
@@ -579,6 +590,7 @@ export function deleteProject(id: string): void {
   const items = s.library.items.filter((i) => i.id !== id);
   try {
     localStorage.removeItem(projectKey(id));
+    localStorage.removeItem(reviewStorageKey(id));
   } catch {
     // Nothing to remove.
   }
@@ -601,6 +613,7 @@ function bootBrowserProject(shared: Patch | null): void {
   }
   const stored = library.current ? readStoredProject(library.current) : null;
   if (stored) {
+    loadBrowserReview();
     editor().loadProject(stored, { origin: 'system', fresh: true, note: `picked up where you left off: “${stored.name}”` });
     return;
   }
@@ -750,6 +763,8 @@ async function loadServedProject(origin: Origin, fresh: boolean, select?: string
     }
     projectOnDisk = shellKey(project);
     setServe({ projectPath: served.path, projectSaved: served.saved, save: 'saved' });
+    // The verdicts and takes first, so the pads open showing what is reviewed.
+    if (fresh) await Promise.all([refreshTakes(), loadServedReview()]);
     const at = select ? project.sounds.findIndex((x) => x.file === select) : -1;
     editor().loadProject(project, { origin, fresh, ...(at >= 0 ? { select: at } : {}), ...(fresh ? { note: `opened ${served.saved ? 'project' : 'folder'} “${project.name}”` } : {}) });
     return true;
@@ -776,6 +791,12 @@ export async function openServeFile(path: string): Promise<boolean> {
 }
 
 async function onFileEvent(e: { path: string; origin?: string; deleted?: boolean }): Promise<void> {
+  // A take is not a sound: its sound's list of takes changes.
+  if (takeOwner(e.path)) {
+    if (e.deleted) takeCache.delete(e.path);
+    scheduleTakesRefresh();
+    return;
+  }
   const at = indexOfFile(e.path);
   if (at < 0 || e.deleted) {
     // A folder without a project file is its own list of sounds.
@@ -829,6 +850,7 @@ async function startServeMode(select?: string): Promise<boolean> {
   serve.followEvents({
     file: (e) => void onFileEvent(e),
     project: (e) => void onProjectEvent(e),
+    review: () => void loadServedReview(),
     play: async (e) => {
       if (e.path && !(await openServeFile(e.path))) return;
       const played = await playNow();
@@ -841,6 +863,169 @@ async function startServeMode(select?: string): Promise<boolean> {
     },
   });
   return ok;
+}
+
+// ---- Review and takes -------------------------------------------------------------------------
+
+const reviewStorageKey = (id: string) => `sfxgen:review:${id}`;
+
+/** The review kept in the browser for the open browser project. */
+function loadBrowserReview(): void {
+  const id = editor().library.current;
+  useEditor.setState({ review: readReview(id ? readJson(reviewStorageKey(id)) : null), takes: {} });
+}
+
+/** Verdicts sent to the server and not answered yet: until they are, the server's copy is behind the editor's. */
+let verdictsPending = 0;
+let verdictQueue: Promise<void> = Promise.resolve();
+
+async function loadServedReview(): Promise<void> {
+  const review = await serve.readReview().catch(() => null);
+  if (review && verdictsPending === 0) useEditor.setState({ review });
+}
+
+function setVerdict(key: string, entry: ReviewEntry | null): void {
+  useEditor.setState((s) => ({ review: withVerdict(s.review, key, entry) }));
+  const s = editor();
+  if (!s.serve.info) {
+    if (s.library.current) writeJson(reviewStorageKey(s.library.current), s.review);
+    return;
+  }
+  verdictsPending++;
+  verdictQueue = verdictQueue.then(async () => {
+    try {
+      const review = await serve.writeVerdict(key, entry);
+      if (verdictsPending === 1) useEditor.setState({ review });
+    } catch (err) {
+      editor().toast(err instanceof Error ? err.message : 'Could not save the verdict', 'error');
+    } finally {
+      verdictsPending--;
+    }
+  });
+}
+
+/**
+ * Approves the open sound, or flags it as needing work, with whatever the person changed before deciding; the lit
+ * verdict pressed again clears it. Then the next sound nobody has reviewed opens and plays.
+ */
+export function giveVerdict(kind: ReviewVerdict): void {
+  const s = editor();
+  const sound = s.project.sounds[s.current];
+  if (!sound) return;
+  const name = patchOf(sound).name || soundName(sound);
+  if (statusOf(s, sound) === kind) {
+    setVerdict(reviewKey(sound), null);
+    s.log('human', `took back the verdict on “${name}”`);
+    return;
+  }
+  const changes = changesOf(s, sound);
+  const take = takeInUse(s, sound);
+  setVerdict(reviewKey(sound), {
+    status: kind,
+    at: new Date().toISOString(),
+    version: reviewVersion(s, sound),
+    ...(take ? { take: take.take.label } : {}),
+    ...(changes.length ? { changes } : {}),
+  });
+  const n = changes.length ? ` with ${changes.length} change${changes.length === 1 ? '' : 's'}` : '';
+  s.log('human', kind === 'approved' ? `approved “${name}”${n}` : `flagged “${name}” as needing work${n}`);
+  const next = nextUnreviewed(editor(), editor().current);
+  if (next >= 0) pressPad(next);
+  else s.toast('Every sound has a verdict');
+}
+
+/** Opens the next sound nobody has reviewed, and plays it. */
+export function openNextUnreviewed(): void {
+  const s = editor();
+  const next = nextUnreviewed(s, s.current);
+  if (next >= 0) pressPad(next);
+  else s.toast('Every sound has a verdict');
+}
+
+/** Take files as last read, by path, so an unchanged take keeps its patch object (and its cached version). */
+const takeCache = new Map<string, { mtime?: number; patch: Patch }>();
+let takesTimer: ReturnType<typeof setTimeout> | null = null;
+
+async function refreshTakes(): Promise<void> {
+  const listing = await serve.listTakes().catch(() => null);
+  if (!listing) return;
+  const takes: Record<string, Take[]> = {};
+  await Promise.all(
+    Object.entries(listing).flatMap(([owner, files]) =>
+      files.map(async (f) => {
+        let cached = takeCache.get(f.path);
+        if (!cached || cached.mtime !== f.mtime) {
+          try {
+            const raw = await serve.readFile(f.path);
+            if (!validatePatch(raw).ok) return;
+            cached = { mtime: f.mtime, patch: raw as Patch };
+            takeCache.set(f.path, cached);
+            onDisk.set(f.path, JSON.stringify(raw));
+          } catch {
+            return;
+          }
+        }
+        (takes[owner] ??= []).push({ path: f.path, label: takeLabel(f.path), patch: cached.patch });
+      }),
+    ),
+  );
+  for (const list of Object.values(takes)) list.sort((a, b) => a.path.localeCompare(b.path));
+  useEditor.setState({ takes });
+}
+
+function scheduleTakesRefresh(): void {
+  if (takesTimer) clearTimeout(takesTimer);
+  takesTimer = setTimeout(() => void refreshTakes(), 150);
+}
+
+/**
+ * Puts a take into its sound's file, opens the sound and plays it. Nothing is lost: when the sound holds a version
+ * none of its takes has (the person's changes to a take, or an agent's write), that version goes back into the
+ * take it came from, or becomes a take of its own.
+ */
+export async function pickTake(index: number, path: string): Promise<void> {
+  const s = editor();
+  const sound = s.project.sounds[index];
+  const takes = takesOf(s, sound);
+  const take = takes.find((t) => t.path === path);
+  if (!sound?.file || !take) return;
+  const current = patchOf(sound);
+  if (!takes.some((t) => versionOf(t.patch) === versionOf(current))) {
+    const target = takeInUse(s, sound)?.take.path ?? takeFileFor(sound.file, 'original', takes.map((t) => t.path));
+    try {
+      onDisk.set(target, JSON.stringify(current));
+      await serve.writeFile(target, current, 'human');
+    } catch (err) {
+      s.toast(err instanceof Error ? err.message : 'Could not keep the current version as a take', 'error');
+      return;
+    }
+  }
+  if (index !== editor().current) editor().openSound(index);
+  if (versionOf(take.patch) !== versionOf(current)) editor().load(deepClone(take.patch), { origin: 'human', index, note: `took “${take.label}”`, rebase: true });
+  void playNow();
+  await refreshTakes();
+}
+
+/** The open sound's previous or next take. */
+export function stepTake(dir: 1 | -1): void {
+  const s = editor();
+  const sound = s.project.sounds[s.current];
+  const takes = takesOf(s, sound);
+  if (!sound || takes.length === 0) return;
+  const inUse = takeInUse(s, sound);
+  const at = inUse ? takes.indexOf(inUse.take) : -1;
+  const next = at < 0 ? (dir > 0 ? 0 : takes.length - 1) : (at + dir + takes.length) % takes.length;
+  if (inUse && next === at && !inUse.changed) return;
+  useEditor.setState({ takesOpen: { ...s.takesOpen, [soundKey(sound)]: true } });
+  void pickTake(s.current, takes[next].path);
+}
+
+export function toggleTakes(index: number): void {
+  const s = editor();
+  const sound = s.project.sounds[index];
+  if (!sound) return;
+  const key = soundKey(sound);
+  useEditor.setState({ takesOpen: { ...s.takesOpen, [key]: !s.takesOpen[key] } });
 }
 
 // ---- Start-up ---------------------------------------------------------------------------------
@@ -990,5 +1175,11 @@ export function onGlobalKey(e: KeyboardEvent): void {
     s.showSurface('sound');
   } else if (key === 'm') {
     s.showSurface(s.fullOpen && s.surface === 'mixer' ? 'sound' : 'mixer');
+  } else if (key === 'a') {
+    giveVerdict('approved');
+  } else if (key === 'n') {
+    giveVerdict('needs-work');
+  } else if (e.key === '[' || e.key === ']') {
+    stepTake(e.key === ']' ? 1 : -1);
   }
 }

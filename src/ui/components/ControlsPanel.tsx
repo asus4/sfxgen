@@ -1,7 +1,7 @@
 /**
  * The two control zones. Easy control: the few knobs the agent chose for a person to try, in one row, each in its
  * own colour (the display shows that colour where the control acts, and full control outlines what it drives), then
- * the two chance keys: another take and surprise me.
+ * the two chance keys: the dice (a new seed) and surprise me.
  * Full control: every parameter of the open sound; its tabs turn it into the mixer, the settings or the notes. It
  * starts closed.
  */
@@ -119,15 +119,13 @@ function ControlCard({ control, index, size }: { control: Control; index: number
 
 const KNOB = 50;
 
-/** Another take (a new seed) and surprise me (every easy control somewhere new, and a new seed). */
+/** The dice (a new seed) and surprise me (every easy control somewhere new, and a new seed). */
 function ChanceKeys({ controls }: { controls: Control[] }) {
   const seed = useEditor((s) => s.patch.seed ?? 1);
   return (
     <div className="chance" role="group" aria-label="Let chance decide">
-      <button type="button" className="key key-chance" onClick={rollTake} title="Another take: the same sound with a new random seed, then play it">
-        <Die seed={seed} size={22} />
-        <span>Another take</span>
-        <small>same sound, new seed</small>
+      <button type="button" className="key key-chance key-dice" onClick={rollTake} aria-label="Roll a new seed" title="Roll the dice: the same sound with a new random seed, then play it">
+        <Die seed={seed} size={26} />
       </button>
       <button
         type="button"

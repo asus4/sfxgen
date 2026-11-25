@@ -81,7 +81,7 @@ Real sounds are never exact. Each of these is cheap and makes a patch sound reco
 - **Wobble.** `wander` modulators on pitch and cutoff (a few cents, a few percent) give life to anything sustained.
 - **Vary repeats.** `repeat` with `jitter`, `velJitter` and `pitchJitter`; `particles` with level and pitch spread.
 - **Asymmetric envelopes.** Fast attacks, long and uneven decays; different attacks on different layers.
-- **Seeds.** Try a few seeds and keep the best. Expose `vary` on controls so a game gets round-robin takes.
+- **Seeds.** Try a few seeds and keep the best. Expose `vary` on controls so a game gets round-robin variations.
 
 ## Plan the spectrum
 

@@ -3,7 +3,8 @@
  * person edits the same files an agent writes. Node `http` only; bound to 127.0.0.1.
  *
  * API (docs/DESIGN.md): GET /api/info, /api/files, /api/file?path=, PUT /api/file?path=&origin=, PUT /api/wav?path=,
- * POST /api/play?path=, POST /api/focus?path=&control=, GET /api/events (server-sent events).
+ * GET /api/takes, GET|PUT /api/review, POST /api/play?path=, POST /api/focus?path=&control=, GET /api/events
+ * (server-sent events).
  */
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
 import { watch, existsSync, type FSWatcher } from 'node:fs';
@@ -15,7 +16,8 @@ import type { AddressInfo } from 'node:net';
 import type { Project } from '../core/project/project';
 import { validatePatch } from '../core/format/validate';
 import { validateProject } from '../core/project/project';
-import { FileWorkspace, PATCH_EXT, listPatchFiles } from './file-workspace';
+import { FileWorkspace, PATCH_EXT, listPatchFiles, listTakes } from './file-workspace';
+import { validateReviewEntry, type ReviewEntry } from '../core/project/review';
 import pkg from '../../package.json';
 
 export interface ServerOptions {
@@ -151,6 +153,8 @@ export async function startServer(opts: ServerOptions): Promise<RunningServer> {
   const known = new Map<string, string>();
   const pending = new Map<string, NodeJS.Timeout>();
 
+  const eventFor = (path: string) => (path === ws.projectFile ? 'project' : path === ws.reviewFile ? 'review' : 'file');
+
   async function onDiskChange(path: string): Promise<void> {
     let text: string;
     let mtime = 0;
@@ -159,12 +163,12 @@ export async function startServer(opts: ServerOptions): Promise<RunningServer> {
       mtime = Math.round((await stat(join(root, ...path.split('/')))).mtimeMs);
     } catch {
       known.delete(path);
-      broadcast(path === ws.projectFile ? 'project' : 'file', { path, mtime: 0, origin: 'disk', deleted: true });
+      broadcast(eventFor(path), { path, mtime: 0, origin: 'disk', deleted: true });
       return;
     }
     if (known.get(path) === text) return;
     known.set(path, text);
-    broadcast(path === ws.projectFile ? 'project' : 'file', { path, mtime, origin: 'disk' });
+    broadcast(eventFor(path), { path, mtime, origin: 'disk' });
   }
 
   let watcher: FSWatcher | undefined;
@@ -174,7 +178,7 @@ export async function startServer(opts: ServerOptions): Promise<RunningServer> {
       const parts = filename.toString().split(sep);
       if (parts.some((p) => IGNORED.has(p))) return;
       const path = parts.join('/');
-      if (!path.endsWith(PATCH_EXT) && path !== ws.projectFile) return;
+      if (!path.endsWith(PATCH_EXT) && path !== ws.projectFile && path !== ws.reviewFile) return;
       clearTimeout(pending.get(path));
       pending.set(
         path,
@@ -281,6 +285,30 @@ export async function startServer(opts: ServerOptions): Promise<RunningServer> {
       const mtime = Math.round((await stat(ws.projectPath)).mtimeMs);
       broadcast('project', { path: ws.projectFile, mtime, origin });
       return sendJson(res, 200, { path: ws.projectFile, mtime, warnings: v.warnings });
+    }
+    if (route === '/takes' && method === 'GET') {
+      return sendJson(res, 200, { takes: await listTakes(root) });
+    }
+    if (route === '/review' && method === 'GET') {
+      return sendJson(res, 200, { path: ws.reviewFile, review: await ws.readReviewFile() });
+    }
+    if (route === '/review' && method === 'PUT') {
+      // One sound's verdict at a time, merged into the file here, so the editor and an agent's reads don't clash.
+      const origin = url.searchParams.get('origin') === 'agent' ? 'agent' : 'human';
+      let body: { sound?: unknown; entry?: unknown };
+      try {
+        body = JSON.parse((await readBody(req, MAX_JSON)).toString('utf8')) as typeof body;
+      } catch (err) {
+        if (err instanceof HttpError) throw err;
+        throw new HttpError(400, `The body is not valid JSON: ${(err as Error).message}`);
+      }
+      if (typeof body?.sound !== 'string' || !body.sound) throw new HttpError(400, 'Expected { sound, entry }: the sound\'s file (or name) and its verdict, or null to clear it.');
+      const issues = body.entry === null ? [] : validateReviewEntry(body.entry);
+      if (issues.length) return sendJson(res, 422, { error: 'The verdict has errors; nothing was written.', errors: issues, warnings: [] });
+      const { review, text } = await ws.setVerdict(body.sound, (body.entry ?? null) as ReviewEntry | null);
+      known.set(ws.reviewFile, text);
+      broadcast('review', { path: ws.reviewFile, origin, sound: body.sound });
+      return sendJson(res, 200, { path: ws.reviewFile, review });
     }
     if (route === '/build' && method === 'POST') {
       let only: string[] | undefined;

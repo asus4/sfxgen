@@ -4,7 +4,7 @@
  * Side effects (rendering, saving, audio) live in controller.ts and subscribe here.
  */
 import { create } from 'zustand';
-import { soundName, type Patch, type Project, type ProjectSound } from '../core';
+import { emptyReview, soundName, type Patch, type Project, type ProjectSound, type Review } from '../core';
 import { createHistory, pushHistory, redoHistory, sealHistory, undoHistory, type History } from './lib/history';
 import { diffValues, summarize, touched } from './lib/paths';
 import { EMPTY_PATCH, patchOf, projectOfOne, setSoundPatch, soundKey, type Measured } from './lib/projectOps';
@@ -50,6 +50,14 @@ export interface Settings {
 }
 
 export type Surface = 'sound' | 'mixer' | 'project' | 'notes';
+
+/** Another version of a sound, kept in `<name>.takes/` next to its file (served folders only). */
+export interface Take {
+  /** The take's file, relative to the served folder. */
+  path: string;
+  label: string;
+  patch: Patch;
+}
 
 export const SELECT_MASTER = '@master';
 
@@ -98,6 +106,12 @@ export interface EditorState extends Settings {
   serve: ServeState;
   library: Library;
   webmcp: { api: string; count: number } | 'pending';
+  /** Who approved what (src/core/project/review.ts): the served folder's sfxgen.review.json, or the browser's copy. */
+  review: Review;
+  /** Each sound's takes, by its file. */
+  takes: Record<string, Take[]>;
+  /** Sounds whose takes are shown under their pad, by sound key. */
+  takesOpen: Record<string, boolean>;
 
   /** A person's edit to the open sound's patch. */
   edit(next: Patch | ((p: Patch) => Patch), tag?: string | null): void;
@@ -107,9 +121,10 @@ export interface EditorState extends Settings {
   seal(): void;
   /**
    * Replaces one sound's patch from outside the knobs. `fresh`: a different sound took its place (a template), not
-   * an edit to it. `index` defaults to the open sound.
+   * an edit to it. `rebase`: the person's changes count from this version on (a take they picked). `index` defaults
+   * to the open sound.
    */
-  load(patch: Patch, opts: { origin: Origin; note?: string; fresh?: boolean; index?: number }): void;
+  load(patch: Patch, opts: { origin: Origin; note?: string; fresh?: boolean; index?: number; rebase?: boolean }): void;
   /** Replaces the project. `fresh`: another project was opened (history starts over). */
   loadProject(project: Project, opts: { origin: Origin; note?: string; fresh?: boolean; select?: number }): void;
   openSound(index: number): void;
@@ -245,6 +260,9 @@ export const useEditor = create<EditorState>()((set, get) => {
     serve: { info: null, projectPath: null, projectSaved: false, save: 'idle' },
     library: { current: '', items: [] },
     webmcp: 'pending',
+    review: emptyReview(),
+    takes: {},
+    takesOpen: {},
 
     edit(next, tag = null) {
       const s = get();
@@ -267,7 +285,7 @@ export const useEditor = create<EditorState>()((set, get) => {
       set((s) => ({ history: sealHistory(s.history) }));
     },
 
-    load(patch, { origin, note, fresh, index }) {
+    load(patch, { origin, note, fresh, index, rebase }) {
       const s = get();
       const at = index ?? s.current;
       const sound = s.project.sounds[at];
@@ -294,7 +312,7 @@ export const useEditor = create<EditorState>()((set, get) => {
       set({
         history,
         lastOrigin: origin,
-        baseline: first ? project : origin === 'human' ? s.baseline : remember(s.baseline, project.sounds[at]),
+        baseline: first ? project : origin === 'human' && !rebase ? s.baseline : remember(s.baseline, project.sounds[at]),
         saved: first ? project : fresh ? remember(s.saved, project.sounds[at]) : s.saved,
         ...opened(project, s.current, fresh && isOpen ? '' : s.selected),
         flash,

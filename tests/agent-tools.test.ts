@@ -19,10 +19,10 @@ const sound = (): Patch => ({
 const fresh = () => new MemoryWorkspace({ patches: { 'zap.sfx.json': sound() } });
 
 describe('tool definitions', () => {
-  it('lists the seventeen shared tools with strict schemas and real descriptions', () => {
+  it('lists the eighteen shared tools with strict schemas and real descriptions', () => {
     expect(TOOLS.map((t) => t.name)).toEqual([
       'describe_format', 'list_templates', 'new_from_template', 'get_patch', 'set_patch', 'edit_patch',
-      'set_controls', 'sync_controls', 'render_and_analyze', 'play', 'export_wav', 'get_human_changes', 'list_patches',
+      'set_controls', 'sync_controls', 'render_and_analyze', 'play', 'export_wav', 'get_human_changes', 'get_review', 'list_patches',
       'get_project', 'edit_project', 'build_project', 'balance_project',
     ]);
     for (const t of TOOLS) {

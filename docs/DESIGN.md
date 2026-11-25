@@ -71,7 +71,7 @@ heavy use. Both use the same core, so a patch renders and measures the same eith
 | Agent | Use | How |
 | --- | --- | --- |
 | In-browser agents | WebMCP | The editor registers the tools below on `document.modelContext` when the browser offers it, acting on the open project. The hosted editor carries a Chrome origin-trial token for `https://asus4.github.io` in `index.html` (Chrome 149 to 162, until 30 March 2027); elsewhere, and in Brave, it needs `chrome://flags/#enable-webmcp-testing`. The WebMCP key in the top strip shows the state and how to turn it on; phones and tablets don't show it. |
-| Coding agents (Claude Code, Codex, ...) | Files and CLI | Write `*.sfx.json`, run `sfxgen render`, `sfxgen analyze --png`, read the spectrogram. `sfxgen guide` prints the catalog. |
+| Coding agents (Claude Code, Codex, ...) | Files and CLI | Write `*.sfx.json`, run `sfxgen render`, `sfxgen analyze --png`, read the spectrogram. `sfxgen guide` prints the catalog. `sfxgen review` reads what the person approved or flagged. |
 | People | `sfxgen serve` or the hosted editor | Opens the editor on the same files, live-reloading both ways. |
 
 ### Tools (WebMCP)
@@ -93,6 +93,7 @@ editor's workspace in the browser, a `FileWorkspace` in the CLI (`sfxgen project
 | `play` | Play the sound for the person. |
 | `export_wav` | Write a WAV (and variations). |
 | `get_human_changes` | What a person changed since the agent last wrote the patch. |
+| `get_review` | Which sounds the person approved or flagged as needing work, what they changed first, the takes, and what is not reviewed yet. |
 | `list_patches` | Patch files the workspace can see. |
 | `sync_controls` | Write what the controls set back into the patch, so the file says what renders. |
 | `get_project` | The project: its sounds with their groups, gains and export paths, and the shared settings; with `measure`, each sound's loudness and peak. |
@@ -115,10 +116,14 @@ Serves the built editor and a small API over the `*.sfx.json` files under `dir`.
 | `POST /api/play?path=` | Asks every open editor to play that patch |
 | `GET /api/events` | Server-sent events: `file` (`{ path, mtime, origin }`, from the disk watcher or a PUT), `play` (`{ path }`), `focus` (`{ path, control }`) |
 | `GET /api/project` | `{ path, saved, project }`: the root's `sfxgen.project.json`, or (`saved: false`) the folder's patches as an unsaved project |
+| `GET /api/takes` | `{ "takes": { "<sound file>": [{ "path", "name", "mtime" }] } }`: each sound's takes (`<name>.takes/*.sfx.json`). `/api/files` leaves takes out. |
+| `GET /api/review` | `{ path, review }`: the root's `sfxgen.review.json` (empty when there is none) |
+| `PUT /api/review?origin=human` | Body `{ sound, entry }`: sets one sound's verdict (`entry: null` clears it), merged into the file. 422 when the entry is invalid. |
 | `PUT /api/project?origin=human` | Validates and writes `sfxgen.project.json` (422 with issues on errors) |
 | `POST /api/build` | Renders every sound (body `{ "only": [names] }` for some) in project context to its export path; returns the build rows |
 
-`/api/events` also sends `project` (`{ path, mtime, origin }`) when the project file changes.
+`/api/events` also sends `project` (`{ path, mtime, origin }`) when the project file changes, and `review`
+(`{ path, origin }`) when the review file does. A take's file sends `file` like any patch.
 
 The editor opens `?file=<path>` directly. Vite's dev server proxies `/api` to `sfxgen serve --port 5179` when it runs.
 
@@ -138,7 +143,8 @@ copy their layouts, graphics or trade dress.
 - **A display that's alive.** The waveform, spectrum and readouts live on a dark screen with bright, playful
   graphics and a monospace readout font; it reacts while a sound plays.
 - **Pads with LEDs.** A project's sounds are pads: one press plays, selecting opens it; LEDs show playing, selected,
-  edited and touched-by-an-agent.
+  edited and touched-by-an-agent. A red fold in the corner marks a sound nobody has approved yet (an outlined fold:
+  flagged as needing work).
 - **Silkscreen restraint.** Small uppercase legends, hairline dividers, numbered sections. No faux 3D: controls turn
   and light up; they don't jump or cast offset shadows when pressed.
 
@@ -151,13 +157,18 @@ On a desktop screen everything is one panel with no page scroll (below 1040 × 6
    light or dark finish, and a link to the source on GitHub.
 2. **02 Sounds**: a pad per sound in the project, down the side (keys 1 to 9 and 0 play them), with LEDs for
    playing, edited by you and touched by an agent, and after the last pad an empty slot that adds a sound from the
-   gallery. A single patch is a project of one.
+   gallery. A single patch is a project of one. The review lives here too: a red fold in the corner of each sound
+   nobody has approved (an outlined fold when flagged as needing work), a count in the head that opens the next one,
+   and under the open sound's pad **Approve** (with the number of changes you made, which go with it) and **Needs
+   work**; either one opens and plays the next sound to review (keys A and N). What needs work, the person tells
+   their agent in its chat. A sound with takes shows them under its pad like a folder; a click puts a take in use and
+   plays it (keys [ and ]).
 3. **The display**: a dark screen with play, the sound's name and readouts (length, peak, LUFS, render time), the
    mix as a waveform or spectrum with a playhead and a level meter, and the tracks as lanes (mute, solo, drag to
    move) with a key under the last one to add a layer.
 4. **04 Easy control**: the patch's controls as colour-coded knobs and selectors with their hints. Hovering or
-   turning one draws what it drives in its colour on the display. After them, the two chance keys: **another take**
-   and **surprise me**.
+   turning one draws what it drives in its colour on the display. After them, the two chance keys: **the dice** (a
+   new seed) and **surprise me**.
 5. **05 Full control**, closed until opened (the display takes the room): every parameter of the selected track
    (source, voice filter, envelope, events, effects) and the master, generated from the node metadata; breakpoint
    parameters get a small curve editor; any parameter can be pinned into the easy controls. Its tabs swap it for
@@ -170,7 +181,10 @@ On a desktop screen everything is one panel with no page scroll (below 1040 × 6
 - Re-render in a worker on every change (latest wins), cache unchanged tracks, show render time.
 - Space plays; a knob plays the sound when it is released (always); undo/redo.
 - Template gallery: cards by category with a mini waveform; one click loads and plays.
-- "Another take" (new seed) and "Surprise me" (random values within the controls' ranges).
+- The dice (a new seed) and "Surprise me" (random values within the controls' ranges).
+- Review: every sound is reviewed the same way, whoever made it. A verdict is for the version heard: any change
+  afterwards, the person's own included, puts the sound back to be reviewed. Served folders keep the verdicts in
+  `sfxgen.review.json`; a project kept in the browser keeps them with it.
 - Export WAV (16/24/32-bit, mono/stereo, sample rate), variations, and the `.sfx.json`.
 - Autosave to the browser; share link with the patch compressed in the URL hash.
 - Paste a patch anywhere outside a text field (a copied `.sfx.json` file, or its JSON as text) to add it as a new pad.
