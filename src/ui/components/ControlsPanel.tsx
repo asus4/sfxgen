@@ -2,7 +2,7 @@
  * The two control zones. Easy control: the few knobs the agent chose for a person to try, in one row, each in its
  * own colour (the display shows that colour where the control acts, and full control outlines what it drives), then
  * the two chance keys: another take and surprise me.
- * Full control: every parameter of the open sound; its tabs turn it into the mixer, the project or the notes. It
+ * Full control: every parameter of the open sound; its tabs turn it into the mixer, the settings or the notes. It
  * starts closed.
  */
 import { useEffect, useMemo, useRef } from 'react';
@@ -195,7 +195,7 @@ export function EasyStrip() {
 const TABS: { id: SurfaceMode; label: string; title: string }[] = [
   { id: 'sound', label: 'Sound', title: 'Every parameter of the open sound (E)' },
   { id: 'mixer', label: 'Mix', title: 'Balance the set (M)' },
-  { id: 'project', label: 'Project', title: 'What the whole set shares' },
+  { id: 'project', label: 'Settings', title: 'What the whole set shares: name, output, levelling, shared effects' },
   { id: 'notes', label: 'Notes', title: 'What the agent wrote, and who changed what' },
 ];
 
@@ -206,7 +206,7 @@ const NOTES = {
   notes: 'what the agent wrote, and who changed what',
 } as const;
 
-/** Full control: everything about the open sound, or the mixer, the project, the notes. Closed, only its head shows. */
+/** Full control: everything about the open sound, or the mixer, the settings, the notes. Closed, only its head shows. */
 export function Surface() {
   const surface = useEditor((s) => s.surface);
   const open = useEditor((s) => s.fullOpen);
@@ -235,7 +235,7 @@ export function Surface() {
             );
           })}
         </div>
-        <span className="zone-note">{open ? NOTES[surface] : 'every parameter, the mix, the project and the notes'}</span>
+        <span className="zone-note">{open ? NOTES[surface] : 'every parameter, the mix, the settings and the notes'}</span>
       </header>
       {open && (
         <div className="zone-body" id="full-control">

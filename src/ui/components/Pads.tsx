@@ -69,6 +69,31 @@ function Pad({ index }: { index: number }) {
   );
 }
 
+/**
+ * The empty slot after the last pad. Most people add a sound by picking one, so it opens the gallery (which also
+ * offers a blank sound or a file).
+ */
+function AddSlot() {
+  return (
+    <button
+      type="button"
+      className="pad-add"
+      title="Add a sound: pick one from the gallery, or start blank or from a file"
+      onClick={() => useEditor.setState({ gallery: { open: true, mode: 'add' } })}
+    >
+      <span className="pad-add-icon">
+        <Icon name="plus" size={14} />
+      </span>
+      <span className="pad-add-text">
+        <b>Add a sound</b>
+        <small>
+          <Icon name="grid" size={11} /> from the gallery
+        </small>
+      </span>
+    </button>
+  );
+}
+
 /** The sidebar: the project's sounds as a list of pads (a row of them on a phone). */
 export function Pads() {
   const count = useEditor((s) => s.project.sounds.length);
@@ -78,14 +103,14 @@ export function Pads() {
         <span className="zone-num">02</span>
         <h2 className="zone-title">Sounds</h2>
         <span className="zone-note">{count}</span>
-        <button type="button" className="key key-sm" aria-label="Add a sound" title="Add a sound: from the gallery, a file or blank" onClick={() => useEditor.setState({ gallery: { open: true, mode: 'add' } })}>
-          <Icon name="plus" size={12} /> Add
-        </button>
       </header>
-      <div className="pad-list" role="group" aria-label="Pads">
-        {Array.from({ length: count }, (_, i) => (
-          <Pad key={i} index={i} />
-        ))}
+      <div className="pads-body">
+        <div className="pad-list" role="group" aria-label="Pads">
+          {Array.from({ length: count }, (_, i) => (
+            <Pad key={i} index={i} />
+          ))}
+        </div>
+        <AddSlot />
       </div>
       <footer className="pads-foot">
         <button type="button" className="key" title="Export every sound of the set" onClick={() => void exportSet()}>

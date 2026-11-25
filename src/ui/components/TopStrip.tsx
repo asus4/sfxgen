@@ -120,7 +120,7 @@ function ProjectKey() {
                     <Icon name="save" size={13} /> Bundle
                   </button>
                 </div>
-                <p className="popover-text">Rename a project under Project. Drop a .sfxproj.json anywhere to open a bundle.</p>
+                <p className="popover-text">Rename a project under Full control › Settings. Drop a .sfxproj.json anywhere to open a bundle.</p>
               </>
             )}
           </div>

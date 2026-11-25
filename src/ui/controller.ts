@@ -18,7 +18,7 @@ import {
   type ProjectSound,
 } from '../core';
 import type { ProjectBuildRow } from '../core/agent/workspace';
-import { getTemplate, listTemplates } from '../core/templates';
+import { getTemplate } from '../core/templates';
 import { player } from './audio';
 import { anotherTake, fileNameFor, surprise } from './lib/patchOps';
 import {
@@ -32,6 +32,7 @@ import {
   renderHash,
   shellKey,
   soundKey,
+  starterProject,
   stripProject,
   uniquePatchName,
   zipPath,
@@ -550,15 +551,6 @@ function persistBrowserProject(): void {
   if (JSON.stringify(items) !== JSON.stringify(s.library.items)) useEditor.setState({ library });
   writeJson(projectKey(s.library.current), s.project);
   writeJson(LIBRARY_KEY, library);
-}
-
-/** The first project a person sees: a few sounds from the library, ready on the pads. */
-function starterProject(): Project {
-  const ids = ['scifi/laser-zap', ...listTemplates().map((t) => t.id)].filter((id, i, all) => all.indexOf(id) === i);
-  const patches = ids.map((id) => getTemplate(id)).filter((p): p is Patch => !!p).slice(0, 4);
-  let project: Project = { format: PROJECT_FORMAT_ID, name: 'First set', sounds: [] };
-  for (const p of patches) project = addSound(project, p).project;
-  return project.sounds.length > 0 ? project : projectOfOne(EMPTY_PATCH, 'First set');
 }
 
 export function createProject(name = 'New set'): void {

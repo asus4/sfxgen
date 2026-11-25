@@ -390,13 +390,30 @@ function Lane({ index }: { index: number }) {
   );
 }
 
+/** The layers as lanes, and under the last one the key that adds another. */
 function Lanes() {
   const count = useEditor((s) => s.patch.tracks.length);
+  const edit = useEditor((s) => s.edit);
   return (
     <div className="lanes" role="group" aria-label="Layers">
       {Array.from({ length: count }, (_, i) => (
         <Lane key={i} index={i} />
       ))}
+      <div className="lane lane-more">
+        <button
+          type="button"
+          className="screen-key lane-add"
+          title="Add a layer to this sound"
+          onClick={() => {
+            const { patch, id } = addTrack(useEditor.getState().patch);
+            edit(patch);
+            useEditor.getState().select(id);
+            useEditor.getState().showSurface('sound');
+          }}
+        >
+          <Icon name="plus" size={13} /> <span>Add layer</span>
+        </button>
+      </div>
     </div>
   );
 }
@@ -576,19 +593,6 @@ export function Display() {
           />
           <Readouts />
           <div className="screen-tools">
-            <button
-              type="button"
-              className="screen-key"
-              title="Add a layer to this sound"
-              onClick={() => {
-                const { patch, id } = addTrack(useEditor.getState().patch);
-                edit(patch);
-                useEditor.getState().select(id);
-                useEditor.getState().showSurface('sound');
-              }}
-            >
-              <Icon name="plus" size={15} /> <span>layer</span>
-            </button>
             <button
               type="button"
               className="screen-key"

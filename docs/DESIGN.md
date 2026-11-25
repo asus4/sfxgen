@@ -150,10 +150,11 @@ On a desktop screen everything is one panel with no page scroll (below 1040 × 6
    the latest activity, undo and redo, WebMCP status (not on phones and tablets, where nothing calls the tools yet),
    light or dark finish, and a link to the source on GitHub.
 2. **02 Sounds**: a pad per sound in the project, down the side (keys 1 to 9 and 0 play them), with LEDs for
-   playing, edited by you and touched by an agent. A single patch is a project of one.
+   playing, edited by you and touched by an agent, and after the last pad an empty slot that adds a sound from the
+   gallery. A single patch is a project of one.
 3. **The display**: a dark screen with play, the sound's name and readouts (length, peak, LUFS, render time), the
    mix as a waveform or spectrum with a playhead and a level meter, and the tracks as lanes (mute, solo, drag to
-   move).
+   move) with a key under the last one to add a layer.
 4. **04 Easy control**: the patch's controls as colour-coded knobs and selectors with their hints. Hovering or
    turning one draws what it drives in its colour on the display. After them, the two chance keys: **another take**
    and **surprise me**.
@@ -161,8 +162,8 @@ On a desktop screen everything is one panel with no page scroll (below 1040 × 6
    (source, voice filter, envelope, events, effects) and the master, generated from the node metadata; breakpoint
    parameters get a small curve editor; any parameter can be pinned into the easy controls. Its tabs swap it for
    the **Mix** (groups, gain faders, loudness and peak, match loudness per group, play the set in turn), the
-   **Project** (output, levelling, the shared master chain, export folder) and the **Notes** (what the agent
-   wrote, and who changed what). Opening a tab opens it.
+   **Settings** (the set's name, output, levelling, the shared master chain, export folder) and the **Notes**
+   (what the agent wrote, and who changed what). Opening a tab opens it.
 
 ### Behaviour
 

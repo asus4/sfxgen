@@ -846,15 +846,84 @@ button.pill:hover {
   font-family: var(--font-mono);
 }
 
-.pad-list {
+/* The pads, then the slot that adds one: it follows the last pad and stays in view when the list scrolls. */
+.pads-body {
   flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
+}
+
+.pad-list {
+  flex: 0 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
   gap: 5px;
-  padding: 10px;
+  padding: 10px 10px 5px;
   overflow: auto;
   scrollbar-width: thin;
+}
+
+.pad-add {
+  flex: none;
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  height: 48px;
+  margin: 0 10px 10px;
+  padding: 0 10px 0 9px;
+  border: 1.5px dashed var(--line-2);
+  border-radius: 9px;
+  background: transparent;
+  color: var(--ink-2);
+  text-align: left;
+  transition: background 90ms, border-color 90ms, color 90ms;
+}
+
+.pad-add:hover {
+  border-style: solid;
+  border-color: var(--ink);
+  background: var(--key);
+  color: var(--ink);
+}
+
+.pad-add:active {
+  background: var(--well);
+}
+
+.pad-add-icon {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  background: var(--ink);
+  color: var(--body);
+}
+
+.pad-add-text {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.pad-add-text b {
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--ink);
+}
+
+.pad-add-text small {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font: 600 9.5px var(--font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .pads-foot {
@@ -1379,13 +1448,29 @@ button.pill:hover {
   pointer-events: none;
 }
 
+/* The row under the last lane: the key that adds a layer, in the column of the lane names. When the lanes scroll
+   (full control open, many layers) it stays in view at their foot. */
+.lane.lane-more {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  height: 28px;
+  background: var(--screen);
+}
+
 .lane-add {
-  flex: none;
-  align-self: flex-start;
-  padding: 2px 9px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 0 8px;
+  border-style: dashed;
+  border-color: color-mix(in srgb, var(--screen-2) 45%, transparent);
+  border-radius: 5px;
   font-size: 10px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 /* ---- Notes (a tab of full control) ---------------------------------------------------------------- */
@@ -2347,6 +2432,20 @@ button.pill:hover {
   gap: 2px;
 }
 
+/* Shows or hides a section's long description; the chevron turns over when it is open. */
+.doc-toggle {
+  gap: 4px;
+  padding: 0 6px 0 8px;
+}
+
+.doc-toggle .icon {
+  transition: transform 120ms;
+}
+
+.doc-toggle.is-open .icon {
+  transform: rotate(180deg);
+}
+
 .section-doc,
 .group-doc {
   margin: 8px 0;
@@ -3138,14 +3237,26 @@ textarea.text {
     order: 4;
   }
 
-  /* The sounds become a row of pads that scrolls sideways. */
+  /* The sounds become a row of pads that scrolls sideways, the add slot at its end. */
+  .pads-body {
+    flex-direction: row;
+    align-items: center;
+  }
+
   .pad-list {
     flex-direction: row;
+    min-width: 0;
+    padding: 10px 5px 10px 10px;
     overflow-x: auto;
   }
 
   .pad {
     width: 168px;
+  }
+
+  .pad-add {
+    width: 150px;
+    margin: 10px 10px 10px 0;
   }
 
   .pads-foot {
@@ -3165,6 +3276,10 @@ textarea.text {
     flex: none;
     max-height: none;
     overflow: visible;
+  }
+
+  .lane.lane-more {
+    position: static;
   }
 
   .zone-body {

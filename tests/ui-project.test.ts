@@ -15,12 +15,14 @@ import {
   setSoundPatch,
   shellKey,
   soundKey,
+  starterProject,
   stripProject,
   suggestTarget,
   uniquePatchName,
   updateGroup,
   updateSound,
   zipPath,
+  STARTER_TEMPLATES,
   type Measured,
 } from '../src/ui/lib/projectOps';
 
@@ -138,6 +140,20 @@ describe('projects in the editor', () => {
     expect(matchGroup(p, {}, '*', -18, -1)).toEqual(p);
     expect(suggestTarget([{ name: 'a', lufs: -12, peakDb: 0, gain: 0 }, { name: 'b', lufs: -20.4, peakDb: 0, gain: 0 }, { name: 'c', lufs: -Infinity, peakDb: 0, gain: 0 }])).toBe(-12);
     expect(suggestTarget([])).toBe(-18);
+  });
+
+  it('starts a first-time visitor on the six starter sounds, in order', () => {
+    const p = starterProject();
+    expect(p.sounds.map((s) => s.patch?.meta?.template)).toEqual([...STARTER_TEMPLATES]);
+    expect(p.sounds.map((s) => s.patch?.name)).toEqual([
+      'Bird tweet',
+      'Insect fly-by',
+      'Machine room hum (loop)',
+      'Footstep: puddle splash',
+      'Rubber ball bounces to rest',
+      'Soft confirm',
+    ]);
+    expect(validateProject(p).ok).toBe(true);
   });
 
   it('gives every sound a path inside the zip', () => {
