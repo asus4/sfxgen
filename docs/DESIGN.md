@@ -52,7 +52,7 @@ src/ui/              the editor (React)
 src/web/             browser-only agent glue: WebMCP registration
 src/node/            CLI, MCP server, local editor server
 templates/           the template library, one *.sfx.json per sound
-docs/                FORMAT.md, SOUND-DESIGN.md, this file
+docs/                FORMAT.md, SOUND-DESIGN.md, TEMPLATE-BRIEF.md, this file
 ```
 
 ### Adding a source or an effect

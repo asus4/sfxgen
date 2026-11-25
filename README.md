@@ -1,12 +1,6 @@
 # sfxgen
 
-**Sound effects an agent can design and a person can finish.**
-
-sfxgen is an open-source sound-effect generator built for AI agents first and people second. A sound is a small
-JSON file (`*.sfx.json`): layered tracks of physical models, synths and noise, each through its own effects. An
-agent writes it, renders it, reads measurements and a spectrogram instead of listening, and picks the few knobs a
-person should try. The person opens it in a playful browser editor, listens, turns those knobs, and the file on
-disk changes so the agent can see what they did.
+sfxgen is an open-source sound-effect generator.
 
 ## Why
 
@@ -23,8 +17,6 @@ partials, perfectly aligned, perfectly clean. sfxgen gives agents a better palet
   decides by ear. Everything else stays one click away.
 - **Projects**: a game's whole set of sounds side by side, with shared output settings, levelling per group, a shared
   master chain, a mixer to balance them and one build that writes every WAV where the game wants it.
-- **108 templates** in 15 categories (impacts, footsteps, mechanical, doors, sci-fi, magic, weapons, explosions, UI,
-  retro, creatures, nature, movement, vehicles, ambience), each with controls chosen for tweaking.
 
 ## Quick start
 
@@ -77,8 +69,6 @@ Start with [docs/SOUND-DESIGN.md](docs/SOUND-DESIGN.md): how to make sounds that
 }
 ```
 
-The whole format: [docs/FORMAT.md](docs/FORMAT.md). The architecture: [docs/DESIGN.md](docs/DESIGN.md).
-
 ## Development
 
 ```bash
@@ -86,8 +76,6 @@ npm test             # vitest
 npm run typecheck
 npm run build        # templates, the editor (dist/web) and the CLI (dist/node)
 ```
-
-Contributions are welcome; [AGENTS.md](AGENTS.md) has the rules for people and agents alike.
 
 ## License
 

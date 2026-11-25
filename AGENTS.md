@@ -44,5 +44,6 @@ Rules:
 - **Test every node** with defaults and extreme values: finite, not silent, sane level, and its key behaviour.
 - **Templates** are plain patches under `templates/<category>/`. Each one needs a story in `description`, a `note`
   on each track and 3 to 7 controls that change the sound audibly across their whole range. Run `npm run templates`
-  and the template test after adding one.
+  and the template test after adding one. [docs/TEMPLATE-BRIEF.md](docs/TEMPLATE-BRIEF.md) is the brief to hand an
+  agent writing templates.
 - **Format changes** need `docs/FORMAT.md`, `src/core/format/types.ts` and the validator changed together.
