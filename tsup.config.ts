@@ -1,6 +1,6 @@
 import { defineConfig } from 'tsup';
 
-// The CLI and MCP server. The DSP core is bundled in; the web editor is built separately by Vite.
+// The CLI. The DSP core is bundled in; the web editor is built separately by Vite.
 export default defineConfig({
   entry: { cli: 'src/node/cli.ts' },
   outDir: 'dist/node',
@@ -12,5 +12,4 @@ export default defineConfig({
   sourcemap: true,
   clean: true,
   banner: { js: '#!/usr/bin/env node' },
-  external: ['@modelcontextprotocol/sdk', 'zod'],
 });

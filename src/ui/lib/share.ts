@@ -1,4 +1,7 @@
-/** Share links: the patch as JSON, deflate-compressed and base64url-encoded in the URL hash (`#p=...`). */
+/**
+ * Patches from outside: share links (the patch as JSON, deflate-compressed and base64url-encoded in the URL hash,
+ * `#p=...`) and patches pasted as text.
+ */
 import type { Patch } from '../../core';
 
 export function toBase64Url(bytes: Uint8Array): string {
@@ -34,4 +37,16 @@ export async function decodePatchHash(hash: string): Promise<unknown | null> {
   if (!m) return null;
   const bytes = await pipe(fromBase64Url(m[1]), new DecompressionStream('deflate-raw'));
   return JSON.parse(new TextDecoder().decode(bytes));
+}
+
+/**
+ * The JSON object in a piece of pasted text: the contents of its first fenced code block (an AI chat's answer,
+ * copied whole), else from the first `{` to the last `}`. Null when there is no object to try.
+ */
+export function jsonIn(text: string): string | null {
+  const fenced = /```[a-z]*[ \t]*\r?\n([\s\S]*?)```/i.exec(text);
+  const body = fenced ? fenced[1] : text;
+  const start = body.indexOf('{');
+  const end = body.lastIndexOf('}');
+  return start >= 0 && end > start ? body.slice(start, end + 1) : null;
 }

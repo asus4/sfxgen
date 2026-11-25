@@ -1,11 +1,12 @@
 /**
  * The display: a dark screen with the open sound's waveform (every audible track in its ink, screened over black,
  * under the outline of the finished mix), the lanes, the readouts and the agent's log. While a control is hovered
- * or turned the screen switches to that control's colour and shows where it acts. Under the screen: the transport.
+ * or turned the screen switches to that control's colour and shows where it acts. Play sits in the screen's head;
+ * another take and surprise me sit beside the easy controls they move.
  */
 import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import { player } from '../audio';
-import { audition, playNow, rollTake, stop, surpriseMe } from '../controller';
+import { audition, playNow, stop } from '../controller';
 import { fitCanvas, prefersReducedMotion, timeTicks, useSize, useStable } from '../hooks';
 import { controlColor, trackInk } from '../lib/inks';
 import { formatValue } from '../lib/knob';
@@ -15,7 +16,7 @@ import { computePeaks, lerpPeaks, type Peaks } from '../lib/peaks';
 import { dbText, soundKey } from '../lib/projectOps';
 import type { RenderView, SpectrogramGrid } from '../renderProtocol';
 import { useEditor, type Activity } from '../store';
-import { Die, Icon } from './Icon';
+import { Icon } from './Icon';
 
 const DIM = '#3a3d44';
 
@@ -519,7 +520,6 @@ export function Display() {
   const openIsPlaying = useEditor((s) => s.playing && (!s.playingKey || s.playingKey === (s.project.sounds[s.current] ? soundKey(s.project.sounds[s.current]) : '')));
   const view = useEditor((s) => s.view);
   const name = useEditor((s) => s.patch.name);
-  const seed = useEditor((s) => s.patch.seed ?? 1);
   const index = useEditor((s) => s.current);
   const stageView = useEditor((s) => s.stageView);
   const setSettings = useEditor((s) => s.setSettings);
@@ -584,16 +584,10 @@ export function Display() {
                 const { patch, id } = addTrack(useEditor.getState().patch);
                 edit(patch);
                 useEditor.getState().select(id);
-                useEditor.setState({ surface: 'sound' });
+                useEditor.getState().showSurface('sound');
               }}
             >
               <Icon name="plus" size={15} /> <span>layer</span>
-            </button>
-            <button type="button" className="screen-key" onClick={rollTake} title="Another take: same sound, new random seed">
-              <Die seed={seed} size={15} /> <span>take</span>
-            </button>
-            <button type="button" className="screen-key" onClick={surpriseMe} title="Surprise me: every easy control somewhere new">
-              <Icon name="spark" size={15} /> <span>surprise</span>
             </button>
             <button
               type="button"

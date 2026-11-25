@@ -50,7 +50,7 @@ src/core/            DOM-free; runs in a browser worker and in Node
 src/worker/          the editor's render worker
 src/ui/              the editor (React)
 src/web/             browser-only agent glue: WebMCP registration
-src/node/            CLI, MCP server, local editor server
+src/node/            CLI, local editor server
 templates/           the template library, one *.sfx.json per sound
 docs/                FORMAT.md, SOUND-DESIGN.md, TEMPLATE-BRIEF.md, this file
 ```
@@ -65,16 +65,20 @@ it with defaults and with extreme values and checks for finite, non-silent, non-
 
 ## Agent interfaces
 
+Two paths: WebMCP for light use in the browser, with nothing to install, and the command line on local files for
+heavy use. Both use the same core, so a patch renders and measures the same either way.
+
 | Agent | Use | How |
 | --- | --- | --- |
+| In-browser agents | WebMCP | The editor registers the tools below on `document.modelContext` when the browser offers it, acting on the open project. The hosted editor carries a Chrome origin-trial token for `https://asus4.github.io` in `index.html` (Chrome 149 to 162, until 30 March 2027); elsewhere, and in Brave, it needs `chrome://flags/#enable-webmcp-testing`. The WebMCP key in the top strip shows the state and how to turn it on; phones and tablets don't show it. |
 | Coding agents (Claude Code, Codex, ...) | Files and CLI | Write `*.sfx.json`, run `sfxgen render`, `sfxgen analyze --png`, read the spectrogram. `sfxgen guide` prints the catalog. |
-| MCP clients | `sfxgen mcp` | The same operations as tools; analysis returns the spectrogram as an image. |
-| In-browser agents | WebMCP | The editor registers the same tools on `document.modelContext` when the browser offers it (Chrome 149+ and Edge 150+ origin trials as of November 2026). |
 | People | `sfxgen serve` or the hosted editor | Opens the editor on the same files, live-reloading both ways. |
 
-### Tools (shared by MCP and WebMCP)
+### Tools (WebMCP)
 
-Defined once in `src/core/agent/tools.ts` against the `Workspace` interface (`src/core/agent/workspace.ts`).
+Defined once in `src/core/agent/tools.ts` against the `Workspace` interface (`src/core/agent/workspace.ts`): the
+editor's workspace in the browser, a `FileWorkspace` in the CLI (`sfxgen project report --match` runs
+`balance_project`), and an in-memory one in tests.
 
 | Tool | Does |
 | --- | --- |
@@ -90,6 +94,11 @@ Defined once in `src/core/agent/tools.ts` against the `Workspace` interface (`sr
 | `export_wav` | Write a WAV (and variations). |
 | `get_human_changes` | What a person changed since the agent last wrote the patch. |
 | `list_patches` | Patch files the workspace can see. |
+| `sync_controls` | Write what the controls set back into the patch, so the file says what renders. |
+| `get_project` | The project: its sounds with their groups, gains and export paths, and the shared settings; with `measure`, each sound's loudness and peak. |
+| `edit_project` | Change the project by path, and add or remove sounds. |
+| `build_project` | Render every sound (or the named ones) in the project's context and write each WAV to its export path. |
+| `balance_project` | Work out the gains that bring the sounds to a target loudness under a peak ceiling, and write them when asked. |
 
 ### Local editor server (`sfxgen serve [dir]`)
 
@@ -138,19 +147,22 @@ copy their layouts, graphics or trade dress.
 On a desktop screen everything is one panel with no page scroll (below 1040 × 640 px the zones stack):
 
 1. **01 Top strip**: logo, the project key (switch, create, delete projects), gallery, open, save, export, share,
-   undo and redo, WebMCP status, light or dark finish.
-2. **02 Display**: a dark screen with the sound's name and readouts (length, peak, LUFS, render time), the mix as a
-   waveform or spectrum with a playhead and a level meter, the tracks as lanes (mute, solo, drag to move), and the
-   agent's notes and activity. Under it, the transport: play, another take, surprise me.
-3. **03 Control surface**: the patch's controls as colour-coded knobs and selectors with their hints. Hovering or
-   turning one draws what it drives in its colour on the display. A **Controls | Everything** switch in its header
-   reveals every parameter of the selected track (source, voice filter, envelope, events, effects) and the master,
-   generated from the node metadata; breakpoint parameters get a small curve editor; any parameter can be pinned
-   into the controls.
-4. **04 Pads**: one per sound in the project (keys 1 to 9 and 0 play them), with LEDs for playing, edited by you and
-   touched by an agent. Mode keys swap the control surface for the **Mixer** (groups, gain faders, loudness and peak,
-   match loudness per group, play the set in turn) or **Project** settings (output, levelling, the shared master
-   chain, export folder). A single patch is a project of one.
+   the latest activity, undo and redo, WebMCP status (not on phones and tablets, where nothing calls the tools yet),
+   light or dark finish, and a link to the source on GitHub.
+2. **02 Sounds**: a pad per sound in the project, down the side (keys 1 to 9 and 0 play them), with LEDs for
+   playing, edited by you and touched by an agent. A single patch is a project of one.
+3. **The display**: a dark screen with play, the sound's name and readouts (length, peak, LUFS, render time), the
+   mix as a waveform or spectrum with a playhead and a level meter, and the tracks as lanes (mute, solo, drag to
+   move).
+4. **04 Easy control**: the patch's controls as colour-coded knobs and selectors with their hints. Hovering or
+   turning one draws what it drives in its colour on the display. After them, the two chance keys: **another take**
+   and **surprise me**.
+5. **05 Full control**, closed until opened (the display takes the room): every parameter of the selected track
+   (source, voice filter, envelope, events, effects) and the master, generated from the node metadata; breakpoint
+   parameters get a small curve editor; any parameter can be pinned into the easy controls. Its tabs swap it for
+   the **Mix** (groups, gain faders, loudness and peak, match loudness per group, play the set in turn), the
+   **Project** (output, levelling, the shared master chain, export folder) and the **Notes** (what the agent
+   wrote, and who changed what). Opening a tab opens it.
 
 ### Behaviour
 
@@ -160,4 +172,5 @@ On a desktop screen everything is one panel with no page scroll (below 1040 × 6
 - "Another take" (new seed) and "Surprise me" (random values within the controls' ranges).
 - Export WAV (16/24/32-bit, mono/stereo, sample rate), variations, and the `.sfx.json`.
 - Autosave to the browser; share link with the patch compressed in the URL hash.
+- Paste a patch anywhere outside a text field (a copied `.sfx.json` file, or its JSON as text) to add it as a new pad.
 - Works with a keyboard alone and at phone width.

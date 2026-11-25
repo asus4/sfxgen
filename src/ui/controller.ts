@@ -36,7 +36,7 @@ import {
   uniquePatchName,
   zipPath,
 } from './lib/projectOps';
-import { decodePatchHash, encodePatchHash } from './lib/share';
+import { decodePatchHash, encodePatchHash, jsonIn } from './lib/share';
 import { makeZip } from './lib/zip';
 import { renderClient } from './renderClient';
 import type { RenderView } from './renderProtocol';
@@ -321,31 +321,54 @@ function acceptProject(input: unknown, source: string): Project | null {
 
 /** Opens a dropped or chosen file: a patch becomes a new pad, a project bundle becomes a project. */
 export async function importFile(file: File): Promise<void> {
+  await importJson(await file.text(), file.name);
+}
+
+/** A patch joins the set (or a bundle opens) from JSON text: a file's contents, or a paste. */
+async function importJson(text: string, name: string, pasted = false): Promise<void> {
   let json: unknown;
   try {
-    json = JSON.parse(await file.text());
+    json = JSON.parse(text);
   } catch {
-    editor().toast(`${file.name} is not valid JSON`, 'error');
+    editor().toast(`${name} is not valid JSON`, 'error');
     return;
   }
   if ((json as { format?: unknown } | null)?.format === PROJECT_FORMAT_ID) {
-    const project = acceptProject(json, file.name);
+    const project = acceptProject(json, name);
     if (!project) return;
     const inline = project.sounds.filter((x) => x.patch);
     if (inline.length === 0) {
-      editor().toast(`${file.name} lists files, not sounds: import a bundle (.sfxproj.json) or open the folder with sfxgen serve`, 'error');
+      editor().toast(`${name} lists files, not sounds: import a bundle (.sfxproj.json) or open the folder with sfxgen serve`, 'error');
       return;
     }
     if (editor().serve.info) {
       // On a served folder the bundle's sounds join the folder's project.
-      for (const x of inline) await addSoundToProject(x.patch!, `imported “${x.patch!.name}” from ${file.name}`);
+      for (const x of inline) await addSoundToProject(x.patch!, `imported “${x.patch!.name}” from ${name}`);
       return;
     }
     openBrowserProject(createLibraryEntry(project.name), { ...project, sounds: inline }, `imported project “${project.name}”`);
     return;
   }
-  const patch = accept(json, file.name);
-  if (patch) await addSoundToProject(patch, `imported ${file.name}`);
+  const patch = accept(json, name);
+  if (patch) await addSoundToProject(patch, pasted ? `pasted “${patch.name}”` : `imported ${name}`);
+}
+
+/** A paste outside a text field: .sfx.json files copied in the file manager, or a patch copied as text. */
+export function onPaste(e: ClipboardEvent): void {
+  if (isTyping(e.target) || !e.clipboardData) return;
+  const files = [...e.clipboardData.files].filter((f) => f.name.endsWith('.json'));
+  if (files.length > 0) {
+    e.preventDefault();
+    // One after another, so each new pad gets its own unique name.
+    void (async () => {
+      for (const f of files) await importFile(f);
+    })();
+    return;
+  }
+  const json = jsonIn(e.clipboardData.getData('text/plain'));
+  if (json === null) return;
+  e.preventDefault();
+  void importJson(json, 'The pasted patch', true);
 }
 
 export function exportJson(): void {
@@ -954,8 +977,8 @@ export function onGlobalKey(e: KeyboardEvent): void {
     return;
   }
   if (e.key === 'Escape') {
-    if (s.gallery.open || s.exportOpen || s.projectsOpen || s.buildRows) {
-      useEditor.setState({ gallery: { ...s.gallery, open: false }, exportOpen: false, projectsOpen: false, buildRows: null });
+    if (s.gallery.open || s.exportOpen || s.projectsOpen || s.webmcpOpen || s.buildRows) {
+      useEditor.setState({ gallery: { ...s.gallery, open: false }, exportOpen: false, projectsOpen: false, webmcpOpen: false, buildRows: null });
     }
     return;
   }
@@ -972,8 +995,8 @@ export function onGlobalKey(e: KeyboardEvent): void {
   } else if (key === 'g') {
     useEditor.setState({ gallery: { open: !s.gallery.open, mode: 'replace' } });
   } else if (key === 'e') {
-    useEditor.setState({ surface: 'sound' });
+    s.showSurface('sound');
   } else if (key === 'm') {
-    useEditor.setState({ surface: s.surface === 'mixer' ? 'sound' : 'mixer' });
+    s.showSurface(s.fullOpen && s.surface === 'mixer' ? 'sound' : 'mixer');
   }
 }

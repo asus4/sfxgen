@@ -1,7 +1,7 @@
 /**
  * A small PNG encoder for the spectrogram: 8-bit RGB (or RGBA when any pixel is translucent), one IDAT chunk,
  * adaptive per-row filters. It compresses with the global CompressionStream ('deflate' is the zlib format PNG
- * wants), which Node 18+ and browsers both have, so the same code runs in the CLI, the MCP server and the editor.
+ * wants), which Node 18+ and browsers both have, so the same code runs in the CLI and the editor.
  * Without CompressionStream it falls back to stored (uncompressed) deflate blocks: larger, still valid.
  */
 

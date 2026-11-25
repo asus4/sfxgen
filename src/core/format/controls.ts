@@ -194,7 +194,7 @@ export function varyPatch(patch: Patch, rng: Rng, take: number): Patch {
 }
 
 /**
- * Round-robin takes: the patch itself, then `count - 1` variations. The editor, the CLI and the MCP tools all use
+ * Round-robin takes: the patch itself, then `count - 1` variations. The editor, the CLI and the agent tools all use
  * this, so the same patch gives the same takes everywhere.
  */
 export function variationTakes(patch: Patch, count: number): Patch[] {

@@ -4,7 +4,8 @@
  */
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { listEffects, listSources, render, validatePatch, formatIssues, type Patch } from '../src/core';
+import { listEffects, listSources, render, syncControlBases, validatePatch, formatIssues, type Patch } from '../src/core';
+import { buildGuide } from '../src/core/agent/guide';
 import { buildSchema } from '../src/core/agent/schema';
 
 function patchWithSource(source: Record<string, unknown>): Patch {
@@ -41,6 +42,42 @@ describe('node examples', () => {
       expect(r.warnings).toEqual([]);
     });
   }
+});
+
+// The guide's "Levels and balance" tells agents how loud each source comes out, so they can balance layers unheard.
+describe('levels the guide promises', () => {
+  const peakDb = (source: Record<string, unknown>) => {
+    const p: Patch = { ...patchWithSource(source), master: { normalize: { mode: 'none' } } };
+    const r = render(p, { sampleRate: 24000 });
+    let peak = 0;
+    for (const ch of r.channels) for (const v of ch) peak = Math.max(peak, Math.abs(v));
+    return 20 * Math.log10(peak);
+  };
+  for (const def of listSources().filter((d) => d.type !== 'noise')) {
+    it(`${def.type} at its defaults peaks within a few dB of full scale`, () => {
+      expect(Math.abs(peakDb({ type: def.type }))).toBeLessThan(4);
+    });
+  }
+  it('unfiltered noise peaks over full scale', () => {
+    for (const color of ['white', 'pink', 'velvet', 'crackle']) expect(peakDb({ type: 'noise', color })).toBeGreaterThan(3);
+  });
+});
+
+describe("the guide's example patch", () => {
+  const overview = buildGuide({ section: 'overview' });
+  const example = JSON.parse(/## A patch\n\n```json\n([\s\S]*?)\n```/.exec(overview)![1]) as Patch;
+  it('is valid, renders cleanly and says what it plays', () => {
+    const v = validatePatch(example);
+    expect([...v.errors, ...v.warnings], formatIssues(v)).toEqual([]);
+    expect(render(example, { sampleRate: 24000 }).warnings).toEqual([]);
+    expect(syncControlBases(example).changes).toEqual([]);
+  });
+  it('is the same patch as docs/FORMAT.md shows', () => {
+    const format = readFileSync(new URL('../docs/FORMAT.md', import.meta.url), 'utf8');
+    const shown = JSON.parse(/## A whole patch\n\n```json\n([\s\S]*?)\n```/.exec(format)![1]) as Patch & { output?: unknown };
+    const { output: _output, ...rest } = shown;
+    expect(rest).toEqual(example);
+  });
 });
 
 describe('schema', () => {

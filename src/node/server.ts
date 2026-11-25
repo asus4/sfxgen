@@ -15,7 +15,7 @@ import type { AddressInfo } from 'node:net';
 import type { Project } from '../core/project/project';
 import { validatePatch } from '../core/format/validate';
 import { validateProject } from '../core/project/project';
-import { FileWorkspace, PATCH_EXT, listPatchFiles, type EditorBridge } from './file-workspace';
+import { FileWorkspace, PATCH_EXT, listPatchFiles } from './file-workspace';
 import pkg from '../../package.json';
 
 export interface ServerOptions {
@@ -28,10 +28,8 @@ export interface ServerOptions {
   webDir?: string;
   /** Patch to open first, relative to root. */
   file?: string;
-  /** Where messages go (default console.log). The MCP server passes stderr: its stdout is the protocol. */
+  /** Where messages go (default console.log). */
   log?: (message: string) => void;
-  /** Share a file workspace with the caller (the MCP server's), so its `play` reaches this server's editors. */
-  workspace?: FileWorkspace;
   /** Host to bind. Default 127.0.0.1; leave it. */
   host?: string;
 }
@@ -138,7 +136,7 @@ export async function startServer(opts: ServerOptions): Promise<RunningServer> {
   const root = resolve(opts.root);
   const stats = await stat(root).catch(() => undefined);
   if (!stats?.isDirectory()) throw new Error(`${root} is not a directory.`);
-  const ws = opts.workspace ?? new FileWorkspace(root);
+  const ws = new FileWorkspace(root);
   const webDir = findWebDir(opts.webDir);
   const host = opts.host ?? '127.0.0.1';
 
@@ -148,11 +146,6 @@ export async function startServer(opts: ServerOptions): Promise<RunningServer> {
     const frame = `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
     for (const c of clients) c.write(frame);
   };
-  const bridge: EditorBridge = {
-    clientCount: () => clients.size,
-    broadcastPlay: (path) => broadcast('play', { path }),
-  };
-  ws.attachEditor(bridge);
 
   // The last content seen for each file, so a PUT from the editor is not announced again as a disk change.
   const known = new Map<string, string>();
@@ -434,7 +427,6 @@ export async function startServer(opts: ServerOptions): Promise<RunningServer> {
       for (const t of pending.values()) clearTimeout(t);
       for (const c of clients) c.end();
       clients.clear();
-      ws.attachEditor(undefined);
       await new Promise<void>((ok) => {
         server.close(() => ok());
         server.closeAllConnections();

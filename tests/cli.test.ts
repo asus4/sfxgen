@@ -9,6 +9,7 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { allTemplates } from '../src/core/templates';
 import { buildSchema } from '../src/core/agent/schema';
+import { Ajv2020 } from 'ajv/dist/2020';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const TSX = join(ROOT, 'node_modules', '.bin', 'tsx');
@@ -37,7 +38,7 @@ describe('sfxgen CLI', () => {
   it('prints help for itself and every command, and its version', () => {
     const main = sfxgen('--help');
     expect(main.code).toBe(0);
-    for (const c of ['render', 'analyze', 'validate', 'guide', 'schema', 'templates', 'new', 'diff', 'sync', 'serve', 'mcp']) {
+    for (const c of ['render', 'analyze', 'validate', 'guide', 'schema', 'templates', 'new', 'diff', 'sync', 'serve']) {
       expect(main.out).toContain(`  ${c}`);
       const help = sfxgen(c, '--help');
       expect(help.code, c).toBe(0);
@@ -154,15 +155,7 @@ describe('sfxgen CLI', () => {
     const schema = readJson('schema/sfxgen.schema.json');
     expect(schema).toEqual(JSON.parse(JSON.stringify(buildSchema())));
     expect(schema.$schema).toBe('https://json-schema.org/draft/2020-12/schema');
-    // ajv comes with the MCP SDK; check the schema with it when it is there.
-    const name = 'ajv/dist/2020';
-    const mod = await import(/* @vite-ignore */ name).catch(() => null);
-    if (!mod) {
-      expect(existsSync(join(ROOT, 'node_modules', 'ajv')), 'ajv is installed but did not load').toBe(false);
-      return;
-    }
-    const Ajv = mod.default ?? mod;
-    const validate = new Ajv({ strict: true, strictTuples: false, allErrors: true }).compile(schema);
+    const validate = new Ajv2020({ strict: true, strictTuples: false, allErrors: true }).compile(schema);
     for (const t of allTemplates()) expect(validate(t.patch), `${t.id}: ${JSON.stringify(validate.errors)}`).toBe(true);
     expect(validate({ format: 'sfxgen/1', name: 'x', duration: 'auto', tracks: [{ id: 'a', source: { type: 'osc', frq: 440 } }] })).toBe(false);
   });

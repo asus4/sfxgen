@@ -2,7 +2,10 @@
 import { useRef, useState } from 'react';
 import { copyShareLink, createProject, deleteProject, exportBundle, exportJson, importFile, saveProjectFile, switchProject } from '../controller';
 import { useEditor } from '../store';
-import { Icon } from './Icon';
+import { GitHubMark, Icon } from './Icon';
+import { AgentStatus } from './WebMcpStatus';
+
+const REPO = 'https://github.com/asus4/sfxgen';
 
 /** The latest thing that happened, in one line; the agent's lines are lit. A click opens the notes. */
 function Ticker() {
@@ -10,24 +13,10 @@ function Ticker() {
   if (!last) return null;
   const who = { agent: 'agent', human: 'you', file: 'file', system: 'sfxgen' }[last.origin];
   return (
-    <button type="button" key={last.id} className={`ticker from-${last.origin}`} title="Open the notes and the activity log" onClick={() => useEditor.setState({ surface: 'notes' })}>
+    <button type="button" key={last.id} className={`ticker from-${last.origin}`} title="Open the notes and the activity log" onClick={() => useEditor.getState().showSurface('notes')}>
       <b>{who}</b>
       <span>{last.text}</span>
     </button>
-  );
-}
-
-function AgentStatus() {
-  const webmcp = useEditor((s) => s.webmcp);
-  const live = webmcp !== 'pending' && webmcp.count > 0;
-  const why =
-    'WebMCP lets an agent in the browser use this editor as tools. It needs Chrome 149+ or Edge 150+ with the WebMCP origin trial (or flag) on. ' +
-    'Add ?webmcp=shim to the address to try it with a built-in stand-in.';
-  return (
-    <span className={`pill${live ? ' pill-on' : ' pill-off'}`} title={live ? `Tools registered on ${webmcp.api}` : why} tabIndex={0}>
-      <i className="led" />
-      {webmcp === 'pending' ? 'WebMCP…' : live ? `WebMCP · ${webmcp.count} tools` : 'WebMCP unavailable'}
-    </span>
   );
 }
 
@@ -160,7 +149,7 @@ export function TopStrip() {
         <button type="button" className="key" onClick={() => useEditor.setState({ gallery: { open: true, mode: 'replace' } })} aria-keyshortcuts="G" title="Template gallery (G)">
           <Icon name="grid" size={16} /> <span>Gallery</span>
         </button>
-        <button type="button" className="key" onClick={() => file.current?.click()} title="Add a .sfx.json to the set, or open a .sfxproj.json bundle (or drop one anywhere)">
+        <button type="button" className="key" onClick={() => file.current?.click()} title="Add a .sfx.json to the set, or open a .sfxproj.json bundle. You can also drop one anywhere, or paste a patch (Ctrl+V or ⌘V)">
           <Icon name="open" size={16} /> <span>Open</span>
         </button>
         <button type="button" className="key" onClick={exportJson} title="Download the open sound as .sfx.json">
@@ -196,6 +185,9 @@ export function TopStrip() {
         <button type="button" className="key key-icon" onClick={() => setSettings({ theme: theme === 'dark' ? 'light' : 'dark' })} aria-label={theme === 'dark' ? 'Switch to the light finish' : 'Switch to the dark finish'} title="Light or dark finish">
           <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={16} />
         </button>
+        <a className="key key-icon" href={REPO} target="_blank" rel="noopener" aria-label="sfxgen on GitHub" title="sfxgen on GitHub: the source, the docs and the issues">
+          <GitHubMark size={16} />
+        </a>
       </div>
     </header>
   );

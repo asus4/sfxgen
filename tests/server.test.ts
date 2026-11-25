@@ -173,23 +173,11 @@ describe('serve API', () => {
 });
 
 describe('file workspace through the server', () => {
-  it('play reaches an open editor, and the agent writes show up as disk events', async () => {
+  it('play says how to open an editor when no sfxgen serve has this folder', async () => {
     const ws = new FileWorkspace(dir);
-    const srv = await startServer({ root: dir, port: 0, webDir, log: () => {}, workspace: ws });
-    try {
-      expect(await callTool(ws, 'play', { file: 'beep.sfx.json' })).toMatchObject({ data: { played: false } });
-      const ctrl = new AbortController();
-      const res = await fetch(`http://127.0.0.1:${srv.port}/api/events`, { signal: ctrl.signal });
-      const reader = res.body!.getReader();
-      const first = await reader.read();
-      expect(new TextDecoder().decode(first.value)).toContain('connected');
-      expect(await callTool(ws, 'play', { file: 'beep.sfx.json' })).toMatchObject({ data: { played: true } });
-      const play = await reader.read();
-      expect(new TextDecoder().decode(play.value)).toContain('event: play');
-      ctrl.abort();
-    } finally {
-      await srv.close();
-    }
+    const r = await callTool(ws, 'play', { file: 'beep.sfx.json' });
+    expect(r).toMatchObject({ data: { played: false } });
+    expect(r.text).toContain('sfxgen serve');
   });
 
   it('rejects refs that escape the root and diffs a person\'s edit', async () => {

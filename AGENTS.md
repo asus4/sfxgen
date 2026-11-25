@@ -1,6 +1,6 @@
 # AGENTS.md
 
-sfxgen is an agent-first sound-effect generator: sounds are JSON patches (`*.sfx.json`) rendered by a deterministic
+sfxgen is a sound-effect generator: sounds are JSON patches (`*.sfx.json`) rendered by a deterministic
 TypeScript DSP engine that runs in the browser and in Node. Read [docs/DESIGN.md](docs/DESIGN.md) for the
 architecture and [docs/FORMAT.md](docs/FORMAT.md) for the patch format.
 
@@ -25,7 +25,7 @@ If you are here to make sound effects rather than to change sfxgen:
 | Command | Does |
 | --- | --- |
 | `npm run dev` | The editor with hot reload, at http://localhost:5178 |
-| `npm run sfxgen -- <command>` | The CLI from source (`render`, `analyze`, `validate`, `guide`, `templates`, `new`, `diff`, `sync`, `build`, `project`, `serve`, `mcp`) |
+| `npm run sfxgen -- <command>` | The CLI from source (`render`, `analyze`, `validate`, `guide`, `templates`, `new`, `diff`, `sync`, `build`, `project`, `serve`) |
 | `npm test` | All tests (vitest) |
 | `npm run typecheck` | TypeScript |
 | `npm run templates` | Rebuild `src/core/templates/library.json` after changing `templates/` |

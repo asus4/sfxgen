@@ -3,7 +3,7 @@
  * its own Workspace:
  *
  * - the editor in a browser, for WebMCP (src/web/webmcp.ts): the open patch, with audio playback;
- * - the MCP server (src/node/mcp.ts): patch files on disk, headless;
+ * - the CLI (src/node/file-workspace.ts): patch files on disk, headless;
  * - tests: an in-memory workspace.
  *
  * Keep it small. Anything a tool can compute from the patch with the core belongs in the tool, not here.
@@ -40,7 +40,7 @@ export interface ChangeRecord {
 }
 
 export interface Workspace {
-  /** `browser` (WebMCP in the editor) or `files` (MCP server, CLI). */
+  /** `browser` (WebMCP in the editor) or `files` (the CLI). */
   readonly kind: 'browser' | 'files';
   /** The patch being worked on. */
   getPatch(ref?: string): Promise<Patch>;

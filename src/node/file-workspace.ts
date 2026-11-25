@@ -1,6 +1,6 @@
 /**
  * A Workspace over patch files under a root directory. Refs are paths relative to the root (`sounds/zap.sfx.json`);
- * anything that would leave the root is rejected. The MCP server and `sfxgen serve` both use it.
+ * anything that would leave the root is rejected. The CLI and `sfxgen serve` both use it.
  */
 import { existsSync, realpathSync } from 'node:fs';
 import { mkdir, readFile, readdir, stat, writeFile } from 'node:fs/promises';
@@ -19,14 +19,6 @@ export const PATCH_EXT = '.sfx.json';
 const SKIP_DIRS = new Set(['node_modules', '.git', 'dist', '.next', '.cache']);
 /** Where `sfxgen serve` listens unless told otherwise; the agent's play tool looks there for an editor. */
 export const DEFAULT_SERVE_PORT = 5179;
-
-/** What the file workspace needs from an editor server to make sound for the person. */
-export interface EditorBridge {
-  /** Open editor pages listening for events. */
-  clientCount(): number;
-  /** Asks every open editor to play this patch. */
-  broadcastPlay(path: string): void;
-}
 
 export interface PatchFileInfo {
   path: string;
@@ -77,9 +69,6 @@ export class FileWorkspace implements Workspace {
   /** What the agent last wrote or first read, per file: the baseline for a person's changes. */
   private readonly baseline = new Map<string, Patch>();
   private current: string | undefined;
-  private bridge: EditorBridge | undefined;
-  /** Set by hosts that know how to tell the person to open an editor. */
-  playHint = 'No editor is open. Run `sfxgen serve` in the project folder and open the URL it prints, then call play again.';
 
   /** The project file, relative to the root. */
   readonly projectFile: string;
@@ -88,10 +77,6 @@ export class FileWorkspace implements Workspace {
     this.projectFile = opts.projectFile ?? PROJECT_FILE;
     this.root = resolve(root);
     this.realRoot = existsSync(this.root) ? realpathSync(this.root) : this.root;
-  }
-
-  attachEditor(bridge: EditorBridge | undefined): void {
-    this.bridge = bridge;
   }
 
   /** Maps a ref to a path relative to the root (forward slashes), or throws. */
@@ -164,18 +149,10 @@ export class FileWorkspace implements Workspace {
 
   async play(ref?: string): Promise<{ played: boolean; note?: string }> {
     const rel = this.pick(ref);
-    if (this.bridge) {
-      const n = this.bridge.clientCount();
-      if (n > 0) {
-        this.bridge.broadcastPlay(rel);
-        return { played: true, note: `Sent to ${n} open editor${n === 1 ? '' : 's'}; the person hears it if the page has had a click (browsers block sound before one).` };
-      }
-      return { played: false, note: 'The editor server is running but no browser has the editor open. Ask the person to open its URL.' };
-    }
     // A `sfxgen serve` in another process for the same folder.
     const via = await this.playViaLocalServer(rel);
     if (via) return via;
-    return { played: false, note: this.playHint };
+    return { played: false, note: 'No editor is open. Run `sfxgen serve` in the project folder and open the URL it prints, then call play again.' };
   }
 
   private async playViaLocalServer(rel: string): Promise<{ played: boolean; note?: string } | undefined> {

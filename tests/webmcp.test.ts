@@ -33,7 +33,6 @@ describe('WebMCP', () => {
     expect(h).toMatchObject({ api: 'document.modelContext', count: 17 });
     const api = (window as unknown as { __sfxgenWebMcp: import('../src/web/webmcp').WebMcpShimApi }).__sfxgenWebMcp;
     const tools = api.getTools();
-    expect(tools.map((t) => t.name)).not.toContain('open_editor');
     expect(tools.find((t) => t.name === 'render_and_analyze')?.annotations).toMatchObject({ readOnlyHint: true });
     expect(tools.find((t) => t.name === 'export_wav')?.annotations).toMatchObject({ consequentialHint: true });
 

@@ -1,33 +1,44 @@
 # sfxgen
 
-sfxgen is an open-source sound-effect generator.
+An open-source sound-effect generator 🎛️
 
-## Why
+**[Open the editor: asus4.github.io/sfxgen](https://asus4.github.io/sfxgen/)**
 
-Sound effects written by coding agents sound alike: a pitch-dropping sine, a band-passed noise burst and a few sine
-partials, perfectly aligned, perfectly clean. sfxgen gives agents a better palette and better ears:
+## Make a sound
 
-- **Physical models** that describe objects instead of waveforms: modal resonators with real materials and shapes,
-  waveguide strings and springs, particle clouds for debris, rain and fire, formant voices for creatures, machines
-  driven by RPM, chaos generators, and effects like Doppler fly-bys, varispeed, wavefolding and the sound of a TV
-  speaker or a cassette.
-- **Ears for agents**: loudness, attack, decay, spectral balance and how they move, in words and numbers, with a
-  spectrogram image.
-- **A person in the loop**: the agent exposes perceptual controls (Size, Weight, Grit, Distance) and the person
-  decides by ear. Everything else stays one click away.
-- **Projects**: a game's whole set of sounds side by side, with shared output settings, levelling per group, a shared
-  master chain, a mixer to balance them and one build that writes every WAV where the game wants it.
+1. Press **Gallery** and pick a template: impacts, footsteps, doors, UI clicks, retro blips, sci-fi, creatures,
+   magic, nature and more. It plays as soon as you pick it.
+2. Turn the **Easy control** knobs; the sound plays when you let go. **Another take** keeps the sound and rolls new
+   random detail. **Surprise me** throws every knob somewhere new.
+3. Open **Full control** for every parameter of every layer, the mixer for a whole set of sounds, and the settings
+   the set shares.
+4. **Export** a WAV (one sound or the whole set), or **Share** a link with the sound inside it.
 
-## Quick start
+Your projects are kept in your browser. **Save** downloads a sound as a `.sfx.json` file; drop or paste one onto the
+page to bring it back.
+
+## Make a sound with an AI agent
+
+There are two ways to bring in an agent, depending on how much it should do.
+
+**In the browser, with nothing to install (WebMCP).** The editor offers its tools to an AI agent running in your
+browser: it finds a template, edits the sound, renders and measures it, and plays it for you in the open page.
+Chrome 149 to 162 turns WebMCP on for the hosted editor by itself (an origin trial, until 30 March 2027). In Brave,
+and in Chrome elsewhere, set `chrome://flags/#enable-webmcp-testing` to Enabled. The editor's **WebMCP** key shows
+how. It is hidden on phones and tablets, where nothing can call the tools yet.
+
+**On your computer, for heavy use (Node.js).** A coding agent (Claude Code, Codex, ...) writes `.sfx.json` files and
+runs the sfxgen command line. It renders every sound, reads the measurements and looks at the spectrogram before
+handing it over, and `sfxgen serve` opens the editor on the same files so you can hear and tune them. Ask it to "set
+up https://github.com/asus4/sfxgen and make me ...". [AGENTS.md](AGENTS.md) is where it starts, and
+[docs/SOUND-DESIGN.md](docs/SOUND-DESIGN.md) is how to make sounds that don't sound generated.
+
+The command line runs from a clone of this repository, with Node.js installed:
 
 ```bash
+git clone https://github.com/asus4/sfxgen.git
+cd sfxgen
 npm install
-npm run dev                      # the editor, http://localhost:5178
-```
-
-From the command line:
-
-```bash
 npm run sfxgen -- templates                          # browse the library
 npm run sfxgen -- new impacts/thud -o thud.sfx.json  # start from a template
 npm run sfxgen -- render thud.sfx.json --analyze --png
@@ -36,34 +47,40 @@ npm run sfxgen -- project init sounds/               # make a folder of patches 
 npm run sfxgen -- build sounds/                      # render every sound to its export path
 ```
 
-## For agents
-
-| Agent | Connect with |
-| --- | --- |
-| Coding agents (Claude Code, Codex, ...) | Files and the CLI: write `*.sfx.json`, run `sfxgen render --analyze --png`, read the PNG. `sfxgen guide` prints the catalog. |
-| MCP clients | `sfxgen mcp <dir>`: the same operations as tools, with spectrograms as images. Claude Code: `claude mcp add sfxgen -- npx tsx /path/to/sfxgen/src/node/cli.ts mcp .` |
-| In-browser agents | WebMCP: the editor registers its tools on `document.modelContext` when the browser offers it (Chrome and Edge origin trials). |
-
-Start with [docs/SOUND-DESIGN.md](docs/SOUND-DESIGN.md): how to make sounds that don't sound generated.
-
 ## A patch
+
+Every sound is a JSON patch like this one: it is what **Save** downloads and what an agent writes.
 
 ```json
 {
   "format": "sfxgen/1",
-  "name": "Rusty hatch clunk",
+  "name": "Steel hatch slam",
+  "description": "A heavy steel hatch dropped shut in a small concrete room: a dull, dented boom, then the latch.",
   "duration": "auto",
   "tracks": [
     {
-      "id": "body",
-      "source": { "type": "osc", "wave": "sine", "freq": [[0, 160], [0.08, 62]], "env": { "attack": 0.001, "decay": 0.35 } },
-      "fx": [{ "type": "drive", "mode": "tube", "amount": 10 }]
+      "id": "door",
+      "note": "A thick steel box hit along its edge; the dent stops it ringing like a bell.",
+      "source": { "type": "modal", "material": "metal", "shape": "box", "freq": 82, "decay": 0.9, "dent": 0.35,
+                  "exciter": { "kind": "mallet", "hardness": 0.8 } },
+      "sends": { "room": -8 }
+    },
+    {
+      "id": "latch",
+      "note": "The latch snapping home 90 ms later: a small, damped steel bar.",
+      "gain": -10,
+      "events": [0.09],
+      "source": { "type": "modal", "material": "metal", "shape": "bar", "freq": 1400, "decay": 0.08, "damping": 2.5 }
     }
   ],
+  "buses": [{ "id": "room", "fx": [{ "type": "reverb", "space": "room", "size": 4, "decay": 0.6 }] }],
   "controls": [
     {
-      "id": "weight", "label": "Weight", "hint": "Lower and longer: a heavier door.", "value": 0.5,
-      "targets": [{ "path": "tracks.body.source.freq", "mode": "mul", "from": 1.6, "to": 0.6 }]
+      "id": "weight", "label": "Weight", "hint": "A light locker door to a ship's bulkhead hatch.", "value": 0.5,
+      "targets": [
+        { "path": "tracks.door.source.freq", "mode": "mul", "from": 1.6, "to": 0.625 },
+        { "path": "tracks.door.source.decay", "mode": "mul", "from": 0.625, "to": 1.6 }
+      ]
     }
   ]
 }
@@ -72,9 +89,9 @@ Start with [docs/SOUND-DESIGN.md](docs/SOUND-DESIGN.md): how to make sounds that
 ## Development
 
 ```bash
-npm test             # vitest
-npm run typecheck
-npm run build        # templates, the editor (dist/web) and the CLI (dist/node)
+npm run dev # http://localhost:5178
+npm test
+npm run build
 ```
 
 ## License

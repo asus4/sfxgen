@@ -1,5 +1,5 @@
 /**
- * WebMCP: the same tools the MCP server offers (src/core/agent/tools.ts), registered on the page so an in-browser
+ * WebMCP: the agent tools (src/core/agent/tools.ts), registered on the page so an in-browser
  * agent can design sounds in the open editor.
  *
  * The spec (W3C Web Machine Learning CG, "WebMCP") puts the API on `document.modelContext`; older Chrome builds and
@@ -95,7 +95,7 @@ export async function registerWebMcp(ws: Workspace): Promise<WebMcpHandle> {
   const found = findContext();
   if (!found) return { api: 'none', count: 0, dispose() {} };
   const { ctx, api } = found;
-  const tools = TOOLS.filter((t) => !t.hostOnly).map((t) => toWebTool(ws, t));
+  const tools = TOOLS.map((t) => toWebTool(ws, t));
   const abort = new AbortController();
   const undo: (() => void)[] = [];
   let count = 0;

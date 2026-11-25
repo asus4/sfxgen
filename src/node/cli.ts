@@ -1,5 +1,5 @@
 /**
- * The `sfxgen` command line: render, analyze, validate, guide, schema, templates, new, diff, serve, mcp.
+ * The `sfxgen` command line: render, analyze, validate, guide, schema, templates, new, diff, sync, project, build, serve.
  *
  * Every command is written for an agent reading its output: plain lines first, exact numbers after, `--json` where
  * a program wants the data, warnings on stderr, exit code 1 on errors and 2 on a usage mistake.
@@ -1013,23 +1013,6 @@ const serveCommand: Command = {
   },
 };
 
-const mcpCommand: Command = {
-  name: 'mcp',
-  summary: 'Run the MCP server over stdio',
-  usage: 'sfxgen mcp [dir]',
-  description:
-    'Runs the Model Context Protocol server on stdin/stdout, with the patch files under dir (default .) as its workspace: the same operations as the CLI as tools, and the analysis with its spectrogram image. Configure your MCP client to run `npx sfxgen mcp <dir>`.',
-  options: [],
-  examples: ['sfxgen mcp .', 'claude mcp add sfxgen -- npx sfxgen mcp .'],
-  async run(args) {
-    const root = resolve(args.positional[0] ?? '.');
-    if (!existsSync(root) || !statSync(root).isDirectory()) throw new CliError(`${root}: not a directory`);
-    const { startMcp } = await import('./mcp');
-    await startMcp({ root });
-    return 0;
-  },
-};
-
 const COMMANDS: Command[] = [
   renderCommand,
   analyzeCommand,
@@ -1043,7 +1026,6 @@ const COMMANDS: Command[] = [
   buildCommand,
   projectCommand,
   serveCommand,
-  mcpCommand,
 ];
 
 // ---- Help ----------------------------------------------------------------------------------------------
@@ -1159,7 +1141,7 @@ if (invokedDirectly()) {
   });
   main(process.argv.slice(2)).then(
     (code) => {
-      // Set the code rather than exiting, so piped output is flushed and serve/mcp keep running.
+      // Set the code rather than exiting, so piped output is flushed and serve keeps running.
       process.exitCode = code;
     },
     (e) => {

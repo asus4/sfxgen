@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { importFile, onGlobalKey, start } from './controller';
+import { importFile, onGlobalKey, onPaste, start } from './controller';
 import { EasyStrip, Surface } from './components/ControlsPanel';
 import { Display } from './components/Display';
 import { BuildReport, ExportDialog } from './components/ExportDialog';
@@ -24,6 +24,7 @@ function Toasts() {
 
 export function App() {
   const [dropping, setDropping] = useState(false);
+  const fullOpen = useEditor((s) => s.fullOpen);
 
   useEffect(() => {
     void start();
@@ -33,9 +34,11 @@ export function App() {
     };
     window.addEventListener('keydown', onGlobalKey);
     window.addEventListener('keyup', onKeyUp);
+    window.addEventListener('paste', onPaste);
     return () => {
       window.removeEventListener('keydown', onGlobalKey);
       window.removeEventListener('keyup', onKeyUp);
+      window.removeEventListener('paste', onPaste);
     };
   }, []);
 
@@ -61,7 +64,7 @@ export function App() {
         })();
       }}
     >
-      <div className="device">
+      <div className={`device${fullOpen ? '' : ' is-full-closed'}`}>
         <TopStrip />
         <Pads />
         <Display />

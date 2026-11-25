@@ -44,7 +44,8 @@ export interface Library {
 
 export interface Settings {
   theme: 'light' | 'dark';
-  everything: boolean;
+  /** Full control is open. It starts closed: the display and the easy controls are enough to begin with. */
+  fullOpen: boolean;
   stageView: 'wave' | 'spectro';
 }
 
@@ -72,6 +73,8 @@ export interface EditorState extends Settings {
   gallery: { open: boolean; mode: 'replace' | 'add' };
   exportOpen: boolean;
   projectsOpen: boolean;
+  /** The WebMCP key's panel: status and how to turn it on. */
+  webmcpOpen: boolean;
   buildRows: ProjectBuildRow[] | null;
   view: RenderView | null;
   spectro: SpectrogramGrid | null;
@@ -120,6 +123,8 @@ export interface EditorState extends Settings {
   focusControl(id: string): void;
   showStamp(text: string): void;
   setSettings(s: Partial<Settings>): void;
+  /** Opens full control on the sound, the mixer, the project or the notes. */
+  showSurface(surface: Surface): void;
 }
 
 let serial = 1;
@@ -132,7 +137,7 @@ export const followsSystemTheme = () => !themeChosen;
 
 export function loadSettings(): Settings {
   const prefersDark = typeof matchMedia === 'function' && matchMedia('(prefers-color-scheme: dark)').matches;
-  const base: Settings = { theme: prefersDark ? 'dark' : 'light', everything: false, stageView: 'wave' };
+  const base: Settings = { theme: prefersDark ? 'dark' : 'light', fullOpen: false, stageView: 'wave' };
   try {
     const raw = localStorage.getItem(SETTINGS_KEY);
     if (!raw) return base;
@@ -140,7 +145,7 @@ export function loadSettings(): Settings {
     themeChosen = s.theme === 'dark' || s.theme === 'light';
     return {
       theme: s.theme === 'dark' || s.theme === 'light' ? s.theme : base.theme,
-      everything: typeof s.everything === 'boolean' ? s.everything : base.everything,
+      fullOpen: typeof s.fullOpen === 'boolean' ? s.fullOpen : base.fullOpen,
       stageView: s.stageView === 'spectro' ? 'spectro' : 'wave',
     };
   } catch {
@@ -221,6 +226,7 @@ export const useEditor = create<EditorState>()((set, get) => {
     gallery: { open: false, mode: 'replace' },
     exportOpen: false,
     projectsOpen: false,
+    webmcpOpen: false,
     buildRows: null,
     view: null,
     spectro: null,
@@ -386,8 +392,13 @@ export const useEditor = create<EditorState>()((set, get) => {
     setSettings(partial) {
       if (partial.theme) themeChosen = true;
       set(partial);
-      const { theme, everything, stageView } = get();
-      saveSettings({ theme, everything, stageView });
+      const { theme, fullOpen, stageView } = get();
+      saveSettings({ theme, fullOpen, stageView });
+    },
+
+    showSurface(surface) {
+      set({ surface });
+      if (!get().fullOpen) get().setSettings({ fullOpen: true });
     },
   };
 });

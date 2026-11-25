@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Patch } from '../src/core';
-import { decodePatchHash, encodePatchHash, fromBase64Url, toBase64Url } from '../src/ui/lib/share';
+import { decodePatchHash, encodePatchHash, fromBase64Url, jsonIn, toBase64Url } from '../src/ui/lib/share';
 
 const patch: Patch = {
   format: 'sfxgen/1',
@@ -33,5 +33,25 @@ describe('share links', () => {
     expect(await decodePatchHash('')).toBeNull();
     expect(await decodePatchHash('#section')).toBeNull();
     await expect(decodePatchHash('#p=AAAA_not-deflate')).rejects.toThrow();
+  });
+});
+
+describe('pasted patches', () => {
+  const json = JSON.stringify(patch, null, 2);
+
+  it('takes the patch out of a chat answer copied whole', () => {
+    const answer = `Here is a falling zap:\n\n\`\`\`json\n${json}\n\`\`\`\n\nPaste it into the editor. {not this}`;
+    expect(JSON.parse(jsonIn(answer)!)).toEqual(patch);
+  });
+
+  it('takes a bare object, or one with words around it', () => {
+    expect(JSON.parse(jsonIn(json)!)).toEqual(patch);
+    expect(JSON.parse(jsonIn(`the patch: ${json} enjoy`)!)).toEqual(patch);
+    expect(JSON.parse(jsonIn(`\`\`\`\r\n${json}\r\n\`\`\``)!)).toEqual(patch);
+  });
+
+  it('finds nothing in plain text', () => {
+    expect(jsonIn('hello there')).toBeNull();
+    expect(jsonIn('} backwards {')).toBeNull();
   });
 });

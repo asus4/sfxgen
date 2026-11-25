@@ -136,7 +136,7 @@ export function Gallery() {
             <button type="button" className="key key-sm" onClick={addBlankSound}>
               <Icon name="plus" size={12} /> Blank
             </button>
-            <button type="button" className="key key-sm" onClick={() => file.current?.click()}>
+            <button type="button" className="key key-sm" onClick={() => file.current?.click()} title="Add a .sfx.json file. You can also drop one anywhere, or paste a patch (Ctrl+V or ⌘V)">
               <Icon name="open" size={12} /> File
             </button>
             <input
