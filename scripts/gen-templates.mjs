@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 // Collects templates/**/*.sfx.json into src/core/templates/library.json, which the editor and the CLI import.
+// Takes (`<name>.takes/*.sfx.json`, versions of a sound waiting for a person to pick one) are not templates.
 // Run after adding or editing a template: `npm run templates` (the build runs it too).
 import { readdirSync, readFileSync, writeFileSync, statSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
@@ -12,7 +13,8 @@ const out = join(root, 'src', 'core', 'templates', 'library.json');
 function walk(d) {
   return readdirSync(d).flatMap((name) => {
     const p = join(d, name);
-    return statSync(p).isDirectory() ? walk(p) : name.endsWith('.sfx.json') ? [p] : [];
+    if (statSync(p).isDirectory()) return name.endsWith('.takes') ? [] : walk(p);
+    return name.endsWith('.sfx.json') ? [p] : [];
   });
 }
 

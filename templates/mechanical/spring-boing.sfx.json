@@ -1,7 +1,7 @@
 {
   "format": "sfxgen/1",
   "name": "Spring boing",
-  "description": "A doorstop spring flicked with a toe: the cartoon boing. 0 ms: the coil is bent and let go with a metallic twang; it whips back and forth so the pitch wobbles widely about seven times a second, the wobble dying over 600 ms while the whole note sags a little; the coil's overtones run away sharp of the pitch and chirp, the way spring reverbs do; a short plastic thunk from the skirting board it is screwed to.",
+  "description": "A doorstop spring flicked with a toe: the cartoon boing. The coil is bent and let go with a metallic twang; it whips back and forth so the pitch wobbles widely, the wobble slowing and dying away while the whole note sags a little; the coil's overtones run away sharp of the pitch and chirp, the way spring reverbs do; a short dull wooden thunk from the skirting board it is screwed to.",
   "tags": [
     "mechanical",
     "spring",
@@ -22,68 +22,38 @@
       "source": {
         "type": "pluck",
         "freq": {
-          "env": [
-            [
-              0,
-              118
-            ],
-            [
-              0.9,
-              96
-            ]
-          ],
+          "env": [[0, 118], [0.9, 96]],
           "mod": [
             {
               "type": "lfo",
-              "rate": [
-                [
-                  0,
-                  9
-                ],
-                [
-                  0.8,
-                  6
-                ]
-              ],
-              "depth": [
-                [
-                  0,
-                  2.6
-                ],
-                [
-                  0.65,
-                  0.3
-                ],
-                [
-                  1.1,
-                  0
-                ]
-              ],
+              "rate": [[0, 9], [0.8, 6]],
+              "depth": [[0, 2.6], [0.65, 0.3], [1.1, 0]],
               "unit": "st",
               "shape": "sine"
             }
           ]
         },
-        "decay": 1.3,
-        "brightness": 0.82,
+        "decay": 1.13268,
+        "brightness": 0.792,
         "position": 0.07,
-        "stiffness": 0.88,
+        "stiffness": 0.706,
         "excite": "pluck",
-        "hardness": 0.75
+        "hardness": 0.68,
+        "pitch": 1.144
       },
       "fx": [
         {
           "type": "reverb",
           "id": "spring",
           "space": "spring",
-          "mix": 0.18
+          "mix": 0.2694
         }
       ]
     },
     {
       "id": "mount",
       "note": "The wall it is screwed to: a short dull thunk at the flick.",
-      "gain": -9,
+      "gain": -10.4,
       "source": {
         "type": "modal",
         "material": "wood",
@@ -104,7 +74,7 @@
       "id": "size",
       "label": "Size",
       "hint": "A ballpoint pen spring to a car suspension coil.",
-      "value": 0.5,
+      "value": 0.496,
       "vary": 0.03,
       "targets": [
         {
@@ -163,7 +133,7 @@
       "id": "coil",
       "label": "Coil",
       "hint": "A tight wire that just twangs, to a loose slinky that chirps and splashes.",
-      "value": 0.6,
+      "value": 0.58,
       "targets": [
         {
           "path": "tracks.coil.source.stiffness",

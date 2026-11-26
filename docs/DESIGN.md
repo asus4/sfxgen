@@ -125,7 +125,10 @@ Serves the built editor and a small API over the `*.sfx.json` files under `dir`.
 `/api/events` also sends `project` (`{ path, mtime, origin }`) when the project file changes, and `review`
 (`{ path, origin }`) when the review file does. A take's file sends `file` like any patch.
 
-The editor opens `?file=<path>` directly. Vite's dev server proxies `/api` to `sfxgen serve --port 5179` when it runs.
+The editor opens `?file=<path>` directly, and keeps the address on the open sound, so a reload reopens it. Vite's dev server
+proxies `/api` to `sfxgen serve --port 5179` when it runs. During development, a change to the store, the controller
+or the core reloads the page (a hot update would start a second, empty editor); rebuilding the template library does
+not touch the running editor.
 
 ## The editor
 
@@ -143,8 +146,8 @@ copy their layouts, graphics or trade dress.
 - **A display that's alive.** The waveform, spectrum and readouts live on a dark screen with bright, playful
   graphics and a monospace readout font; it reacts while a sound plays.
 - **Pads with LEDs.** A project's sounds are pads: one press plays, selecting opens it; LEDs show playing, selected,
-  edited and touched-by-an-agent. A red fold in the corner marks a sound nobody has approved yet (an outlined fold:
-  flagged as needing work).
+  edited, touched-by-an-agent and the review (red until approved, a red ring when flagged as needing work). LEDs are
+  flat dots; every lit one glows in its own colour.
 - **Silkscreen restraint.** Small uppercase legends, hairline dividers, numbered sections. No faux 3D: controls turn
   and light up; they don't jump or cast offset shadows when pressed.
 
@@ -157,21 +160,26 @@ On a desktop screen everything is one panel with no page scroll (below 1040 × 6
    light or dark finish, and a link to the source on GitHub.
 2. **02 Sounds**: a pad per sound in the project, down the side (keys 1 to 9 and 0 play them), with LEDs for
    playing, edited by you and touched by an agent, and after the last pad an empty slot that adds a sound from the
-   gallery. A single patch is a project of one. The review lives here too: a red fold in the corner of each sound
-   nobody has approved (an outlined fold when flagged as needing work), a count in the head that opens the next one,
-   and under the open sound's pad **Approve** (with the number of changes you made, which go with it) and **Needs
+   gallery. A single patch is a project of one. The review lives here too. The pad's LED shows the first state
+   that applies: playing (green), touched by an agent (magenta), approved (off), needing work (a red ring), changed by
+   you and not yet decided (orange), not reviewed (red). A count in the head opens the next sound to review.
+   Under the open sound's pad sit **Approve** (with the number of changes you made, which go with it) and **Needs
    work**; either one opens and plays the next sound to review (keys A and N). What needs work, the person tells
    their agent in its chat. A sound with takes shows them under its pad like a folder; a click puts a take in use and
    plays it (keys [ and ]).
 3. **The display**: a dark screen with play, the sound's name and readouts (length, peak, LUFS, render time), the
-   mix as a waveform or spectrum with a playhead and a level meter, and the tracks as lanes (mute, solo, drag to
-   move) with a key under the last one to add a layer.
+   mix as a waveform or spectrum (a Wave / Spectrum switch in the plot's bottom-right corner) with a playhead and a level meter, and the tracks as lanes (mute, solo, drag to
+   move) with a key under the last one to add a layer. A lane shows and moves the start as heard: when a control
+   sets it (a "push" knob timing every layer), dragging shifts that control's range for the layer instead of the
+   track's own `start`, which the control would override, so the knob keeps working around the new time.
 4. **04 Easy control**: the patch's controls as colour-coded knobs and selectors with their hints. Hovering or
    turning one draws what it drives in its colour on the display. After them, the two chance keys: **the dice** (a
    new seed) and **surprise me**.
 5. **05 Full control**, closed until opened (the display takes the room): every parameter of the selected track
    (source, voice filter, envelope, events, effects) and the master, generated from the node metadata; breakpoint
-   parameters get a small curve editor; any parameter can be pinned into the easy controls. Its tabs swap it for
+   parameters get a small curve editor; any parameter can be pinned into the easy controls. A number that a control
+   sets is shown as it plays, tagged with the control, and can still be turned: the control's range for it moves by
+   the same amount, so the control keeps driving it (the 1:N binding stays). Its tabs swap it for
    the **Mix** (groups, gain faders, loudness and peak, match loudness per group, play the set in turn), the
    **Settings** (the set's name, output, levelling, the shared master chain, export folder) and the **Notes**
    (what the agent wrote, and who changed what). Opening a tab opens it.
@@ -183,9 +191,11 @@ On a desktop screen everything is one panel with no page scroll (below 1040 × 6
 - Template gallery: cards by category with a mini waveform; one click loads and plays.
 - The dice (a new seed) and "Surprise me" (random values within the controls' ranges).
 - Review: every sound is reviewed the same way, whoever made it. A verdict is for the version heard: any change
-  afterwards, the person's own included, puts the sound back to be reviewed. Served folders keep the verdicts in
+  afterwards, the person's own included, puts the sound back to be reviewed; writing the controls' values into the
+  file (sync) is not a change, as nothing heard moves. Served folders keep the verdicts in
   `sfxgen.review.json`; a project kept in the browser keeps them with it.
-- Export WAV (16/24/32-bit, mono/stereo, sample rate), variations, and the `.sfx.json`.
+- Export WAV (16/24/32-bit, mono/stereo, sample rate), variations, and the `.sfx.json`. Every patch the editor saves
+  or exports is synced first (`sfxgen sync`), so the file says what the knobs play.
 - Autosave to the browser; share link with the patch compressed in the URL hash.
 - Paste a patch anywhere outside a text field (a copied `.sfx.json` file, or its JSON as text) to add it as a new pad.
 - Works with a keyboard alone and at phone width.

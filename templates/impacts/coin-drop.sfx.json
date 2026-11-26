@@ -1,18 +1,8 @@
 {
   "format": "sfxgen/1",
   "name": "Coin dropped and settling",
-  "description": "A large coin dropped a hand-width onto a wooden table top. 0 ms: it lands on its edge with a bright ring; it hops four or five times, faster and faster and a little wild because it is spinning; near 600 ms it falls onto its face and wobbles round its rim, the rattle speeding up and rising in pitch as it flattens, until it stops dead at about 1.4 s. The table knocks softly under the first hits.",
-  "tags": [
-    "impact",
-    "coin",
-    "drop",
-    "metal",
-    "money",
-    "spin",
-    "settle",
-    "ring",
-    "pickup"
-  ],
+  "description": "A large coin dropped a hand-width onto a wooden table top. It lands on its edge with a bright ring and hops, faster and faster and a little wild because it is spinning; then it falls onto its face and wobbles briefly round its rim, a faint rattle speeding up and rising in pitch as it flattens, and stops dead. The table knocks softly under the first hits.",
+  "tags": ["impact", "coin", "drop", "metal", "money", "spin", "settle", "ring", "pickup"],
   "duration": "auto",
   "seed": 19,
   "tracks": [
@@ -22,21 +12,22 @@
       "source": {
         "type": "particles",
         "distribution": "bounce",
-        "interval": 0.19,
+        "interval": 0.174167,
         "ratio": 0.68,
         "jitter": 0.35,
-        "duration": 0.7,
+        "duration": 0.695377,
         "grain": {
           "kind": "modal",
           "material": "metal",
           "shape": "plate",
           "lo": 3950,
           "hi": 3950,
-          "decayLo": 0.35,
-          "decayHi": 0.35,
+          "decayLo": 0.324037,
+          "decayHi": 0.324037,
           "levelJitter": 3,
           "pitchJitter": 0.4
-        }
+        },
+        "pitch": 0
       },
       "fx": [
         {
@@ -54,53 +45,33 @@
     {
       "id": "wobble",
       "note": "The spin-down: the coin rolling round its rim, faster and higher until it lies flat.",
-      "start": 0.55,
-      "gain": -7,
+      "start": 0.698794,
+      "gain": -18.6229,
       "source": {
         "type": "modal",
         "material": "metal",
         "shape": "plate",
-        "freq": [
-          [
-            0,
-            3700
-          ],
-          [
-            0.8,
-            4300
-          ]
-        ],
+        "freq": [[0, 3700], [0.8, 4300]],
         "decay": 0.12,
-        "damping": 2.2,
-        "brightness": 0.3,
+        "damping": 3.153762478298614,
+        "brightness": 0.17013888888888898,
         "modes": 8,
-        "position": 0.95,
+        "position": 0.3376302083333333,
         "exciter": {
           "kind": "roll",
           "hardness": 0.8,
-          "duration": 0.85,
-          "density": [
-            [
-              0,
-              14
-            ],
-            [
-              0.5,
-              45
-            ],
-            [
-              0.85,
-              210
-            ]
-          ],
+          "duration": 0.333494,
+          "density": [[0, 14], [0.5, 45], [0.85, 210]],
           "roughness": 0.25
-        }
-      }
+        },
+        "pitch": 0
+      },
+      "length": 2.0162382812500006
     },
     {
       "id": "table",
       "note": "The table top under the first hits: a soft wooden knock that gives it a place.",
-      "gain": -12,
+      "gain": -13.5203,
       "source": {
         "type": "modal",
         "material": "wood",
@@ -181,7 +152,7 @@
       "id": "height",
       "label": "Height",
       "hint": "Slipped from the fingers, or dropped from standing: longer hops.",
-      "value": 0.4,
+      "value": 0.46916978624131966,
       "vary": 0.08,
       "targets": [
         {
@@ -208,7 +179,7 @@
       "id": "spin",
       "label": "Spin",
       "hint": "Lands flat and stops, or spins down in a long rising rattle.",
-      "value": 0.5,
+      "value": 0.05907151963975639,
       "vary": 0.08,
       "targets": [
         {
@@ -242,7 +213,7 @@
       "id": "table",
       "label": "Table",
       "hint": "Stone counter with no voice, or a hollow wooden table that knocks.",
-      "value": 0.45,
+      "value": 0.3836229112413201,
       "targets": [
         {
           "path": "tracks.table.gain",

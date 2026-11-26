@@ -111,7 +111,7 @@ A track is one layer: a **source** played by one or more **events**, then the tr
 | `mute`, `solo` | As on a mixer. |
 | `source` | `{ "type": ..., ...params }`, see below. |
 | `events` | When the source plays, in seconds from the track's start: `[0, 0.12, 0.3]`, or objects `{ "t": 0.12, "pitch": 3, "vel": 0.7, "dur": 0.2 }`. Default: once at 0. |
-| `repeat` | Shorthand for a run of events: `{ "count": 6, "interval": 0.09, "accel": 0.8, "decay": -3, "pitchStep": 1, "jitter": 0.004 }`. `accel` below 1 speeds up like a bouncing ball. |
+| `repeat` | Shorthand for a run of events: `{ "count": 6, "interval": 0.09, "accel": 0.8, "decay": -3, "pitchStep": 1, "jitter": 0.004 }`. `accel` below 1 speeds up like a bouncing ball. `accents` sets each repeat's loudness in turn (`[0.7, 1, 0.8]`: the second the firmest, cycling), and `offsets` shifts each in time, in seconds (`[0, 0, 0, 0, 0.35]`: a hesitation before the fifth, the same every render). Tracks whose repeats have the same `group` name draw the same random timing, velocity and pitch, so the layers of one event (a knuckle, the door, its panel) move together. |
 | `fx` | Effect chain, in order: `[{ "type": "filter", ... }, { "type": "reverb", ... }]`. |
 | `sends` | `{ "busId": -6 }`: send level in dB, after the track's effects. |
 
@@ -258,7 +258,8 @@ full view.
   by hand changes nothing you can hear. Change the control's value instead, or run `sfxgen sync patch.sfx.json` (the
   `sync_controls` tool): it writes what each control currently applies into the base values at those paths, so the
   file says what renders. `mul`, `add` and `stretch` targets are left alone, since baking them in would apply them
-  twice. `sfxgen sync --check` changes nothing and exits 1 if a patch is out of sync (for CI).
+  twice. `sfxgen sync --check` changes nothing and exits 1 if a patch is out of sync (for CI). The editor syncs every
+  file it saves and every patch it exports, so a knob turned there leaves the file in sync.
 
 **Choosing controls.** Three to seven, each one a perceptual move (Size, Weight, Grit, Distance, Speed, Brightness,
 Wetness), never a raw DSP name. Each should change the sound audibly across its whole range and never break it.
@@ -337,7 +338,7 @@ project file in `sfxgen.review.json` (`sfxgen-review/1`); the patch and project 
 | `sounds` | Verdicts by sound: its `file` as the project lists it (or, for a sound kept inline, its name). |
 | `status` | `approved` or `needs-work`. A sound with no verdict is not reviewed. |
 | `at` | When the verdict was given (ISO 8601). |
-| `version` | What the verdict is for: a hash of the sound's patch and of its takes. When either changes (an agent's edit, a file saved on disk, the person's own knob turn, another take picked, a new take), the verdict no longer holds and the sound is not reviewed again. |
+| `version` | What the verdict is for: a hash of the sound's patch and of its takes. When either changes (an agent's edit, a file saved on disk, the person's own knob turn, another take picked, a new take), the verdict no longer holds and the sound is not reviewed again. Values a control sets are left out of the hash, since every render overrides them: syncing a file keeps its verdict. |
 | `take` | The take in use when the verdict was given, by label. |
 | `changes` | What the person changed before deciding, since the sound was last written by someone else (or since they picked its take): `{ path, before, after }`, the same records as `get_human_changes`. The changes are in the patch file already. |
 | `read` | When an agent last read the verdicts (`sfxgen review`): later verdicts are new to it. |

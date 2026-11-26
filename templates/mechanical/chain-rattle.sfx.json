@@ -1,7 +1,7 @@
 {
   "format": "sfxgen/1",
   "name": "Chain rattle",
-  "description": "Two metres of steel chain hauled off a hook and dropped in a heap on a concrete floor. 0 to 500 ms: the chain is dragged, links clinking against each other in a busy uneven patter, a few big links clanking low; around 550 ms the run thickens into a rush as it slides off; by 1 s the pile lands and the last links trickle down and settle with a few separate clinks. A bare concrete room.",
+  "description": "A length of steel chain hauled off a hook and dropped in a heap on a concrete floor. First the chain is dragged, links clinking against each other in a busy uneven patter, a few big links clanking low; then the run thickens into a rush as it slides off; then the pile lands and the last links trickle down and settle with a few separate clinks. A bare concrete room.",
   "tags": [
     "mechanical",
     "chain",
@@ -25,32 +25,7 @@
       "source": {
         "type": "particles",
         "distribution": "random",
-        "density": [
-          [
-            0,
-            45
-          ],
-          [
-            0.3,
-            28
-          ],
-          [
-            0.55,
-            150
-          ],
-          [
-            0.85,
-            110
-          ],
-          [
-            1.05,
-            14
-          ],
-          [
-            1.4,
-            3
-          ]
-        ],
+        "density": [[0, 45], [0.3, 28], [0.55, 150], [0.85, 110], [1.05, 14], [1.4, 3]],
         "duration": 1.4,
         "spread": 0.6,
         "grain": {
@@ -60,10 +35,11 @@
           "lo": 950,
           "hi": 3800,
           "decayLo": 0.015,
-          "decayHi": 0.09,
+          "decayHi": 0.0938083,
           "levelJitter": 16,
           "size": 0.6
-        }
+        },
+        "pitch": 0
       },
       "fx": [
         {
@@ -83,38 +59,17 @@
         }
       ],
       "sends": {
-        "cell": -13
+        "cell": -13.0064
       }
     },
     {
       "id": "heavy",
       "note": "The weight of it: slack loops and big links clanking low, fewer and louder.",
-      "gain": 0,
+      "gain": -8,
       "source": {
         "type": "particles",
         "distribution": "random",
-        "density": [
-          [
-            0,
-            9
-          ],
-          [
-            0.5,
-            7
-          ],
-          [
-            0.7,
-            26
-          ],
-          [
-            1,
-            5
-          ],
-          [
-            1.3,
-            1
-          ]
-        ],
+        "density": [[0, 9], [0.5, 7], [0.7, 26], [1, 5], [1.3, 1]],
         "duration": 1.3,
         "spread": 0.3,
         "grain": {
@@ -127,17 +82,18 @@
           "decayHi": 0.16,
           "levelJitter": 12,
           "size": 0.8
-        }
+        },
+        "pitch": -0.5
       },
       "sends": {
-        "cell": -13
+        "cell": -13.0064
       }
     },
     {
       "id": "floor",
       "note": "The heap landing on concrete: a gritty low scrape under the rush.",
       "start": 0.6,
-      "gain": -12,
+      "gain": -12.0021,
       "source": {
         "type": "modal",
         "material": "stone",
@@ -149,16 +105,7 @@
           "kind": "scrape",
           "hardness": 0.4,
           "duration": 0.4,
-          "density": [
-            [
-              0,
-              260
-            ],
-            [
-              0.4,
-              60
-            ]
-          ],
+          "density": [[0, 260], [0.4, 60]],
           "roughness": 0.9
         }
       }

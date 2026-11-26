@@ -15,14 +15,19 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:5179',
         changeOrigin: true,
-        // Without `sfxgen serve` running, answer quietly (204, no JSON): the editor then works on its own, and the
-        // console stays free of proxy errors.
+        // Without `sfxgen serve` running, a read is answered quietly (204, no JSON): the editor then works on its own,
+        // and the console stays free of proxy errors. A write must fail out loud instead: a 204 would look like a
+        // save, and the change would be lost.
         configure(proxy) {
-          proxy.on('error', (_err, _req, res) => {
-            if ('writeHead' in res && !res.headersSent) {
+          proxy.on('error', (_err, req, res) => {
+            if (!('writeHead' in res) || res.headersSent) return;
+            if (req.method === 'GET' || req.method === 'HEAD') {
               res.writeHead(204);
               res.end();
+              return;
             }
+            res.writeHead(503, { 'content-type': 'application/json' });
+            res.end(JSON.stringify({ error: 'the sfxgen server is not running (port 5179), so nothing was saved: start it, then make the change again' }));
           });
         },
       },

@@ -1,9 +1,9 @@
 /**
  * The pads: one per sound in the project, listed down the sidebar. A press opens the sound and plays it; number
- * keys do the same. The LED tells its state: playing, changed by you, or touched by an agent since you last opened
- * it. A red fold in the corner shows a sound nobody has approved yet (an outlined one: flagged as needing work); a
- * sound with takes opens them like a folder under its pad. Under the open sound's pad, two keys approve it or flag
- * it, then open the next one to review.
+ * keys do the same. The LED shows the first state that applies: playing (green), touched by an agent since you last
+ * opened it (magenta), approved (off), flagged as needing work (a red ring), changed by you and not yet decided
+ * (orange), not reviewed (red). A sound with takes opens them like a folder under its pad. Under the open sound's
+ * pad, two keys approve it or flag it, then open the next one to review.
  */
 import { useEffect, useMemo, useRef } from 'react';
 import { describeChange } from '../../core';
@@ -57,8 +57,9 @@ function Pad({ index }: { index: number }) {
   }, [selected]);
   if (!sound) return null;
   const name = patchOf(sound).name || key;
-  const state = playing ? 'playing' : touched ? 'agent' : edited ? 'edited' : 'idle';
-  const says = [{ playing: 'playing', agent: 'changed by an agent', edited: 'changed by you', idle: '' }[state], REVIEW_SAYS[review]].filter(Boolean).join(', ');
+  // One LED, the first state that applies; the words name every state, for the tooltip and screen readers.
+  const state = playing ? 'playing' : touched ? 'agent' : review === 'approved' ? 'idle' : review === 'needs-work' ? 'needs-work' : edited ? 'edited' : 'unreviewed';
+  const says = [playing && 'playing', touched && 'changed by an agent', edited && 'changed by you', REVIEW_SAYS[review]].filter(Boolean).join(', ');
   return (
     <div className={`pad-item${selected ? ' is-open' : ''}`} ref={item}>
       <button
@@ -80,11 +81,6 @@ function Pad({ index }: { index: number }) {
         </span>
         <i className="led" />
         {ink && <i className="pad-group" />}
-        {review !== 'approved' && (
-          <svg className="pad-review" viewBox="0 0 14 14" aria-hidden="true">
-            <path d="M1 1H13V13Z" />
-          </svg>
-        )}
       </button>
       {takes && takes.length > 0 && <Takes index={index} name={name} soundKey={key} takes={takes} />}
       {selected && <ReviewKeys />}
@@ -179,9 +175,7 @@ function ReviewCount() {
   if (left === 0) return <span className="pads-reviewed">all reviewed</span>;
   return (
     <button type="button" className="pads-review" title="Open the next sound nobody has reviewed, and play it" onClick={openNextUnreviewed}>
-      <svg className="pad-review-mark" viewBox="0 0 14 14" aria-hidden="true">
-        <path d="M1 1H13V13Z" />
-      </svg>
+      <i className="led" aria-hidden="true" />
       {left} to review
     </button>
   );

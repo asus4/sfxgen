@@ -1,7 +1,7 @@
 {
   "format": "sfxgen/1",
   "name": "Motor starting",
-  "description": "A big workshop extraction fan motor switched on at the wall. 0 ms: the contactor slams in with a heavy clunk that rings its steel cabinet; the motor lurches from standstill, growling under load, and climbs over 1.6 s to its running speed, the growl smoothing into a hum with a gear whine riding above it; it runs steadily for a moment, then fades as if you walked away.",
+  "description": "A big workshop extraction fan motor switched on at the wall. The contactor slams in with a heavy clunk that rings its steel cabinet; the motor lurches from standstill, growling under load, and climbs to its running speed, the growl smoothing into a hum with a gear whine riding above it; it runs steadily for a moment, then fades as if you walked away.",
   "tags": [
     "mechanical",
     "motor",
@@ -20,13 +20,13 @@
     {
       "id": "contactor",
       "note": "The switchgear closing: a heavy relay clunk in a steel box.",
-      "gain": -6,
+      "gain": -6.00274,
       "source": {
         "type": "modal",
         "material": "metal",
         "shape": "box",
         "freq": 236,
-        "decay": 0.16,
+        "decay": 0.156525,
         "damping": 2.6,
         "brightness": 0.45,
         "modes": 22,
@@ -56,34 +56,12 @@
       "source": {
         "type": "machine",
         "kind": "motor",
-        "size": 1.6,
-        "roughness": 0.3,
-        "whine": 0.35,
+        "size": 1.22474,
+        "roughness": 0.29,
+        "whine": 0.48,
         "teeth": 16,
         "rpm": {
-          "env": [
-            [
-              0,
-              110
-            ],
-            [
-              0.5,
-              900
-            ],
-            [
-              1.2,
-              2500
-            ],
-            [
-              1.65,
-              2960,
-              "smooth"
-            ],
-            [
-              3,
-              2960
-            ]
-          ],
+          "env": [[0, 110], [0.5, 900], [1.2, 2500], [1.65, 2960, "smooth"], [3, 2960]],
           "mod": [
             {
               "type": "wander",
@@ -93,43 +71,9 @@
             }
           ]
         },
-        "load": [
-          [
-            0,
-            0.95
-          ],
-          [
-            0.6,
-            0.75
-          ],
-          [
-            1.6,
-            0.3
-          ]
-        ],
+        "load": [[0, 0.95], [0.6, 0.75], [1.6, 0.3]],
         "env": {
-          "points": [
-            [
-              0,
-              0
-            ],
-            [
-              0.05,
-              0.7
-            ],
-            [
-              1.5,
-              1
-            ],
-            [
-              2.3,
-              1
-            ],
-            [
-              3.1,
-              0
-            ]
-          ],
+          "points": [[0, 0], [0.05, 0.7], [1.5, 1], [2.3, 1], [3.1, 0]],
           "curve": "linear"
         }
       },
@@ -141,47 +85,17 @@
       "id": "air",
       "note": "The fan it drives: air building with the speed.",
       "start": 0.03,
-      "gain": -17,
+      "gain": -16.9946,
       "source": {
         "type": "noise",
         "color": "pink",
         "env": {
-          "points": [
-            [
-              0,
-              0
-            ],
-            [
-              0.6,
-              0.15
-            ],
-            [
-              1.6,
-              1
-            ],
-            [
-              2.3,
-              1
-            ],
-            [
-              3.1,
-              0
-            ]
-          ],
+          "points": [[0, 0], [0.6, 0.15], [1.6, 1], [2.3, 1], [3.1, 0]],
           "curve": "linear"
         },
         "filter": {
           "mode": "bandpass",
-          "cutoff": [
-            [
-              0,
-              300
-            ],
-            [
-              1.6,
-              1500
-            ]
-          ],
+          "cutoff": [[0, 300], [1.6, 1500]],
           "q": 0.7
         }
       },

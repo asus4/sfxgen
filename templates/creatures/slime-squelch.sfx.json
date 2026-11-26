@@ -1,39 +1,21 @@
 {
   "format": "sfxgen/1",
   "name": "Slime squelch",
-  "description": "A fist-sized blob of slime dropping onto a stone floor and pulling itself together: a soft rubbery splat at 0, the wet suck of its skin peeling off the stone from 40 to 260 ms (a mouth-like \"shhluck\" that closes), and a dozen fat bubbles popping inside it until about 350 ms. Close and dry.",
-  "tags": [
-    "creature",
-    "slime",
-    "squelch",
-    "goo",
-    "wet",
-    "blob",
-    "gross",
-    "footstep"
-  ],
+  "description": "A fist-sized blob of slime dropping onto a stone floor and pulling itself together: a soft rubbery splat, then the wet suck of its skin peeling off the stone (a mouth-like \"shhluck\" that closes), while a handful of fat bubbles pop inside it. Close, with no room around it.",
+  "tags": ["creature", "slime", "squelch", "goo", "wet", "blob", "gross", "footstep"],
   "duration": "auto",
   "seed": 8,
   "tracks": [
     {
       "id": "splat",
       "gain": -4,
-      "note": "The body landing: a dead rubber skin hit softly. No ring, only a round thump at 100 to 200 Hz.",
+      "note": "The body landing: a dead rubber skin hit softly. No ring, only a round, low thump that sags in pitch.",
       "source": {
         "type": "modal",
         "material": "rubber",
         "shape": "membrane",
-        "freq": [
-          [
-            0,
-            150
-          ],
-          [
-            0.09,
-            96
-          ]
-        ],
-        "decay": 0.16,
+        "freq": [[0, 150], [0.09, 96]],
+        "decay": 0.160598,
         "brightness": 0.3,
         "position": 0.2,
         "modes": 5,
@@ -45,101 +27,65 @@
     },
     {
       "id": "suck",
-      "note": "The squelch: wet noise through a small mouth that goes from open to closed, so it says \"shluck\". The vowel sweep is the stickiness.",
+      "note": "The squelch: a dense swarm of tiny wet pops (drops, not hiss) through a small mouth that goes from open to closed, so it says \"shluck\". The vowel sweep is the stickiness; the drops are the wetness.",
       "start": 0.04,
-      "gain": 6,
+      "gain": -2,
       "source": {
-        "type": "noise",
-        "color": "pink",
+        "type": "particles",
+        "gain": 12,
+        "distribution": "random",
+        "density": 793.725,
+        "duration": 0.6,
+        "grain": {
+          "kind": "drop",
+          "lo": 450,
+          "hi": 3000,
+          "decayLo": 0.003,
+          "decayHi": 0.018,
+          "levelJitter": 18,
+          "size": 0.6
+        },
         "env": {
-          "points": [
-            [
-              0,
-              0
-            ],
-            [
-              0.03,
-              1
-            ],
-            [
-              0.12,
-              0.55
-            ],
-            [
-              0.19,
-              0.9
-            ],
-            [
-              0.24,
-              0
-            ]
-          ],
+          "points": [[0, 0], [0.03, 1], [0.12, 0.55], [0.19, 0.9], [0.24, 0]],
           "curve": "linear"
         },
         "filter": {
           "mode": "lowpass",
-          "cutoff": [
-            [
-              0,
-              7500
-            ],
-            [
-              0.22,
-              1300
-            ]
-          ],
-          "q": 1.4
-        }
+          "cutoff": [[0, 7500], [0.1073, 20000], [0.199, 24.52]],
+          "q": 0.727859774149593,
+          "keytrack": 0.21735500759548607,
+          "gain": 3.1354166666666856
+        },
+        "pitch": 0.228158
       },
       "fx": [
         {
           "id": "mouth",
           "type": "formant",
-          "vowel": [
-            [
-              0,
-              0.2
-            ],
-            [
-              0.13,
-              1.6
-            ],
-            [
-              0.22,
-              4
-            ]
-          ],
-          "size": 0.8,
-          "resonance": 1.9,
-          "mix": 0.75
+          "vowel": [[0, 1.409], [0.1119, 4.424], [0.2191, 3.545]],
+          "size": 0.848123,
+          "resonance": 1.9224029254038895,
+          "mix": 0.8896701388888886
         },
         {
           "type": "tremolo",
-          "rate": [
-            [
-              0,
-              60
-            ],
-            [
-              0.22,
-              24
-            ]
-          ],
+          "rate": [[0, 60], [0.22, 24]],
           "depth": 0.55,
-          "shape": "random"
+          "shape": "random",
+          "phase": 0.05482652452256944
         }
       ]
     },
     {
       "id": "bubbles",
-      "note": "Air pockets popping in the goo: rising-pitch drops, biggest first. They make it thick liquid, not water.",
+      "note": "Air pockets popping in the goo: rising-pitch drops, densest and loudest first. They make it thick liquid, not water.",
       "start": 0.07,
-      "gain": 2,
+      "gain": -3,
       "source": {
         "type": "particles",
         "distribution": "burst",
-        "density": 70,
-        "duration": 0.36,
+        "density": 74.162,
+        "duration": 0.447904,
         "grain": {
           "kind": "drop",
           "lo": 240,
@@ -148,7 +94,8 @@
           "decayHi": 0.06,
           "levelJitter": 14,
           "size": 0.8
-        }
+        },
+        "pitch": 0.380263
       }
     }
   ],
@@ -169,7 +116,7 @@
       "id": "size",
       "label": "Size",
       "hint": "A drip of goo to a bucket-sized blob: lower, fatter bubbles and a heavier splat.",
-      "value": 0.45,
+      "value": 0.48098687065972184,
       "vary": 0.08,
       "targets": [
         {
@@ -195,6 +142,12 @@
           "mode": "set",
           "from": 0.5,
           "to": 1.5
+        },
+        {
+          "path": "tracks.suck.source.pitch",
+          "mode": "set",
+          "from": 6,
+          "to": -6
         }
       ]
     },
@@ -202,7 +155,7 @@
       "id": "sticky",
       "label": "Stickiness",
       "hint": "A quick wet slap to a long, reluctant peel.",
-      "value": 0.45,
+      "value": 0.6111480712890615,
       "vary": 0.08,
       "targets": [
         {
@@ -261,14 +214,26 @@
         {
           "path": "tracks.suck.gain",
           "mode": "set",
-          "from": -14,
-          "to": 2
+          "from": -10,
+          "to": 6
         },
         {
           "path": "tracks.suck.source.filter.cutoff",
           "mode": "mul",
           "from": 0.5,
           "to": 2
+        },
+        {
+          "path": "tracks.suck.source.density",
+          "mode": "set",
+          "from": 350,
+          "to": 1800
+        },
+        {
+          "path": "tracks.suck.source.grain.hi",
+          "mode": "set",
+          "from": 1800,
+          "to": 5000
         }
       ]
     }

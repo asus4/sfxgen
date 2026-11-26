@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { syncControlBases, controlsSetting, applyControls, metaAt, render, type Patch } from '../src/core';
+import { syncControlBases, controlsSetting, relativeOffsets, applyControls, metaAt, render, type Patch } from '../src/core';
 import { analyze, describe as describeAnalysis } from '../src/core/analysis';
 
 const patch = (): Patch => ({
@@ -52,6 +52,24 @@ describe('syncControlBases', () => {
   it('knows which control owns a path', () => {
     expect(controlsSetting(patch()).get('tracks.air.gain')).toBe('punch');
     expect(applyControls(patch(), metaAt).patch.tracks[1].gain).toBe(-10);
+  });
+});
+
+describe('relativeOffsets', () => {
+  it('names the relative targets that move a value away from the file, and not the ones that keep it', () => {
+    // Pitch at 1 doubles the frequency: the file says 300, 600 plays.
+    expect(relativeOffsets(patch())).toEqual([{ path: 'tracks.tone.source.freq', control: 'pitch', mode: 'mul', by: 2 }]);
+    const p = patch();
+    p.controls![1].value = 0.5; // 0.5 to 2 is x1 in the middle (exponential), so nothing to say
+    expect(relativeOffsets(p)).toEqual([]);
+    // Ends that do not multiply to 1 drift at the middle, unless `via` pins it.
+    p.controls![1].targets![0] = { path: 'tracks.tone.source.freq', mode: 'mul', from: 1.5, to: 0.84 };
+    expect(relativeOffsets(p)[0].by).toBeCloseTo(1.122, 3);
+    p.controls![1].targets![0].via = 1;
+    expect(relativeOffsets(p)).toEqual([]);
+    // add: an amount, against its range.
+    p.controls![1].targets![0] = { path: 'tracks.tone.gain', mode: 'add', from: -2, to: 10 };
+    expect(relativeOffsets(p)[0]).toMatchObject({ mode: 'add', by: 4 });
   });
 });
 

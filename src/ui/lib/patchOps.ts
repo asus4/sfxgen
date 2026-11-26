@@ -1,5 +1,6 @@
 /** Edits to a patch. Every function returns a new patch and leaves its argument alone. */
 import {
+  applyControls,
   deepClone,
   getEffect,
   getPath,
@@ -166,6 +167,109 @@ export function pinnedControlFor(patch: Patch, path: string): Control | undefine
     const paths = [...(c.targets ?? []).map((t) => t.path), ...(c.options ?? []).flatMap((o) => Object.keys(o.set ?? {}))];
     return paths.length > 0 && paths.every((p) => canonPath(patch, p) === canon);
   });
+}
+
+/** The controls that set this parameter outright (a `set` target or an option), so its own value is not what renders. */
+export function settersOf(patch: Patch, path: string): Control[] {
+  const canon = canonPath(patch, path);
+  return (patch.controls ?? []).filter(
+    (c) =>
+      (c.targets ?? []).some((t) => (t.mode ?? 'set') === 'set' && canonPath(patch, t.path) === canon) ||
+      (c.options ?? []).some((o) => Object.keys(o.set ?? {}).some((p) => canonPath(patch, p) === canon)),
+  );
+}
+
+/** A parameter's value as it renders: with every control applied. */
+export function heardAt(patch: Patch, path: string): unknown {
+  return getPath(patch.controls?.length ? applyControls(patch, metaAt).patch : patch, path);
+}
+
+/**
+ * Moves a number parameter that a control sets, so that it renders at `value`. Writing the parameter itself would do
+ * nothing (the control puts its own value back), so the control's range for it moves instead: shifted by the
+ * difference (scaled by the ratio, on an exponential mapping) and every option's value with it. The knob keeps
+ * working, around the new value. Null when no control sets the parameter: write it directly.
+ */
+export function moveSetValue(patch: Patch, path: string, value: number): Patch | null {
+  if (settersOf(patch, path).length === 0) return null;
+  const now = heardAt(patch, path);
+  if (typeof now !== 'number' || !Number.isFinite(now)) return null;
+  const canon = canonPath(patch, path);
+  const meta = metaAt(patch, path);
+  const lo = meta?.hardMin ?? meta?.min ?? -Infinity;
+  const hi = meta?.hardMax ?? Infinity;
+  const tidy = (x: number) => Math.min(hi, Math.max(lo, Number(x.toPrecision(6))));
+  // The patch with every setting of the parameter moved by `by`, and what is then heard.
+  const shifted = (by: number): [Patch, number] => {
+    const ratio = now > 0 && now + by > 0 ? (now + by) / now : null;
+    const out = mutate(patch, (d) => {
+      for (const c of d.controls ?? []) {
+        for (const t of c.targets ?? []) {
+          if ((t.mode ?? 'set') !== 'set' || canonPath(d, t.path) !== canon) continue;
+          const from = t.from ?? meta?.min ?? 0;
+          const to = t.to ?? meta?.max ?? 1;
+          const exp = ratio !== null && (t.curve ?? (meta?.scale === 'log' && from > 0 && to > 0 ? 'exp' : 'linear')) === 'exp';
+          const move = (x: number) => tidy(exp ? x * ratio! : x + by);
+          t.from = move(from);
+          t.to = move(to);
+          if (typeof t.via === 'number') t.via = move(t.via);
+        }
+        for (const o of c.options ?? []) {
+          for (const [p, v] of Object.entries(o.set ?? {})) {
+            if (typeof v === 'number' && canonPath(d, p) === canon) o.set![p] = tidy(v + by);
+          }
+        }
+      }
+    });
+    const heard = heardAt(out, path);
+    return [out, typeof heard === 'number' ? heard : NaN];
+  };
+  // Usually exact at once; a relative control on top (`mul`, `add`) scales the move, and a secant step corrects it.
+  let [prevBy, prevHeard] = [0, now];
+  let by = value - now;
+  let [out, heard] = shifted(by);
+  for (let i = 0; i < 6 && Number.isFinite(heard) && Math.abs(heard - value) > 1e-9 && heard !== prevHeard; i++) {
+    const next = by - ((heard - value) * (by - prevBy)) / (heard - prevHeard);
+    [prevBy, prevHeard] = [by, heard];
+    by = next;
+    [out, heard] = shifted(by);
+  }
+  return out;
+}
+
+/**
+ * Moves a number parameter that a relative control scales or offsets (`mul`, `add`, `stretch`), so that it renders at
+ * `value`: the file's own value is the base the control works from, so writing the heard value there would apply the
+ * control twice (a start a Height knob doubles would land at twice the time). Solves for the base instead. Null
+ * when no relative control acts on the parameter.
+ */
+export function moveBaseValue(patch: Patch, path: string, value: number): Patch | null {
+  const canon = canonPath(patch, path);
+  const relative = (patch.controls ?? []).some((c) => (c.targets ?? []).some((t) => (t.mode ?? 'set') !== 'set' && canonPath(patch, t.path) === canon));
+  if (!relative) return null;
+  const meta = metaAt(patch, path);
+  const lo = meta?.hardMin ?? meta?.min ?? -Infinity;
+  const hi = meta?.hardMax ?? Infinity;
+  const base = getPath(patch, path);
+  const b0 = typeof base === 'number' ? base : typeof meta?.default === 'number' ? meta.default : 0;
+  const at = (b: number): [Patch, number] => {
+    const p = setAt(patch, path, Number(Math.min(hi, Math.max(lo, b)).toPrecision(6)));
+    const h = heardAt(p, path);
+    return [p, typeof h === 'number' ? h : NaN];
+  };
+  const h0 = heardAt(patch, path);
+  if (typeof h0 !== 'number' || !Number.isFinite(h0)) return null;
+  // A scaling control is undone by the ratio, an offset by the difference; a secant step tidies up the rest.
+  let [prevB, prevH] = [b0, h0];
+  let b = h0 !== 0 && b0 !== 0 && value / h0 > 0 ? b0 * (value / h0) : b0 + (value - h0);
+  let [out, heard] = at(b);
+  for (let i = 0; i < 6 && Number.isFinite(heard) && Math.abs(heard - value) > 1e-9 && heard !== prevH; i++) {
+    const next = b - ((heard - value) * (b - prevB)) / (heard - prevH);
+    [prevB, prevH] = [b, heard];
+    b = next;
+    [out, heard] = at(b);
+  }
+  return out;
 }
 
 // ---- Takes -------------------------------------------------------------------------------------

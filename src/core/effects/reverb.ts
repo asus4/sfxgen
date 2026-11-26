@@ -188,6 +188,17 @@ const PARAMS: Record<string, ParamMeta> = {
     unit: 'Hz',
     scale: 'log',
   },
+  bass: {
+    kind: 'number',
+    doc:
+      'How long the lows (below about 250 Hz) ring, times `decay`: 1 as long as the mids, 0.3 to 0.6 a space whose ' +
+      'walls soak up the boom (a heavy hit blooms, then the tail stays clear instead of humming one low note), 1.2 to ' +
+      '1.5 a boomy hall or cave. `lowcut` only thins what goes in; this shortens what rings. Default: from `space`.',
+    min: 0.2,
+    max: 2,
+    hardMin: 0.1,
+    hardMax: 3,
+  },
 };
 
 interface Resolved {
@@ -202,6 +213,8 @@ interface Resolved {
   width: number;
   lowcut: number;
   highcut: number;
+  /** Low decay over the mids'. */
+  bass: number;
 }
 
 function resolve(p: Record<string, unknown>): Resolved {
@@ -221,6 +234,7 @@ function resolve(p: Record<string, unknown>): Resolved {
     width: num('width'),
     lowcut: num('lowcut'),
     highcut: num('highcut'),
+    bass: num('bass'),
   };
 }
 
@@ -277,7 +291,7 @@ export const reverb: EffectDef = {
   example: { type: 'reverb', space: 'hall', decay: 3, mix: 0.3 },
   tail(params) {
     const r = resolve(params);
-    const longest = r.decay * Math.max(1, r.pre.bass);
+    const longest = r.decay * Math.max(1, r.bass);
     return r.predelay / 1000 + 0.08 + longest * 1.1;
   },
   process(input, p, ctx) {
@@ -314,7 +328,7 @@ export const reverb: EffectDef = {
         meanDelay,
         spread: 3,
         t60: r.decay,
-        bassRatio: r.pre.bass,
+        bassRatio: r.bass,
         highRatio: dampHigh,
         crossLow: 250,
         crossHigh: cross,

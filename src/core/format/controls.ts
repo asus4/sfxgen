@@ -109,7 +109,21 @@ function stretchTimes(current: unknown, k: number): unknown {
   return current;
 }
 
-/** Applies one control to a patch in place. */
+/**
+ * What a control's target maps to at the control's current value: the value it sets (`set`), the factor (`mul`,
+ * `stretch`) or the amount (`add`).
+ */
+export function targetValue(c: Control, t: ControlTarget, meta: ParamMeta | undefined): number {
+  const pos = controlPosition(c);
+  // Where `via` sits: the control's default, else its middle.
+  const anchor = c.default !== undefined ? controlPosition({ ...c, value: c.default }) : 0.5;
+  const { from, to, curve } = defaultsFor(t, meta);
+  if (typeof t.via === 'number' && anchor > 0 && anchor < 1) {
+    return pos <= anchor ? mapValue(pos / anchor, from, t.via, curve) : mapValue((pos - anchor) / (1 - anchor), t.via, to, curve);
+  }
+  return mapValue(pos, from, to, curve);
+}
+
 /**
  * Applies one control to a patch in place. `phase` limits it to its absolute changes (options and `set` targets) or
  * its relative ones (`mul`, `add`, `stretch`); applyControls runs every control's absolute changes first, so a
@@ -128,18 +142,9 @@ export function applyControl(
       if (!setPath(patch, path, deepClone(value))) warnings.push(`control "${c.id}": option path not found: ${path}`);
     }
   }
-  const pos = controlPosition(c);
-  // Where `via` sits: the control's default, else its middle.
-  const anchor = c.default !== undefined ? controlPosition({ ...c, value: c.default }) : 0.5;
   for (const t of c.targets ?? []) {
     const meta = metaAt(patch, t.path);
-    const { from, to, curve } = defaultsFor(t, meta);
-    let mapped: number;
-    if (typeof t.via === 'number' && anchor > 0 && anchor < 1) {
-      mapped = pos <= anchor ? mapValue(pos / anchor, from, t.via, curve) : mapValue((pos - anchor) / (1 - anchor), t.via, to, curve);
-    } else {
-      mapped = mapValue(pos, from, to, curve);
-    }
+    const mapped = targetValue(c, t, meta);
     const mode = t.mode ?? 'set';
     if ((phase === 'absolute' && mode !== 'set') || (phase === 'relative' && mode === 'set')) continue;
     const current = getPath(patch, t.path);

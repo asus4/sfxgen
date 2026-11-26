@@ -1,18 +1,8 @@
 {
   "format": "sfxgen/1",
   "name": "Heavy whoosh",
-  "description": "Something the size of a wrecking ball swinging past your head at 18 m/s, closest at 450 ms and a metre away: a low pressure wave you feel before you hear it, the roar of displaced air combing against itself as it passes (the hollow, jet-like sweep), and the pitch of everything sagging as it goes away. Gone by one second.",
-  "tags": [
-    "movement",
-    "whoosh",
-    "heavy",
-    "swing",
-    "pass-by",
-    "giant",
-    "hammer",
-    "doppler",
-    "air"
-  ],
+  "description": "Something the size of a wrecking ball swinging fast past your head, close enough to touch: a low fluttering thrum of weight you feel as much as hear, the roar of displaced air combing against itself as it passes (the hollow, jet-like sweep), and the pitch of everything sagging as it goes away. Then it is gone.",
+  "tags": ["movement", "whoosh", "heavy", "swing", "pass-by", "giant", "hammer", "doppler", "air"],
   "duration": 1.05,
   "seed": 27,
   "output": {
@@ -32,35 +22,22 @@
         },
         "filter": {
           "mode": "lowpass",
-          "cutoff": 3800
+          "cutoff": 3549.65
         }
       },
       "fx": [
         {
           "id": "comb",
           "type": "flanger",
-          "delay": [
-            [
-              0,
-              0.007
-            ],
-            [
-              0.45,
-              0.0011
-            ],
-            [
-              1,
-              0.006
-            ]
-          ],
+          "delay": [[0, 0.007], [0.45, 0.0011], [1, 0.006]],
           "depth": 0,
-          "feedback": 0.72
+          "feedback": 0.495
         },
         {
           "id": "pass",
           "type": "doppler",
-          "speed": 18,
-          "distance": 1,
+          "speed": 14.8569,
+          "distance": 0.891301,
           "time": 0.45,
           "rolloff": 1.5,
           "air": 2
@@ -69,8 +46,8 @@
     },
     {
       "id": "mass",
-      "note": "The weight: a fluttering low thrum at 100 to 300 Hz that swells as the object passes. Remove it and the whoosh becomes light.",
-      "gain": 5,
+      "note": "The weight: a fluttering low thrum that swells, and flutters faster, as the object passes. Remove it and the whoosh becomes light.",
+      "gain": 0.5,
       "source": {
         "type": "noise",
         "color": "brown",
@@ -81,7 +58,7 @@
         },
         "filter": {
           "mode": "bandpass",
-          "cutoff": 170,
+          "cutoff": 175.499,
           "q": 1.1
         }
       },
@@ -89,20 +66,7 @@
         {
           "id": "flutter",
           "type": "tremolo",
-          "rate": [
-            [
-              0,
-              14
-            ],
-            [
-              0.45,
-              30
-            ],
-            [
-              1,
-              12
-            ]
-          ],
+          "rate": [[0, 14], [0.45, 30], [1, 12]],
           "depth": 0.6,
           "shape": "sine"
         },
@@ -115,8 +79,8 @@
         {
           "id": "pass",
           "type": "doppler",
-          "speed": 18,
-          "distance": 1,
+          "speed": 14.8569,
+          "distance": 0.891301,
           "time": 0.45,
           "rolloff": 1.5
         }

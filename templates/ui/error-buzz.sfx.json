@@ -1,22 +1,14 @@
 {
   "format": "sfxgen/1",
   "name": "Error buzz",
-  "description": "Not allowed: a small piezo buzzer in a plastic case sounds twice, 90 ms each with a 50 ms gap. Two rough FM tones a flattened fifth apart beat against each other so it reads as no without being loud, and the case gives it a boxy 1.1 kHz honk. Flat, short, stops dead.",
-  "tags": [
-    "ui",
-    "error",
-    "buzz",
-    "deny",
-    "invalid",
-    "wrong",
-    "negative"
-  ],
+  "description": "Not allowed: a small piezo buzzer in a plastic case sounds twice, short, with a short gap. Two rough FM tones at a sour interval beat against each other so it reads as no without being loud, and the case gives it a boxy honk. Flat, short, stops dead.",
+  "tags": ["ui", "error", "buzz", "deny", "invalid", "wrong", "negative"],
   "duration": "auto",
   "seed": 3,
   "tracks": [
     {
       "id": "buzz",
-      "note": "Two self-modulating carriers a tritone apart: the buzz and its disagreement.",
+      "note": "Two self-modulating carriers at a clashing interval: the buzz and its disagreement.",
       "source": {
         "type": "fm",
         "freq": 233,
@@ -25,7 +17,7 @@
           {
             "id": "low",
             "ratio": 1,
-            "feedback": 0.85
+            "feedback": 0.4948
           },
           {
             "id": "edge",
@@ -36,24 +28,21 @@
             "id": "clash",
             "ratio": 1.414,
             "feedback": 0.7,
-            "level": 0.7
+            "level": 0.29
           }
         ],
         "env": {
           "attack": 0.003,
-          "gate": 0.09,
+          "gate": 0.0559,
           "release": 0.015
         },
         "filter": {
           "mode": "lowpass",
-          "cutoff": 3200,
+          "cutoff": 1559.52,
           "q": 0.9
         }
       },
-      "events": [
-        0,
-        0.14
-      ],
+      "events": [0, 0.14],
       "fx": [
         {
           "type": "eq",
@@ -98,7 +87,7 @@
       "id": "harshness",
       "label": "Harshness",
       "hint": "A dull hum to a rasping buzzer.",
-      "value": 0.5,
+      "value": 0.268,
       "targets": [
         {
           "path": "tracks.buzz.source.ops.low.feedback",
@@ -117,7 +106,7 @@
       "id": "clash",
       "label": "Clash",
       "hint": "One plain tone to two that grind against each other.",
-      "value": 0.7,
+      "value": 0.29,
       "targets": [
         {
           "path": "tracks.buzz.source.ops.clash.level",
@@ -131,7 +120,7 @@
       "id": "length",
       "label": "Length",
       "hint": "Two quick blips to two longer buzzes that almost join.",
-      "value": 0.5,
+      "value": 0.22,
       "targets": [
         {
           "path": "tracks.buzz.source.env.gate",

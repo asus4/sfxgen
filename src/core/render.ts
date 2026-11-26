@@ -87,19 +87,28 @@ interface ResolvedEvent {
   dur: number;
 }
 
-export function compileEvents(track: Track, rng: Rng): ResolvedEvent[] {
+export function compileEvents(track: Track, rng: Rng, shared: Rng = rng): ResolvedEvent[] {
   const out: ResolvedEvent[] = [];
   const r = track.repeat;
   if (r && r.count >= 1) {
     const count = Math.min(Math.round(r.count), 512);
-    const jr = rng.fork('repeat');
+    // A group's tracks draw from one stream (the patch's, by the group's name), so their jitter matches.
+    const jr = typeof r.group === 'string' && r.group ? shared.fork('repeat-group', r.group) : rng.fork('repeat');
+    const accents = Array.isArray(r.accents) ? r.accents.filter((a) => typeof a === 'number' && Number.isFinite(a)) : [];
+    const offsets = Array.isArray(r.offsets) ? r.offsets.filter((o) => typeof o === 'number' && Number.isFinite(o)) : [];
     let t = 0;
     let gap = Math.max(r.interval, 0.0005);
+    const grouped = typeof r.group === 'string' && r.group.length > 0;
+    // A group's tracks draw all three numbers on every repeat, whatever their amounts, so a member with no pitch
+    // jitter stays in step with one that has it; each scales the shared draw by its own amount.
+    const draw = (amount: number | undefined) => (grouped ? jr.uniform(-1, 1) * (amount ?? 0) : amount ? jr.uniform(-amount, amount) : 0);
     for (let k = 0; k < count; k++) {
-      const jitter = r.jitter ? jr.uniform(-r.jitter, r.jitter) : 0;
-      const vel = clamp(dbToGain((r.decay ?? 0) * k) * (1 + (r.velJitter ? jr.uniform(-r.velJitter, r.velJitter) : 0)), 0, 4);
-      const pitch = (r.pitchStep ?? 0) * k + (r.pitchJitter ? jr.uniform(-r.pitchJitter, r.pitchJitter) : 0);
-      out.push({ t: Math.max(0, t + jitter), pitch, vel, dur: r.dur ?? Infinity });
+      const jitter = draw(r.jitter);
+      const accent = accents.length ? Math.max(0, accents[k % accents.length]) : 1;
+      const vel = clamp(dbToGain((r.decay ?? 0) * k) * accent * (1 + draw(r.velJitter)), 0, 4);
+      const pitch = (r.pitchStep ?? 0) * k + draw(r.pitchJitter);
+      const offset = offsets.length ? offsets[k % offsets.length] : 0;
+      out.push({ t: Math.max(0, t + jitter + offset), pitch, vel, dur: r.dur ?? Infinity });
       t += gap;
       gap *= r.accel ?? 1;
     }
@@ -333,13 +342,14 @@ function renderTrackBody(
   rng: Rng,
   warnings: string[],
   loopEnd?: number,
+  shared: Rng = rng,
 ): Buf[] {
   const source = track.source;
   if (!source || !getSource(source.type)) {
     warnings.push(`track ${track.id}: unknown source "${source?.type}"`);
     return [new Float64Array(length)];
   }
-  const events = compileEvents(track, rng);
+  const events = compileEvents(track, rng, shared);
   // An effect that changes time (varispeed, doppler) may need more source than the output holds: a 2x speed-up
   // plays two seconds of source in one. Render the whole source then, and let placement crop the result.
   if ((track.fx ?? []).some((fx) => fx && !fx.bypass && getEffect(fx.type)?.length)) {
@@ -416,7 +426,7 @@ export function estimateDuration(patch: Patch, warnings: string[] = []): number 
   let end = 0;
   for (const track of patch.tracks ?? []) {
     if (track.mute || !track.source) continue;
-    const events = compileEvents(track, seedRng.fork('track', track.id));
+    const events = compileEvents(track, seedRng.fork('track', track.id), seedRng);
     let trackEnd = 0;
     for (const ev of events) {
       let len = voiceLength(track.source, ev.dur);
@@ -431,6 +441,29 @@ export function estimateDuration(patch: Patch, warnings: string[] = []): number 
   }
   const busEnd = Math.max(end, ...(patch.buses ?? []).map((b) => chainEnd(b.fx, end)));
   return chainEnd(patch.master?.fx, busEnd);
+}
+
+/**
+ * A fixed-length patch (a loop above all) whose track plays one voice with no `env` gets that source's default
+ * envelope, a one-shot: noise fades in 0.3 s, so a 4 s hum layer is silent after its first moment. Say so.
+ */
+function warnEarlyEnds(patch: Patch, duration: number, loop: boolean, warnings: string[]): void {
+  for (const track of patch.tracks ?? []) {
+    const source = track.source;
+    if (track.mute || !source || source.env !== undefined || track.repeat || (track.events && track.events.length > 1)) continue;
+    const def = getSource(source.type);
+    if (!def) continue;
+    const ev = track.events?.[0];
+    const at = (track.start ?? 0) + (typeof ev === 'number' ? ev : (ev?.t ?? 0));
+    const dur = typeof ev === 'object' && ev?.dur !== undefined ? ev.dur : Infinity;
+    const ends = at + voiceLength(source, dur);
+    if (Number.isFinite(ends) && ends < 0.5 * duration && envelopeLength(def.defaultEnv, dur) < 0.5 * duration) {
+      warnings.push(
+        `track ${track.id}: its ${source.type} source has no env, so it plays its default one-shot envelope and stops at ` +
+          `${ends.toFixed(2)} s of this ${duration} s ${loop ? 'loop' : 'sound'}; to sustain it, give it "env": { "attack": 0.01, "sustain": 1 }`,
+      );
+    }
+  }
 }
 
 // ---- The whole patch --------------------------------------------------------------------------
@@ -459,6 +492,7 @@ export function render(input: Patch, opts: RenderOptions = {}): RenderResult {
   } else {
     duration = clamp(patch.duration as number, 0.001, MAX_SECONDS);
   }
+  if (!auto) warnEarlyEnds(patch, duration, !!loop, warnings);
   const loopTail = loop ? Math.min(Math.max(estimateDuration(patch) - duration, 0) + 0.05, MAX_SECONDS) : 0;
   const crossfade = loop?.mode === 'crossfade' ? clamp(loop.crossfade ?? 0.05, 0.001, duration / 2) : 0;
   const N = Math.max(1, Math.round(duration * sr));
@@ -487,7 +521,7 @@ export function render(input: Patch, opts: RenderOptions = {}): RenderResult {
     let body = opts.cache?.get(key);
     if (!body) {
       const loopEnd = loop?.mode === 'wrap' ? N - at : undefined;
-      body = renderTrackBody(track, length, sr, stereo, !!loop, root.fork('track', track.id), warnings, loopEnd);
+      body = renderTrackBody(track, length, sr, stereo, !!loop, root.fork('track', track.id), warnings, loopEnd, root);
       opts.cache?.set(key, body);
     }
     const placed = applyGainPan(body, track.gain ?? 0, track.pan ?? 0, stereo);

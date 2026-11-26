@@ -1,213 +1,182 @@
 {
   "format": "sfxgen/1",
-  "name": "Wooden door creaks open",
-  "description": "A heavy old panelled door pushed slowly open on dry iron hinges, in a stone-floored hallway. The hinge pin sticks and slips: a train of tiny clicks so fast it becomes a groan. It unsticks with a quick stutter, settles to a rough purr of about 40 slips a second, climbs to a whining 175 as the door speeds up through the middle of its swing, falters, then drops back to separate ticks as the door comes to rest after 1.8 s. The door panel is the loudspeaker for the hinge: it gives the groan its woody, vowel-like colour.",
+  "name": "Wooden door creak (low groan)",
+  "description": "A massive oak cellar door on wooden pintle hinges, leaned open very slowly: no squeal at all, only wood groaning against wood. Each slip of the hinge is a small knock that the door leaf answers with its own woody resonances. The slips come one by one at first ('tok, tok, tok'), crowd together into a rattling purr and fuse into a low, straining groan as the door passes the middle, with a catch where it drops and recovers. Then it slows back through the purr to single knocks and stops, the timber settling with a low thud. A second, smaller joint (the top pintle) ticks along at its own slower pace.",
   "tags": [
     "door",
     "creak",
-    "open",
+    "groan",
     "wood",
     "hinge",
-    "squeak",
-    "haunted",
+    "cellar",
+    "heavy",
+    "slow",
+    "ship",
+    "timber",
     "horror",
-    "slow"
+    "low",
+    "stick-slip"
   ],
   "duration": "auto",
-  "seed": 41,
+  "seed": 17,
   "tracks": [
     {
-      "id": "hinge",
-      "note": "Stick-slip at the hinge pin: one click per slip, the rate following the door speed. Through the door panel (two formant-like resonances).",
+      "id": "door",
+      "note": "The lower hinge driving the door leaf: a modal wooden plate scraped over evenly spaced ridges, one ridge per slip, so `exciter.density` is the slip rate. Only a few modes that all ring equally long (low `damping`): few, narrow resonances are what turn a pulse train into a voiced groan instead of a zip.",
       "source": {
-        "type": "particles",
-        "distribution": "regular",
-        "jitter": 0.13,
-        "duration": 1.8,
-        "density": {
-          "env": [
-            [
-              0,
-              150
+        "type": "modal",
+        "material": "wood",
+        "shape": "plate",
+        "freq": 345,
+        "decay": 0.067897,
+        "damping": 0.12,
+        "brightness": 0.561522,
+        "modes": 9,
+        "dent": 0.3,
+        "position": 0.8,
+        "exciter": {
+          "kind": "scrape",
+          "hardness": 0.5,
+          "duration": 3.1,
+          "roughness": 0.0424889,
+          "density": {
+            "env": [
+              [0, 9],
+              [0.35, 14],
+              [0.8, 31],
+              [1.2, 58],
+              [1.6, 96],
+              [1.95, 132],
+              [2, 71, "hold"],
+              [2.3, 118],
+              [2.6, 64],
+              [2.85, 24],
+              [3.1, 7]
             ],
-            [
-              0.07,
-              42
-            ],
-            [
-              0.35,
-              80
-            ],
-            [
-              0.8,
-              175
-            ],
-            [
-              1.05,
-              120
-            ],
-            [
-              1.3,
-              160
-            ],
-            [
-              1.6,
-              50
-            ],
-            [
-              1.8,
-              12
+            "mod": [
+              {
+                "type": "wander",
+                "rate": 6,
+                "depth": 1.24978,
+                "unit": "st"
+              }
             ]
-          ],
-          "curve": "smooth",
-          "mod": [
-            {
-              "type": "wander",
-              "rate": 5,
-              "depth": 1.6,
-              "unit": "st"
-            }
-          ]
-        },
-        "grain": {
-          "kind": "click",
-          "lo": 900,
-          "hi": 1500,
-          "levelJitter": 5
-        },
-        "env": {
-          "points": [
-            [
-              0,
-              1
-            ],
-            [
-              0.08,
-              0.6
-            ],
-            [
-              0.3,
-              0.8
-            ],
-            [
-              0.85,
-              1
-            ],
-            [
-              1.5,
-              0.75
-            ],
-            [
-              1.8,
-              0.4
-            ],
-            [
-              1.84,
-              0
-            ]
-          ],
-          "curve": "linear"
+          }
         }
       },
       "fx": [
-        {
-          "type": "resonator",
-          "id": "panel",
-          "mode": "string",
-          "freq": 233,
-          "decay": 0.035,
-          "brightness": 0.6,
-          "chord": [
-            0,
-            16.3
-          ],
-          "mix": 0.85
-        },
-        {
-          "type": "filter",
-          "id": "throat",
-          "mode": "peak",
-          "cutoff": [
-            [
-              0,
-              720
-            ],
-            [
-              0.8,
-              1350
-            ],
-            [
-              1.1,
-              1050
-            ],
-            [
-              1.3,
-              1300
-            ],
-            [
-              1.8,
-              640
-            ]
-          ],
-          "q": 3,
-          "gain": 9
-        },
         {
           "type": "eq",
           "bands": [
             {
               "mode": "lowcut",
-              "freq": 140
+              "freq": 110
             },
             {
               "mode": "highcut",
-              "freq": 5200,
-              "slope": "24"
+              "freq": 6000
             }
           ]
         }
       ],
       "sends": {
-        "hall": -13
+        "hall": -18.4089
       }
     },
     {
-      "id": "wood",
-      "note": "The door leaf itself flexing: quiet low knocks of the panel as the hinge jerks.",
-      "gain": -13,
+      "id": "pintle",
+      "note": "The top hinge: a smaller, higher wooden joint slipping at a slower rate, never fast enough to fuse, so dry ticks ride on top of the groan and the two never line up.",
+      "gain": -9,
       "source": {
         "type": "modal",
         "material": "wood",
-        "shape": "plate",
-        "freq": 108,
-        "decay": 0.2,
-        "damping": 1.5,
-        "brightness": 0.35,
-        "modes": 18,
-        "dent": 0.3,
+        "shape": "bar",
+        "freq": 610,
+        "decay": 0.05,
+        "damping": 0.3,
+        "brightness": 0.5,
+        "modes": 5,
+        "dent": 0.4,
+        "position": 0.7,
         "exciter": {
-          "kind": "roll",
-          "hardness": 0.3,
-          "duration": 1.75,
-          "density": [
-            [
-              0,
-              6
-            ],
-            [
-              0.8,
-              16
-            ],
-            [
-              1.75,
-              4
+          "kind": "scrape",
+          "hardness": 0.55,
+          "duration": 2.9,
+          "roughness": 0.182778,
+          "density": {
+            "env": [[0, 5], [0.9, 11], [1.7, 34], [2.2, 41], [2.6, 15], [2.9, 4]],
+            "mod": [
+              {
+                "type": "wander",
+                "rate": 4,
+                "depth": 3,
+                "unit": "st"
+              }
             ]
-          ],
-          "roughness": 0.6
+          }
         }
       },
+      "fx": [
+        {
+          "type": "eq",
+          "bands": [
+            {
+              "mode": "highcut",
+              "freq": 5000
+            }
+          ]
+        }
+      ],
       "sends": {
-        "hall": -13
+        "hall": -16.8667
+      }
+    },
+    {
+      "id": "timber",
+      "note": "The weight of the door: low thuds of the frame taking the strain at the start, lightly on the way, at the catch, and when it comes to rest.",
+      "gain": -4.56597,
+      "source": {
+        "type": "modal",
+        "material": "wood",
+        "shape": "box",
+        "freq": 71,
+        "decay": 0.3,
+        "damping": 1.3,
+        "dent": 0.3,
+        "modes": 18,
+        "position": 0.5,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.35
+        }
+      },
+      "events": [
+        {
+          "t": 0.02,
+          "vel": 0.6
+        },
+        {
+          "t": 1.12,
+          "vel": 0.3,
+          "pitch": 3
+        },
+        {
+          "t": 2,
+          "vel": 0.65,
+          "pitch": 1
+        },
+        {
+          "t": 3.14,
+          "vel": 1,
+          "pitch": -2
+        },
+        {
+          "t": 3.33,
+          "vel": 0.35
+        }
+      ],
+      "sends": {
+        "hall": -16.0956
       }
     }
   ],
@@ -217,11 +186,12 @@
       "fx": [
         {
           "type": "reverb",
+          "id": "room",
           "space": "chamber",
-          "size": 8,
-          "decay": 1.1,
-          "predelay": 12,
-          "damping": 0.5
+          "size": 7,
+          "decay": 0.810804,
+          "predelay": 8,
+          "damping": 0.6
         }
       ]
     }
@@ -230,164 +200,201 @@
     {
       "id": "speed",
       "label": "Speed",
-      "hint": "Opened inch by inch, or swung open in half a second.",
-      "value": 0.5,
+      "hint": "Leaned open slowly, knock by knock, or shoved open in one short groan.",
+      "value": 0.39236077202691005,
       "vary": 0.05,
       "targets": [
         {
-          "path": "tracks.hinge.source.density",
+          "path": "tracks.door.source.exciter.density",
           "mode": "stretch",
-          "from": 2.4,
-          "to": 0.3
+          "from": 2.3,
+          "to": 0.34
         },
         {
-          "path": "tracks.hinge.source.env",
-          "mode": "stretch",
-          "from": 2.4,
-          "to": 0.3
-        },
-        {
-          "path": "tracks.hinge.source.duration",
+          "path": "tracks.door.source.exciter.duration",
           "mode": "mul",
-          "from": 2.4,
-          "to": 0.3
+          "from": 2.3,
+          "to": 0.34
         },
         {
-          "path": "tracks.hinge.fx.throat.cutoff",
+          "path": "tracks.pintle.source.exciter.density",
           "mode": "stretch",
-          "from": 2.4,
-          "to": 0.3
+          "from": 2.3,
+          "to": 0.34
         },
         {
-          "path": "tracks.hinge.source.density",
+          "path": "tracks.pintle.source.exciter.duration",
           "mode": "mul",
-          "from": 0.6,
-          "to": 1.9
+          "from": 2.3,
+          "to": 0.34
         },
         {
-          "path": "tracks.wood.source.exciter.duration",
-          "mode": "mul",
-          "from": 2.4,
-          "to": 0.3
-        },
-        {
-          "path": "tracks.wood.source.exciter.density",
+          "path": "tracks.timber.events",
           "mode": "stretch",
-          "from": 2.4,
-          "to": 0.3
+          "from": 2.3,
+          "to": 0.34
+        },
+        {
+          "path": "tracks.door.source.exciter.density",
+          "mode": "mul",
+          "from": 0.7,
+          "to": 1.6
+        },
+        {
+          "path": "tracks.pintle.source.exciter.density",
+          "mode": "mul",
+          "from": 0.7,
+          "to": 1.6
         }
       ]
     },
     {
       "id": "pitch",
-      "label": "Hinge",
-      "hint": "A deep groaning castle door to a thin squeaking cupboard hinge.",
-      "value": 0.4,
+      "label": "Groan",
+      "hint": "Separate slow knocks that never join up, or a higher, tighter groan close to a moan.",
+      "value": 0.45470174153645837,
       "vary": 0.05,
       "targets": [
         {
-          "path": "tracks.hinge.source.density",
+          "path": "tracks.door.source.exciter.density",
           "mode": "mul",
-          "from": 0.45,
-          "to": 3.2
+          "from": 0.4,
+          "to": 2.8
         },
         {
-          "path": "tracks.hinge.fx.throat.cutoff",
+          "path": "tracks.pintle.source.exciter.density",
           "mode": "mul",
           "from": 0.6,
-          "to": 2.1
-        },
-        {
-          "path": "tracks.hinge.fx.panel.freq",
-          "mode": "mul",
-          "from": 0.6,
-          "to": 2.2
-        },
-        {
-          "path": "tracks.wood.source.freq",
-          "mode": "mul",
-          "from": 0.7,
-          "to": 1.8
+          "to": 1.9
         }
       ]
     },
     {
       "id": "rust",
-      "label": "Rust",
-      "hint": "A hinge that purrs evenly, or a rusted one that stutters and catches.",
-      "value": 0.4,
+      "label": "Dryness",
+      "hint": "Waxed wood that purrs evenly, or parched, gritty wood that shudders and scrapes.",
+      "value": 0.2655555555555555,
       "vary": 0.08,
       "targets": [
         {
-          "path": "tracks.hinge.source.jitter",
+          "path": "tracks.door.source.exciter.roughness",
           "mode": "set",
-          "from": 0.02,
-          "to": 0.6,
+          "from": 0,
+          "via": 0.08,
+          "to": 0.45,
           "curve": "linear"
         },
         {
-          "path": "tracks.hinge.source.grain.levelJitter",
+          "path": "tracks.door.source.exciter.density.mod.0.depth",
           "mode": "set",
-          "from": 1,
-          "to": 16,
-          "curve": "linear"
-        },
-        {
-          "path": "tracks.hinge.source.density.mod.0.depth",
-          "mode": "set",
-          "from": 0.3,
+          "from": 0.4,
+          "via": 2,
           "to": 5,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.pintle.source.exciter.roughness",
+          "mode": "set",
+          "from": 0.05,
+          "via": 0.3,
+          "to": 0.7,
           "curve": "linear"
         }
       ]
     },
     {
       "id": "door",
-      "label": "Door",
-      "hint": "Just the hinge, or a big panel that sings along with it.",
-      "value": 0.6,
+      "label": "Door size",
+      "hint": "A small hatch with a high wooden voice, or a huge gate with a deep one and heavy thuds.",
+      "value": 0.5361687554253465,
       "targets": [
         {
-          "path": "tracks.hinge.fx.panel.mix",
+          "path": "tracks.door.source.freq",
+          "mode": "mul",
+          "from": 1.7,
+          "to": 0.58
+        },
+        {
+          "path": "tracks.pintle.source.freq",
+          "mode": "mul",
+          "from": 1.5,
+          "to": 0.66
+        },
+        {
+          "path": "tracks.timber.source.freq",
+          "mode": "mul",
+          "from": 1.8,
+          "to": 0.62
+        },
+        {
+          "path": "tracks.timber.gain",
           "mode": "set",
-          "from": 0.2,
+          "from": -14,
+          "via": -5,
           "to": 1,
           "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "hollow",
+      "label": "Hollow",
+      "hint": "A dead, dense slab that only knocks, or a thin resonant panel that hums and sings with every slip.",
+      "value": 0.37173889160156237,
+      "targets": [
+        {
+          "path": "tracks.door.source.decay",
+          "mode": "set",
+          "from": 0.03,
+          "via": 0.09,
+          "to": 0.3
         },
         {
-          "path": "tracks.hinge.fx.panel.decay",
+          "path": "tracks.door.source.brightness",
           "mode": "set",
-          "from": 0.012,
-          "to": 0.09
-        },
-        {
-          "path": "tracks.wood.gain",
-          "mode": "set",
-          "from": -30,
-          "to": -6,
-          "curve": -0.189
+          "from": 0.45,
+          "via": 0.6,
+          "to": 0.75,
+          "curve": "linear"
         }
       ]
     },
     {
       "id": "hall",
-      "label": "Hallway",
-      "hint": "Close and dry, or echoing down a stone hall.",
-      "value": 0.4,
+      "label": "Cellar",
+      "hint": "Close and dry, or echoing in a stone cellar.",
+      "value": 0.3855555555555553,
       "targets": [
         {
-          "path": "tracks.hinge.sends.hall",
+          "path": "tracks.door.sends.hall",
           "mode": "set",
           "from": -40,
+          "via": -12,
           "to": -2,
-          "curve": -0.474
+          "curve": "linear"
         },
         {
-          "path": "tracks.wood.sends.hall",
+          "path": "tracks.pintle.sends.hall",
           "mode": "set",
           "from": -40,
-          "to": -2,
-          "curve": -0.474
+          "via": -10,
+          "to": -1,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.timber.sends.hall",
+          "mode": "set",
+          "from": -40,
+          "via": -9,
+          "to": 0,
+          "curve": "linear"
+        },
+        {
+          "path": "buses.hall.fx.room.decay",
+          "mode": "set",
+          "from": 0.4,
+          "via": 1,
+          "to": 2.4
         }
       ]
     }

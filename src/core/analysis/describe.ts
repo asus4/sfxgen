@@ -83,16 +83,36 @@ function timeLine(a: Analysis): string {
   return parts.join(', ') + '.';
 }
 
+/** How a run of times is spaced, in words. */
+function rhythmOf(t: number[]): string {
+  const gaps = t.slice(1).map((x, i) => x - t[i]);
+  const mean = gaps.reduce((s, g) => s + g, 0) / gaps.length;
+  if (gaps.every((g) => Math.abs(g - mean) <= 0.15 * mean)) return `evenly, every ${formatSeconds(mean)}`;
+  if (gaps[gaps.length - 1] < 0.7 * gaps[0]) return 'gaps shrink: speeding up';
+  if (gaps[gaps.length - 1] > 1.4 * gaps[0]) return 'gaps grow: slowing down';
+  return 'unevenly';
+}
+
+/**
+ * The coarse events, when they say something the onsets don't (8 steps where the onsets count every heel and toe)
+ * and can be trusted: a clear pulse to group by, or none at all. A loose pulse (an accelerating bounce, a ratchet
+ * ringing between its teeth) groups badly, so then the onsets stand alone.
+ */
+function eventLine(a: Analysis): string | null {
+  const e = a.events ?? [];
+  if (e.length < 2 || e.length >= a.onsets.length) return null;
+  if (a.pulseSeconds > 0 && a.pulseStrength < 0.45) return null;
+  const at = (x: number) => (x < 1 ? x.toFixed(2) : x.toFixed(1)).replace(/^0\.00$/, '0');
+  const list = e.length > 12 ? `from ${at(e[0])} to ${at(e[e.length - 1])} s` : `at ${e.map(at).join(', ')} s`;
+  const pulse = a.pulseSeconds > 0 ? `; a steady pulse every ${formatSeconds(a.pulseSeconds)}` : '';
+  return `Counted as a listener would: ${e.length} events, ${list} (${rhythmOf(e)}${pulse}).`;
+}
+
 function onsetLine(a: Analysis): string | null {
   const t = a.onsets;
   if (t.length < 2) return null;
   const gaps = t.slice(1).map((x, i) => x - t[i]);
-  const mean = gaps.reduce((s, g) => s + g, 0) / gaps.length;
-  let rhythm: string;
-  if (gaps.every((g) => Math.abs(g - mean) <= 0.15 * mean)) rhythm = `evenly, every ${formatSeconds(mean)}`;
-  else if (gaps[gaps.length - 1] < 0.7 * gaps[0]) rhythm = 'gaps shrink: speeding up';
-  else if (gaps[gaps.length - 1] > 1.4 * gaps[0]) rhythm = 'gaps grow: slowing down';
-  else rhythm = 'unevenly';
+  const rhythm = rhythmOf(t);
   const at = (x: number) => (x < 1 ? x.toFixed(2) : x.toFixed(1)).replace(/^0\.00$/, '0');
   if (t.length === 2) return `2 hits, ${formatSeconds(gaps[0])} apart (at ${at(t[0])} and ${at(t[1])} s).`;
   if (t.length > 8) {
@@ -249,6 +269,8 @@ export function describeLines(a: Analysis, opts: DescribeOptions = {}): string[]
   const lines = [levelLine(a), timeLine(a)];
   const hits = onsetLine(a);
   if (hits) lines.push(hits);
+  const events = eventLine(a);
+  if (events) lines.push(events);
   if (opts.loop) lines.push(`Loop: seam ${db1(a.seamDb)} dBFS against a largest inner step of ${db1(a.maxStepDb)}${a.seamDb <= a.maxStepDb + 3 ? ': seamless' : ''}.`);
   lines.push(spectrumLine(a), centroidLine(a, glide <= -2, glide >= 2), pitchLine(a));
   const stereo = stereoLine(a);

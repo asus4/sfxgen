@@ -1,7 +1,7 @@
 {
   "format": "sfxgen/1",
-  "name": "Power up",
-  "description": "An old bridge console is switched on. 0 ms: a contactor slams in (steel on steel). 20 ms: the degauss coil shudders, a 100 Hz buzz that shakes hard and dies away over 600 ms. From 80 ms the cooling fan spins up from standstill to speed, straining at first. From 500 ms the logic comes alive: a stutter of start-up self-test glitches that clears as it stabilises. At 1.35 s the system is up and says so with a soft, slightly detuned open fifth that fades into the fan noise.",
+  "name": "Console power-up",
+  "description": "An old bridge console is switched on. First a contactor slams in (steel on steel). Straight after, the degauss coil shudders: a low buzz that shakes hard and dies away. Under it the cooling fan spins up from standstill to speed, straining at first. Then the logic comes alive: a stutter of start-up self-test glitches that clears as it stabilises. Last, the system is up and says so with a soft, slightly detuned open fifth that fades into the fan noise.",
   "tags": ["scifi", "power up", "boot", "startup", "console", "machine", "on", "activate"],
   "duration": "auto",
   "seed": 14,
@@ -19,22 +19,39 @@
         "damping": 2.2,
         "dent": 0.4,
         "position": 0.8,
-        "exciter": { "kind": "mallet", "hardness": 0.9 }
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.9
+        }
       }
     },
     {
       "id": "degauss",
-      "note": "The coil shudder old tubes make at switch-on: a buzzing 100 Hz saw that wobbles in level and dies. This is the weight.",
+      "note": "The coil shudder old tubes make at switch-on: a low buzzing saw that wobbles in level and dies. This is the weight.",
       "start": 0.02,
       "gain": -11,
       "source": {
         "type": "osc",
         "wave": "saw",
         "freq": [[0, 103], [0.6, 97]],
-        "env": { "attack": 0.006, "decay": 0.748 },
-        "filter": { "mode": "lowpass", "cutoff": [[0, 1800], [0.5, 320]], "q": 1.2 }
+        "env": {
+          "attack": 0.006,
+          "decay": 0.748331
+        },
+        "filter": {
+          "mode": "lowpass",
+          "cutoff": [[0, 1800], [0.5, 320]],
+          "q": 1.2
+        }
       },
-      "fx": [{ "type": "tremolo", "rate": [[0, 13], [0.6, 7]], "depth": [[0, 0.85], [0.6, 0.3]], "shape": "sine" }]
+      "fx": [
+        {
+          "type": "tremolo",
+          "rate": [[0, 13], [0.6, 7]],
+          "depth": [[0, 0.85], [0.6, 0.3]],
+          "shape": "sine"
+        }
+      ]
     },
     {
       "id": "fan",
@@ -49,9 +66,24 @@
         "teeth": 9,
         "whine": 0.45,
         "roughness": 0.3,
-        "env": { "attack": 0.05, "hold": 1.6, "decay": 0.9 }
+        "env": {
+          "attack": 0.05,
+          "hold": 1.6,
+          "decay": 0.9
+        }
       },
-      "fx": [{ "type": "eq", "bands": [{ "mode": "lowcut", "freq": 110, "slope": "24" }] }]
+      "fx": [
+        {
+          "type": "eq",
+          "bands": [
+            {
+              "mode": "lowcut",
+              "freq": 110,
+              "slope": "24"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "selftest",
@@ -65,29 +97,77 @@
         "rate": [[0, 5200], [0.8, 9000]],
         "chaos": [[0, 0.9], [0.8, 0.1]],
         "smooth": 0.2,
-        "env": { "attack": 0.01, "hold": 0.6, "decay": 0.25 },
-        "filter": { "mode": "bandpass", "cutoff": 2600, "q": 0.9 }
+        "env": {
+          "attack": 0.01,
+          "hold": 0.6,
+          "decay": 0.25
+        },
+        "filter": {
+          "mode": "bandpass",
+          "cutoff": 2600,
+          "q": 0.9
+        }
       },
-      "fx": [{ "type": "tremolo", "rate": 17, "depth": 1, "shape": "random" }]
+      "fx": [
+        {
+          "type": "tremolo",
+          "rate": 17,
+          "depth": 1,
+          "shape": "random"
+        }
+      ]
     },
     {
       "id": "ready",
-      "note": "Up and running: a calm fifth, each partial doubled a few cents apart so it glows instead of beeping.",
+      "note": "Up and running: a calm fifth, each partial doubled and slightly detuned so it glows instead of beeping.",
       "start": 1.35,
       "gain": -16.2,
       "source": {
         "type": "additive",
         "freq": 392,
-        "partials": [{ "ratio": 1 }, { "ratio": 1.498, "amp": 0.7 }, { "ratio": 2.003, "amp": 0.35 }, { "ratio": 3.01, "amp": 0.12 }],
+        "partials": [
+          {
+            "ratio": 1
+          },
+          {
+            "ratio": 1.498,
+            "amp": 0.7
+          },
+          {
+            "ratio": 2.003,
+            "amp": 0.35
+          },
+          {
+            "ratio": 3.01,
+            "amp": 0.12
+          }
+        ],
         "decay": 1.1,
         "damping": 0.6,
         "beat": 5,
-        "env": { "attack": 0.06 }
+        "env": {
+          "attack": 0.06
+        }
       },
-      "fx": [{ "type": "reverb", "space": "plate", "decay": 1.2, "mix": 0.25 }]
+      "fx": [
+        {
+          "type": "reverb",
+          "space": "plate",
+          "decay": 1.2,
+          "mix": 0.25
+        }
+      ]
     }
   ],
-  "master": { "fx": [{ "type": "limiter", "gain": 5, "release": 0.1 }] },
+  "master": {
+    "fx": [
+      {
+        "type": "limiter",
+        "gain": 5,
+        "release": 0.1
+      }
+    ]
+  },
   "controls": [
     {
       "id": "size",
@@ -95,10 +175,29 @@
       "hint": "A handheld waking up to a whole engine room coming on line.",
       "value": 0.5,
       "targets": [
-        { "path": "tracks.degauss.source.freq", "mode": "mul", "from": 1.9, "to": 0.5 },
-        { "path": "tracks.degauss.source.env.decay", "from": 0.35, "to": 1.6 },
-        { "path": "tracks.contactor.source.freq", "mode": "mul", "from": 2.4, "to": 0.45 },
-        { "path": "tracks.fan.source.rpm", "mode": "mul", "from": 2, "to": 0.5 }
+        {
+          "path": "tracks.degauss.source.freq",
+          "mode": "mul",
+          "from": 1.9,
+          "to": 0.5
+        },
+        {
+          "path": "tracks.degauss.source.env.decay",
+          "from": 0.35,
+          "to": 1.6
+        },
+        {
+          "path": "tracks.contactor.source.freq",
+          "mode": "mul",
+          "from": 2.4,
+          "to": 0.45
+        },
+        {
+          "path": "tracks.fan.source.rpm",
+          "mode": "mul",
+          "from": 2,
+          "to": 0.5
+        }
       ]
     },
     {
@@ -106,28 +205,63 @@
       "label": "Shudder",
       "hint": "The coil buzz at switch-on: a faint hum to a cabinet-shaking thump.",
       "value": 0.6,
-      "targets": [{ "path": "tracks.degauss.gain", "from": -26, "to": -1 }, { "path": "tracks.contactor.gain", "from": -24, "to": -6 }]
+      "targets": [
+        {
+          "path": "tracks.degauss.gain",
+          "from": -26,
+          "to": -1
+        },
+        {
+          "path": "tracks.contactor.gain",
+          "from": -24,
+          "to": -6
+        }
+      ]
     },
     {
       "id": "fan",
       "label": "Fan",
       "hint": "Silent solid-state gear to a loud whirring cooling fan.",
       "value": 0.5,
-      "targets": [{ "path": "tracks.fan.gain", "from": -36, "to": -2 }]
+      "targets": [
+        {
+          "path": "tracks.fan.gain",
+          "from": -36,
+          "to": -2
+        }
+      ]
     },
     {
       "id": "glitch",
       "label": "Self-test",
       "hint": "A clean start to a long stutter of boot garbage.",
       "value": 0.5,
-      "targets": [{ "path": "tracks.selftest.gain", "from": -36, "to": 4 }, { "path": "tracks.selftest.source.chaos", "mode": "mul", "from": 0.4, "to": 1.1 }]
+      "targets": [
+        {
+          "path": "tracks.selftest.gain",
+          "from": -36,
+          "to": 4
+        },
+        {
+          "path": "tracks.selftest.source.chaos",
+          "mode": "mul",
+          "from": 0.4,
+          "to": 1.1
+        }
+      ]
     },
     {
       "id": "ready",
       "label": "Ready tone",
       "hint": "No chime, or a clear glowing 'online'.",
       "value": 0.6,
-      "targets": [{ "path": "tracks.ready.gain", "from": -48, "to": 5 }]
+      "targets": [
+        {
+          "path": "tracks.ready.gain",
+          "from": -48,
+          "to": 5
+        }
+      ]
     }
   ]
 }

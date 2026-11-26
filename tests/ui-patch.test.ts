@@ -6,7 +6,10 @@ import {
   anotherTake,
   changeSourceType,
   duplicateTrack,
+  heardAt,
   moveEffect,
+  moveBaseValue,
+  moveSetValue,
   pinControl,
   pinnedControlFor,
   readSignal,
@@ -15,6 +18,7 @@ import {
   removeTrack,
   setAt,
   setControlValue,
+  settersOf,
   surprise,
   uniqueId,
   writeSignal,
@@ -143,6 +147,93 @@ describe('pinning a parameter into the controls', () => {
     expect(c.options![c.value].label).toBe('saw');
     expect(validatePatch(select.patch).ok).toBe(true);
     expect(pinControl(base(), 'tracks.zap.nothing')).toBeNull();
+  });
+});
+
+describe('moving a value a control sets', () => {
+  // A "push" knob sets two layers' start times, as in a door latch: dragging one layer must still move it.
+  const latch = (): Patch => ({
+    format: 'sfxgen/1',
+    name: 'Latch',
+    duration: 'auto',
+    tracks: [
+      { id: 'bolt', start: 0.05, source: { type: 'noise', env: { decay: 0.05 } } },
+      { id: 'leaf', start: 0.054, source: { type: 'noise', env: { decay: 0.05 } } },
+    ],
+    controls: [
+      {
+        id: 'push',
+        label: 'Push',
+        value: 0.4,
+        targets: [
+          { path: 'tracks.bolt.start', mode: 'set', from: 0.115, to: 0.024 },
+          { path: 'tracks.leaf.start', mode: 'set', from: 0.119, to: 0.028 },
+        ],
+      },
+    ],
+  });
+
+  it('knows which controls set a parameter', () => {
+    expect(settersOf(latch(), 'tracks.bolt.start').map((c) => c.id)).toEqual(['push']);
+    expect(settersOf(latch(), 'tracks.0.start').map((c) => c.id)).toEqual(['push']);
+    expect(settersOf(latch(), 'tracks.bolt.gain')).toEqual([]);
+  });
+
+  it('moves the control range, so the layer is heard where it was put and the knob still works', () => {
+    const before = latch();
+    const heard = heardAt(before, 'tracks.bolt.start') as number;
+    const after = moveSetValue(before, 'tracks.bolt.start', heard + 0.25)!;
+    expect(after).not.toBeNull();
+    expect(heardAt(after, 'tracks.bolt.start')).toBeCloseTo(heard + 0.25, 6);
+    const t = after.controls![0].targets![0];
+    expect([t.from, t.to]).toEqual([0.365, 0.274]);
+    // The other layer, the knob's value and the track's own value stay as they were.
+    expect(heardAt(after, 'tracks.leaf.start')).toBeCloseTo(heardAt(before, 'tracks.leaf.start') as number, 9);
+    expect(after.controls![0].value).toBe(0.4);
+    expect(after.tracks[0].start).toBe(0.05);
+    // Turning the knob still moves the layer, by the same amount as before.
+    const at = (p: Patch, v: number) => getPath(applyControls(setControlValue(p, 'push', v), metaAt).patch, 'tracks.bolt.start') as number;
+    expect(at(after, 1) - at(after, 0)).toBeCloseTo(at(before, 1) - at(before, 0), 9);
+  });
+
+  it('keeps the range inside the parameter limits', () => {
+    const after = moveSetValue(latch(), 'tracks.bolt.start', 0)!;
+    const t = after.controls![0].targets![0];
+    expect(Math.min(t.from!, t.to!)).toBeGreaterThanOrEqual(0);
+  });
+
+  it('lands on the value under a relative control too', () => {
+    const p = latch();
+    p.controls!.push({ id: 'slow', label: 'Slow', value: 1, targets: [{ path: 'tracks.bolt.start', mode: 'mul', from: 1, to: 2 }] });
+    const after = moveSetValue(p, 'tracks.bolt.start', 0.3)!;
+    expect(heardAt(after, 'tracks.bolt.start')).toBeCloseTo(0.3, 5);
+  });
+
+  it('moves an option value', () => {
+    const p = latch();
+    p.controls = [{ id: 'mode', label: 'Mode', value: 1, options: [{ label: 'Soft', set: { 'tracks.bolt.start': 0.1 } }, { label: 'Hard', set: { 'tracks.bolt.start': 0.02 } }] }];
+    const after = moveSetValue(p, 'tracks.bolt.start', 0.07)!;
+    expect(heardAt(after, 'tracks.bolt.start')).toBeCloseTo(0.07, 6);
+    expect(after.controls![0].options!.map((o) => o.set!['tracks.bolt.start'])).toEqual([0.15, 0.07]);
+  });
+
+  it('solves for the base when a control scales the parameter, so a dragged layer lands where it was put', () => {
+    // A Height knob doubling every start: dragging the stars to 2.5 s must not write 2.5 (which plays at 5 s).
+    const p = latch();
+    p.controls = [{ id: 'height', label: 'Height', value: 1, targets: [{ path: 'tracks.bolt.start', mode: 'mul', from: 0.5, to: 2 }] }];
+    expect(moveSetValue(p, 'tracks.bolt.start', 0.3)).toBeNull();
+    const after = moveBaseValue(p, 'tracks.bolt.start', 0.3)!;
+    expect(heardAt(after, 'tracks.bolt.start')).toBeCloseTo(0.3, 6);
+    expect(after.tracks[0].start).toBeCloseTo(0.15, 6);
+    expect(after.controls).toEqual(p.controls);
+    // An offset is undone too.
+    p.controls[0].targets![0] = { path: 'tracks.bolt.start', mode: 'add', from: 0, to: 0.2 };
+    expect(heardAt(moveBaseValue(p, 'tracks.bolt.start', 0.4)!, 'tracks.bolt.start')).toBeCloseTo(0.4, 6);
+    expect(moveBaseValue(latch(), 'tracks.bolt.start', 0.4)).toBeNull();
+  });
+
+  it('leaves a parameter no control sets to a direct edit', () => {
+    expect(moveSetValue(latch(), 'tracks.bolt.gain', -3)).toBeNull();
   });
 });
 

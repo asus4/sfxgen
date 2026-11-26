@@ -1,0 +1,2144 @@
+{
+  "format": "sfxgen-review/1",
+  "read": "2026-11-26T21:30:27.633Z",
+  "sounds": {
+    "creatures/critter-chirp.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-25T21:51:13.702Z",
+      "version": "71f17d2a422f2ff4",
+      "changes": [
+        {
+          "path": "controls.size.value",
+          "before": 0.4809604220920138,
+          "after": 0.5282694498697914
+        },
+        {
+          "path": "controls.question.value",
+          "before": 0.5,
+          "after": 0.3908274332682293
+        },
+        {
+          "path": "controls.flutter.value",
+          "before": 0.45,
+          "after": 0.5817850748697924
+        },
+        {
+          "path": "controls.sniff.value",
+          "before": 0.5,
+          "after": 0.4194875081380205
+        }
+      ]
+    },
+    "creatures/bird-tweet.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-25T21:44:07.466Z",
+      "version": "550d42280dcd146e"
+    },
+    "ambience/spaceship-engine-loop.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-25T21:50:34.700Z",
+      "version": "ea988603005ccce4",
+      "changes": [
+        {
+          "path": "tracks.conduits.source.gain",
+          "after": -13.891479492187479
+        },
+        {
+          "path": "tracks.conduits.fx.1.haas",
+          "before": 0.009,
+          "after": 0.0083521388019131
+        },
+        {
+          "path": "tracks.conduits.fx.1.width",
+          "before": 1.4,
+          "after": 1.323350694444444
+        },
+        {
+          "path": "tracks.conduits.fx.1.mix",
+          "after": 0.6352864583333345
+        },
+        {
+          "path": "tracks.coolant.source.gain",
+          "after": -4.920166015624993
+        },
+        {
+          "path": "tracks.panel.source.jitter",
+          "after": 0.295992702907986
+        },
+        {
+          "path": "master.fx.0.mix",
+          "after": 1
+        },
+        {
+          "path": "controls.power.value",
+          "before": 0.9617187500000001,
+          "after": 0.6026475694444454
+        },
+        {
+          "path": "controls.instability.value",
+          "before": 0.5936631944444442,
+          "after": 0.7259982638888888
+        },
+        {
+          "path": "controls.conduits.value",
+          "before": 0.7683593750000001,
+          "after": 0.7124420166015626
+        },
+        {
+          "path": "controls.hull.value",
+          "before": 0.6568142361111111,
+          "after": 0.4912614610460068
+        },
+        {
+          "path": "controls.systems.value",
+          "before": 0.39064670138888996,
+          "after": 0.31579861111111024
+        }
+      ]
+    },
+    "creatures/ghost-moan.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-25T22:37:23.955Z",
+      "version": "6037883dc9d0f9b0"
+    },
+    "creatures/kaiju-roar.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-25T22:42:56.528Z",
+      "version": "0a5d59f9c3a33519",
+      "changes": [
+        {
+          "path": "tracks.shriek.source.decay",
+          "before": 1.1,
+          "after": 2.1358234423156652
+        },
+        {
+          "path": "tracks.shriek.source.stiffness",
+          "before": 0.35,
+          "after": 0.4115600585937501
+        },
+        {
+          "path": "tracks.shriek.source.position",
+          "before": 0.07,
+          "after": 0.09230598958333337
+        },
+        {
+          "path": "tracks.shriek.source.mute",
+          "after": 0.1749864366319452
+        },
+        {
+          "path": "tracks.shriek.source.bowTime",
+          "after": 2.22413073042816
+        },
+        {
+          "path": "tracks.shriek.source.env",
+          "after": {
+            "attack": 0.017257145207305088,
+            "sustain": 0.6739000108506947,
+            "release": 1.6737582977648164,
+            "decay": 0.009515860722544294,
+            "gate": 2.6629096137152786
+          }
+        },
+        {
+          "path": "tracks.shriek.fx.0.amount",
+          "before": 16,
+          "after": 17.55970052083333
+        },
+        {
+          "path": "tracks.shriek.fx.0.tone",
+          "before": 6500,
+          "after": 1550.4129384441028
+        },
+        {
+          "path": "tracks.shriek.fx.0.bias",
+          "after": -0.09149305555555542
+        },
+        {
+          "path": "tracks.shriek.fx.0.mix",
+          "after": 0.6355617947048614
+        },
+        {
+          "path": "tracks.shriek.start",
+          "after": 0.0378
+        },
+        {
+          "path": "tracks.chest.start",
+          "before": 0.05
+        },
+        {
+          "path": "tracks.blast.start",
+          "before": 0.1,
+          "after": 0.0583
+        },
+        {
+          "path": "controls.size.value",
+          "before": 0.5,
+          "after": 0.5526472303602434
+        },
+        {
+          "path": "controls.shriek.value",
+          "before": 0.55,
+          "after": 0.2576684027777772
+        }
+      ]
+    },
+    "creatures/monster-growl.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T11:29:04.064Z",
+      "version": "71ba308bba5cf1b9"
+    },
+    "creatures/robot-chatter.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T11:29:13.591Z",
+      "version": "d703c941ba7d2fea"
+    },
+    "creatures/slime-squelch.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T11:44:20.921Z",
+      "version": "c0382077f3765b5e",
+      "changes": [
+        {
+          "path": "tracks.suck.fx.0.vowel",
+          "before": [
+            [
+              0,
+              0.2
+            ],
+            [
+              0.13,
+              1.6
+            ],
+            [
+              0.22,
+              4
+            ]
+          ],
+          "after": [
+            [
+              0,
+              1.409
+            ],
+            [
+              0.1119,
+              4.424
+            ],
+            [
+              0.2191,
+              3.545
+            ]
+          ]
+        },
+        {
+          "path": "tracks.suck.fx.0.resonance",
+          "before": 1.3671527779182422,
+          "after": 1.9224029254038895
+        },
+        {
+          "path": "tracks.suck.fx.0.mix",
+          "before": 0.75,
+          "after": 0.8896701388888886
+        },
+        {
+          "path": "controls.size.value",
+          "before": 0.5603983561197914,
+          "after": 0.48098687065972184
+        },
+        {
+          "path": "controls.sticky.value",
+          "before": 0.45,
+          "after": 0.6111480712890615
+        }
+      ]
+    },
+    "impacts/rubber-ball-bounce.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-25T23:03:57.000Z",
+      "version": "c02684ad21959510"
+    },
+    "nature/rain-loop.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-25T23:05:44.113Z",
+      "version": "779f27a1ff5ef748",
+      "changes": [
+        {
+          "path": "seed",
+          "before": 4,
+          "after": 22787
+        },
+        {
+          "path": "controls.intensity.value",
+          "before": 0.5,
+          "after": 0.6932149251302083
+        },
+        {
+          "path": "controls.drops.value",
+          "before": 0.5,
+          "after": 0.19929947989067207
+        },
+        {
+          "path": "controls.puddles.value",
+          "before": 0.5,
+          "after": 0.6855393455709919
+        },
+        {
+          "path": "controls.shelter.value",
+          "before": 0.1,
+          "after": 0.39856335404867266
+        }
+      ]
+    },
+    "ui/soft-click.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-25T23:07:03.723Z",
+      "version": "c29f5cbb44051039",
+      "changes": [
+        {
+          "path": "seed",
+          "before": 4,
+          "after": 28709
+        },
+        {
+          "path": "controls.size.value",
+          "before": 0.5,
+          "after": 0.10275040088022358
+        },
+        {
+          "path": "controls.touch.value",
+          "before": 0.3,
+          "after": 0.6349430398966419
+        },
+        {
+          "path": "controls.body.value",
+          "before": 0.4,
+          "after": 0.4610197179491975
+        },
+        {
+          "path": "controls.skin.value",
+          "before": 0.5,
+          "after": 0.5305306609810851
+        }
+      ]
+    },
+    "vehicles/car-passby.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T21:12:33.257Z",
+      "version": "9809c4d7d6e2225d"
+    },
+    "doors/latch-click.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T13:44:14.849Z",
+      "version": "b9252281937bd690",
+      "take": "hollow core"
+    },
+    "doors/metal-hatch-slam.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T13:45:45.160Z",
+      "version": "55975d56edecc61d",
+      "take": "original"
+    },
+    "doors/wooden-door-creak.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T13:47:35.517Z",
+      "version": "587d96449f9636e2",
+      "take": "low groan",
+      "changes": [
+        {
+          "path": "controls.speed.value",
+          "before": 0.45,
+          "after": 0.39236077202691005
+        },
+        {
+          "path": "controls.pitch.value",
+          "before": 0.45,
+          "after": 0.45470174153645837
+        },
+        {
+          "path": "controls.rust.value",
+          "before": 0.3,
+          "after": 0.2655555555555555
+        },
+        {
+          "path": "controls.door.value",
+          "before": 0.5,
+          "after": 0.5361687554253465
+        },
+        {
+          "path": "controls.hollow.value",
+          "before": 0.4,
+          "after": 0.37173889160156237
+        },
+        {
+          "path": "controls.hall.value",
+          "before": 0.5,
+          "after": 0.3855555555555553
+        }
+      ]
+    },
+    "explosions/big-boom.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T15:47:55.300Z",
+      "version": "639fa0b9bbcec9b8"
+    },
+    "explosions/distant-explosion.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T15:48:34.792Z",
+      "version": "b1acdd4fd818323c",
+      "changes": [
+        {
+          "path": "controls.distance.value",
+          "before": 0.5,
+          "after": 0.8974972195095483
+        },
+        {
+          "path": "controls.size.value",
+          "before": 0.5,
+          "after": 0.4577982584635412
+        },
+        {
+          "path": "controls.echoes.value",
+          "before": 0.5,
+          "after": 0.4510708279079861
+        }
+      ]
+    },
+    "explosions/firework.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T16:21:40.888Z",
+      "version": "0f4805bfd2e9afeb",
+      "changes": [
+        {
+          "path": "tracks.stars.start",
+          "before": 1.3689,
+          "after": 2.06588
+        }
+      ]
+    },
+    "explosions/grenade.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T16:20:16.927Z",
+      "version": "15998dcf19ab0c5e"
+    },
+    "explosions/small-pop.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T16:20:57.206Z",
+      "version": "f241c65ef634059b",
+      "changes": [
+        {
+          "path": "controls.size.value",
+          "before": 0.5,
+          "after": 0.4952979193793406
+        },
+        {
+          "path": "controls.snap.value",
+          "before": 0.5,
+          "after": 0.516189236111111
+        },
+        {
+          "path": "controls.shreds.value",
+          "before": 0.5,
+          "after": 0.9274302164713542
+        },
+        {
+          "path": "controls.street.value",
+          "before": 0.5,
+          "after": 0.7143517388237848
+        }
+      ]
+    },
+    "footsteps/puddle-splash.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T20:13:30.203Z",
+      "version": "c466d0a7f8b1df02",
+      "changes": [
+        {
+          "path": "controls.speed.value",
+          "before": 0.3,
+          "after": 0.13667534722222216
+        },
+        {
+          "path": "controls.depth.value",
+          "before": 0.45,
+          "after": 0.4959777832031246
+        },
+        {
+          "path": "controls.splash.value",
+          "before": 0.5003760443793402,
+          "after": 0.4858795166015625
+        },
+        {
+          "path": "controls.stomp.value",
+          "before": 0.5,
+          "after": 0.522931247287326
+        }
+      ]
+    },
+    "footsteps/snow.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T20:13:50.323Z",
+      "version": "83f7161c9c4b2630",
+      "changes": [
+        {
+          "path": "controls.speed.value",
+          "before": 0.3,
+          "after": 0.16757812500000002
+        },
+        {
+          "path": "controls.cold.value",
+          "before": 0.6704281277126736,
+          "after": 0.5728006998697915
+        },
+        {
+          "path": "controls.depth.value",
+          "before": 0.37025451660156217,
+          "after": 0.7463541666666664
+        }
+      ]
+    },
+    "footsteps/concrete-shoe.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T17:42:30.315Z",
+      "version": "0868c7a95be5f347",
+      "changes": [
+        {
+          "path": "tracks.scuff",
+          "before": {
+            "id": "scuff",
+            "note": "The odd scuff: on two steps in eight the swinging heel brushes the floor 80 ms before it lands, a short grainy drag of leather over grit. Not in the step group: it has its own timing. Running lifts the feet clear, so it goes.",
+            "start": 0.42,
+            "gain": -9,
+            "source": {
+              "type": "particles",
+              "distribution": "random",
+              "density": [
+                [
+                  0,
+                  350
+                ],
+                [
+                  0.045,
+                  1300
+                ],
+                [
+                  0.11,
+                  250
+                ]
+              ],
+              "duration": 0.11,
+              "gain": 0,
+              "env": {
+                "points": [
+                  [
+                    0,
+                    0
+                  ],
+                  [
+                    0.04,
+                    1
+                  ],
+                  [
+                    0.075,
+                    0.7
+                  ],
+                  [
+                    0.13,
+                    0
+                  ]
+                ],
+                "curve": "linear"
+              },
+              "grain": {
+                "kind": "tick",
+                "lo": 850,
+                "hi": 3600,
+                "decayLo": 0.003,
+                "decayHi": 0.012,
+                "levelJitter": 10,
+                "size": 0.3
+              }
+            },
+            "repeat": {
+              "count": 8,
+              "interval": 0.5,
+              "jitter": 0.015,
+              "velJitter": 0.3,
+              "pitchJitter": 2,
+              "accents": [
+                0,
+                0,
+                1,
+                0,
+                0,
+                0,
+                0.6,
+                0
+              ]
+            },
+            "sends": {
+              "hall": -16
+            }
+          }
+        },
+        {
+          "path": "controls.speed.targets",
+          "before": [
+            {
+              "path": "duration",
+              "mode": "set",
+              "from": 4.96,
+              "via": 4,
+              "to": 2.48,
+              "curve": "linear"
+            },
+            {
+              "path": "tracks.heel.repeat.interval",
+              "mode": "set",
+              "from": 0.62,
+              "via": 0.5,
+              "to": 0.31,
+              "curve": "linear"
+            },
+            {
+              "path": "tracks.click.repeat.interval",
+              "mode": "set",
+              "from": 0.62,
+              "via": 0.5,
+              "to": 0.31,
+              "curve": "linear"
+            },
+            {
+              "path": "tracks.slab.repeat.interval",
+              "mode": "set",
+              "from": 0.62,
+              "via": 0.5,
+              "to": 0.31,
+              "curve": "linear"
+            },
+            {
+              "path": "tracks.sole.repeat.interval",
+              "mode": "set",
+              "from": 0.62,
+              "via": 0.5,
+              "to": 0.31,
+              "curve": "linear"
+            },
+            {
+              "path": "tracks.grit.repeat.interval",
+              "mode": "set",
+              "from": 0.62,
+              "via": 0.5,
+              "to": 0.31,
+              "curve": "linear"
+            },
+            {
+              "path": "tracks.scuff.repeat.interval",
+              "mode": "set",
+              "from": 0.62,
+              "via": 0.5,
+              "to": 0.31,
+              "curve": "linear"
+            },
+            {
+              "path": "tracks.sole.start",
+              "mode": "set",
+              "from": 0.115,
+              "via": 0.085,
+              "to": 0.022,
+              "curve": "linear"
+            },
+            {
+              "path": "tracks.grit.start",
+              "mode": "set",
+              "from": 0.118,
+              "via": 0.088,
+              "to": 0.024,
+              "curve": "linear"
+            },
+            {
+              "path": "tracks.scuff.start",
+              "mode": "set",
+              "from": 0.53,
+              "via": 0.42,
+              "to": 0.24,
+              "curve": "linear"
+            },
+            {
+              "path": "tracks.heel.source.gain",
+              "mode": "set",
+              "from": 1,
+              "via": 0,
+              "to": -7,
+              "curve": "linear"
+            },
+            {
+              "path": "tracks.click.source.gain",
+              "mode": "set",
+              "from": 0,
+              "via": 0,
+              "to": -6,
+              "curve": "linear"
+            },
+            {
+              "path": "tracks.sole.source.gain",
+              "mode": "set",
+              "from": -2,
+              "via": 0,
+              "to": 7,
+              "curve": "linear"
+            },
+            {
+              "path": "tracks.slab.source.gain",
+              "mode": "set",
+              "from": -2,
+              "via": 0,
+              "to": 4,
+              "curve": "linear"
+            },
+            {
+              "path": "tracks.slab.source.exciter.hardness",
+              "mode": "set",
+              "from": 0.33,
+              "via": 0.4,
+              "to": 0.62,
+              "curve": "linear"
+            },
+            {
+              "path": "tracks.grit.source.gain",
+              "mode": "set",
+              "from": -3,
+              "via": 0,
+              "to": 5,
+              "curve": "linear"
+            },
+            {
+              "path": "tracks.scuff.source.gain",
+              "mode": "set",
+              "from": 2,
+              "via": 0,
+              "to": -10,
+              "curve": "linear"
+            },
+            {
+              "path": "tracks.sole.source.filter.cutoff",
+              "mode": "mul",
+              "from": 0.9,
+              "via": 1,
+              "to": 1.55
+            },
+            {
+              "path": "tracks.sole.source.env.attack",
+              "mode": "set",
+              "from": 0.004,
+              "via": 0.003,
+              "to": 0.0008
+            }
+          ],
+          "after": [
+            {
+              "path": "duration",
+              "mode": "set",
+              "from": 4.96,
+              "via": 4,
+              "to": 2.48,
+              "curve": "linear"
+            },
+            {
+              "path": "tracks.heel.repeat.interval",
+              "mode": "set",
+              "from": 0.62,
+              "via": 0.5,
+              "to": 0.31,
+              "curve": "linear"
+            },
+            {
+              "path": "tracks.click.repeat.interval",
+              "mode": "set",
+              "from": 0.62,
+              "via": 0.5,
+              "to": 0.31,
+              "curve": "linear"
+            },
+            {
+              "path": "tracks.slab.repeat.interval",
+              "mode": "set",
+              "from": 0.62,
+              "via": 0.5,
+              "to": 0.31,
+              "curve": "linear"
+            },
+            {
+              "path": "tracks.sole.repeat.interval",
+              "mode": "set",
+              "from": 0.62,
+              "via": 0.5,
+              "to": 0.31,
+              "curve": "linear"
+            },
+            {
+              "path": "tracks.grit.repeat.interval",
+              "mode": "set",
+              "from": 0.62,
+              "via": 0.5,
+              "to": 0.31,
+              "curve": "linear"
+            },
+            {
+              "path": "tracks.sole.start",
+              "mode": "set",
+              "from": 0.115,
+              "via": 0.085,
+              "to": 0.022,
+              "curve": "linear"
+            },
+            {
+              "path": "tracks.grit.start",
+              "mode": "set",
+              "from": 0.118,
+              "via": 0.088,
+              "to": 0.024,
+              "curve": "linear"
+            },
+            {
+              "path": "tracks.heel.source.gain",
+              "mode": "set",
+              "from": 1,
+              "via": 0,
+              "to": -7,
+              "curve": "linear"
+            },
+            {
+              "path": "tracks.click.source.gain",
+              "mode": "set",
+              "from": 0,
+              "via": 0,
+              "to": -6,
+              "curve": "linear"
+            },
+            {
+              "path": "tracks.sole.source.gain",
+              "mode": "set",
+              "from": -2,
+              "via": 0,
+              "to": 7,
+              "curve": "linear"
+            },
+            {
+              "path": "tracks.slab.source.gain",
+              "mode": "set",
+              "from": -2,
+              "via": 0,
+              "to": 4,
+              "curve": "linear"
+            },
+            {
+              "path": "tracks.slab.source.exciter.hardness",
+              "mode": "set",
+              "from": 0.33,
+              "via": 0.4,
+              "to": 0.62,
+              "curve": "linear"
+            },
+            {
+              "path": "tracks.grit.source.gain",
+              "mode": "set",
+              "from": -3,
+              "via": 0,
+              "to": 5,
+              "curve": "linear"
+            },
+            {
+              "path": "tracks.sole.source.filter.cutoff",
+              "mode": "mul",
+              "from": 0.9,
+              "via": 1,
+              "to": 1.55
+            },
+            {
+              "path": "tracks.sole.source.env.attack",
+              "mode": "set",
+              "from": 0.004,
+              "via": 0.003,
+              "to": 0.0008
+            }
+          ]
+        },
+        {
+          "path": "controls.shoe.value",
+          "before": 0.5688802083333334,
+          "after": 0.39827846950954854
+        },
+        {
+          "path": "controls.weight.value",
+          "before": 0.09275173611111098,
+          "after": 0.40947638617621507
+        },
+        {
+          "path": "controls.grit.targets",
+          "before": [
+            {
+              "path": "tracks.grit.gain",
+              "mode": "set",
+              "from": -22,
+              "via": -10,
+              "to": -1,
+              "curve": "linear"
+            },
+            {
+              "path": "tracks.scuff.gain",
+              "mode": "set",
+              "from": -20,
+              "via": -9,
+              "to": -1,
+              "curve": "linear"
+            },
+            {
+              "path": "tracks.grit.source.duration",
+              "mode": "set",
+              "from": 0.04,
+              "via": 0.075,
+              "to": 0.16
+            },
+            {
+              "path": "tracks.sole.source.env.decay",
+              "mode": "set",
+              "from": 0.045,
+              "via": 0.08,
+              "to": 0.17
+            },
+            {
+              "path": "tracks.sole.source.filter.q",
+              "mode": "set",
+              "from": 1.3,
+              "via": 0.9,
+              "to": 0.55,
+              "curve": "linear"
+            }
+          ],
+          "after": [
+            {
+              "path": "tracks.grit.gain",
+              "mode": "set",
+              "from": -22,
+              "via": -10,
+              "to": -1,
+              "curve": "linear"
+            },
+            {
+              "path": "tracks.grit.source.duration",
+              "mode": "set",
+              "from": 0.04,
+              "via": 0.075,
+              "to": 0.16
+            },
+            {
+              "path": "tracks.sole.source.env.decay",
+              "mode": "set",
+              "from": 0.045,
+              "via": 0.08,
+              "to": 0.17
+            },
+            {
+              "path": "tracks.sole.source.filter.q",
+              "mode": "set",
+              "from": 1.3,
+              "via": 0.9,
+              "to": 0.55,
+              "curve": "linear"
+            }
+          ]
+        },
+        {
+          "path": "controls.hall.targets",
+          "before": [
+            {
+              "path": "tracks.heel.sends.hall",
+              "mode": "set",
+              "from": -40,
+              "via": -15,
+              "to": -4,
+              "curve": "linear"
+            },
+            {
+              "path": "tracks.click.sends.hall",
+              "mode": "set",
+              "from": -40,
+              "via": -15,
+              "to": -4,
+              "curve": "linear"
+            },
+            {
+              "path": "tracks.sole.sends.hall",
+              "mode": "set",
+              "from": -40,
+              "via": -15,
+              "to": -4,
+              "curve": "linear"
+            },
+            {
+              "path": "tracks.slab.sends.hall",
+              "mode": "set",
+              "from": -40,
+              "via": -20,
+              "to": -4,
+              "curve": "linear"
+            },
+            {
+              "path": "tracks.grit.sends.hall",
+              "mode": "set",
+              "from": -40,
+              "via": -18,
+              "to": -4,
+              "curve": "linear"
+            },
+            {
+              "path": "tracks.scuff.sends.hall",
+              "mode": "set",
+              "from": -40,
+              "via": -16,
+              "to": -4,
+              "curve": "linear"
+            },
+            {
+              "path": "buses.hall.fx.0.decay",
+              "mode": "set",
+              "from": 0.35,
+              "via": 0.6,
+              "to": 1.2
+            }
+          ],
+          "after": [
+            {
+              "path": "tracks.heel.sends.hall",
+              "mode": "set",
+              "from": -40,
+              "via": -15,
+              "to": -4,
+              "curve": "linear"
+            },
+            {
+              "path": "tracks.click.sends.hall",
+              "mode": "set",
+              "from": -40,
+              "via": -15,
+              "to": -4,
+              "curve": "linear"
+            },
+            {
+              "path": "tracks.sole.sends.hall",
+              "mode": "set",
+              "from": -40,
+              "via": -15,
+              "to": -4,
+              "curve": "linear"
+            },
+            {
+              "path": "tracks.slab.sends.hall",
+              "mode": "set",
+              "from": -40,
+              "via": -20,
+              "to": -4,
+              "curve": "linear"
+            },
+            {
+              "path": "tracks.grit.sends.hall",
+              "mode": "set",
+              "from": -40,
+              "via": -18,
+              "to": -4,
+              "curve": "linear"
+            },
+            {
+              "path": "buses.hall.fx.0.decay",
+              "mode": "set",
+              "from": 0.35,
+              "via": 0.6,
+              "to": 1.2
+            }
+          ]
+        }
+      ]
+    },
+    "footsteps/metal-grate.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T17:58:36.125Z",
+      "version": "b3885a8325be88df",
+      "changes": [
+        {
+          "path": "tracks.grating.source.dent",
+          "before": 0.6,
+          "after": 0.5330579969618053
+        },
+        {
+          "path": "tracks.grating.source.position",
+          "before": 0.8,
+          "after": 0.7900750054253475
+        },
+        {
+          "path": "tracks.grating.source.stretch",
+          "before": 0.92,
+          "after": 0.8906634521484376
+        },
+        {
+          "path": "buses.hull.fx.0.size",
+          "before": 7,
+          "after": 4.9937091131383236
+        },
+        {
+          "path": "buses.hull.fx.0.bass",
+          "before": 0.5,
+          "after": 0.7741149902343745
+        },
+        {
+          "path": "buses.hull.fx.0.damping",
+          "after": 0.3361253526475694
+        },
+        {
+          "path": "buses.hull.fx.0.mix",
+          "after": 1
+        },
+        {
+          "path": "controls.speed.value",
+          "before": 0.3,
+          "after": 0.9340128580729167
+        },
+        {
+          "path": "controls.weight.value",
+          "before": 0.5,
+          "after": 0.39454583062065945
+        },
+        {
+          "path": "controls.loose.value",
+          "before": 0.5,
+          "after": 0.3866899278428822
+        },
+        {
+          "path": "controls.ring.value",
+          "before": 0.4,
+          "after": 0.38480868869357604
+        },
+        {
+          "path": "controls.panel.value",
+          "before": 0.5,
+          "after": 0.9093607584635415
+        },
+        {
+          "path": "controls.hull.value",
+          "before": 0.4,
+          "after": 0.8530378553602433
+        }
+      ]
+    },
+    "footsteps/creaky-wood-floor.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T19:38:33.599Z",
+      "version": "75e7586abb869656"
+    },
+    "footsteps/gravel.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T19:39:30.430Z",
+      "version": "fa4ff8dad3995624",
+      "changes": [
+        {
+          "path": "controls.speed.value",
+          "before": 0.3,
+          "after": 0.9859663221571181
+        },
+        {
+          "path": "controls.stones.value",
+          "before": 0.45,
+          "after": 0.45895521375868076
+        },
+        {
+          "path": "controls.weight.value",
+          "before": 0.5,
+          "after": 0.6795572916666667
+        },
+        {
+          "path": "controls.loose.value",
+          "before": 0.5,
+          "after": 0.337630547417535
+        },
+        {
+          "path": "controls.wet.value",
+          "before": 0.2,
+          "after": 0.806987847222222
+        }
+      ]
+    },
+    "impacts/coin-drop.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T16:42:29.633Z",
+      "version": "4cc5657437b8dda9",
+      "changes": [
+        {
+          "path": "tracks.wobble.source.damping",
+          "before": 2.2,
+          "after": 3.153762478298614
+        },
+        {
+          "path": "tracks.wobble.source.brightness",
+          "before": 0.3,
+          "after": 0.17013888888888898
+        },
+        {
+          "path": "tracks.wobble.source.position",
+          "before": 0.95,
+          "after": 0.3376302083333333
+        },
+        {
+          "path": "tracks.wobble.length",
+          "after": 2.0162382812500006
+        },
+        {
+          "path": "controls.height.value",
+          "before": 0.4,
+          "after": 0.46916978624131966
+        },
+        {
+          "path": "controls.spin.value",
+          "before": 0.5,
+          "after": 0.05907151963975639
+        },
+        {
+          "path": "controls.table.value",
+          "before": 0.45,
+          "after": 0.3836229112413201
+        }
+      ]
+    },
+    "impacts/door-knock.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T16:43:53.756Z",
+      "version": "40775e8df99a5b3f",
+      "changes": [
+        {
+          "path": "tracks.panel.repeat.jitter",
+          "before": 0,
+          "after": 0.0028414238823785084
+        },
+        {
+          "path": "tracks.panel.repeat.velJitter",
+          "before": 0.3,
+          "after": 0.5452684190538192
+        },
+        {
+          "path": "tracks.panel.fx.0.cutoff",
+          "before": 150,
+          "after": 100.70640374644874
+        },
+        {
+          "path": "controls.urgency.value",
+          "before": 0.5,
+          "after": 0.4929684109157987
+        },
+        {
+          "path": "controls.door.value",
+          "before": 0.5,
+          "after": 0.4833190917968746
+        }
+      ]
+    },
+    "impacts/body-punch.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T16:46:25.526Z",
+      "version": "cbf726ef4d545d85",
+      "changes": [
+        {
+          "path": "controls.weight.value",
+          "before": 0.5,
+          "after": 0.8615302191840274
+        },
+        {
+          "path": "controls.smack.value",
+          "before": 0.5,
+          "after": 0.4640045166015629
+        },
+        {
+          "path": "controls.bone.value",
+          "before": 0.5,
+          "after": 0.39301215277777835
+        },
+        {
+          "path": "controls.swing.value",
+          "before": 0.5,
+          "after": 0.3083045111762156
+        }
+      ]
+    },
+    "impacts/cardboard-box.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T16:47:08.721Z",
+      "version": "0df3d1a36a50fa27",
+      "changes": [
+        {
+          "path": "controls.size.value",
+          "before": 0.5,
+          "after": 0.23456319173177081
+        },
+        {
+          "path": "controls.contents.value",
+          "before": 0.55,
+          "after": 0.6366173638237853
+        },
+        {
+          "path": "controls.fill.value",
+          "before": 0.3,
+          "after": 0.26820034450954866
+        },
+        {
+          "path": "controls.drop.value",
+          "before": 0.5,
+          "after": 0.33985833062066007
+        }
+      ]
+    },
+    "impacts/glass-clink.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T16:59:33.553Z",
+      "version": "4132e23a7984484b",
+      "changes": [
+        {
+          "path": "controls.size.value",
+          "before": 0.5,
+          "after": 0.5008677164713538
+        },
+        {
+          "path": "controls.fill.value",
+          "before": 0.3,
+          "after": 0.5497680664062501
+        },
+        {
+          "path": "controls.toast.value",
+          "before": 0.55,
+          "after": 0.5753902859157988
+        },
+        {
+          "path": "controls.match.value",
+          "before": 0.5,
+          "after": 0.5038340250651038
+        },
+        {
+          "path": "controls.room.value",
+          "before": 0.3,
+          "after": 0.31530693901909707
+        }
+      ]
+    },
+    "mechanical/clock-tick.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T17:54:42.700Z",
+      "version": "0acac596464caf7a",
+      "changes": [
+        {
+          "path": "controls.size.value",
+          "before": 0.5362316796555331,
+          "after": 0.49983132972063626
+        },
+        {
+          "path": "controls.beat.value",
+          "before": 0.47011112080954054,
+          "after": 0.46799862623488775
+        }
+      ]
+    },
+    "mechanical/ratchet.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T17:02:56.053Z",
+      "version": "cae376c6756b048d",
+      "changes": [
+        {
+          "path": "controls.speed.value",
+          "before": 0.5,
+          "after": 0.48504028320312553
+        },
+        {
+          "path": "controls.size.value",
+          "before": 0.5,
+          "after": 0.4837965223524308
+        },
+        {
+          "path": "controls.swing.value",
+          "before": 0.5,
+          "after": 0.47580973307291624
+        },
+        {
+          "path": "controls.handle.value",
+          "before": 0.5,
+          "after": 0.33695034450954847
+        },
+        {
+          "path": "controls.grease.value",
+          "before": 0.5,
+          "after": 0.29120347764756954
+        }
+      ]
+    },
+    "mechanical/spring-boing.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T17:03:16.336Z",
+      "version": "ebd30885288a340b",
+      "changes": [
+        {
+          "path": "controls.size.value",
+          "before": 0.5,
+          "after": 0.4961079915364581
+        },
+        {
+          "path": "controls.coil.value",
+          "before": 0.6,
+          "after": 0.580280558268229
+        }
+      ]
+    },
+    "mechanical/toggle-switch.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T17:03:31.475Z",
+      "version": "1c0e8cfd8f6720a4",
+      "changes": [
+        {
+          "path": "controls.metal.value",
+          "before": 0.5,
+          "after": 0.6524881998697916
+        }
+      ]
+    },
+    "nature/fire-loop.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T17:12:18.431Z",
+      "version": "4bb6f75d2e70c0fb"
+    },
+    "retro/coin.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T17:12:45.517Z",
+      "version": "27e1b32045508f9e",
+      "changes": [
+        {
+          "path": "controls.length.value",
+          "before": 0.5,
+          "after": 0.488498263888889
+        }
+      ]
+    },
+    "retro/explosion.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T17:12:49.652Z",
+      "version": "f3393aeb8d0bbca2"
+    },
+    "retro/hurt.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T17:12:54.099Z",
+      "version": "36ace5f617e307ca"
+    },
+    "retro/jump.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T17:12:57.361Z",
+      "version": "049df5d08994cfd0"
+    },
+    "retro/laser.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T17:13:01.118Z",
+      "version": "d8572a56c8137be3"
+    },
+    "retro/menu-select.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T17:13:05.373Z",
+      "version": "4668beb9dfac00df"
+    },
+    "retro/one-up.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T17:13:07.541Z",
+      "version": "46d342db7f35f178"
+    },
+    "retro/power-up.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T17:13:09.751Z",
+      "version": "59b6d13322fe43bc"
+    },
+    "scifi/console-power-up.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T17:13:18.525Z",
+      "version": "08915f67dd41239e"
+    },
+    "ui/cancel-back.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T17:13:58.208Z",
+      "version": "110885229dd2779e"
+    },
+    "ui/error-buzz.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T17:14:38.021Z",
+      "version": "77a1bbf38a55f195",
+      "changes": [
+        {
+          "path": "controls.harshness.value",
+          "before": 0.5,
+          "after": 0.26794026692708295
+        },
+        {
+          "path": "controls.clash.value",
+          "before": 0.7,
+          "after": 0.2901329888237851
+        },
+        {
+          "path": "controls.length.value",
+          "before": 0.5,
+          "after": 0.2207319471571182
+        }
+      ]
+    },
+    "ui/hover-tick.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T17:14:43.939Z",
+      "version": "b9f414de01215df7"
+    },
+    "ui/mechanical-click.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T17:14:50.495Z",
+      "version": "04e1071a45167abd"
+    },
+    "ui/notification-chime.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T17:14:58.983Z",
+      "version": "f6129345728ead89"
+    },
+    "ui/panel-close.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T21:33:43.922Z",
+      "version": "cd521929ab646116"
+    },
+    "ui/panel-open.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T21:33:44.909Z",
+      "version": "07a2f4e11b4c747f"
+    },
+    "nature/thunder.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T17:17:15.525Z",
+      "version": "1c3978a92d49fa3f"
+    },
+    "vehicles/helicopter-loop.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T17:44:32.246Z",
+      "version": "b4f3d3ce9242bc08",
+      "changes": [
+        {
+          "path": "controls.distance.value",
+          "before": 0.5,
+          "after": 0.5163916693793409
+        },
+        {
+          "path": "controls.size.value",
+          "before": 0.5,
+          "after": 0.4923611111111107
+        },
+        {
+          "path": "controls.strain.value",
+          "before": 0.5,
+          "after": 0.49732326931423637
+        },
+        {
+          "path": "controls.turbine.value",
+          "before": 0.5,
+          "after": 0.38803541395399327
+        }
+      ]
+    },
+    "vehicles/jet-flyby.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T17:44:39.038Z",
+      "version": "2dec7be0e2c27267"
+    },
+    "impacts/giant-metal-slam.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T20:32:01.667Z",
+      "version": "ee4930e8f1fcba9a",
+      "changes": [
+        {
+          "path": "tracks.debris.solo",
+          "before": true
+        }
+      ]
+    },
+    "impacts/glass-shatter.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T20:36:25.478Z",
+      "version": "d714fe60dd373bbc",
+      "changes": [
+        {
+          "path": "tracks.shards.start",
+          "before": 0.01,
+          "after": 0.1275
+        },
+        {
+          "path": "tracks.shards.gain",
+          "before": 1,
+          "after": -1.4531656901041217
+        },
+        {
+          "path": "tracks.shards.source.spread",
+          "before": 0.8,
+          "after": 0.7668260362413195
+        },
+        {
+          "path": "tracks.shards.source.grain.hi",
+          "before": 9000,
+          "after": 2260.7224301056326
+        },
+        {
+          "path": "tracks.shards.source.grain.levelJitter",
+          "before": 18,
+          "after": 25.97338867187501
+        },
+        {
+          "path": "tracks.shards.source.grain.pitchJitter",
+          "after": 1.3996500651041655
+        },
+        {
+          "path": "tracks.shards.source.grain.sweep",
+          "after": -2.789930555555558
+        },
+        {
+          "path": "tracks.shards.source.interval",
+          "after": 0.06358077133716063
+        },
+        {
+          "path": "tracks.shards.source.jitter",
+          "after": 0.19576144748263927
+        },
+        {
+          "path": "tracks.shards.source.gain",
+          "after": -0.01818847656248579
+        },
+        {
+          "path": "tracks.glitter.start",
+          "after": 0.4593
+        },
+        {
+          "path": "controls.size.value",
+          "before": 0.5076534695095484,
+          "after": 0.20914272732204828
+        },
+        {
+          "path": "controls.pieces.value",
+          "before": 0.5,
+          "after": 0.5020399305555547
+        },
+        {
+          "path": "controls.floor.value",
+          "before": 0.5,
+          "after": 0.7170138888888891
+        }
+      ]
+    },
+    "impacts/metal-pipe.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T20:09:56.932Z",
+      "version": "e2feafbf4b31d747",
+      "changes": [
+        {
+          "path": "controls.strike.value",
+          "before": 0.8,
+          "after": 0.5454718695746533
+        },
+        {
+          "path": "controls.grip.value",
+          "before": 0.2,
+          "after": 0.7880350748697914
+        }
+      ]
+    },
+    "nature/wind-loop.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T20:27:28.732Z",
+      "version": "bff882705dd7eb32",
+      "changes": [
+        {
+          "path": "tracks.rush.gain",
+          "after": -5.664062499999986
+        },
+        {
+          "path": "tracks.whistle.source.color",
+          "before": "white",
+          "after": "blue"
+        },
+        {
+          "path": "tracks.whistle.source.width",
+          "before": 0.3,
+          "after": 0.6867913140190981
+        },
+        {
+          "path": "tracks.whistle.source.density",
+          "after": 324.16377002270934
+        },
+        {
+          "path": "controls.strength.value",
+          "before": 0.5,
+          "after": 0.4704715304904532
+        },
+        {
+          "path": "controls.strength.targets.1.from",
+          "before": -16,
+          "after": -12
+        },
+        {
+          "path": "controls.strength.targets.1.to",
+          "before": 8,
+          "after": 12
+        },
+        {
+          "path": "controls.gusts.value",
+          "before": 0.5,
+          "after": 0.4514034695095486
+        },
+        {
+          "path": "controls.whistle.value",
+          "before": 0.45,
+          "after": 0.21640624999999983
+        }
+      ]
+    },
+    "magic/fire-spell.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T20:31:10.297Z",
+      "version": "dfa4b998c835f45f",
+      "changes": [
+        {
+          "path": "tracks.roar.fx.1.tone",
+          "after": 772.4485865403942
+        },
+        {
+          "path": "controls.size.value",
+          "before": 0.5,
+          "after": 0.6370368109809028
+        },
+        {
+          "path": "controls.flutter.value",
+          "before": 0.5,
+          "after": 0.29981214735243067
+        },
+        {
+          "path": "controls.throw.value",
+          "before": 0.45,
+          "after": 0.47572326660156267
+        }
+      ]
+    },
+    "magic/portal-open.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T20:31:16.654Z",
+      "version": "3b4103070e08620b"
+    },
+    "magic/sparkle-pickup.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T20:31:18.691Z",
+      "version": "10856e4a5a574fb4"
+    },
+    "magic/spell-cast.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T20:31:23.681Z",
+      "version": "3646ed40c861be45"
+    },
+    "impacts/rock-on-rock.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T20:32:47.169Z",
+      "version": "04ae288b2acf4551",
+      "changes": [
+        {
+          "path": "controls.size.value",
+          "before": 0.5,
+          "after": 0.5592302110460071
+        },
+        {
+          "path": "controls.force.value",
+          "before": 0.5,
+          "after": 0.602792019314236
+        },
+        {
+          "path": "controls.stone.value",
+          "before": 0.5,
+          "after": 0.48755798339843726
+        },
+        {
+          "path": "controls.gorge.value",
+          "before": 0.5,
+          "after": 0.3731336805555554
+        },
+        {
+          "path": "controls.far.value",
+          "before": 0.5,
+          "after": 0.14765591091579863
+        }
+      ]
+    },
+    "impacts/thud.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T20:32:53.666Z",
+      "version": "b03a4f94232e27cd"
+    },
+    "impacts/trash-can-kick.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T20:42:28.696Z",
+      "version": "4400a1ab817e377a",
+      "changes": [
+        {
+          "path": "tracks.can.source.brightness",
+          "before": 0.5,
+          "after": 0.34011840820312494
+        },
+        {
+          "path": "tracks.can.source.position",
+          "before": 0.55,
+          "after": 0.2067267523871532
+        },
+        {
+          "path": "tracks.can.source.exciter.duration",
+          "after": 0.4086559743266036
+        },
+        {
+          "path": "tracks.can.source.env",
+          "after": {
+            "attack": 0.0018436567342059692,
+            "sustain": 1,
+            "release": 0.04
+          }
+        },
+        {
+          "path": "tracks.can.source.beat",
+          "after": 1.8197292751736114
+        },
+        {
+          "path": "tracks.lid.start",
+          "before": 0.03,
+          "after": 0.3833
+        },
+        {
+          "path": "tracks.lid.source.damping",
+          "before": 1.8,
+          "after": 2.013888888888888
+        },
+        {
+          "path": "tracks.lid.source.exciter.hardness",
+          "before": 0.7,
+          "after": 0.5350552029079866
+        },
+        {
+          "path": "tracks.lid.source.brightness",
+          "after": 0.38259548611111144
+        },
+        {
+          "path": "controls.size.value",
+          "before": 0.5,
+          "after": 0.722005208333333
+        },
+        {
+          "path": "controls.kick.value",
+          "before": 0.45,
+          "after": 0.6765048556857641
+        },
+        {
+          "path": "controls.dents.value",
+          "before": 0.75,
+          "after": 0.46260138617621555
+        },
+        {
+          "path": "controls.lid.value",
+          "before": 0.5,
+          "after": 0.59976806640625
+        }
+      ]
+    },
+    "mechanical/chain-rattle.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T20:42:34.060Z",
+      "version": "98399e27d5c7eb73"
+    },
+    "weapons/reload-click.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T20:42:55.806Z",
+      "version": "29f0d57d7863a993"
+    },
+    "weapons/sword-clash.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T20:43:04.383Z",
+      "version": "4619be3a4ff6668f"
+    },
+    "weapons/sword-swing.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T20:43:05.906Z",
+      "version": "d13bf211315dcbf6"
+    },
+    "movement/land-soft.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T20:44:29.895Z",
+      "version": "047184d6a6e309ce"
+    },
+    "movement/jump-takeoff.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T20:44:31.955Z",
+      "version": "225787ec588ab40c"
+    },
+    "mechanical/motor-start.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T20:44:35.258Z",
+      "version": "a7fe2a052d54d16c"
+    },
+    "mechanical/servo-move.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T20:44:36.528Z",
+      "version": "eb3c61fabcdbcebd"
+    },
+    "movement/cloth-swish.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T20:44:37.781Z",
+      "version": "d7e9d6fb06b89aa4"
+    },
+    "movement/whoosh-fast.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T20:44:39.175Z",
+      "version": "f036370e3fbc97eb"
+    },
+    "movement/whoosh-heavy.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T20:44:40.158Z",
+      "version": "ef7bcbb048ff237e"
+    },
+    "nature/cave-drip.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T20:44:41.445Z",
+      "version": "70217049f4a2f90e"
+    },
+    "nature/splash.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T20:44:42.963Z",
+      "version": "3b113912726d7291"
+    },
+    "nature/stream-loop.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T20:44:43.910Z",
+      "version": "0c727302cdf6d7aa"
+    },
+    "retro/bounce.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T20:44:45.212Z",
+      "version": "726a8b0978c4f28c"
+    },
+    "scifi/data-chirps.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T20:44:46.626Z",
+      "version": "95602eec9d5d470a"
+    },
+    "scifi/force-field-hum.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T20:44:48.029Z",
+      "version": "3c55a6494fb447d1"
+    },
+    "scifi/laser-zap.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T20:44:48.860Z",
+      "version": "ea3b77c9359821db"
+    },
+    "scifi/plasma-charge.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T20:44:51.216Z",
+      "version": "160d47fd1edbf954"
+    },
+    "scifi/power-down.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T20:44:52.513Z",
+      "version": "461f3195f4bd9b4f"
+    },
+    "scifi/scanner-sweep.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T20:44:53.525Z",
+      "version": "8d06370976b95a1c"
+    },
+    "scifi/shield-impact.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T20:44:54.631Z",
+      "version": "a8bd18388bd23f62"
+    },
+    "scifi/teleport.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T20:44:56.483Z",
+      "version": "1265867e754b2c78"
+    },
+    "scifi/warp-jump.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T20:44:59.548Z",
+      "version": "a040c5ee7539ca87"
+    },
+    "ui/slider-tick.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T20:45:00.707Z",
+      "version": "5a1e108de6de2206"
+    },
+    "ui/soft-confirm.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T20:45:02.089Z",
+      "version": "e4df1582023c0119"
+    },
+    "ui/success-flourish.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T20:46:52.409Z",
+      "version": "9e2eef6b686910cc"
+    },
+    "ui/swipe.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T20:46:53.731Z",
+      "version": "1c6ff8016638449d"
+    },
+    "ui/text-blip.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T20:46:55.316Z",
+      "version": "e994d6f497484fcf"
+    },
+    "ui/toggle-off.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T20:46:58.848Z",
+      "version": "b89ba524963b0018"
+    },
+    "ui/toggle-on.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T20:46:59.681Z",
+      "version": "8f1e4ef7a8c7afa9"
+    },
+    "ui/warning-ping.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T20:47:01.080Z",
+      "version": "115994e00b97476d"
+    },
+    "vehicles/engine-idle-loop.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T21:27:46.971Z",
+      "version": "40eaf2b7da5633cd",
+      "changes": [
+        {
+          "path": "controls.revs.value",
+          "before": 0.46695590549045124,
+          "after": 0.5390482584635415
+        },
+        {
+          "path": "controls.size.value",
+          "before": 0.535749308268229,
+          "after": 0.6525027804904513
+        },
+        {
+          "path": "controls.wear.value",
+          "before": 0.49962327745225643,
+          "after": 0.6792819552951389
+        },
+        {
+          "path": "controls.tappets.value",
+          "before": 0.4,
+          "after": 0.38778923882378535
+        },
+        {
+          "path": "controls.exhaust.value",
+          "before": 0.9224392361111112,
+          "after": 0.7469184027777782
+        }
+      ]
+    },
+    "vehicles/motorbike-rev.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T21:29:01.084Z",
+      "version": "5c55cc3e52ff9cb1",
+      "changes": [
+        {
+          "path": "seed",
+          "before": 20,
+          "after": 25276
+        },
+        {
+          "path": "controls.engine",
+          "before": {
+            "id": "engine",
+            "label": "Engine",
+            "widget": "select",
+            "value": 0,
+            "default": 0,
+            "hint": "A parallel twin, a big loping V-twin, a screaming inline four or a thumping single.",
+            "options": [
+              {
+                "label": "Parallel twin",
+                "set": {
+                  "tracks.engine.source.firing": "even",
+                  "tracks.engine.source.cylinders": 2,
+                  "tracks.engine.source.pitch": 0
+                }
+              },
+              {
+                "label": "V-twin",
+                "set": {
+                  "tracks.engine.source.firing": "v-twin",
+                  "tracks.engine.source.cylinders": 2,
+                  "tracks.engine.source.pitch": -5
+                }
+              },
+              {
+                "label": "Inline four",
+                "set": {
+                  "tracks.engine.source.firing": "even",
+                  "tracks.engine.source.cylinders": 4,
+                  "tracks.engine.source.pitch": 4
+                }
+              },
+              {
+                "label": "Single",
+                "set": {
+                  "tracks.engine.source.firing": "even",
+                  "tracks.engine.source.cylinders": 1,
+                  "tracks.engine.source.pitch": -1
+                }
+              }
+            ]
+          }
+        },
+        {
+          "path": "controls.revs.value",
+          "before": 0.5,
+          "after": 0.561820136176216
+        },
+        {
+          "path": "controls.size.value",
+          "before": 0.5,
+          "after": 0.3927954779730903
+        },
+        {
+          "path": "controls.pipes.value",
+          "before": 0.825,
+          "after": 0.8066380545902054
+        },
+        {
+          "path": "controls.pops.value",
+          "before": 0.746,
+          "after": 0.6421181073965686
+        },
+        {
+          "path": "controls.wear.value",
+          "before": 0.4,
+          "after": 0.45410656411595646
+        }
+      ]
+    },
+    "weapons/bow-shot.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T21:01:40.020Z",
+      "version": "e5516153bc93572c"
+    },
+    "weapons/bullet-flyby.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T21:01:42.314Z",
+      "version": "762a7cb74a611554"
+    },
+    "ambience/machine-room-loop.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T21:43:22.798Z",
+      "version": "fa208f5e401c2b41"
+    },
+    "creatures/insect-flyby.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T21:43:24.782Z",
+      "version": "d404dd441ca03ac1"
+    }
+  }
+}

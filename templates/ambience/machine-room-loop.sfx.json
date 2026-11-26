@@ -1,7 +1,7 @@
 {
   "format": "sfxgen/1",
   "name": "Machine room hum (loop)",
-  "description": "The plant room in the basement of an office block: a transformer humming at 100 Hz with its buzzing odd partials, a big extraction fan turning at 1500 rpm behind a grille, air pushing through the ducts, and every second or two a contactor clacking somewhere in a cabinet. Concrete walls, so everything is a little boxy. A 4 s loop: the hum (50 Hz and its multiples) and the fan (25 turns a second) both fit a whole number of times, and the seam is crossfaded over 300 ms.",
+  "description": "The plant room in the basement of an office block: a transformer humming with its buzzing upper partials, a big extraction fan turning behind a grille, air pushing through the ducts, and now and then a contactor clacking somewhere in a cabinet. Concrete walls, so everything is a little boxy. The extraction surges and eases once a loop. The loop holds a whole number of hum cycles and fan turns, and the seam is crossfaded.",
   "tags": [
     "ambience",
     "machine",
@@ -18,12 +18,12 @@
     "mode": "crossfade",
     "crossfade": 0.3
   },
-  "seed": 15,
+  "seed": 11208,
   "tracks": [
     {
       "id": "hum",
-      "note": "The transformer: mains hum at 100 Hz with strong 200, 300 and 400 Hz partials (so it is audible on small speakers) and a slow beat between its cores.",
-      "gain": -5,
+      "note": "The transformer: mains hum with strong upper partials (so it is audible on small speakers), driven for buzz, and a slow beat between its cores.",
+      "gain": -10.88,
       "source": {
         "type": "additive",
         "freq": 50,
@@ -72,15 +72,15 @@
           "id": "buzz",
           "type": "drive",
           "mode": "tube",
-          "amount": 10,
+          "amount": 12.8,
           "tone": 3000
         }
       ]
     },
     {
       "id": "fan",
-      "note": "The extraction fan: an electric motor at 1500 rpm with seven blades, a soft drone and blade-passing flutter.",
-      "gain": -6,
+      "note": "The extraction fan: an electric motor, a soft drone with a blade-passing whine (`teeth` stands in for the blades). Its level heaves in and out once per loop (the surge gain), as if the extraction were fighting a door opening somewhere.",
+      "gain": -14.95,
       "source": {
         "type": "machine",
         "kind": "motor",
@@ -94,12 +94,31 @@
           "attack": 0.005,
           "sustain": 1
         }
-      }
+      },
+      "fx": [
+        {
+          "id": "surge",
+          "type": "gain",
+          "gain": {
+            "value": 0,
+            "mod": [
+              {
+                "id": "swing",
+                "type": "lfo",
+                "rate": 0.25,
+                "depth": 4.35,
+                "shape": "sine",
+                "phase": 0.75
+              }
+            ]
+          }
+        }
+      ]
     },
     {
       "id": "ducts",
-      "note": "Air in the sheet-metal ducts: steady noise ringing faintly in a long tube. The \"room tone\" between the tones.",
-      "gain": -13,
+      "note": "Air in the sheet-metal ducts: steady noise ringing faintly in a long tube. The \"room tone\" between the tones. It surges with the fan.",
+      "gain": -18.3,
       "source": {
         "type": "noise",
         "color": "pink",
@@ -119,16 +138,33 @@
           "decay": 0.25,
           "brightness": 0.4,
           "mix": 0.5
+        },
+        {
+          "id": "surge",
+          "type": "gain",
+          "gain": {
+            "value": 0,
+            "mod": [
+              {
+                "id": "swing",
+                "type": "lfo",
+                "rate": 0.25,
+                "depth": 3.9,
+                "shape": "sine",
+                "phase": 0.75
+              }
+            ]
+          }
         }
       ]
     },
     {
       "id": "relays",
       "note": "Contactors in the switch cabinets: a hard plastic-and-metal clack now and then. They break up the drone and say \"this place is running\".",
-      "gain": -4,
+      "gain": -5.76,
       "source": {
         "type": "particles",
-        "density": 0.9,
+        "density": 1.26104,
         "duration": 5,
         "grain": {
           "kind": "modal",
@@ -159,10 +195,10 @@
         "id": "room",
         "type": "reverb",
         "space": "chamber",
-        "size": 9,
-        "decay": 0.9,
+        "size": 11.9432,
+        "decay": 1.19432,
         "damping": 0.4,
-        "mix": 0.2
+        "mix": 0.28
       }
     ]
   },
@@ -171,7 +207,7 @@
       "id": "hum",
       "label": "Hum",
       "hint": "A faint electrical presence to a transformer you feel in your teeth.",
-      "value": 0.5,
+      "value": 0.54,
       "targets": [
         {
           "path": "tracks.hum.gain",
@@ -191,7 +227,7 @@
       "id": "fan",
       "label": "Ventilation",
       "hint": "Still air to a roaring extraction system.",
-      "value": 0.5,
+      "value": 0.45,
       "targets": [
         {
           "path": "tracks.fan.gain",
@@ -208,10 +244,30 @@
       ]
     },
     {
+      "id": "surge",
+      "label": "Surge",
+      "hint": "Steady air to an extraction that heaves in and out once a loop.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.fan.fx.surge.gain.mod.swing.depth",
+          "mode": "set",
+          "from": 0,
+          "to": 8.7
+        },
+        {
+          "path": "tracks.ducts.fx.surge.gain.mod.swing.depth",
+          "mode": "set",
+          "from": 0,
+          "to": 7.8
+        }
+      ]
+    },
+    {
       "id": "activity",
       "label": "Activity",
       "hint": "A plant ticking over at night to switchgear clacking constantly.",
-      "value": 0.35,
+      "value": 0.52,
       "targets": [
         {
           "path": "tracks.relays.source.density",
@@ -231,7 +287,7 @@
       "id": "room",
       "label": "Room",
       "hint": "A small cupboard of a room to a long concrete hall.",
-      "value": 0.4,
+      "value": 0.6,
       "targets": [
         {
           "path": "master.fx.room.size",

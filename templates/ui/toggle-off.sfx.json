@@ -1,58 +1,45 @@
 {
   "format": "sfxgen/1",
   "name": "Toggle off",
-  "description": "The same rocker switch thrown off. The latch lands duller, as a short puff of dark air, and with it a damped string-like tone sags a fourth over 70 ms as the light behind the switch dies. Lower, shorter and rounder than Toggle on.",
-  "tags": [
-    "ui",
-    "toggle",
-    "switch",
-    "off",
-    "disable",
-    "checkbox",
-    "deactivate"
-  ],
+  "description": "The same rocker switch as Toggle on, thrown off. The plastic latch lands lower and duller, and just after it the indicator tone that rose for on falls instead, closing down as it goes, like the light behind the switch dying. Lower and rounder than Toggle on.",
+  "tags": ["ui", "toggle", "switch", "off", "disable", "checkbox", "deactivate"],
   "duration": "auto",
   "seed": 8,
   "tracks": [
     {
-      "id": "sag",
-      "note": "The state going out: a muted pluck whose pitch falls.",
-      "start": 0.006,
+      "id": "latch",
+      "note": "The switch landing: the plastic box of Toggle on, tuned down and hit softer, more thud than tick.",
+      "gain": -6,
       "source": {
-        "type": "pluck",
-        "freq": 560,
-        "pitch": [
-          [
-            0,
-            0
-          ],
-          [
-            0.07,
-            -5
-          ]
-        ],
-        "decay": 0.4,
-        "brightness": 0.35,
-        "position": 0.4,
-        "hardness": 0.45,
-        "mute": 0.2
+        "type": "modal",
+        "material": "plastic",
+        "shape": "box",
+        "freq": 900,
+        "decay": 0.03,
+        "position": 0.6,
+        "modes": 12,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.5
+        }
       }
     },
     {
-      "id": "latch",
-      "note": "The switch landing: darker than the on tick, more thud than click.",
-      "gain": -7,
+      "id": "sag",
+      "note": "The state going out: the indicator tone of Toggle on, falling and dimming so it reads as off without looking.",
+      "start": 0.006,
       "source": {
-        "type": "noise",
-        "color": "brown",
+        "type": "osc",
+        "wave": "triangle",
+        "freq": 760,
+        "pitch": [[0, 0], [0.06, -7]],
         "env": {
-          "attack": 0.0005,
-          "decay": 0.035
+          "attack": 0.004,
+          "decay": 0.11487
         },
         "filter": {
-          "mode": "bandpass",
-          "cutoff": 900,
-          "q": 1.2
+          "mode": "lowpass",
+          "cutoff": [[0, 2600], [0.07, 900]]
         }
       }
     }
@@ -71,24 +58,24 @@
           "to": 2
         },
         {
-          "path": "tracks.latch.source.filter.cutoff",
+          "path": "tracks.latch.source.freq",
           "mode": "mul",
-          "from": 0.7,
-          "to": 1.4
+          "from": 0.6,
+          "to": 1.6
         }
       ]
     },
     {
       "id": "fall",
       "label": "Fall",
-      "hint": "How far the tone drops: a nudge to a full octave slump.",
-      "value": 0.3,
+      "hint": "How far the tone drops: a small nod down to a deep slump.",
+      "value": 0.5,
       "targets": [
         {
           "path": "tracks.sag.source.pitch",
           "mode": "mul",
-          "from": 0.4,
-          "to": 2.4,
+          "from": 0.3,
+          "to": 1.7,
           "curve": "linear"
         }
       ]
@@ -102,8 +89,8 @@
       "targets": [
         {
           "path": "tracks.latch.gain",
-          "from": -30,
-          "to": 3,
+          "from": -24,
+          "to": 12,
           "curve": "linear"
         }
       ]
@@ -111,21 +98,21 @@
     {
       "id": "length",
       "label": "Length",
-      "hint": "A choked blip to a tone that rings a little.",
+      "hint": "A choked blip to a tone that sinks slowly.",
       "value": 0.4,
       "targets": [
         {
-          "path": "tracks.sag.source.decay",
-          "from": 0.08,
-          "to": 0.6
-        },
-        {
-          "path": "tracks.sag.source.mute",
-          "from": 0.5,
-          "to": 0.05,
-          "curve": "linear"
+          "path": "tracks.sag.source.env.decay",
+          "from": 0.05,
+          "to": 0.4
         }
       ]
     }
-  ]
+  ],
+  "master": {
+    "normalize": {
+      "mode": "peak",
+      "target": -3
+    }
+  }
 }

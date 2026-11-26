@@ -1,16 +1,8 @@
 {
   "format": "sfxgen/1",
   "name": "Hurt",
-  "description": "The player takes a hit on an 8-bit console. The noise channel cracks for 50 ms while a thin 12.5% pulse drops more than an octave in 130 ms, its pitch thrown up and down 45 times a second so it sounds scrambled rather than sung. Cut dead at 140 ms. Harsh and short, as damage should be.",
-  "tags": [
-    "retro",
-    "8-bit",
-    "chiptune",
-    "hurt",
-    "damage",
-    "hit",
-    "ouch"
-  ],
+  "description": "The player takes a hit on an 8-bit console. The noise channel cracks briefly while a thin, narrow pulse drops steeply, its pitch thrown up and down so fast it sounds scrambled rather than sung. Then it is cut dead. Harsh and short, as damage should be.",
+  "tags": ["retro", "8-bit", "chiptune", "hurt", "damage", "hit", "ouch"],
   "duration": "auto",
   "seed": 4,
   "tracks": [
@@ -22,16 +14,7 @@
         "wave": "pulse",
         "pw": 0.125,
         "freq": {
-          "env": [
-            [
-              0,
-              540
-            ],
-            [
-              0.13,
-              190
-            ]
-          ],
+          "env": [[0, 540], [0.13, 190]],
           "mod": [
             {
               "id": "shake",
@@ -44,20 +27,7 @@
           ]
         },
         "env": {
-          "points": [
-            [
-              0,
-              1
-            ],
-            [
-              0.13,
-              0.6
-            ],
-            [
-              0.145,
-              0
-            ]
-          ],
+          "points": [[0, 1], [0.13, 0.6], [0.145, 0]],
           "curve": "linear"
         }
       },
@@ -79,36 +49,14 @@
     },
     {
       "id": "crack",
-      "note": "The impact: the noise channel at a low clock rate, so it is gritty, not hissy.",
-      "gain": -3,
+      "note": "The impact: a short burst from the noise channel, its clock dropping fast, so it is gritty, not hissy.",
+      "gain": -14.2,
       "source": {
         "type": "noise",
         "color": "digital",
-        "density": [
-          [
-            0,
-            9000
-          ],
-          [
-            0.06,
-            1800
-          ]
-        ],
+        "density": [[0, 9000], [0.06, 1800]],
         "env": {
-          "points": [
-            [
-              0,
-              1
-            ],
-            [
-              0.03,
-              0.5
-            ],
-            [
-              0.07,
-              0
-            ]
-          ],
+          "points": [[0, 1], [0.03, 0.5], [0.07, 0]],
           "curve": "linear"
         }
       },

@@ -1,48 +1,25 @@
 {
   "format": "sfxgen/1",
   "name": "Heavy sack thud",
-  "description": "A 25 kg sack of grain dropped off a shoulder onto the plank floor of a barn. 0 ms: a soft, wide whump with no click at all, the burlap spreading for 40 ms rather than hitting; the floor planks boom once underneath around 100 Hz and its neighbours; from 30 ms the grain inside slumps with a short dry hiss; a little dust and a wooden room around it.",
-  "tags": [
-    "impact",
-    "thud",
-    "body",
-    "land",
-    "drop",
-    "sack",
-    "fall",
-    "heavy",
-    "soft"
-  ],
+  "description": "A heavy sack of grain dropped off a shoulder onto the plank floor of a barn. A soft, wide whump with no click at all, the burlap spreading rather than hitting; the floor planks boom once underneath; just after, the grain inside slumps with a dry hiss as it settles; a wooden room around it.",
+  "tags": ["impact", "thud", "body", "land", "drop", "sack", "fall", "heavy", "soft"],
   "duration": "auto",
   "seed": 2,
   "tracks": [
     {
       "id": "whump",
-      "note": "The sack landing: dark noise that opens and closes in 60 ms. A spread, not a hit.",
+      "note": "The sack landing: dark noise that swells and closes down, darkening as it goes. A spread, not a hit.",
       "source": {
         "type": "noise",
         "color": "pink",
         "env": {
-          "attack": 0.006,
+          "attack": 0.0056116,
           "hold": 0.012,
-          "decay": 0.16
+          "decay": 0.25037
         },
         "filter": {
           "mode": "lowpass",
-          "cutoff": [
-            [
-              0,
-              1700
-            ],
-            [
-              0.03,
-              800
-            ],
-            [
-              0.15,
-              240
-            ]
-          ],
+          "cutoff": [[0, 1700], [0.03, 800], [0.15, 240]],
           "q": 0.9,
           "slope": "24"
         }
@@ -59,14 +36,14 @@
       "id": "floor",
       "note": "The planks: a big wooden cavity kicked by something soft, the pitch of the thud.",
       "start": 0.004,
-      "gain": -1,
+      "gain": 1.65458,
       "source": {
         "type": "modal",
         "material": "wood",
         "shape": "box",
         "freq": 97,
-        "decay": 0.38,
-        "damping": 1.6,
+        "decay": 0.661784,
+        "damping": 1.50749,
         "brightness": 0.45,
         "modes": 16,
         "dent": 0.25,
@@ -89,12 +66,12 @@
       "id": "grain",
       "note": "The contents slumping after the landing: a dry hiss of small grains.",
       "start": 0.03,
-      "gain": -11,
+      "gain": -0.926888,
       "source": {
         "type": "particles",
         "distribution": "burst",
         "density": 900,
-        "duration": 0.28,
+        "duration": 0.46126,
         "grain": {
           "kind": "tick",
           "lo": 1400,
@@ -125,7 +102,7 @@
         "size": 9,
         "decay": 0.6,
         "damping": 0.75,
-        "mix": 0.12
+        "mix": 0.10061
       }
     ]
   },
@@ -134,7 +111,7 @@
       "id": "weight",
       "label": "Weight",
       "hint": "A pillow to a body: lower, longer, more floor.",
-      "value": 0.5,
+      "value": 0.863180202907986,
       "vary": 0.07,
       "targets": [
         {
@@ -167,7 +144,7 @@
       "id": "floor",
       "label": "Floor",
       "hint": "Packed earth that gives nothing back, or a hollow stage that booms.",
-      "value": 0.55,
+      "value": 0.766348605685764,
       "vary": 0.05,
       "targets": [
         {
@@ -189,7 +166,7 @@
       "id": "filling",
       "label": "Filling",
       "hint": "A solid lump, or loose grain that hisses as it settles.",
-      "value": 0.45,
+      "value": 0.9434895833333337,
       "vary": 0.1,
       "targets": [
         {
@@ -211,7 +188,7 @@
       "id": "slap",
       "label": "Slap",
       "hint": "A soft slump, or a flat landing with a leathery slap.",
-      "value": 0.3,
+      "value": 0.2806711832682291,
       "vary": 0.08,
       "targets": [
         {
@@ -232,7 +209,7 @@
       "id": "barn",
       "label": "Barn",
       "hint": "Dry and close, or in a big wooden room.",
-      "value": 0.35,
+      "value": 0.2874562581380204,
       "targets": [
         {
           "path": "master.fx.barn.mix",

@@ -14,6 +14,7 @@ import { dirname, extname, join, normalize, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { AddressInfo } from 'node:net';
 import type { Project } from '../core/project/project';
+import { formatJson } from '../core/format/json';
 import { validatePatch } from '../core/format/validate';
 import { validateProject } from '../core/project/project';
 import { FileWorkspace, PATCH_EXT, listPatchFiles, listTakes } from './file-workspace';
@@ -242,7 +243,7 @@ export async function startServer(opts: ServerOptions): Promise<RunningServer> {
       }
       const v = validatePatch(patch);
       if (!v.ok) return sendJson(res, 422, { error: 'The patch has errors; nothing was written.', errors: v.errors, warnings: v.warnings });
-      const text = `${JSON.stringify(patch, null, 2)}\n`;
+      const text = formatJson(patch);
       const abs = ws.absolute(path);
       await mkdir(dirname(abs), { recursive: true });
       known.set(path, text);
@@ -275,7 +276,7 @@ export async function startServer(opts: ServerOptions): Promise<RunningServer> {
       }
       const v = validateProject(project);
       if (!v.ok) return sendJson(res, 422, { error: 'The project has errors; nothing was written.', errors: v.errors, warnings: v.warnings });
-      known.set(ws.projectFile, `${JSON.stringify(project, null, 2)}\n`);
+      known.set(ws.projectFile, formatJson(project));
       try {
         await ws.setProject(project as Project, { origin });
       } catch (err) {

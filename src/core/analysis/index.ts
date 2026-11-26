@@ -60,7 +60,10 @@ export interface Analysis {
    * decay measure that works on short sounds. When it never falls that far, the time left to the end (see tailDb).
    */
   decay20Seconds: number;
-  /** Level of the last stretch (5% of the length, 2 to 200 ms) relative to the peak, dB. Above -30: cut off. */
+  /**
+   * Level still sounding as the last stretch (5% of the length, 2 to 200 ms) begins, relative to the peak, dB: the
+   * quietest point of its first half, so a last tick that lands in it and dies does not count. Above -30: cut off.
+   */
   tailDb: number;
   /** |first sample| and |last sample|, dBFS. A sound should start and end near silence, or it clicks. */
   firstSampleDb: number;
@@ -76,6 +79,15 @@ export interface Analysis {
    * partials or tremolo don't count).
    */
   onsets: number[];
+  /**
+   * The main events on a coarse scale, seconds: what a listener would count (steps, knocks, shots), not every sharp
+   * rise. A heel and its toe, or a burst of grains, are one event here; two events are at least 90 ms apart.
+   */
+  events: number[];
+  /** The main repeat period, seconds (a step, a gallop, a loop's beat), or 0 when nothing repeats three times. */
+  pulseSeconds: number;
+  /** How clearly it repeats, 0 to 1 (the autocorrelation of its loudness rises at that period). */
+  pulseStrength: number;
   /** Spectral centroid, Hz, over the whole sound and in thirds of the audible part (start, middle, end). */
   centroidHz: number;
   centroidThirds: [number, number, number];

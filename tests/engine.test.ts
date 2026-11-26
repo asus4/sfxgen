@@ -82,6 +82,71 @@ describe('render', () => {
   });
 });
 
+describe('repeats', () => {
+  const layer = (id: string, group?: string): Patch['tracks'][number] => ({
+    id,
+    source: { type: 'noise', env: { attack: 0.001, decay: 0.02 } },
+    repeat: { count: 4, interval: 0.15, jitter: 0.02, velJitter: 0.3, accents: [0.6, 1, 0.8], ...(group ? { group } : {}) },
+  });
+  const onsets = (x: Float32Array) => {
+    const out: number[] = [];
+    // A hit starts where the level first passes a tenth of the peak after a quiet stretch.
+    let top = 0;
+    for (const v of x) top = Math.max(top, Math.abs(v));
+    let last = -Infinity;
+    for (let i = 0; i < x.length; i++) {
+      if (Math.abs(x[i]) < 0.1 * top) continue;
+      if (i - last > 0.05 * 48000) out.push(i);
+      last = i;
+    }
+    return out;
+  };
+  const solo = (tracks: Patch['tracks'], id: string) =>
+    render({ ...base(), controls: [], master: { normalize: { mode: 'none' }, fadeIn: 0, fadeOut: 0 }, tracks: tracks.map((t) => ({ ...t, solo: t.id === id })) }).channels[0];
+
+  it('moves the layers of one event together when they share a group', () => {
+    // The door has no pitch or level jitter of its own: it must still keep the knuckle's timing.
+    const door = layer('door', 'rap');
+    door.repeat = { ...door.repeat!, velJitter: 0, pitchJitter: 0 };
+    const tracks = [layer('knuckle', 'rap'), door, layer('loose')];
+    const [k, d, l] = ['knuckle', 'door', 'loose'].map((id) => onsets(solo(tracks, id)));
+    // Within a millisecond (each noise burst crosses the threshold at its own sample); the ungrouped layer drifts.
+    expect(d.length).toBe(k.length);
+    k.forEach((t, i) => expect(Math.abs(t - d[i])).toBeLessThan(48));
+    expect(Math.max(...k.map((t, i) => Math.abs(t - (l[i] ?? 0))))).toBeGreaterThan(96);
+  });
+
+  it('shifts each repeat by its offset, the same on every render', () => {
+    const x = solo([{ ...layer('a'), repeat: { count: 4, interval: 0.2, offsets: [0, 0, 0.12, 0] } }], 'a');
+    const t = onsets(x).map((i) => i / 48000);
+    expect(t).toHaveLength(4);
+    expect(t[1] - t[0]).toBeCloseTo(0.2, 2);
+    expect(t[2] - t[1]).toBeCloseTo(0.32, 2);
+    expect(t[3] - t[2]).toBeCloseTo(0.08, 2);
+  });
+
+  it('accents each repeat in turn', () => {
+    const x = solo([{ ...layer('a'), repeat: { count: 3, interval: 0.15, accents: [0.5, 1, 0.25] } }], 'a');
+    const level = (k: number) => Math.max(...Array.from(x.subarray(Math.round(k * 0.15 * 48000), Math.round((k * 0.15 + 0.05) * 48000))).map(Math.abs));
+    expect(level(1)).toBeGreaterThan(1.5 * level(0));
+    expect(level(0)).toBeGreaterThan(1.5 * level(2));
+  });
+});
+
+describe('fixed-length patches', () => {
+  it('warns when a loop\'s only voice has a one-shot default envelope and falls silent', () => {
+    const loop = (env?: object): Patch => ({
+      format: 'sfxgen/1',
+      name: 'hum',
+      duration: 4,
+      loop: { mode: 'wrap' },
+      tracks: [{ id: 'current', source: { type: 'chaos', mode: 'lorenz', rate: 240, ...(env ? { env } : {}) } }],
+    });
+    expect(render(loop()).warnings.join('\n')).toMatch(/track current: .*default one-shot envelope/);
+    expect(render(loop({ attack: 0.01, sustain: 1 })).warnings).toEqual([]);
+  });
+});
+
 describe('controls', () => {
   it('multiplies breakpoint values', () => {
     const { patch } = applyControls(base(), metaAt);

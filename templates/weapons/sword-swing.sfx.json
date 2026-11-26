@@ -1,11 +1,13 @@
 {
   "format": "sfxgen/1",
   "name": "Sword swing",
-  "description": "A longsword swung hard past your head, right to left, no contact. The blade is a thin edge moving at 30 m/s half a metre away: 280 ms of air being cut, a narrow whistle that rises as the blade comes and falls as it goes (real Doppler, not a filter sweep), loudest for only 60 ms in the middle. Under the whistle the flat of the blade pushes a duller gust. As it passes, the steel itself sings very faintly, the way a blade hums when it moves fast.",
+  "description": "A longsword swung hard past your head, right to left, no contact. The blade is a thin edge moving fast just beside you: a short cut of air, a narrow whistle that rises as the blade comes and falls as it goes (real Doppler, not a filter sweep), loudest only for a brief moment in the middle. Under the whistle the flat of the blade pushes a duller gust. As it passes, the steel itself sings very faintly, the way a blade hums when it moves fast.",
   "tags": ["weapon", "sword", "swing", "whoosh", "swish", "blade", "melee", "slash", "air"],
   "duration": "auto",
   "seed": 3,
-  "output": { "channels": 2 },
+  "output": {
+    "channels": 2
+  },
   "tracks": [
     {
       "id": "edge",
@@ -13,16 +15,32 @@
       "source": {
         "type": "noise",
         "color": "white",
-        "env": { "attack": 0.07, "hold": 0.08, "decay": 0.25 },
-        "filter": { "mode": "bandpass", "cutoff": 2400, "q": 0.9 }
+        "env": {
+          "attack": 0.07,
+          "hold": 0.08,
+          "decay": 0.25
+        },
+        "filter": {
+          "mode": "bandpass",
+          "cutoff": 2400,
+          "q": 0.9
+        }
       },
       "fx": [
-        { "type": "resonator", "id": "whistle", "mode": "tube", "freq": 1150, "decay": 0.071, "brightness": 0.7, "mix": 0.573 },
+        {
+          "type": "resonator",
+          "id": "whistle",
+          "mode": "tube",
+          "freq": 1150,
+          "decay": 0.0709627,
+          "brightness": 0.7,
+          "mix": 0.5725
+        },
         {
           "type": "doppler",
           "id": "pass",
-          "speed": 28.5,
-          "distance": 0.663,
+          "speed": 28.4605,
+          "distance": 0.662891,
           "time": 0.15,
           "direction": "right-to-left",
           "amount": 1.6,
@@ -32,16 +50,34 @@
     },
     {
       "id": "flat",
-      "note": "The gust off the flat of the blade: lower and softer, a few ms behind the edge. Gives the swing weight.",
+      "note": "The gust off the flat of the blade: lower and softer, just behind the edge. Gives the swing weight.",
       "start": 0.012,
       "gain": -7.45,
       "source": {
         "type": "noise",
         "color": "pink",
-        "env": { "attack": 0.12, "hold": 0.03, "decay": 0.28 },
-        "filter": { "mode": "bandpass", "cutoff": [[0, 260], [0.15, 720], [0.4, 300]], "q": 1.1 }
+        "env": {
+          "attack": 0.12,
+          "hold": 0.03,
+          "decay": 0.28
+        },
+        "filter": {
+          "mode": "bandpass",
+          "cutoff": [[0, 260], [0.15, 720], [0.4, 300]],
+          "q": 1.1
+        }
       },
-      "fx": [{ "type": "doppler", "id": "pass", "speed": 28.5, "distance": 1.1, "time": 0.15, "direction": "right-to-left", "rolloff": 1.2 }]
+      "fx": [
+        {
+          "type": "doppler",
+          "id": "pass",
+          "speed": 28.4605,
+          "distance": 1.09856,
+          "time": 0.15,
+          "direction": "right-to-left",
+          "rolloff": 1.2
+        }
+      ]
     },
     {
       "id": "sing",
@@ -56,9 +92,23 @@
         "decay": 0.5,
         "modes": 10,
         "brightness": 0.6,
-        "exciter": { "kind": "scrape", "hardness": 0.7, "duration": 0.14, "density": 900, "roughness": 0.9 }
+        "exciter": {
+          "kind": "scrape",
+          "hardness": 0.7,
+          "duration": 0.14,
+          "density": 900,
+          "roughness": 0.9
+        }
       },
-      "fx": [{ "type": "doppler", "speed": 30, "distance": 0.5, "time": 0.07, "direction": "right-to-left" }]
+      "fx": [
+        {
+          "type": "doppler",
+          "speed": 30,
+          "distance": 0.5,
+          "time": 0.07,
+          "direction": "right-to-left"
+        }
+      ]
     }
   ],
   "controls": [
@@ -69,12 +119,40 @@
       "value": 0.5,
       "vary": 0.1,
       "targets": [
-        { "path": "tracks.edge.fx.pass.speed", "from": 9, "to": 90 },
-        { "path": "tracks.flat.fx.pass.speed", "from": 9, "to": 90 },
-        { "path": "tracks.edge.source.env", "mode": "stretch", "from": 2, "to": 0.5 },
-        { "path": "tracks.flat.source.env", "mode": "stretch", "from": 2, "to": 0.5 },
-        { "path": "tracks.edge.fx.pass.time", "mode": "mul", "from": 2, "to": 0.5 },
-        { "path": "tracks.flat.fx.pass.time", "mode": "mul", "from": 2, "to": 0.5 }
+        {
+          "path": "tracks.edge.fx.pass.speed",
+          "from": 9,
+          "to": 90
+        },
+        {
+          "path": "tracks.flat.fx.pass.speed",
+          "from": 9,
+          "to": 90
+        },
+        {
+          "path": "tracks.edge.source.env",
+          "mode": "stretch",
+          "from": 2,
+          "to": 0.5
+        },
+        {
+          "path": "tracks.flat.source.env",
+          "mode": "stretch",
+          "from": 2,
+          "to": 0.5
+        },
+        {
+          "path": "tracks.edge.fx.pass.time",
+          "mode": "mul",
+          "from": 2,
+          "to": 0.5
+        },
+        {
+          "path": "tracks.flat.fx.pass.time",
+          "mode": "mul",
+          "from": 2,
+          "to": 0.5
+        }
       ]
     },
     {
@@ -84,10 +162,29 @@
       "value": 0.45,
       "vary": 0.06,
       "targets": [
-        { "path": "tracks.edge.fx.whistle.freq", "mode": "mul", "from": 2, "to": 0.45 },
-        { "path": "tracks.edge.source.filter.cutoff", "mode": "mul", "from": 1.8, "to": 0.5 },
-        { "path": "tracks.flat.gain", "from": -16, "to": 3 },
-        { "path": "tracks.sing.source.freq", "mode": "mul", "from": 1.8, "to": 0.5 }
+        {
+          "path": "tracks.edge.fx.whistle.freq",
+          "mode": "mul",
+          "from": 2,
+          "to": 0.45
+        },
+        {
+          "path": "tracks.edge.source.filter.cutoff",
+          "mode": "mul",
+          "from": 1.8,
+          "to": 0.5
+        },
+        {
+          "path": "tracks.flat.gain",
+          "from": -16,
+          "to": 3
+        },
+        {
+          "path": "tracks.sing.source.freq",
+          "mode": "mul",
+          "from": 1.8,
+          "to": 0.5
+        }
       ]
     },
     {
@@ -95,21 +192,49 @@
       "label": "Whistle",
       "hint": "Plain rushing air to a sharp singing edge.",
       "value": 0.55,
-      "targets": [{ "path": "tracks.edge.fx.whistle.mix", "from": 0.05, "to": 1 }, { "path": "tracks.edge.fx.whistle.decay", "from": 0.02, "to": 0.2 }]
+      "targets": [
+        {
+          "path": "tracks.edge.fx.whistle.mix",
+          "from": 0.05,
+          "to": 1
+        },
+        {
+          "path": "tracks.edge.fx.whistle.decay",
+          "from": 0.02,
+          "to": 0.2
+        }
+      ]
     },
     {
       "id": "closeness",
       "label": "Closeness",
       "hint": "Across the room to shaving your ear: sharper and more sudden.",
       "value": 0.6,
-      "targets": [{ "path": "tracks.edge.fx.pass.distance", "from": 4, "to": 0.2 }, { "path": "tracks.flat.fx.pass.distance", "from": 5, "to": 0.4 }]
+      "targets": [
+        {
+          "path": "tracks.edge.fx.pass.distance",
+          "from": 4,
+          "to": 0.2
+        },
+        {
+          "path": "tracks.flat.fx.pass.distance",
+          "from": 5,
+          "to": 0.4
+        }
+      ]
     },
     {
       "id": "steel",
       "label": "Steel",
       "hint": "A wooden practice sword to ringing steel.",
       "value": 0.45,
-      "targets": [{ "path": "tracks.sing.gain", "from": -48, "to": -6 }]
+      "targets": [
+        {
+          "path": "tracks.sing.gain",
+          "from": -48,
+          "to": -6
+        }
+      ]
     }
   ]
 }

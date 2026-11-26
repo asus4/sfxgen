@@ -1,16 +1,8 @@
 {
   "format": "sfxgen/1",
   "name": "Power-up",
-  "description": "A power-up taken on an 8-bit console. One pulse channel cannot play chords, so it runs a major arpeggio at three notes every tenth of a second and walks it up the scale: six climbing triads in 630 ms, the last one held with a fast square vibrato. The triangle channel doubles the root of each triad two octaves down as a bass.",
-  "tags": [
-    "retro",
-    "8-bit",
-    "chiptune",
-    "power-up",
-    "upgrade",
-    "arpeggio",
-    "level-up"
-  ],
+  "description": "A power-up taken on an 8-bit console. One pulse channel cannot play chords, so it runs fast three-note arpeggios and walks them up the scale: six climbing triads, then its top note held with a fast square vibrato. The triangle channel plays the root of each triad far below as a bass, then stops dead.",
+  "tags": ["retro", "8-bit", "chiptune", "power-up", "upgrade", "arpeggio", "level-up"],
   "duration": "auto",
   "seed": 3,
   "tracks": [
@@ -20,7 +12,7 @@
       "source": {
         "type": "osc",
         "wave": "pulse",
-        "pw": 0.25,
+        "pw": 0.24875,
         "freq": {
           "value": 392,
           "mod": [
@@ -28,7 +20,7 @@
               "type": "lfo",
               "shape": "square",
               "rate": 14,
-              "depth": 0.5,
+              "depth": 0.6,
               "unit": "st",
               "delay": 0.63,
               "fade": 0.02
@@ -36,115 +28,27 @@
           ]
         },
         "pitch": [
-          [
-            0,
-            0
-          ],
-          [
-            0.035,
-            4,
-            "hold"
-          ],
-          [
-            0.07,
-            7,
-            "hold"
-          ],
-          [
-            0.105,
-            2,
-            "hold"
-          ],
-          [
-            0.14,
-            5,
-            "hold"
-          ],
-          [
-            0.175,
-            9,
-            "hold"
-          ],
-          [
-            0.21,
-            4,
-            "hold"
-          ],
-          [
-            0.245,
-            7,
-            "hold"
-          ],
-          [
-            0.28,
-            11,
-            "hold"
-          ],
-          [
-            0.315,
-            5,
-            "hold"
-          ],
-          [
-            0.35,
-            9,
-            "hold"
-          ],
-          [
-            0.385,
-            12,
-            "hold"
-          ],
-          [
-            0.42,
-            7,
-            "hold"
-          ],
-          [
-            0.455,
-            11,
-            "hold"
-          ],
-          [
-            0.49,
-            14,
-            "hold"
-          ],
-          [
-            0.525,
-            12,
-            "hold"
-          ],
-          [
-            0.56,
-            16,
-            "hold"
-          ],
-          [
-            0.595,
-            19,
-            "hold"
-          ]
+          [0, 0],
+          [0.035, 4, "hold"],
+          [0.07, 7, "hold"],
+          [0.105, 2, "hold"],
+          [0.14, 5, "hold"],
+          [0.175, 9, "hold"],
+          [0.21, 4, "hold"],
+          [0.245, 7, "hold"],
+          [0.28, 11, "hold"],
+          [0.315, 5, "hold"],
+          [0.35, 9, "hold"],
+          [0.385, 12, "hold"],
+          [0.42, 7, "hold"],
+          [0.455, 11, "hold"],
+          [0.49, 14, "hold"],
+          [0.525, 12, "hold"],
+          [0.56, 16, "hold"],
+          [0.595, 19, "hold"]
         ],
         "env": {
-          "points": [
-            [
-              0,
-              1
-            ],
-            [
-              0.63,
-              0.8
-            ],
-            [
-              0.84,
-              0.1
-            ],
-            [
-              1.02,
-              0
-            ]
-          ],
+          "points": [[0, 1], [0.63, 0.8], [0.84, 0.1], [1.02, 0]],
           "curve": "linear"
         }
       },
@@ -159,41 +63,18 @@
     {
       "id": "bass",
       "note": "The triangle channel: fixed volume, the root of each triad.",
-      "gain": -5,
+      "gain": -12,
       "source": {
         "type": "osc",
         "wave": "triangle",
         "freq": 98,
         "pitch": [
-          [
-            0,
-            0
-          ],
-          [
-            0.105,
-            2,
-            "hold"
-          ],
-          [
-            0.21,
-            4,
-            "hold"
-          ],
-          [
-            0.315,
-            5,
-            "hold"
-          ],
-          [
-            0.42,
-            7,
-            "hold"
-          ],
-          [
-            0.525,
-            12,
-            "hold"
-          ]
+          [0, 0],
+          [0.105, 2, "hold"],
+          [0.21, 4, "hold"],
+          [0.315, 5, "hold"],
+          [0.42, 7, "hold"],
+          [0.525, 12, "hold"]
         ],
         "env": {
           "attack": 0,
@@ -277,7 +158,7 @@
     {
       "id": "duty",
       "label": "Duty",
-      "hint": "A thin, nasal 12.5% pulse to a full hollow square.",
+      "hint": "A thin, nasal pulse to a full hollow square.",
       "value": 0.33,
       "targets": [
         {

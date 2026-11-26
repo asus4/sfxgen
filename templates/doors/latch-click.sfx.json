@@ -1,77 +1,98 @@
 {
   "format": "sfxgen/1",
-  "name": "Door latch click",
-  "description": "An interior door pulled shut by its handle until the latch catches. 0 ms: the angled latch bolt meets the strike plate and is pushed back with a short brassy scrape of 45 ms; at 50 ms its spring fires it into the hole in the frame with the click itself, small, hard and metallic; 4 ms after that the door leaf meets the stop and the whole door gives one soft, deep wooden bump; a faint zing of the handle spring settling.",
+  "name": "Door latch click (hollow-core)",
+  "description": "A cheap, light hollow-core bedroom door flicked shut on a carpeted landing: more pock than thud. First the bolt of the small tubular latch knocks back off the strike plate, a light, higher tack. Then it springs into the keeper, the lower and louder half of the ka-chunk, a dead rattly clack with pressed steel and plastic in it. At almost the same instant the thin door skins slap the stop and the cardboard-honeycomb cavity between them answers: a boxy, hollow pock, gone almost at once, with very little weight under it. Then the loose skin and the handle buzz against the frame for a moment. The room is small and soft: carpet, a short dull answer.",
   "tags": [
     "door",
     "latch",
     "click",
     "close",
     "shut",
-    "handle",
-    "lock",
-    "room",
+    "hollow",
+    "hollow-core",
+    "light",
+    "cheap",
+    "bedroom",
     "foley"
   ],
   "duration": "auto",
-  "seed": 22,
+  "seed": 31,
   "master": {
     "normalize": {
       "mode": "peak",
-      "target": -2
+      "target": -1.5
     }
   },
   "tracks": [
     {
-      "id": "scrape",
-      "note": "The bolt riding over the strike plate: a short brass scrape, speeding up.",
+      "id": "latch",
+      "note": "Both halves of the ka-chunk from one small mechanism: a tiny burst of noise through a short metallic resonator with a clustered chord, so each hit is a dense clack with no clean partial. First the bolt knocking back (higher, softer), then springing home (lower, louder).",
       "gain": -12,
       "source": {
-        "type": "modal",
-        "material": "metal",
-        "shape": "bar",
-        "freq": 1650,
-        "decay": 0.03,
-        "damping": 2.5,
-        "brightness": 0.5,
-        "modes": 12,
-        "dent": 0.3,
-        "exciter": {
-          "kind": "scrape",
-          "hardness": 0.6,
-          "duration": 0.045,
-          "density": [
-            [
-              0,
-              500
-            ],
-            [
-              0.045,
-              1400
-            ]
-          ],
-          "roughness": 0.8
+        "type": "noise",
+        "color": "white",
+        "env": {
+          "attack": 0.0003,
+          "decay": 0.012
+        },
+        "filter": {
+          "mode": "bandpass",
+          "cutoff": 3200,
+          "q": 0.7,
+          "keytrack": 1
+        },
+        "pitch": 0.528
+      },
+      "events": [
+        {
+          "t": 0,
+          "vel": 0.55,
+          "pitch": 5
+        },
+        {
+          "t": 0.027836,
+          "vel": 1,
+          "pitch": -2
         }
+      ],
+      "fx": [
+        {
+          "type": "resonator",
+          "id": "case",
+          "mode": "metal",
+          "freq": 1150,
+          "decay": 0.019337,
+          "brightness": 0.35,
+          "chord": [0, 2.3, 5.1, 8.6, 13.7],
+          "mix": 0.65
+        }
+      ],
+      "sends": {
+        "room": -15
       }
     },
     {
-      "id": "bolt",
-      "note": "The click: the sprung bolt snapping into the frame.",
-      "start": 0.05,
+      "id": "skin",
+      "note": "The thin door skin slapping the stop: a damped sheet of hardboard with crowded modes, hit flat with something soft, then a small bounce. The pock of the door.",
+      "start": 0.029944,
+      "gain": -0.648,
       "source": {
         "type": "modal",
-        "material": "metal",
-        "shape": "bar",
-        "freq": 1240,
-        "decay": 0.05,
-        "damping": 2.8,
-        "brightness": 0.55,
-        "modes": 14,
-        "dent": 0.25,
-        "position": 0.75,
+        "material": "cardboard",
+        "shape": "plate",
+        "variant": 11,
+        "freq": [[0, 186], [0.05, 170]],
+        "decay": 0.055,
+        "damping": 0.5,
+        "brightness": 0.7,
+        "modes": 64,
+        "stretch": 0.75,
+        "dent": 0.9,
+        "position": 0.55,
         "exciter": {
-          "kind": "mallet",
-          "hardness": 0.88
+          "kind": "noise",
+          "hardness": 0.4892,
+          "duration": 0.02
         }
       },
       "events": [
@@ -80,53 +101,77 @@
           "vel": 1
         },
         {
-          "t": 0.013,
-          "vel": 0.25,
-          "pitch": 1.2
+          "t": 0.034,
+          "vel": 0.35,
+          "pitch": 1
         }
       ],
       "sends": {
-        "room": -18
+        "room": -12
       }
     },
     {
-      "id": "leaf",
-      "note": "The door meeting its stop: one soft deep bump from the whole leaf and frame.",
-      "start": 0.054,
-      "gain": -9,
+      "id": "cavity",
+      "note": "The hollow inside the door answering the slap: a short burst of low noise ringing a stubby tube, the boxy colour that says the door is empty.",
+      "start": 0.030944,
+      "gain": -13.44,
       "source": {
-        "type": "modal",
-        "material": "wood",
-        "shape": "plate",
-        "freq": 93,
-        "decay": 0.19,
-        "damping": 1.7,
-        "brightness": 0.3,
-        "modes": 20,
-        "dent": 0.2,
-        "position": 0.9,
-        "exciter": {
-          "kind": "mallet",
-          "hardness": 0.35
+        "type": "noise",
+        "color": "pink",
+        "env": {
+          "attack": 0.002,
+          "decay": 0.05
+        },
+        "filter": {
+          "mode": "bandpass",
+          "cutoff": 330,
+          "q": 0.9
+        }
+      },
+      "fx": [
+        {
+          "type": "resonator",
+          "id": "box",
+          "mode": "tube",
+          "freq": 228,
+          "decay": 0.0537507,
+          "brightness": 0.2,
+          "chord": [0, 4.4],
+          "mix": 0.5584
+        },
+        {
+          "type": "filter",
+          "mode": "lowpass",
+          "cutoff": 1500,
+          "q": 0.6
+        }
+      ],
+      "sends": {
+        "room": -12
+      }
+    },
+    {
+      "id": "buzz",
+      "note": "The loose skin and the handle chattering against the frame after the hit: a thinning burst of small dull wooden and metal ticks.",
+      "start": 0.060268,
+      "gain": -17.184,
+      "source": {
+        "type": "particles",
+        "distribution": "burst",
+        "density": 420,
+        "duration": 0.109468,
+        "grain": {
+          "kind": "tick",
+          "lo": 420,
+          "hi": 1800,
+          "decayLo": 0.003,
+          "decayHi": 0.012,
+          "levelJitter": 10,
+          "size": 0.6
         }
       },
       "sends": {
-        "room": -15
-      }
-    },
-    {
-      "id": "spring",
-      "note": "The handle spring settling: a faint short zing.",
-      "start": 0.052,
-      "gain": -22,
-      "source": {
-        "type": "pluck",
-        "freq": 410,
-        "decay": 0.16,
-        "stiffness": 0.9,
-        "brightness": 0.8,
-        "position": 0.06,
-        "hardness": 0.8
+        "room": -16
       }
     }
   ],
@@ -136,157 +181,199 @@
       "fx": [
         {
           "type": "reverb",
+          "id": "space",
           "space": "room",
-          "size": 5,
-          "decay": 0.45
+          "size": 3.2,
+          "decay": 0.340679,
+          "damping": 0.718,
+          "early": 0.8,
+          "predelay": 2,
+          "lowcut": 110,
+          "highcut": 5000
         }
-      ]
+      ],
+      "gain": 0.4
     }
   ],
   "controls": [
     {
-      "id": "door",
-      "label": "Door",
-      "hint": "A light hollow door that pats shut, to a heavy solid one that thuds.",
-      "value": 0.45,
+      "id": "hollow",
+      "label": "Hollowness",
+      "hint": "A thin flat slap, to an empty boxy pock like knocking on the door.",
+      "value": 0.264,
       "vary": 0.05,
       "targets": [
         {
-          "path": "tracks.leaf.source.freq",
+          "path": "tracks.cavity.gain",
+          "from": -24,
+          "via": -4,
+          "to": 2
+        },
+        {
+          "path": "tracks.cavity.fx.box.decay",
+          "from": 0.04,
+          "via": 0.07,
+          "to": 0.14
+        },
+        {
+          "path": "tracks.cavity.fx.box.mix",
+          "from": 0.4,
+          "via": 0.7,
+          "to": 0.95,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "size",
+      "label": "Door size",
+      "hint": "A cupboard or wardrobe door, to a full-height room door.",
+      "value": 0.427,
+      "vary": 0.05,
+      "targets": [
+        {
+          "path": "tracks.skin.source.freq",
           "mode": "mul",
-          "from": 1.8,
-          "to": 0.55
+          "from": 1.6,
+          "to": 0.625
         },
         {
-          "path": "tracks.leaf.source.decay",
-          "mode": "set",
-          "from": 0.1,
-          "to": 0.36
+          "path": "tracks.skin.source.decay",
+          "mode": "mul",
+          "from": 0.7,
+          "to": 1.43
         },
         {
-          "path": "tracks.leaf.gain",
-          "mode": "set",
-          "from": -15,
-          "to": -3
+          "path": "tracks.cavity.fx.box.freq",
+          "mode": "mul",
+          "from": 1.6,
+          "to": 0.625
+        },
+        {
+          "path": "tracks.cavity.source.filter.cutoff",
+          "mode": "mul",
+          "from": 1.6,
+          "to": 0.625
         }
       ]
     },
     {
       "id": "push",
       "label": "Push",
-      "hint": "Eased shut so only the latch speaks, or pushed firmly home.",
-      "value": 0.5,
+      "hint": "Clicked gently to, or flicked shut so the door slaps and the two halves of the click run together.",
+      "value": 0.473,
       "vary": 0.08,
       "targets": [
         {
-          "path": "tracks.leaf.source.exciter.hardness",
-          "mode": "set",
-          "from": 0.15,
-          "to": 0.7
+          "path": "tracks.latch.events.1.t",
+          "from": 0.06,
+          "via": 0.026,
+          "to": 0.014
         },
         {
-          "path": "tracks.bolt.source.exciter.hardness",
-          "mode": "set",
-          "from": 0.6,
-          "to": 1
+          "path": "tracks.skin.start",
+          "from": 0.064,
+          "via": 0.028,
+          "to": 0.015
         },
         {
-          "path": "tracks.scrape.source.exciter.duration",
-          "mode": "set",
-          "from": 0.11,
-          "to": 0.02
+          "path": "tracks.cavity.start",
+          "from": 0.065,
+          "via": 0.029,
+          "to": 0.016
         },
         {
-          "path": "tracks.bolt.start",
-          "mode": "set",
-          "from": 0.115,
-          "to": 0.024
+          "path": "tracks.buzz.start",
+          "from": 0.1,
+          "via": 0.058,
+          "to": 0.04
         },
         {
-          "path": "tracks.leaf.start",
-          "mode": "set",
-          "from": 0.119,
-          "to": 0.028
+          "path": "tracks.skin.gain",
+          "from": -12,
+          "via": 0,
+          "to": 3
         },
         {
-          "path": "tracks.spring.start",
-          "mode": "set",
-          "from": 0.117,
-          "to": 0.026
+          "path": "tracks.skin.source.exciter.hardness",
+          "from": 0.3,
+          "via": 0.5,
+          "to": 0.75
         }
       ]
     },
     {
       "id": "latch",
       "label": "Latch",
-      "hint": "A small cupboard catch to a big old mortice lock.",
-      "value": 0.45,
-      "vary": 0.03,
+      "hint": "A tiny tinny catch, to a chunkier, duller mechanism.",
+      "value": 0.467,
+      "vary": 0.04,
       "targets": [
         {
-          "path": "tracks.bolt.source.pitch",
-          "mode": "set",
-          "from": 12,
-          "to": -13,
+          "path": "tracks.latch.source.pitch",
+          "from": 8,
+          "to": -8,
           "curve": "linear"
         },
         {
-          "path": "tracks.scrape.source.pitch",
-          "mode": "set",
-          "from": 9,
-          "to": -10,
-          "curve": "linear"
+          "path": "tracks.latch.fx.case.freq",
+          "mode": "mul",
+          "from": 1.6,
+          "to": 0.625
         },
         {
-          "path": "tracks.bolt.source.decay",
-          "mode": "set",
-          "from": 0.025,
-          "to": 0.12
+          "path": "tracks.latch.fx.case.decay",
+          "from": 0.012,
+          "via": 0.02,
+          "to": 0.045
         }
       ]
     },
     {
-      "id": "spring",
-      "label": "Spring",
-      "hint": "A dead latch, or a rattly handle whose spring zings.",
-      "value": 0.35,
+      "id": "buzz",
+      "label": "Rattle",
+      "hint": "A snug door, or one that chatters in its frame after it lands.",
+      "value": 0.496,
       "vary": 0.1,
       "targets": [
         {
-          "path": "tracks.spring.gain",
-          "mode": "set",
-          "from": -48,
-          "to": -6,
-          "curve": -0.377
+          "path": "tracks.buzz.gain",
+          "from": -40,
+          "via": -17,
+          "to": -6
         },
         {
-          "path": "tracks.scrape.gain",
-          "mode": "set",
-          "from": -24,
-          "to": -5,
-          "curve": -0.397
+          "path": "tracks.buzz.source.duration",
+          "from": 0.06,
+          "via": 0.11,
+          "to": 0.25
         }
       ]
     },
     {
       "id": "room",
       "label": "Room",
-      "hint": "Dry, or an empty room.",
-      "value": 0.35,
+      "hint": "Dry and close, a carpeted bedroom, or a bare landing.",
+      "value": 0.54,
       "targets": [
         {
-          "path": "tracks.bolt.sends.room",
-          "mode": "set",
-          "from": -40,
-          "to": -6,
-          "curve": -0.423
+          "path": "buses.room.gain",
+          "from": -30,
+          "via": 0,
+          "to": 5
         },
         {
-          "path": "tracks.leaf.sends.room",
-          "mode": "set",
-          "from": -40,
-          "to": -4,
-          "curve": -0.509
+          "path": "buses.room.fx.space.decay",
+          "from": 0.2,
+          "via": 0.32,
+          "to": 0.7
+        },
+        {
+          "path": "buses.room.fx.space.damping",
+          "from": 0.85,
+          "via": 0.75,
+          "to": 0.35,
+          "curve": "linear"
         }
       ]
     }

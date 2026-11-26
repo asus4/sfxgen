@@ -1,11 +1,23 @@
 {
   "format": "sfxgen/1",
   "name": "Firework rocket",
-  "description": "A rocket at a town display, watched from the square. 0 ms: the fuse lights and it leaves the tube with a short fizzing 'fsst'. 0 to 1.1 s: it climbs, screaming: a whistle (noise in a narrow pipe) that rises from 1.4 to 3.3 kHz with a fast warble and thins as it gets higher and farther. 1.1 to 1.3 s: silence. 1.3 s: the shell bursts 150 m up, a deep 'boomp' with a soft crack on it, already rounded by the distance. Then the stars: two seconds of crackling as they burn out, drifting down, and the bang coming back off the buildings.",
-  "tags": ["explosion", "firework", "rocket", "whistle", "celebration", "burst", "crackle", "sky", "festival"],
+  "description": "A rocket at a town display, watched from the square. The fuse lights and it leaves the tube with a short fizzing 'fsst'. It climbs, screaming: a whistle (noise in a narrow pipe) that rises with a fast warble and thins as it gets higher and farther. A moment of silence. Then the shell bursts high overhead: a broad, unpitched 'BOOM' of noise that opens bright and closes dark, a heavy hollow thump under it and, for a big shell, a deep rumble of pushed air rolling on after it. Then the stars, later the bigger the shell: a long spell of thick crackling spread across the sky as they burn out, drifting down, while the bang rolls back off the buildings round the square.",
+  "tags": [
+    "explosion",
+    "firework",
+    "rocket",
+    "whistle",
+    "celebration",
+    "burst",
+    "crackle",
+    "sky",
+    "festival"
+  ],
   "duration": "auto",
   "seed": 58,
-  "output": { "channels": 2 },
+  "output": {
+    "channels": 2
+  },
   "tracks": [
     {
       "id": "launch",
@@ -14,74 +26,299 @@
       "source": {
         "type": "noise",
         "color": "violet",
-        "env": { "attack": 0.003, "decay": 0.22 },
-        "filter": { "mode": "bandpass", "cutoff": [[0, 2500], [0.2, 6000]], "q": 0.8 }
+        "env": {
+          "attack": 0.003,
+          "decay": 0.22
+        },
+        "filter": {
+          "mode": "bandpass",
+          "cutoff": [[0, 2500], [0.2, 6000]],
+          "q": 0.8
+        }
       },
-      "fx": [{ "type": "resonator", "mode": "tube", "freq": 240, "decay": 0.12, "mix": 0.45 }]
+      "fx": [
+        {
+          "type": "resonator",
+          "mode": "tube",
+          "freq": 240,
+          "decay": 0.12,
+          "mix": 0.45
+        }
+      ]
     },
     {
       "id": "whistle",
-      "note": "The screamer: noise forced through a tube resonator that climbs. The 26 Hz warble is the whistle composition burning unevenly; the gain curve is the rocket getting farther away.",
+      "note": "The screamer: noise forced through a tube resonator that climbs. The fast warble is the whistle composition burning unevenly; the gain curve is the rocket getting farther away.",
       "start": 0.03,
-      "gain": -8.4,
-      "source": { "type": "noise", "color": "white", "env": { "attack": 0.03, "hold": 0.95, "decay": 0.12 } },
+      "gain": -21.6786,
+      "source": {
+        "type": "noise",
+        "color": "white",
+        "env": {
+          "attack": 0.03,
+          "hold": 0.95,
+          "decay": 0.12
+        }
+      },
       "fx": [
         {
           "type": "resonator",
           "id": "pipe",
           "mode": "tube",
-          "decay": 0.222,
+          "decay": 0.0888018,
           "brightness": 0.2,
-          "freq": { "env": [[0, 1400], [1.05, 3300, 0.3]], "mod": [{ "type": "lfo", "shape": "triangle", "rate": 26, "depth": 0.6, "unit": "st" }] }
+          "freq": {
+            "env": [[0, 1400], [1.05, 3300, 0.3]],
+            "mod": [
+              {
+                "type": "lfo",
+                "shape": "triangle",
+                "rate": 26,
+                "depth": 0.6,
+                "unit": "st"
+              }
+            ]
+          }
         },
-        { "type": "eq", "bands": [{ "mode": "lowcut", "freq": 900, "slope": "24" }, { "mode": "highcut", "freq": 9000 }] },
-        { "type": "gain", "gain": [[0, 0], [1.05, -14]] }
+        {
+          "type": "eq",
+          "bands": [
+            {
+              "mode": "lowcut",
+              "freq": 900,
+              "slope": "24"
+            },
+            {
+              "mode": "highcut",
+              "freq": 9000
+            }
+          ]
+        },
+        {
+          "type": "gain",
+          "gain": [[0, 0], [1.05, -14]]
+        }
       ],
-      "sends": { "square": -12 }
+      "sends": {
+        "square": -12
+      }
+    },
+    {
+      "id": "bang",
+      "note": "The shell breaking, the main event: a burst of white noise whose lowpass falls fast from bright to dark, saturated. Broadband, so it is a bang and not a drum; the `height` lowpass is the air between the shell and the square.",
+      "start": 1.3,
+      "gain": -3,
+      "source": {
+        "type": "noise",
+        "color": "white",
+        "env": {
+          "attack": 0.0005,
+          "hold": 0.006,
+          "decay": 0.36
+        },
+        "filter": {
+          "mode": "lowpass",
+          "q": 0.8,
+          "cutoff": {
+            "env": [[0, 7000], [0.03, 1700], [0.3, 220]],
+            "mod": [
+              {
+                "type": "wander",
+                "rate": 30,
+                "depth": 0.4,
+                "unit": "oct"
+              }
+            ]
+          }
+        }
+      },
+      "fx": [
+        {
+          "type": "drive",
+          "mode": "tanh",
+          "amount": 12
+        },
+        {
+          "type": "filter",
+          "id": "height",
+          "mode": "lowpass",
+          "cutoff": 2094.69
+        },
+        {
+          "type": "eq",
+          "bands": [
+            {
+              "mode": "lowcut",
+              "freq": 70,
+              "slope": "24"
+            }
+          ]
+        }
+      ],
+      "sends": {
+        "square": -5
+      }
     },
     {
       "id": "burst",
-      "note": "The shell breaking: a soft-edged boom high overhead. Membrane plus noise exciter gives thump and crack in one; the lowpass is 150 m of air.",
-      "start": 1.3,
-      "gain": 3,
+      "note": "The thump under the bang: a slack membrane pushed by a short burst of noise, damped so it sags and is soon gone. Weight only; it must not ring as a note.",
+      "start": 1.304,
+      "gain": 4.44039,
       "source": {
         "type": "modal",
         "material": "skin",
         "shape": "membrane",
         "freq": [[0, 150], [0.15, 92]],
-        "decay": 0.57,
-        "position": 0.4,
-        "brightness": 0.6,
-        "exciter": { "kind": "noise", "hardness": 0.8, "duration": 0.04 }
+        "decay": 0.704594,
+        "damping": 2.2,
+        "dent": 0.5,
+        "position": 0.5160163031684025,
+        "brightness": 0.5575670030381946,
+        "exciter": {
+          "kind": "noise",
+          "hardness": 0.8,
+          "duration": 0.08
+        }
       },
-      "fx": [{ "type": "drive", "mode": "tube", "amount": 12 }, { "type": "filter", "id": "height", "mode": "lowpass", "cutoff": 3420 }],
-      "sends": { "square": -5 }
+      "fx": [
+        {
+          "type": "drive",
+          "mode": "tube",
+          "amount": 21.490299479166648,
+          "tone": 5548.79499521849
+        },
+        {
+          "type": "filter",
+          "mode": "lowpass",
+          "cutoff": 1800
+        },
+        {
+          "type": "eq",
+          "bands": [
+            {
+              "mode": "lowcut",
+              "freq": 45,
+              "slope": "24"
+            }
+          ]
+        }
+      ],
+      "sends": {
+        "square": -12
+      }
+    },
+    {
+      "id": "boom",
+      "note": "The size of the shell: the deep push of air from a big break, a low rumble that rolls on under the bang and past it. A small shell hardly has it; Shell size brings it up.",
+      "start": 1.3,
+      "gain": -3.11922,
+      "sends": {
+        "square": -8
+      },
+      "source": {
+        "type": "noise",
+        "color": "brown",
+        "env": {
+          "attack": 0.004,
+          "hold": 0.03,
+          "decay": 1.4
+        },
+        "filter": {
+          "mode": "lowpass",
+          "q": 0.9,
+          "cutoff": [[0, 480], [0.25, 170], [1.2, 95]]
+        }
+      },
+      "fx": [
+        {
+          "type": "drive",
+          "mode": "tube",
+          "amount": 11
+        },
+        {
+          "type": "eq",
+          "bands": [
+            {
+              "mode": "lowcut",
+              "freq": 60,
+              "slope": "24"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "stars",
-      "note": "The stars burning out: crackle that starts thick right after the burst and thins for two seconds, spread across the sky.",
-      "start": 1.42,
-      "gain": -6.4,
+      "note": "The stars burning out (they catch later the bigger the shell), the signature of a firework: crackle that stays thick for a while after the burst and then thins, spread across the sky.",
+      "start": 2.06588,
+      "gain": 4.92587,
       "source": {
         "type": "particles",
-        "distribution": "burst",
-        "density": 363,
-        "duration": 1.94,
+        "distribution": "random",
+        "density": [[0, 700], [0.6, 400], [1.94, 40]],
+        "duration": 2.76088,
         "spread": 1,
-        "grain": { "kind": "crackle", "lo": 1500, "hi": 9000, "decayLo": 0.003, "decayHi": 0.03, "levelJitter": 20 }
+        "grain": {
+          "kind": "crackle",
+          "lo": 1500,
+          "hi": 9000,
+          "decayLo": 0.003,
+          "decayHi": 0.012,
+          "levelJitter": 20
+        }
       },
-      "fx": [{ "type": "filter", "mode": "lowpass", "cutoff": [[0, 11000], [2.2, 3500]] }],
-      "sends": { "square": -10 }
+      "fx": [
+        {
+          "type": "filter",
+          "mode": "lowpass",
+          "cutoff": [[0, 11000], [2.2, 3500]]
+        },
+        {
+          "type": "eq",
+          "bands": [
+            {
+              "mode": "lowcut",
+              "freq": 600,
+              "slope": "24"
+            }
+          ]
+        },
+        {
+          "type": "gain",
+          "id": "fade",
+          "gain": [[0, 0], [0.7, -3], [1.94, -22]]
+        }
+      ],
+      "sends": {
+        "square": -10
+      }
     }
   ],
   "buses": [
     {
       "id": "square",
       "fx": [
-        { "type": "delay", "time": 240, "feedback": 0.2, "tone": 1800, "mix": 0.5 },
-        { "type": "reverb", "id": "town", "space": "stairwell", "size": 45, "decay": 1.8, "damping": 0.6, "predelay": 40, "mix": 0.6 }
+        {
+          "type": "delay",
+          "time": 240,
+          "feedback": 0.3,
+          "tone": 1800,
+          "mix": 0.5
+        },
+        {
+          "type": "reverb",
+          "id": "town",
+          "space": "stairwell",
+          "size": 60,
+          "decay": 2.6,
+          "damping": 0.6,
+          "predelay": 40,
+          "bass": 0.4,
+          "lowcut": 150,
+          "mix": 0.6
+        }
       ],
-      "gain": -12
+      "gain": 3.51876
     }
   ],
   "controls": [
@@ -89,52 +326,214 @@
       "id": "height",
       "label": "Height",
       "hint": "A low garden rocket, bursting soon and bright, to a big shell high up: a longer climb and a duller, later boom.",
-      "value": 0.5,
+      "value": 0.7658274332682296,
       "targets": [
-        { "path": "tracks.whistle.source.env.hold", "mode": "mul", "from": 0.4, "to": 2.2 },
-        { "path": "tracks.whistle.fx.pipe.freq.env", "mode": "stretch", "from": 0.4, "to": 2.2 },
-        { "path": "tracks.whistle.fx.2.gain", "mode": "stretch", "from": 0.4, "to": 2.2 },
-        { "path": "tracks.burst.start", "mode": "mul", "from": 0.42, "to": 2.15 },
-        { "path": "tracks.stars.start", "mode": "mul", "from": 0.43, "to": 2.1 },
-        { "path": "tracks.burst.fx.height.cutoff", "from": 9000, "to": 1300 }
+        {
+          "path": "tracks.whistle.source.env.hold",
+          "mode": "mul",
+          "from": 0.4,
+          "via": 1,
+          "to": 2.2
+        },
+        {
+          "path": "tracks.whistle.fx.pipe.freq.env",
+          "mode": "stretch",
+          "from": 0.4,
+          "via": 1,
+          "to": 2.2
+        },
+        {
+          "path": "tracks.whistle.fx.2.gain",
+          "mode": "stretch",
+          "from": 0.4,
+          "via": 1,
+          "to": 2.2
+        },
+        {
+          "path": "tracks.bang.start",
+          "mode": "mul",
+          "from": 0.42,
+          "via": 1,
+          "to": 2.15
+        },
+        {
+          "path": "tracks.boom.start",
+          "mode": "mul",
+          "from": 0.42,
+          "via": 1,
+          "to": 2.15
+        },
+        {
+          "path": "tracks.burst.start",
+          "mode": "mul",
+          "from": 0.42,
+          "via": 1,
+          "to": 2.15
+        },
+        {
+          "path": "tracks.stars.start",
+          "mode": "mul",
+          "from": 0.43,
+          "via": 1,
+          "to": 2.1
+        },
+        {
+          "path": "tracks.bang.fx.height.cutoff",
+          "from": 11000,
+          "via": 3600,
+          "to": 1300
+        }
       ]
     },
     {
       "id": "size",
       "label": "Shell size",
-      "hint": "A small pop of colour to a chest-thumping aerial shell.",
-      "value": 0.5,
+      "hint": "A small pop of colour to a huge aerial shell: a longer, deeper bang, a rumble you feel, and a bigger sky of crackling stars that take longer to catch.",
+      "value": 0.8885993109809026,
       "vary": 0.08,
       "targets": [
-        { "path": "tracks.burst.source.freq", "mode": "mul", "from": 1.8, "to": 0.6 },
-        { "path": "tracks.burst.source.decay", "from": 0.25, "to": 1.3 }
+        {
+          "path": "tracks.bang.source.env",
+          "mode": "stretch",
+          "from": 0.4,
+          "via": 1,
+          "to": 3
+        },
+        {
+          "path": "tracks.bang.source.filter.cutoff",
+          "mode": "mul",
+          "from": 1.6,
+          "via": 1,
+          "to": 0.6
+        },
+        {
+          "path": "tracks.burst.source.freq",
+          "mode": "mul",
+          "from": 1.8,
+          "via": 1,
+          "to": 0.55
+        },
+        {
+          "path": "tracks.burst.source.decay",
+          "from": 0.15,
+          "via": 0.3,
+          "to": 0.9
+        },
+        {
+          "path": "tracks.burst.gain",
+          "from": -9,
+          "via": -1,
+          "to": 6
+        },
+        {
+          "path": "tracks.boom.gain",
+          "from": -36,
+          "via": -14,
+          "to": 0
+        },
+        {
+          "path": "tracks.boom.source.env",
+          "mode": "stretch",
+          "from": 0.5,
+          "via": 1,
+          "to": 1.8
+        },
+        {
+          "path": "tracks.stars.source.density",
+          "mode": "mul",
+          "from": 0.6,
+          "via": 1,
+          "to": 1.6
+        },
+        {
+          "path": "tracks.stars.gain",
+          "mode": "add",
+          "from": -6,
+          "via": 0,
+          "to": 4
+        },
+        {
+          "path": "tracks.stars.start",
+          "mode": "add",
+          "from": 0,
+          "via": 0.1,
+          "to": 0.38
+        }
       ]
     },
     {
       "id": "whistle",
       "label": "Whistle",
       "hint": "A silent climb, or a loud screaming one.",
-      "value": 0.6,
-      "targets": [{ "path": "tracks.whistle.gain", "from": -30, "to": 6 }, { "path": "tracks.whistle.fx.pipe.decay", "from": 0.05, "to": 0.6 }]
+      "value": 0.231148952907986,
+      "targets": [
+        {
+          "path": "tracks.whistle.gain",
+          "from": -30,
+          "to": 6
+        },
+        {
+          "path": "tracks.whistle.fx.pipe.decay",
+          "from": 0.05,
+          "to": 0.6
+        }
+      ]
     },
     {
       "id": "crackle",
       "label": "Crackle",
       "hint": "A plain burst, or a long glittering crackle of stars.",
-      "value": 0.55,
+      "value": 0.7438222249348962,
       "vary": 0.12,
       "targets": [
-        { "path": "tracks.stars.gain", "from": -24, "to": 8 },
-        { "path": "tracks.stars.source.duration", "from": 0.8, "to": 4 },
-        { "path": "tracks.stars.source.density", "from": 120, "to": 900 }
+        {
+          "path": "tracks.stars.gain",
+          "from": -30,
+          "via": 2,
+          "to": 8
+        },
+        {
+          "path": "tracks.stars.source.duration",
+          "from": 0.8,
+          "via": 1.94,
+          "to": 4
+        },
+        {
+          "path": "tracks.stars.fx.fade.gain",
+          "mode": "stretch",
+          "from": 0.4,
+          "via": 1,
+          "to": 2.06
+        },
+        {
+          "path": "tracks.stars.source.density",
+          "mode": "stretch",
+          "from": 0.4,
+          "via": 1,
+          "to": 2.06
+        },
+        {
+          "path": "tracks.stars.source.density",
+          "mode": "mul",
+          "from": 0.4,
+          "via": 1,
+          "to": 2
+        }
       ]
     },
     {
       "id": "square",
       "label": "Town",
       "hint": "Open field to a square ringed with buildings throwing the bang back.",
-      "value": 0.5,
-      "targets": [{ "path": "buses.square.gain", "mode": "set", "from": -30, "to": 6 }]
+      "value": 0.9310767279730899,
+      "targets": [
+        {
+          "path": "buses.square.gain",
+          "mode": "set",
+          "from": -30,
+          "to": 6
+        }
+      ]
     }
   ]
 }

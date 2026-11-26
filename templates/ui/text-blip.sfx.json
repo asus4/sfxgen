@@ -1,17 +1,8 @@
 {
   "format": "sfxgen/1",
   "name": "Text blip",
-  "description": "One syllable of a small character talking, for dialogue that types itself out: a 55 ms voiced \"eh\" from a tiny throat, its pitch dipping a little as it stops. Trigger one per letter with variations and the Pitch and Vowel controls wander into babble.",
-  "tags": [
-    "ui",
-    "text",
-    "typing",
-    "dialogue",
-    "blip",
-    "voice",
-    "talk",
-    "babble"
-  ],
+  "description": "One syllable of a small character talking, for dialogue that types itself out: a short voiced \"eh\" from a tiny throat, its pitch dipping a little as it stops. Trigger one per letter with variations and the Pitch and Vowel controls wander into babble.",
+  "tags": ["ui", "text", "typing", "dialogue", "blip", "voice", "talk", "babble"],
   "duration": "auto",
   "seed": 14,
   "tracks": [
@@ -20,26 +11,17 @@
       "note": "The whole sound: a throat, not a beep, so each character can have a voice.",
       "source": {
         "type": "voice",
-        "freq": [
-          [
-            0,
-            340
-          ],
-          [
-            0.05,
-            300
-          ]
-        ],
+        "freq": [[0, 340], [0.05, 300]],
         "vowel": 1,
-        "size": 0.6,
-        "resonance": 1.4,
-        "tension": 0.75,
+        "size": 0.667066,
+        "resonance": 1.23586,
+        "tension": 0.475,
         "breath": 0.08,
-        "jitter": 0.5,
+        "jitter": 0.675,
         "shimmer": 0.3,
         "env": {
           "attack": 0.004,
-          "gate": 0.04,
+          "gate": 0.0525,
           "release": 0.02
         }
       }

@@ -1,111 +1,93 @@
 {
   "format": "sfxgen/1",
   "name": "Cave drip",
-  "description": "Deep in a limestone cave, water gathers on a stalactite and falls two metres into a still pool: three drops (at 0, about 0.75 and 1.5 s, never quite on time), each a clear \"plink\" whose pitch flicks upward as the bubble closes, with a fainter secondary drip 60 ms after. The cave answers each one with an echo off the far wall 280 ms later and a long dark tail.",
-  "tags": [
-    "nature",
-    "water",
-    "drip",
-    "drop",
-    "cave",
-    "echo",
-    "dungeon",
-    "ambience"
-  ],
+  "description": "Deep in a limestone cave, water gathers on a stalactite and falls into a still pool: three drops, the gaps between them growing and never equal, no two the same size. Each is a small wet slap on the surface, the \"plink\" of the bubble it drags under (its pitch flicking upward as the bubble closes) and, a moment later, the smaller droplets it threw up landing around it. The cave answers each one with an echo off the far wall and a long dark wash.",
+  "tags": ["nature", "water", "drip", "drop", "cave", "echo", "dungeon", "ambience"],
   "duration": "auto",
   "maxDuration": 6,
-  "seed": 6,
+  "seed": 30,
   "tracks": [
     {
       "id": "drop",
-      "note": "The drops: one tuned bubble per event, pitch rising within 30 ms. Each is a slightly different size.",
+      "note": "The bubble each drop drags under: a short sine ring whose pitch dips slightly, then flicks upward. Every drop is a different size, so a different note and level: equal plinks read as a sonar.",
       "repeat": {
         "count": 3,
-        "interval": 0.76,
-        "jitter": 0.06,
-        "pitchJitter": 1.6,
-        "velJitter": 0.3
+        "interval": 0.614863,
+        "accel": 1.17,
+        "pitchJitter": 6,
+        "velJitter": 0.45
       },
       "sends": {
-        "cave": -1
+        "cave": -9
       },
       "source": {
         "type": "osc",
         "wave": "sine",
-        "freq": [
-          [
-            0,
-            1180
-          ],
-          [
-            0.012,
-            1050
-          ],
-          [
-            0.045,
-            2050
-          ]
-        ],
+        "freq": [[0, 1010], [0.012, 930], [0.05, 1720]],
         "env": {
-          "attack": 0.0008,
-          "decay": 0.075
-        }
-      }
+          "attack": 0.0015,
+          "decay": 0.0679841
+        },
+        "pitch": 0.55
+      },
+      "gain": -3,
+      "start": 0.004
     },
     {
       "id": "after",
-      "note": "The small droplet thrown up by the first one, landing 60 ms later: higher and much quieter. Without it the drops sound synthetic.",
+      "note": "The droplets thrown up by the impact, landing just behind each drop: a handful of smaller, higher bubbles. They share the drop's timing, so they stay attached to it at any rate.",
       "start": 0.062,
-      "gain": 3,
+      "gain": -5,
       "repeat": {
         "count": 3,
-        "interval": 0.76,
-        "jitter": 0.07,
+        "interval": 0.614863,
+        "accel": 1.17,
         "pitchJitter": 3,
-        "velJitter": 0.5
+        "velJitter": 0.4
       },
       "sends": {
-        "cave": -1
+        "cave": -4
       },
       "source": {
         "type": "particles",
         "distribution": "burst",
-        "density": 60,
-        "duration": 0.06,
+        "density": 190,
+        "duration": 0.11,
         "grain": {
           "kind": "drop",
-          "lo": 2400,
-          "hi": 4200,
-          "decayLo": 0.01,
+          "lo": 1700,
+          "hi": 4600,
+          "decayLo": 0.008,
           "decayHi": 0.03,
-          "levelJitter": 10
+          "levelJitter": 9,
+          "size": 0.6
         }
       }
     },
     {
       "id": "surface",
-      "note": "The slap on the water surface: a 5 ms tick of dark noise at each impact, giving the drop a body.",
-      "gain": -2,
+      "note": "The slap on the water surface: a very short burst of wet noise at each impact, darkening as it dies, just ahead of the bubble. It is what makes the plink water and not a tone.",
+      "gain": 0,
       "repeat": {
         "count": 3,
-        "interval": 0.76,
-        "jitter": 0.06,
-        "velJitter": 0.3
+        "interval": 0.614863,
+        "accel": 1.17,
+        "velJitter": 0.35
       },
       "sends": {
-        "cave": -8
+        "cave": -6
       },
       "source": {
         "type": "noise",
         "color": "pink",
         "env": {
-          "attack": 0.0003,
-          "decay": 0.02
+          "attack": 0.0004,
+          "decay": 0.04
         },
         "filter": {
           "mode": "bandpass",
-          "cutoff": 900,
-          "q": 0.8
+          "cutoff": [[0, 3200], [0.03, 1300]],
+          "q": 0.6
         }
       }
     }
@@ -117,19 +99,23 @@
         {
           "id": "wall",
           "type": "delay",
-          "time": 280,
-          "feedback": 0.3,
-          "tone": 2600,
+          "time": 216.333,
+          "feedback": 0.26,
+          "tone": 2000,
           "highpass": 300,
-          "mix": 0.45
+          "mix": 0.4
         },
         {
           "id": "space",
           "type": "reverb",
           "space": "cave",
-          "decay": 3.2
+          "decay": 2.36643,
+          "damping": 0.8,
+          "highcut": 3800,
+          "predelay": 25
         }
-      ]
+      ],
+      "gain": -7.4
     }
   ],
   "controls": [
@@ -149,16 +135,18 @@
         {
           "path": "tracks.drop.source.env.decay",
           "mode": "set",
-          "from": 0.045,
-          "to": 0.14
+          "from": 0.04,
+          "to": 0.13
         },
         {
           "path": "tracks.surface.gain",
           "mode": "set",
           "from": -14,
-          "to": 6
+          "via": 0,
+          "to": 5
         }
-      ]
+      ],
+      "default": 0.45
     },
     {
       "id": "rate",
@@ -230,9 +218,18 @@
           "path": "tracks.after.gain",
           "mode": "set",
           "from": -24,
-          "to": 12
+          "via": -5,
+          "to": 10
+        },
+        {
+          "path": "tracks.after.source.density",
+          "mode": "set",
+          "from": 60,
+          "via": 190,
+          "to": 420
         }
-      ]
+      ],
+      "default": 0.4
     }
   ]
 }

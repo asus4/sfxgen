@@ -205,6 +205,57 @@ group('analyze', () => {
   });
 });
 
+group('events and pulse', () => {
+  it('counts eight steps of heel and toe as eight events, with the step as the pulse', () => {
+    // Eight steps 0.5 s apart, each a loud heel and a softer toe 80 ms later: 16 sharp onsets, 8 steps.
+    const n = Math.round(4 * SR);
+    const x = new Float32Array(n);
+    const hit = (t: number, amp: number) => {
+      const s = Math.round(t * SR);
+      for (let i = 0; i < Math.round(0.06 * SR) && s + i < n; i++) x[s + i] += amp * Math.exp(-i / (0.012 * SR)) * Math.sin((2 * Math.PI * 900 * i) / SR);
+    };
+    for (let k = 0; k < 8; k++) {
+      hit(k * 0.5 + (k % 2 ? 0.01 : 0), k % 3 ? 0.8 : 1);
+      hit(k * 0.5 + 0.08, 0.35);
+    }
+    const a = analyze([x], SR);
+    expect(a.events).toHaveLength(8);
+    a.events.forEach((t, k) => expect(Math.abs(t - k * 0.5)).toBeLessThan(0.02));
+    expect(a.pulseSeconds).toBeCloseTo(0.5, 1);
+    expect(a.pulseStrength).toBeGreaterThan(0.45);
+  });
+
+  it('finds no pulse in a single hit', () => {
+    const a = analyze([tone(440, 0.4, 1, { fadeMs: 300 })], SR);
+    expect(a.pulseSeconds).toBe(0);
+  });
+});
+
+group('the end of a sound', () => {
+  it('does not call a sparse sound cut off when its last tick lands near the end and dies', () => {
+    const r = render({
+      format: 'sfxgen/1',
+      name: 'burst',
+      duration: 'auto',
+      seed: 3,
+      tracks: [{ id: 'a', source: { type: 'particles', distribution: 'burst', density: 240, duration: 1, grain: { kind: 'modal', material: 'stone', shape: 'random' } } }],
+    } as Patch);
+    const a = analyze(r.channels, r.sampleRate);
+    expect(a.tailDb).toBeLessThan(-30);
+    expect(describeLines(a).join('\n')).not.toMatch(/cut off/);
+  });
+
+  it('still calls a sound cut off when it is going on at the end', () => {
+    // Steady noise with only a 5 ms fade at the end, as a render cut short gets.
+    const x = noise(0.5, 0.2);
+    const fade = Math.round(0.005 * SR);
+    for (let i = 0; i < fade; i++) x[x.length - 1 - i] *= i / fade;
+    const a = analyze([x], SR);
+    expect(a.tailDb).toBeGreaterThan(-10);
+    expect(describeLines(a).join('\n')).toMatch(/cut off/);
+  });
+});
+
 group('spectrogram', () => {
   it('renders 900x360 by default and explains itself', () => {
     const img = spectrogram([tone(1000, 0.3, 0.5, { fadeMs: 5 })], SR);

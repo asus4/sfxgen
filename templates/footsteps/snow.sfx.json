@@ -1,163 +1,175 @@
 {
   "format": "sfxgen/1",
-  "name": "Footstep: snow",
-  "description": "One step in ankle-deep cold snow on a still winter day. No impact at all: the boot presses down over 180 ms and the snow compacts with a creaking, squeaking crunch that swells as the weight comes on and stops when the foot is down; under it a soft muffled whumpf; then 60 ms of fine crystals falling back into the print. Close, dead, no echo: snow swallows everything. Use the variations for a walk.",
+  "name": "Footsteps: snow",
+  "description": "A loop of eight steps in boots through deep fresh snow on a still winter day, at a slow, careful walk. No impact anywhere: each step is a soft press, the weight sinking into the pack in a few pushes as the heel, the ball and the toe go down, and no two alike: one stops short, the next settles on and on, thick or sparse. A muffled low whumpf carries most of it, with a fine, quiet, grainy crunch of compacting snow over it that swells with each push; after it a few loose crystals trickle back into the print. Every step is a different handful of grains, left and right feet weigh differently, each is a little bigger or smaller, earlier or later; on a few steps the boot breaks through a thin frozen crust with faint brittle snaps, twice it brushes through the surface on its way forward, and a little powder comes off the toe. Snow swallows sound, so it is close and dead with no echo. Speed takes it from a slow trudge to a run: quicker, shorter, harder presses and snow kicked up behind nearly every stride. The loop is exactly eight step intervals long and wraps, so it repeats without a seam.",
   "tags": [
     "footstep",
-    "step",
+    "footsteps",
+    "steps",
+    "loop",
     "snow",
     "crunch",
     "winter",
     "walk",
+    "run",
     "cold",
-    "squeak",
+    "outdoor",
     "foley"
   ],
-  "duration": "auto",
+  "duration": 10.2594,
+  "loop": {
+    "mode": "wrap"
+  },
   "seed": 27,
   "tracks": [
     {
-      "id": "squeak",
-      "note": "Snow compacting: crackling noise through a narrow resonance that slides down as the snow packs. The creak of cold snow.",
-      "source": {
-        "type": "noise",
-        "color": "crackle",
-        "density": [
-          [
-            0,
-            2600
-          ],
-          [
-            0.12,
-            5200
-          ],
-          [
-            0.2,
-            900
-          ]
-        ],
-        "env": {
-          "points": [
-            [
-              0,
-              0
-            ],
-            [
-              0.02,
-              0.45
-            ],
-            [
-              0.12,
-              1
-            ],
-            [
-              0.185,
-              0.5
-            ],
-            [
-              0.22,
-              0
-            ]
-          ],
-          "curve": "linear"
-        },
-        "filter": {
-          "mode": "bandpass",
-          "cutoff": [
-            [
-              0,
-              2500
-            ],
-            [
-              0.1,
-              1650
-            ],
-            [
-              0.2,
-              1250
-            ]
-          ],
-          "q": 3.2
-        }
-      },
-      "fx": [
-        {
-          "type": "drive",
-          "mode": "soft",
-          "amount": 6
-        }
-      ]
-    },
-    {
       "id": "crunch",
-      "note": "The crust and grains breaking under the sole: many small dull ticks, thickest in the middle of the step.",
-      "gain": -5,
+      "note": "The snow compacting under the sole: a mass of tiny ice bonds giving way, a fine, quiet, grainy crunch. Its density wanders freely within each step and differs from step to step. Fine grains, not pops: separate loud clicks turn snow into gravel.",
+      "gain": -10.4414,
+      "repeat": {
+        "count": 8,
+        "interval": 1.28242,
+        "jitter": 0.0294141,
+        "velJitter": 0.22,
+        "pitchJitter": 1.2,
+        "accents": [1, 0.8, 0.95, 0.74, 1, 0.86, 0.9, 0.7],
+        "group": "step"
+      },
       "source": {
         "type": "particles",
         "distribution": "random",
-        "density": [
-          [
-            0,
-            150
-          ],
-          [
-            0.1,
-            520
-          ],
-          [
-            0.2,
-            60
+        "density": {
+          "env": [[0, 300], [0.06, 1400], [0.3, 1000], [0.44, 80]],
+          "mod": [
+            {
+              "type": "wander",
+              "rate": 9,
+              "depth": 9,
+              "unit": "st"
+            }
           ]
-        ],
-        "duration": 0.21,
+        },
+        "duration": 0.520998,
         "grain": {
-          "kind": "crackle",
-          "lo": 500,
-          "hi": 3600,
-          "decayLo": 0.004,
-          "decayHi": 0.02,
-          "levelJitter": 20
+          "kind": "tick",
+          "lo": 900,
+          "hi": 2469.21,
+          "decayLo": 0.001,
+          "decayHi": 0.005,
+          "levelJitter": 8.73632
         },
         "env": {
-          "attack": 0.02,
-          "hold": 0.13,
-          "decay": 0.1
+          "attack": 0.03,
+          "hold": 0.328979,
+          "decay": 0.14
         }
       }
     },
     {
       "id": "whumpf",
-      "note": "The weight going into the snow pack: a soft low push, no attack.",
-      "gain": -13,
+      "note": "The heel and the ball of the foot going into the snow pack: a soft, muffled low press with no attack. Its pushes and its colour are drawn fresh every step (a random flutter on the level, a wandering filter), so no two presses are alike.",
+      "gain": -1.55104,
+      "repeat": {
+        "count": 8,
+        "interval": 1.28242,
+        "jitter": 0.0294141,
+        "velJitter": 0.22,
+        "pitchJitter": 1.2,
+        "accents": [1, 0.8, 0.95, 0.74, 1, 0.86, 0.9, 0.7],
+        "group": "step"
+      },
       "source": {
         "type": "noise",
         "color": "brown",
         "env": {
-          "attack": 0.035,
-          "hold": 0.04,
-          "decay": 0.2
+          "points": [[0, 0], [0.045, 0.8], [0.1, 0.55], [0.16, 1], [0.24, 0.55], [0.32, 0]],
+          "curve": "linear"
         },
         "filter": {
           "mode": "bandpass",
-          "cutoff": [
-            [
-              0,
-              260
-            ],
-            [
-              0.2,
-              120
+          "cutoff": {
+            "env": [[0, 230], [0.16, 170], [0.32, 125]],
+            "mod": [
+              {
+                "type": "wander",
+                "rate": 5,
+                "depth": 5,
+                "unit": "st"
+              }
             ]
-          ],
-          "q": 0.8
+          },
+          "q": 0.9,
+          "keytrack": 1
         }
-      }
+      },
+      "fx": [
+        {
+          "type": "filter",
+          "mode": "highpass",
+          "cutoff": 65
+        },
+        {
+          "type": "tremolo",
+          "shape": "random",
+          "rate": 11,
+          "depth": 0.5
+        }
+      ]
+    },
+    {
+      "id": "sink",
+      "note": "The foot settling deeper as the weight rolls onto the toe: a random handful of low, soft pushes (puffs of low band noise), sometimes none and sometimes several, landing anywhere in the moments after. How many there are and where they fall is drawn fresh each step, so some steps stop short and others sink on and on, thick or sparse. Louder steps sink further.",
+      "start": 0.128828,
+      "gain": -2.02917,
+      "repeat": {
+        "count": 8,
+        "interval": 1.28242,
+        "jitter": 0.0294141,
+        "velJitter": 0.22,
+        "pitchJitter": 1.2,
+        "accents": [1, 0.8, 0.95, 0.74, 1, 0.86, 0.9, 0.7],
+        "group": "step"
+      },
+      "source": {
+        "type": "particles",
+        "gain": 0,
+        "distribution": "random",
+        "density": [[0, 9], [0.12, 16], [0.3, 10], [0.5, 2]],
+        "duration": 0.5,
+        "velDensity": 1,
+        "grain": {
+          "kind": "grain",
+          "tone": 0,
+          "lo": 70,
+          "hi": 220,
+          "decayLo": 0.05,
+          "decayHi": 0.14,
+          "levelJitter": 9,
+          "size": 0.6
+        }
+      },
+      "fx": [
+        {
+          "type": "filter",
+          "mode": "highpass",
+          "cutoff": 60
+        }
+      ]
     },
     {
       "id": "crystals",
-      "note": "Loose crystals falling back into the footprint after the step.",
-      "start": 0.2,
-      "gain": -19,
+      "note": "Loose crystals trickling back into the footprint once the foot is down.",
+      "start": 0.624141,
+      "gain": -16.5365,
+      "repeat": {
+        "count": 8,
+        "interval": 1.28242,
+        "jitter": 0.0294141,
+        "velJitter": 0.22,
+        "pitchJitter": 1.2,
+        "accents": [1, 0.8, 0.95, 0.74, 1, 0.86, 0.9, 0.7],
+        "group": "step"
+      },
       "source": {
         "type": "particles",
         "distribution": "burst",
@@ -177,6 +189,99 @@
           "decay": 0.09
         }
       }
+    },
+    {
+      "id": "crust",
+      "note": "Only on some steps: the boot breaks through a frozen crust, a few sharp brittle snaps as the plate gives, just as the foot lands.",
+      "start": 0.012,
+      "gain": -16.335,
+      "repeat": {
+        "count": 8,
+        "interval": 1.28242,
+        "jitter": 0.0294141,
+        "velJitter": 0.22,
+        "pitchJitter": 1.2,
+        "accents": [0, 0, 1, 0, 0, 0.55, 0, 0.8],
+        "group": "step"
+      },
+      "source": {
+        "type": "particles",
+        "distribution": "burst",
+        "density": 280.53,
+        "duration": 0.075,
+        "grain": {
+          "kind": "crackle",
+          "lo": 1300,
+          "hi": 6500,
+          "decayLo": 0.003,
+          "decayHi": 0.03,
+          "levelJitter": 26,
+          "size": 0.8
+        },
+        "env": {
+          "attack": 0.001,
+          "hold": 0.05,
+          "decay": 0.08
+        }
+      }
+    },
+    {
+      "id": "powder",
+      "note": "Snow kicked up off the toe as the foot leaves: a soft bright puff that falls away. Faint and uneven at a walk; thrown on nearly every stride at a run.",
+      "start": 0.672969,
+      "gain": -33.7656,
+      "repeat": {
+        "count": 8,
+        "interval": 1.28242,
+        "jitter": 0.0394141,
+        "velJitter": 0.3,
+        "pitchJitter": 1.5,
+        "accents": [0.3, 0.9, 0, 0.6, 1, 0.4, 0.75, 0],
+        "group": "kick"
+      },
+      "source": {
+        "type": "noise",
+        "color": "white",
+        "env": {
+          "points": [[0, 0], [0.03, 1], [0.09, 0.35], [0.2, 0]],
+          "curve": "linear"
+        },
+        "filter": {
+          "mode": "bandpass",
+          "cutoff": [[0, 6500], [0.2, 3200]],
+          "q": 0.7,
+          "keytrack": 1
+        }
+      }
+    },
+    {
+      "id": "drag",
+      "note": "Only on a couple of walking steps: the boot drags through the top of the snow on its way forward, a soft swish before it lands. Gone at a run.",
+      "start": 0.965938,
+      "gain": -25.6758,
+      "repeat": {
+        "count": 8,
+        "interval": 1.28242,
+        "jitter": 0.0394141,
+        "velJitter": 0.3,
+        "pitchJitter": 1.5,
+        "accents": [0, 0, 0, 0.8, 0, 0, 1, 0],
+        "group": "drag"
+      },
+      "source": {
+        "type": "noise",
+        "color": "pink",
+        "env": {
+          "points": [[0, 0], [0.08, 1], [0.12, 0.6], [0.16, 0]],
+          "curve": "linear"
+        },
+        "filter": {
+          "mode": "bandpass",
+          "cutoff": [[0, 900], [0.14, 2100]],
+          "q": 1.1,
+          "keytrack": 1
+        }
+      }
     }
   ],
   "master": {
@@ -186,7 +291,7 @@
         "bands": [
           {
             "mode": "highcut",
-            "freq": 9500,
+            "freq": 9113.48,
             "slope": "12"
           }
         ]
@@ -195,34 +300,276 @@
   },
   "controls": [
     {
-      "id": "cold",
-      "label": "Cold",
-      "hint": "Wet slushy snow that squelches dully, to dry powder at -20 that squeaks.",
-      "value": 0.6,
-      "vary": 0.04,
+      "id": "speed",
+      "label": "Speed",
+      "hint": "From a slow trudge to a run: steps close up and land harder and shorter, and snow is kicked up behind each stride.",
+      "value": 0.16757812500000002,
+      "default": 0.3,
       "targets": [
         {
-          "path": "tracks.squeak.gain",
+          "path": "duration",
           "mode": "set",
-          "from": -18,
-          "to": 4
+          "from": 11.6,
+          "via": 9.2,
+          "to": 2.64,
+          "curve": "linear"
         },
         {
-          "path": "tracks.squeak.source.filter.q",
+          "path": "tracks.crunch.repeat.interval",
           "mode": "set",
-          "from": 1,
-          "to": 6
+          "from": 1.45,
+          "via": 1.15,
+          "to": 0.33,
+          "curve": "linear"
         },
         {
-          "path": "tracks.squeak.source.filter.cutoff",
+          "path": "tracks.whumpf.repeat.interval",
+          "mode": "set",
+          "from": 1.45,
+          "via": 1.15,
+          "to": 0.33,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.crystals.repeat.interval",
+          "mode": "set",
+          "from": 1.45,
+          "via": 1.15,
+          "to": 0.33,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.crust.repeat.interval",
+          "mode": "set",
+          "from": 1.45,
+          "via": 1.15,
+          "to": 0.33,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.powder.repeat.interval",
+          "mode": "set",
+          "from": 1.45,
+          "via": 1.15,
+          "to": 0.33,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.drag.repeat.interval",
+          "mode": "set",
+          "from": 1.45,
+          "via": 1.15,
+          "to": 0.33,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.crunch.repeat.jitter",
+          "mode": "set",
+          "from": 0.035,
+          "via": 0.025,
+          "to": 0.009,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.whumpf.repeat.jitter",
+          "mode": "set",
+          "from": 0.035,
+          "via": 0.025,
+          "to": 0.009,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.sink.repeat.interval",
+          "mode": "set",
+          "from": 1.45,
+          "via": 1.15,
+          "to": 0.33,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.sink.repeat.jitter",
+          "mode": "set",
+          "from": 0.035,
+          "via": 0.025,
+          "to": 0.009,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.sink.start",
+          "mode": "set",
+          "from": 0.14,
+          "via": 0.12,
+          "to": 0.05,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.sink.source.duration",
           "mode": "mul",
-          "from": 0.6,
-          "to": 1.5
+          "from": 1.15,
+          "via": 1,
+          "to": 0.45
         },
+        {
+          "path": "tracks.sink.source.density",
+          "mode": "stretch",
+          "from": 1.15,
+          "via": 1,
+          "to": 0.45
+        },
+        {
+          "path": "tracks.crystals.repeat.jitter",
+          "mode": "set",
+          "from": 0.035,
+          "via": 0.025,
+          "to": 0.009,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.crust.repeat.jitter",
+          "mode": "set",
+          "from": 0.035,
+          "via": 0.025,
+          "to": 0.009,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.powder.repeat.jitter",
+          "mode": "set",
+          "from": 0.045,
+          "via": 0.035,
+          "to": 0.012,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.drag.repeat.jitter",
+          "mode": "set",
+          "from": 0.045,
+          "via": 0.035,
+          "to": 0.012,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.crystals.start",
+          "mode": "set",
+          "from": 0.68,
+          "via": 0.58,
+          "to": 0.15,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.powder.start",
+          "mode": "set",
+          "from": 0.74,
+          "via": 0.62,
+          "to": 0.15,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.drag.start",
+          "mode": "set",
+          "from": 1.1,
+          "via": 0.86,
+          "to": 0.2,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.crunch.source.duration",
+          "mode": "mul",
+          "from": 1.12,
+          "to": 0.55,
+          "via": 1
+        },
+        {
+          "path": "tracks.crunch.source.density",
+          "mode": "stretch",
+          "from": 1.12,
+          "to": 0.55,
+          "via": 1
+        },
+        {
+          "path": "tracks.crunch.source.env.hold",
+          "mode": "mul",
+          "from": 1.12,
+          "to": 0.5,
+          "via": 1
+        },
+        {
+          "path": "tracks.crunch.source.density",
+          "mode": "mul",
+          "from": 0.9,
+          "to": 1.5,
+          "via": 1
+        },
+        {
+          "path": "tracks.crunch.source.grain.lo",
+          "mode": "mul",
+          "from": 1.05,
+          "to": 0.7,
+          "via": 1
+        },
+        {
+          "path": "tracks.crunch.gain",
+          "mode": "set",
+          "from": -11,
+          "via": -10,
+          "to": -6,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.whumpf.gain",
+          "mode": "add",
+          "from": -2,
+          "to": 5,
+          "via": 0
+        },
+        {
+          "path": "tracks.whumpf.source.filter.cutoff",
+          "mode": "mul",
+          "from": 1.08,
+          "to": 0.88,
+          "via": 1
+        },
+        {
+          "path": "tracks.whumpf.source.env",
+          "mode": "stretch",
+          "from": 1.15,
+          "via": 1,
+          "to": 0.5
+        },
+        {
+          "path": "tracks.whumpf.source.filter.cutoff",
+          "mode": "stretch",
+          "from": 1.15,
+          "via": 1,
+          "to": 0.5
+        },
+        {
+          "path": "tracks.powder.gain",
+          "from": -36,
+          "via": -32,
+          "to": -12,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.drag.gain",
+          "from": -24,
+          "via": -27,
+          "to": -36,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "cold",
+      "label": "Cold",
+      "hint": "Wet, heavy snow that sounds dull and close, to dry powder with a bright, crisp crunch.",
+      "value": 0.5728006998697915,
+      "default": 0.6,
+      "targets": [
         {
           "path": "master.fx.0.bands.0.freq",
-          "mode": "set",
           "from": 3800,
+          "via": 9500,
           "to": 15000
         }
       ]
@@ -230,106 +577,171 @@
     {
       "id": "depth",
       "label": "Depth",
-      "hint": "A dusting over hard ground, or knee-deep drifts: a longer, lower press.",
-      "value": 0.5,
-      "vary": 0.07,
+      "hint": "A dusting over hard ground, or knee-deep drifts: each step a longer, lower press.",
+      "value": 0.7463541666666664,
+      "default": 0.5,
       "targets": [
         {
-          "path": "tracks.squeak.source.env",
-          "mode": "stretch",
-          "from": 0.55,
-          "to": 1.9
-        },
-        {
-          "path": "tracks.squeak.source.filter.cutoff",
-          "mode": "stretch",
-          "from": 0.55,
-          "to": 1.9
-        },
-        {
-          "path": "tracks.squeak.source.density",
-          "mode": "stretch",
-          "from": 0.55,
-          "to": 1.9
-        },
-        {
           "path": "tracks.crunch.source.duration",
-          "mode": "set",
-          "from": 0.11,
-          "to": 0.4
+          "from": 0.24,
+          "via": 0.44,
+          "to": 0.62
         },
         {
           "path": "tracks.crunch.source.env.hold",
-          "mode": "set",
-          "from": 0.05,
-          "to": 0.3
+          "from": 0.1,
+          "via": 0.26,
+          "to": 0.4
         },
         {
           "path": "tracks.whumpf.gain",
-          "mode": "set",
-          "from": -22,
-          "to": -7
+          "from": -14,
+          "via": -5,
+          "to": 2
         },
         {
           "path": "tracks.crystals.start",
+          "mode": "mul",
+          "from": 0.7,
+          "to": 1.4,
+          "via": 1
+        },
+        {
+          "path": "tracks.crystals.gain",
+          "from": -26,
+          "via": -19,
+          "to": -14
+        },
+        {
+          "path": "tracks.whumpf.source.env",
+          "mode": "stretch",
+          "from": 0.6,
+          "via": 1,
+          "to": 1.35
+        },
+        {
+          "path": "tracks.sink.gain",
           "mode": "set",
-          "from": 0.11,
-          "to": 0.39
+          "from": -20,
+          "via": -4,
+          "to": 0,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.sink.source.duration",
+          "mode": "mul",
+          "from": 0.5,
+          "via": 1,
+          "to": 1.5
+        },
+        {
+          "path": "tracks.sink.source.density",
+          "mode": "stretch",
+          "from": 0.5,
+          "via": 1,
+          "to": 1.5
         }
       ]
     },
     {
       "id": "crust",
       "label": "Crust",
-      "hint": "Soft fresh snow, or an icy crust that cracks under the boot.",
-      "value": 0.4,
-      "vary": 0.12,
+      "hint": "Soft fresh snow with nothing to break, or an icy crust that snaps under the boot on some steps.",
+      "value": 0.1824215359157986,
+      "default": 0.4,
       "targets": [
         {
-          "path": "tracks.crunch.gain",
-          "mode": "set",
-          "from": -22,
-          "to": 2
+          "path": "tracks.crust.gain",
+          "from": -25,
+          "via": -6,
+          "to": 2,
+          "curve": "linear"
         },
         {
           "path": "tracks.crunch.source.grain.hi",
-          "mode": "set",
           "from": 1800,
+          "via": 3600,
           "to": 7500
         },
         {
           "path": "tracks.crunch.source.grain.levelJitter",
-          "mode": "set",
-          "from": 10,
-          "to": 30,
+          "from": 6,
+          "via": 12,
+          "to": 26,
           "curve": "linear"
+        },
+        {
+          "path": "tracks.crust.source.density",
+          "from": 200,
+          "via": 420,
+          "to": 900
         }
       ]
     },
     {
       "id": "weight",
       "label": "Weight",
-      "hint": "A light step to a heavy one that sinks.",
-      "value": 0.5,
-      "vary": 0.08,
+      "hint": "A child's light step to a heavy walker in big boots who sinks at every step.",
+      "value": 0.46879340277777776,
+      "default": 0.5,
       "targets": [
         {
           "path": "tracks.whumpf.source.filter.cutoff",
           "mode": "mul",
           "from": 1.5,
-          "to": 0.7
+          "to": 0.7,
+          "via": 1
         },
         {
-          "path": "tracks.whumpf.source.env.decay",
-          "mode": "set",
-          "from": 0.1,
-          "to": 0.36
+          "path": "tracks.whumpf.source.env",
+          "mode": "stretch",
+          "from": 0.8,
+          "via": 1,
+          "to": 1.25
         },
         {
-          "path": "tracks.squeak.fx.0.amount",
-          "mode": "set",
-          "from": 0,
-          "to": 16
+          "path": "tracks.crunch.source.grain.lo",
+          "mode": "mul",
+          "from": 1.4,
+          "to": 0.7,
+          "via": 1
+        },
+        {
+          "path": "tracks.crunch.source.grain.hi",
+          "mode": "mul",
+          "from": 1.25,
+          "to": 0.8,
+          "via": 1
+        },
+        {
+          "path": "tracks.whumpf.gain",
+          "mode": "add",
+          "from": -5,
+          "via": 0,
+          "to": 4,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.sink.source.grain.lo",
+          "mode": "mul",
+          "from": 1.4,
+          "via": 1,
+          "to": 0.75
+        },
+        {
+          "path": "tracks.sink.source.grain.hi",
+          "mode": "mul",
+          "from": 1.4,
+          "via": 1,
+          "to": 0.75
+        },
+        {
+          "path": "tracks.sink.gain",
+          "mode": "add",
+          "from": -5,
+          "via": 0,
+          "to": 4,
+          "curve": "linear"
         }
       ]
     }

@@ -1,16 +1,8 @@
 {
   "format": "sfxgen/1",
   "name": "8-bit explosion",
-  "description": "Something blows up on an 8-bit console. The noise channel starts at a fast clock (bright hiss) and is stepped down to a slow one over 700 ms, so the roar sinks into a rattling grumble, while its volume falls through all 16 levels, 50 ms each. The triangle channel adds the only bass the machine has: a rumble sliding from 120 to 50 Hz that jitters at random.",
-  "tags": [
-    "retro",
-    "8-bit",
-    "chiptune",
-    "explosion",
-    "boom",
-    "destroy",
-    "noise"
-  ],
+  "description": "Something blows up on an 8-bit console. The noise channel starts at a fast clock (bright hiss) and is slowed down, so the roar sinks into a rattling grumble, while its volume falls down a staircase, one level at a time. The triangle channel adds the only bass the machine has: a rumble sliding down that jitters at random, then cut off.",
+  "tags": ["retro", "8-bit", "chiptune", "explosion", "boom", "destroy", "noise"],
   "duration": "auto",
   "seed": 6,
   "tracks": [
@@ -20,106 +12,26 @@
       "source": {
         "type": "noise",
         "color": "digital",
-        "density": [
-          [
-            0,
-            16000
-          ],
-          [
-            0.12,
-            5000
-          ],
-          [
-            0.75,
-            350
-          ]
-        ],
+        "density": [[0, 16000], [0.12, 5000], [0.75, 350]],
         "env": {
           "points": [
-            [
-              0,
-              1
-            ],
-            [
-              0.05,
-              0.933,
-              "hold"
-            ],
-            [
-              0.1,
-              0.867,
-              "hold"
-            ],
-            [
-              0.15,
-              0.8,
-              "hold"
-            ],
-            [
-              0.2,
-              0.733,
-              "hold"
-            ],
-            [
-              0.25,
-              0.667,
-              "hold"
-            ],
-            [
-              0.3,
-              0.6,
-              "hold"
-            ],
-            [
-              0.35,
-              0.533,
-              "hold"
-            ],
-            [
-              0.4,
-              0.467,
-              "hold"
-            ],
-            [
-              0.45,
-              0.4,
-              "hold"
-            ],
-            [
-              0.5,
-              0.333,
-              "hold"
-            ],
-            [
-              0.55,
-              0.267,
-              "hold"
-            ],
-            [
-              0.6,
-              0.2,
-              "hold"
-            ],
-            [
-              0.65,
-              0.133,
-              "hold"
-            ],
-            [
-              0.7,
-              0.067,
-              "hold"
-            ],
-            [
-              0.75,
-              0,
-              "hold"
-            ],
-            [
-              0.8,
-              0,
-              "hold"
-            ]
+            [0, 1],
+            [0.05, 0.933, "hold"],
+            [0.1, 0.867, "hold"],
+            [0.15, 0.8, "hold"],
+            [0.2, 0.733, "hold"],
+            [0.25, 0.667, "hold"],
+            [0.3, 0.6, "hold"],
+            [0.35, 0.533, "hold"],
+            [0.4, 0.467, "hold"],
+            [0.45, 0.4, "hold"],
+            [0.5, 0.333, "hold"],
+            [0.55, 0.267, "hold"],
+            [0.6, 0.2, "hold"],
+            [0.65, 0.133, "hold"],
+            [0.7, 0.067, "hold"],
+            [0.75, 0, "hold"],
+            [0.8, 0, "hold"]
           ],
           "curve": "linear"
         }
@@ -135,21 +47,12 @@
     {
       "id": "rumble",
       "note": "The weight: a stepped triangle sliding down and shaking.",
-      "gain": -4,
+      "gain": -14.8,
       "source": {
         "type": "osc",
         "wave": "triangle",
         "freq": {
-          "env": [
-            [
-              0,
-              125
-            ],
-            [
-              0.5,
-              52
-            ]
-          ],
+          "env": [[0, 125], [0.5, 52]],
           "mod": [
             {
               "type": "lfo",
@@ -260,7 +163,7 @@
     {
       "id": "crunch",
       "label": "Crunch",
-      "hint": "A cleaner 6-bit machine to a brutal 2-bit one.",
+      "hint": "A cleaner, finer chip to a brutal, coarse one.",
       "value": 0.5,
       "targets": [
         {

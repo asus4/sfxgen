@@ -1,18 +1,8 @@
 {
   "format": "sfxgen/1",
   "name": "Stream (loop)",
-  "description": "A shallow brook running over stones in a wood, heard from the bank: hundreds of small bubbles a second gurgling between the stones (each a little rising note between 300 Hz and 2 kHz), a deeper, slower glug where the water drops into a hollow, and the soft continuous hiss of the riffle. A 6 s stereo loop; everything is random, and the seam is crossfaded over 0.6 s.",
-  "tags": [
-    "nature",
-    "water",
-    "stream",
-    "brook",
-    "river",
-    "loop",
-    "ambience",
-    "babble",
-    "forest"
-  ],
+  "description": "A shallow brook running over stones in a wood, heard from the bank: a dense babble of small bubbles gurgling between the stones, each a little rising note, a deeper, slower glug where the water drops into a hollow, and the soft continuous hiss of the riffle. A stereo loop; everything is random, and the seam is crossfaded.",
+  "tags": ["nature", "water", "stream", "brook", "river", "loop", "ambience", "babble", "forest"],
   "duration": 6,
   "loop": {
     "mode": "crossfade",
@@ -28,7 +18,7 @@
       "note": "The gurgle: a dense cloud of rising-pitch bubbles spread across the stream. The voice of the water.",
       "source": {
         "type": "particles",
-        "density": 260,
+        "density": 180.278,
         "duration": 7,
         "spread": 0.9,
         "grain": {
@@ -37,19 +27,20 @@
           "hi": 2600,
           "decayLo": 0.012,
           "decayHi": 0.05,
-          "levelJitter": 18,
+          "levelJitter": 19.9,
           "size": 0.6
-        }
+        },
+        "pitch": 0.5
       }
     },
     {
       "id": "glug",
-      "note": "The hollow under a small fall: big slow bubbles, 6 to 9 a second, in the 150 to 400 Hz range. Gives the stream depth.",
-      "gain": 2,
+      "note": "The hollow under a small fall: big, slow, low bubbles, a little to one side. Gives the stream depth.",
+      "gain": -6,
       "pan": -0.25,
       "source": {
         "type": "particles",
-        "density": 8,
+        "density": 6.63325,
         "duration": 7,
         "grain": {
           "kind": "drop",
@@ -59,13 +50,14 @@
           "decayHi": 0.11,
           "levelJitter": 10,
           "size": 0.8
-        }
+        },
+        "pitch": 0.5
       }
     },
     {
       "id": "riffle",
       "note": "White water over the shallow stones: an airy hiss that shifts slowly, so the bubbles sit in moving water.",
-      "gain": -17,
+      "gain": -21,
       "source": {
         "type": "noise",
         "color": "white",
@@ -107,7 +99,7 @@
         "id": "wood",
         "type": "reverb",
         "space": "forest",
-        "mix": 0.1
+        "mix": 0.09
       }
     ]
   },

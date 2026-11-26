@@ -59,12 +59,26 @@ The richest nodes describe objects, so use them for objects:
   exciter: a hard mallet for a hit, `scrape` for dragging, `roll` for a can rolling away. `dent` makes it a used,
   real object rather than a perfect one. `position` changes which modes ring: hitting near an edge sounds different
   from the centre.
+  A few clean modes ringing for a long time sound like a tuned instrument (a glockenspiel, a tom, a gong), which is
+  the commonest reason a door or a slam doesn't read as one. Real knocks are crowded and damped: a door, wall or
+  tabletop is a `plate` at 25 to 45 Hz with 64+ modes (the knock is the crowd at 100 to 400 Hz; high-pass the lowest
+  modes, which a panel barely radiates), a short `decay` and `damping` of 2 or more for small hard parts, and
+  `exciter.spread` of 3 to 15 ms when a whole edge or body lands at once (a slam, a sack, a body fall). Even on a
+  small bell or glass a spread of about 2 ms helps: a mallet starts every mode in step, a spike far above the ring,
+  and normalising to that spike leaves the ring quiet.
 - **`particles`** for anything made of many small events: debris after an impact, gravel underfoot, rain, fire,
   sparks, coins, glass shards, bubbles. `distribution: "burst"` for debris after a hit, `"bounce"` for something
-  settling.
+  settling. A `regular` train with `grain.polarity: "same"` has a pitch at its rate: stick-slip creaks and squeals,
+  buzzes and zips.
 - **`pluck`** for strings, cables, springs and anything that twangs; high `stiffness` turns it into a spring.
-- **`voice`** for creatures, grunts and robots: choose `size` from the creature and move the `vowel`.
+- **`voice`** for creatures, grunts and robots: choose `size` from the creature and move the `vowel`. Not for
+  creaks, squeaks or groaning wood, however you set its formants: a pulse train through a vocal tract is heard as
+  someone moaning. Friction is a `modal` `scrape` whose `exciter.density` is the slip rate: slow enough at the start
+  and end to hear single ticks (10 to 40 a second), fused into a tone in between, through a few narrow modes.
 - **`machine`** for motors, engines, rotors and servos: drive `rpm` with breakpoints so it spins up and strains.
+  An engine's character is mostly its `firing` order (a V-twin's lope, a crossplane four's growl, a V8's burble)
+  and its `muffler` (straight pipes rasp, a stock silencer thrums); draw `load` as the throttle, leading `rpm`,
+  and shut it to 0 on the overrun so the fuel cuts and the pipes pop (`pops`).
 - **`fm`** for bells, alarms, zaps and metallic tones; give the modulator index its own envelope so the brightness
   decays faster than the level.
 - **`chaos`** for glitches, alien electronics, broken machines: textures nothing else makes.
@@ -79,7 +93,9 @@ Real sounds are never exact. Each of these is cheap and makes a patch sound reco
   the parts of a sequence breathe (the rattle 40 ms after the thud).
 - **Detune.** Use ratios from the models, `dent`, `inharmonicity`, `detune`, `drift`. Avoid round frequencies.
 - **Wobble.** `wander` modulators on pitch and cutoff (a few cents, a few percent) give life to anything sustained.
-- **Vary repeats.** `repeat` with `jitter`, `velJitter` and `pitchJitter`; `particles` with level and pitch spread.
+- **Vary repeats.** `repeat` with `jitter`, `velJitter` and `pitchJitter`, `accents` (each repeat's own loudness),
+  `offsets` (a deliberate pause or swing) and a shared `group` for the layers of one event; `particles` with level
+  and pitch spread, and `velDensity` so a louder event throws more grains, not just louder ones.
 - **Asymmetric envelopes.** Fast attacks, long and uneven decays; different attacks on different layers.
 - **Seeds.** Try a few seeds and keep the best. Expose `vary` on controls so a game gets round-robin variations.
 
@@ -105,7 +121,8 @@ Real sounds are never exact. Each of these is cheap and makes a patch sound reco
 ## Space and medium
 
 - Dry and close is a choice, not a default. Small spaces (closet, car, room) make sounds feel physical; big ones
-  (hall, cave, stadium) make them epic. Use `predelay` to keep the hit clear of the reverb.
+  (hall, cave, stadium) make them epic. Use `predelay` to keep the hit clear of the reverb. A heavy hit in a hard
+  space leaves one low note humming through the tail; `bass` below 1 lets the boom bloom and then clears it.
 - Send several layers to one bus with one `reverb` so they sit in the same place.
 - `medium` puts the sound inside the world: a broadcast, a radio call, a cassette memory.
 

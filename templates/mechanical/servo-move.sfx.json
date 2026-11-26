@@ -1,18 +1,8 @@
 {
   "format": "sfxgen/1",
   "name": "Servo move",
-  "description": "A hobby-size robot arm servo turning its joint through 90 degrees and stopping, heard close. 0 ms: the gear train takes up its slack with a small tick; the motor whines up to speed in 60 ms, buzzes steadily, then strains and drops in pitch over the last 100 ms as it brakes against the load; at 480 ms it stops dead with a plastic clack of the gears settling. Its small plastic case makes it nasal.",
-  "tags": [
-    "mechanical",
-    "servo",
-    "robot",
-    "motor",
-    "whir",
-    "actuator",
-    "mech",
-    "scifi",
-    "move"
-  ],
+  "description": "A hobby-size robot arm servo turning its joint and stopping, heard close. The gear train takes up its slack with a small tick; the motor whines quickly up to speed, buzzes steadily, then strains and drops in pitch as it brakes against the load near the end of travel; it stops dead with a plastic clack of the gears settling. Its small plastic case makes it nasal.",
+  "tags": ["mechanical", "servo", "robot", "motor", "whir", "actuator", "mech", "scifi", "move"],
   "duration": "auto",
   "seed": 20,
   "tracks": [
@@ -22,28 +12,11 @@
       "source": {
         "type": "machine",
         "kind": "servo",
-        "size": 0.8,
-        "roughness": 0.3,
+        "size": 0.770158,
+        "roughness": 0.36,
         "whine": 0.75,
         "rpm": {
-          "env": [
-            [
-              0,
-              2400
-            ],
-            [
-              0.06,
-              10400
-            ],
-            [
-              0.37,
-              10900
-            ],
-            [
-              0.48,
-              4300
-            ]
-          ],
+          "env": [[0, 2400], [0.06, 10400], [0.37, 10900], [0.48, 4300]],
           "mod": [
             {
               "type": "wander",
@@ -53,49 +26,12 @@
             }
           ]
         },
-        "load": [
-          [
-            0,
-            0.6
-          ],
-          [
-            0.07,
-            0.25
-          ],
-          [
-            0.36,
-            0.35
-          ],
-          [
-            0.47,
-            0.9
-          ]
-        ],
+        "load": [[0, 0.6], [0.07, 0.25], [0.36, 0.35], [0.47, 0.9]],
         "env": {
-          "points": [
-            [
-              0,
-              0
-            ],
-            [
-              0.012,
-              0.8
-            ],
-            [
-              0.36,
-              1
-            ],
-            [
-              0.47,
-              0.8
-            ],
-            [
-              0.485,
-              0
-            ]
-          ],
+          "points": [[0, 0], [0.012, 0.8], [0.36, 1], [0.47, 0.8], [0.485, 0]],
           "curve": "linear"
-        }
+        },
+        "teeth": 11.55
       },
       "fx": [
         {
@@ -119,7 +55,7 @@
         "material": "plastic",
         "shape": "box",
         "freq": 730,
-        "decay": 0.045,
+        "decay": 0.0538978,
         "brightness": 0.6,
         "modes": 14,
         "dent": 0.3,

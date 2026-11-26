@@ -38,6 +38,7 @@ import {
   effectSegment,
   getChain,
   moveEffect,
+  moveSetValue,
   mutate,
   pinControl,
   pinKind,
@@ -125,7 +126,13 @@ function Drivers({ drivers }: { drivers?: Driver[] }) {
   return (
     <span className="drivers">
       {drivers.map((d) => (
-        <button key={`${d.control.id}:${d.mode}`} type="button" className="driver" title={`Driven by the “${d.control.label}” control. Click to find it.`} onClick={() => focusControl(d.control.id)}>
+        <button
+          key={`${d.control.id}:${d.mode}`}
+          type="button"
+          className="driver"
+          title={`Driven by the “${d.control.label}” control${d.mode === 'set' || d.mode === 'option' ? ': turning this knob moves that control\'s range for it, so the control keeps driving it' : ''}. Click to find the control.`}
+          onClick={() => focusControl(d.control.id)}
+        >
           {SIGN[d.mode]} {d.control.label}
         </button>
       ))}
@@ -172,6 +179,9 @@ function ParamField({ path, name, meta, fallback, materialize }: FieldProps) {
   const driving = drivers.get(canon);
   const overridden = !!driving?.some((d) => d.mode === 'set' || d.mode === 'option');
   const value = overridden ? getPath(applied, path) : raw;
+  // A number a control sets can still be turned: the control's range for it moves (the 1:N binding stays), so the
+  // knob lands where it was put and the control keeps working around it.
+  const moveDriven = (v: number) => scope.write((p: unknown) => moveSetValue(p as Patch, path, v) ?? p, `p:${path}`);
   const label = meta.label ?? humanize(name);
   const dflt = meta.default ?? fallback;
   const pin = scope.pins ? <PinButton path={path} meta={meta} value={raw} drivers={driving} /> : null;
@@ -223,22 +233,24 @@ function ParamField({ path, name, meta, fallback, materialize }: FieldProps) {
     }
     const number = signal.constant ?? (typeof dflt === 'number' ? dflt : undefined);
     const isDefault = raw === undefined;
+    // Only a patch's parameters have controls; a project's settings never do.
+    const movable = overridden && !!scope.pins;
     return (
-      <div className={`param${isDefault ? ' is-default' : ''}${overridden ? ' is-driven' : ''}`}>
+      <div className={`param${isDefault && !overridden ? ' is-default' : ''}${overridden ? (movable ? ' is-bound' : ' is-driven') : ''}`}>
         {flash}
         <Knob
           label={label}
           value={number}
           range={range}
           unit={meta.unit}
-          defaultValue={typeof dflt === 'number' ? dflt : undefined}
-          onReset={() => write(undefined)}
+          defaultValue={typeof dflt === 'number' && !overridden ? dflt : undefined}
+          onReset={overridden ? undefined : () => write(undefined)}
           hardMin={meta.hardMin}
           hardMax={meta.hardMax}
           size={46}
           ink={ink}
-          disabled={overridden}
-          onChange={(v) => write(meta.kind === 'signal' ? writeSignal(raw, { constant: v }) : v)}
+          disabled={overridden && !movable}
+          onChange={(v) => (overridden ? moveDriven(v) : write(meta.kind === 'signal' ? writeSignal(raw, { constant: v }) : v))}
           onCommit={commit}
         />
         <span className="param-label" title={meta.doc}>

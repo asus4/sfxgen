@@ -1,145 +1,381 @@
 {
   "format": "sfxgen/1",
-  "name": "Footstep: puddle splash",
-  "description": "One step of a rubber boot into a shallow street puddle. 0 ms: the sole slaps the water with a flat wet smack; under it the boot meets the asphalt with a dull thud; the water thrown out sideways lands as a spray of droplets from 40 to 400 ms, big blooping drops first, fine patter last; a hollow gulp as water closes in round the boot. Use the variations for a walk.",
+  "name": "Footsteps: puddles (loop)",
+  "description": "Rubber boots walking slowly through shallow puddles on a street: a loop of eight steps, no two alike. Each step: the boot comes down through the water onto the asphalt with a dull thud that the water mostly hides, and the flat of the sole hits the surface a moment later. The water answers with a wet splash: a dense crackle of tiny pops of drops and bursting skins, each a very short ring, through a resonance that moves as the water sloshes, densest at first and quickly thinning, with a soft edge of mist over it, only a sprinkle of bigger bubbles, and a small \"shlop\" under it as the water is shoved aside and falls back. Then the thrown water plips back into the puddle drop by drop, thinning to the odd last drop, and as the boot lifts a few small drops fall off it. The puddles differ: some are barely wet, the deepest gulps with fat bubbles, and only some steps drip. Speed goes from a slow, careful wade to a run through standing water.",
   "tags": [
     "footstep",
-    "step",
+    "footsteps",
+    "steps",
+    "loop",
     "water",
     "puddle",
     "splash",
     "rain",
     "wet",
     "walk",
+    "run",
     "foley"
   ],
-  "duration": "auto",
+  "duration": 7.7066,
+  "loop": {
+    "mode": "wrap"
+  },
   "seed": 33,
   "output": {
     "channels": 2
   },
   "tracks": [
     {
+      "id": "heel",
+      "note": "The boot meeting the asphalt under the water: a dead, crowded thud with no note, far under the water. In the reference recordings it is barely there; Stomp brings it up, and deeper water buries it further.",
+      "gain": -16.836,
+      "repeat": {
+        "count": 8,
+        "interval": 0.963325,
+        "jitter": 0.0263553,
+        "velJitter": 0.2,
+        "pitchJitter": 1,
+        "accents": [0.9, 0.7, 0.8, 0.75, 1, 0.65, 0.85, 0.7],
+        "group": "step"
+      },
+      "source": {
+        "type": "modal",
+        "material": "stone",
+        "shape": "plate",
+        "freq": 41,
+        "decay": 0.06,
+        "damping": 2.6,
+        "brightness": 0.28,
+        "modes": 56,
+        "dent": 0.3,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.3,
+          "spread": 0.006
+        }
+      },
+      "fx": [
+        {
+          "type": "filter",
+          "mode": "highpass",
+          "cutoff": 85,
+          "slope": "24"
+        }
+      ]
+    },
+    {
       "id": "slap",
-      "note": "Sole on water: a flat burst of noise that closes down fast, like a hand slapping a bath.",
+      "note": "The flat of the sole slapping the surface, just after the heel when walking: a very short wet smack that closes down at once. Only the contact: the water that follows is in the other layers.",
+      "start": 0.0808883,
+      "gain": -8.72483,
+      "repeat": {
+        "count": 8,
+        "interval": 0.963325,
+        "jitter": 0.0263553,
+        "velJitter": 0.2,
+        "pitchJitter": 1,
+        "accents": [0.8, 0.5, 0.65, 1, 0.55, 0.85, 0.4, 0.7],
+        "group": "step"
+      },
       "source": {
         "type": "noise",
-        "color": "white",
-        "width": 0.5,
+        "color": "pink",
+        "width": 0.4,
         "env": {
-          "attack": 0.001,
-          "hold": 0.006,
-          "decay": 0.11
+          "attack": 0.00142629,
+          "hold": 0.004,
+          "decay": 0.06
         },
         "filter": {
           "mode": "lowpass",
-          "cutoff": [
-            [
-              0,
-              9000
-            ],
-            [
-              0.03,
-              2600
-            ],
-            [
-              0.11,
-              700
-            ]
-          ],
-          "q": 0.9
+          "cutoff": [[0, 5200], [0.02, 2400], [0.06, 900]],
+          "q": 0.8
         }
-      }
+      },
+      "fx": [
+        {
+          "type": "filter",
+          "mode": "highpass",
+          "cutoff": 190,
+          "slope": "24"
+        }
+      ]
     },
     {
-      "id": "drops",
-      "note": "The thrown water landing back: droplets and bubbles, pitch rising as they get smaller.",
-      "start": 0.04,
-      "gain": -4,
+      "id": "splash",
+      "note": "The water thrown up as the sole hits it: a dense crowd of tiny wet pops (water drops and bursting skins, each a very short ring whose pitch rises), not hiss. They pass through a resonance that moves as the water sloshes, so the splash has a shape, \"splsh\", instead of a flat spectrum: densest at the start and quickly thinning.",
+      "start": 0.0927106,
+      "gain": -2.33889,
+      "repeat": {
+        "count": 8,
+        "interval": 0.963325,
+        "jitter": 0.0263553,
+        "velJitter": 0.2,
+        "pitchJitter": 1,
+        "accents": [0.8, 0.55, 0.7, 1, 0.6, 0.9, 0.5, 0.75],
+        "group": "step"
+      },
+      "source": {
+        "type": "particles",
+        "gain": 0,
+        "distribution": "burst",
+        "density": 4500,
+        "duration": 0.22,
+        "spread": 0.7,
+        "velDensity": 0.6,
+        "grain": {
+          "kind": "drop",
+          "lo": 900,
+          "hi": 8000,
+          "decayLo": 0.0018,
+          "decayHi": 0.0078294,
+          "levelJitter": 18,
+          "size": 0.45
+        },
+        "filter": {
+          "mode": "bandpass",
+          "cutoff": {
+            "env": [[0, 2400], [0.04, 3600], [0.22, 2000]],
+            "mod": [
+              {
+                "type": "wander",
+                "rate": 28,
+                "depth": 8,
+                "unit": "st"
+              }
+            ]
+          },
+          "q": 0.7
+        }
+      },
+      "fx": [
+        {
+          "type": "tremolo",
+          "shape": "random",
+          "rate": [[0, 75], [0.2, 30]],
+          "depth": 0.45
+        }
+      ]
+    },
+    {
+      "id": "bubbles",
+      "note": "A few air bubbles caught under the sole popping up through the splash: small rings whose pitch rises, well above the deep gulps. Only a sprinkle: dense, they turn the step into a cartoon 'bloop'.",
+      "start": 0.0888883,
+      "gain": -8.22593,
+      "repeat": {
+        "count": 8,
+        "interval": 0.963325,
+        "jitter": 0.0263553,
+        "velJitter": 0.2,
+        "pitchJitter": 1,
+        "accents": [0.75, 0.45, 0.6, 1, 0.5, 0.85, 0.35, 0.65],
+        "group": "step"
+      },
       "source": {
         "type": "particles",
         "distribution": "burst",
-        "density": 190,
-        "duration": 0.38,
-        "spread": 0.9,
+        "density": 160,
+        "duration": 0.289653,
+        "spread": 0.6,
         "grain": {
           "kind": "drop",
-          "lo": [
-            [
-              0,
-              500
-            ],
-            [
-              0.35,
-              1300
-            ]
-          ],
-          "hi": [
-            [
-              0,
-              2600
-            ],
-            [
-              0.35,
-              5200
-            ]
-          ],
-          "decayLo": 0.012,
-          "decayHi": 0.06,
-          "levelJitter": 14,
-          "size": 0.7
-        }
+          "lo": [[0, 850], [0.28, 1150]],
+          "hi": [[0, 2600], [0.28, 3300]],
+          "decayLo": 0.004,
+          "decayHi": 0.022,
+          "levelJitter": 16,
+          "size": 0.35
+        },
+        "pitch": -0.41798
       }
     },
     {
-      "id": "gulp",
-      "note": "Water closing round the boot: a hollow, rising bloop.",
-      "start": 0.022,
-      "gain": -8,
+      "id": "deep",
+      "note": "Only in the deeper puddles: a few fat bubbles gulping up round the boot, low and slow. Silent on the shallow steps, full on the deepest.",
+      "start": 0.107522,
+      "gain": -6.41483,
+      "repeat": {
+        "count": 8,
+        "interval": 0.963325,
+        "jitter": 0.0263553,
+        "velJitter": 0.2,
+        "pitchJitter": 1,
+        "accents": [0.3, 0, 0.15, 1, 0, 0.6, 0, 0.25],
+        "group": "step"
+      },
       "source": {
-        "type": "osc",
-        "wave": "sine",
-        "freq": [
-          [
-            0,
-            190
-          ],
-          [
-            0.07,
-            420
-          ]
-        ],
+        "type": "particles",
+        "distribution": "burst",
+        "density": 200,
+        "duration": 0.24,
+        "spread": 0.3,
+        "grain": {
+          "kind": "drop",
+          "lo": 260,
+          "hi": 880,
+          "decayLo": 0.014,
+          "decayHi": 0.045,
+          "levelJitter": 14,
+          "size": 0.7
+        },
+        "pitch": -0.501576
+      }
+    },
+    {
+      "id": "shlop",
+      "note": "Water shoved aside by the boot and falling back into the hole: dark noise in a hollow that opens (pitch falls) then fills (pitch rises), a short \"shlop\" with no clear note. Bigger in the deeper puddles.",
+      "start": 0.0928883,
+      "gain": -11.4148,
+      "repeat": {
+        "count": 8,
+        "interval": 0.963325,
+        "jitter": 0.0263553,
+        "velJitter": 0.2,
+        "pitchJitter": 1,
+        "accents": [0.6, 0.3, 0.45, 1, 0.35, 0.75, 0.25, 0.5],
+        "group": "step"
+      },
+      "source": {
+        "type": "noise",
+        "color": "brown",
         "env": {
-          "attack": 0.006,
-          "decay": 0.09
+          "points": [[0, 0], [0.012, 1], [0.05, 0.55], [0.1, 0.7], [0.19, 0]],
+          "curve": "linear"
+        },
+        "filter": {
+          "mode": "bandpass",
+          "cutoff": [[0, 520], [0.06, 210], [0.18, 470]],
+          "q": 2.2
         }
       },
       "fx": [
         {
           "type": "resonator",
+          "id": "hollow",
           "mode": "tube",
-          "freq": 240,
-          "decay": 0.08,
+          "freq": [[0, 330], [0.06, 172], [0.18, 365]],
+          "decay": 0.05,
           "brightness": 0.3,
-          "mix": 0.5
+          "mix": 0.7
+        },
+        {
+          "type": "tremolo",
+          "shape": "random",
+          "rate": 38,
+          "depth": 0.45
+        },
+        {
+          "type": "filter",
+          "mode": "highpass",
+          "cutoff": 130,
+          "slope": "24"
         }
       ]
     },
     {
-      "id": "ground",
-      "note": "The street under the water.",
-      "gain": -9,
+      "id": "spray",
+      "note": "The fine mist thrown off the edge of the splash: a short, soft hiss well under the drops, only there to give the splash its edge.",
+      "start": 0.0868883,
+      "gain": -11.5366,
+      "repeat": {
+        "count": 8,
+        "interval": 0.963325,
+        "jitter": 0.0263553,
+        "velJitter": 0.2,
+        "pitchJitter": 1,
+        "accents": [0.7, 0.35, 0.5, 1, 0.4, 0.9, 0.3, 0.6],
+        "group": "step"
+      },
       "source": {
-        "type": "modal",
-        "material": "stone",
-        "shape": "plate",
-        "freq": 117,
-        "decay": 0.06,
-        "brightness": 0.25,
-        "modes": 8,
-        "exciter": {
-          "kind": "mallet",
-          "hardness": 0.35
+        "type": "noise",
+        "color": "white",
+        "width": 0.9,
+        "env": {
+          "attack": 0.003,
+          "hold": 0.012,
+          "decay": 0.156898
+        },
+        "filter": {
+          "mode": "bandpass",
+          "cutoff": [[0, 2600], [0.15, 5200]],
+          "q": 0.5
+        }
+      },
+      "fx": [
+        {
+          "type": "tremolo",
+          "shape": "random",
+          "rate": 95,
+          "depth": 0.7,
+          "stereo": 0.37
+        }
+      ]
+    },
+    {
+      "id": "patter",
+      "note": "The thrown water falling back onto the puddle: separate drops plipping into the water, short wet rings rather than ticks, thick at first and thinning to the odd last drop.",
+      "start": 0.12861,
+      "gain": -7.31065,
+      "repeat": {
+        "count": 8,
+        "interval": 0.963325,
+        "jitter": 0.0263553,
+        "velJitter": 0.2,
+        "pitchJitter": 1,
+        "accents": [0.7, 0.35, 0.55, 1, 0.45, 0.9, 0.3, 0.6],
+        "group": "step"
+      },
+      "source": {
+        "type": "particles",
+        "gain": 0,
+        "distribution": "random",
+        "density": [[0, 320], [0.12, 150], [0.3, 35], [0.5, 6]],
+        "duration": 0.5,
+        "spread": 1,
+        "velDensity": 0.6,
+        "grain": {
+          "kind": "drop",
+          "lo": 1100,
+          "hi": 5500,
+          "decayLo": 0.003,
+          "decayHi": 0.014,
+          "levelJitter": 18,
+          "size": 0.45
+        },
+        "env": {
+          "points": [[0, 0.6], [0.03, 1], [0.15, 0.6], [0.5, 0.15]],
+          "curve": "linear"
+        }
+      }
+    },
+    {
+      "id": "drips",
+      "note": "Water running off the boot as it lifts, and the puddle settling: a few separate small drops in the gap before the next step, high and quiet. Some steps shed none.",
+      "start": 0.318997,
+      "gain": -14.3359,
+      "repeat": {
+        "count": 8,
+        "interval": 0.963325,
+        "jitter": 0.0263553,
+        "velJitter": 0.3,
+        "pitchJitter": 1.5,
+        "accents": [0.6, 0, 0.9, 1, 0, 0.7, 0.3, 0],
+        "group": "drip"
+      },
+      "source": {
+        "type": "particles",
+        "distribution": "random",
+        "density": [[0, 26], [0.2, 9]],
+        "duration": 0.436218,
+        "spread": 0.7,
+        "grain": {
+          "kind": "drop",
+          "lo": 900,
+          "hi": 3000,
+          "decayLo": 0.025,
+          "decayHi": 0.045,
+          "levelJitter": 9,
+          "size": 0.4
         }
       }
     }
@@ -152,97 +388,537 @@
         "space": "room",
         "size": 12,
         "decay": 0.5,
-        "mix": 0.1
+        "mix": 0.08
       }
     ]
   },
   "controls": [
     {
+      "id": "speed",
+      "label": "Speed",
+      "hint": "A slow walk to a run: the steps come faster, the foot lands flat and hard, and each one throws more spray and leaves less time for drips.",
+      "value": 0.13667534722222216,
+      "default": 0.3,
+      "targets": [
+        {
+          "path": "duration",
+          "mode": "set",
+          "from": 8.8,
+          "via": 6.4,
+          "to": 2.64,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.heel.repeat.interval",
+          "mode": "set",
+          "from": 1.1,
+          "via": 0.8,
+          "to": 0.33,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.heel.repeat.jitter",
+          "mode": "set",
+          "from": 0.03,
+          "via": 0.022,
+          "to": 0.009,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.slap.repeat.interval",
+          "mode": "set",
+          "from": 1.1,
+          "via": 0.8,
+          "to": 0.33,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.slap.repeat.jitter",
+          "mode": "set",
+          "from": 0.03,
+          "via": 0.022,
+          "to": 0.009,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.splash.repeat.interval",
+          "mode": "set",
+          "from": 1.1,
+          "via": 0.8,
+          "to": 0.33,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.splash.repeat.jitter",
+          "mode": "set",
+          "from": 0.03,
+          "via": 0.022,
+          "to": 0.009,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.bubbles.repeat.interval",
+          "mode": "set",
+          "from": 1.1,
+          "via": 0.8,
+          "to": 0.33,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.bubbles.repeat.jitter",
+          "mode": "set",
+          "from": 0.03,
+          "via": 0.022,
+          "to": 0.009,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.deep.repeat.interval",
+          "mode": "set",
+          "from": 1.1,
+          "via": 0.8,
+          "to": 0.33,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.deep.repeat.jitter",
+          "mode": "set",
+          "from": 0.03,
+          "via": 0.022,
+          "to": 0.009,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.shlop.repeat.interval",
+          "mode": "set",
+          "from": 1.1,
+          "via": 0.8,
+          "to": 0.33,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.shlop.repeat.jitter",
+          "mode": "set",
+          "from": 0.03,
+          "via": 0.022,
+          "to": 0.009,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.spray.repeat.interval",
+          "mode": "set",
+          "from": 1.1,
+          "via": 0.8,
+          "to": 0.33,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.spray.repeat.jitter",
+          "mode": "set",
+          "from": 0.03,
+          "via": 0.022,
+          "to": 0.009,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.patter.repeat.interval",
+          "mode": "set",
+          "from": 1.1,
+          "via": 0.8,
+          "to": 0.33,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.patter.repeat.jitter",
+          "mode": "set",
+          "from": 0.03,
+          "via": 0.022,
+          "to": 0.009,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.drips.repeat.interval",
+          "mode": "set",
+          "from": 1.1,
+          "via": 0.8,
+          "to": 0.33,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.drips.repeat.jitter",
+          "mode": "set",
+          "from": 0.03,
+          "via": 0.022,
+          "to": 0.009,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.slap.start",
+          "mode": "set",
+          "from": 0.09,
+          "via": 0.07,
+          "to": 0.022,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.splash.start",
+          "mode": "set",
+          "from": 0.1,
+          "via": 0.084,
+          "to": 0.024,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.bubbles.start",
+          "mode": "set",
+          "from": 0.098,
+          "via": 0.078,
+          "to": 0.028,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.deep.start",
+          "mode": "set",
+          "from": 0.118,
+          "via": 0.095,
+          "to": 0.04,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.shlop.start",
+          "mode": "set",
+          "from": 0.102,
+          "via": 0.082,
+          "to": 0.03,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.spray.start",
+          "mode": "set",
+          "from": 0.096,
+          "via": 0.076,
+          "to": 0.026,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.patter.start",
+          "mode": "set",
+          "from": 0.14,
+          "via": 0.115,
+          "to": 0.055,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.drips.start",
+          "mode": "set",
+          "from": 0.36,
+          "via": 0.27,
+          "to": 0.15,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.slap.gain",
+          "mode": "add",
+          "from": -2,
+          "via": 0,
+          "to": 4,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.heel.gain",
+          "mode": "add",
+          "from": -2,
+          "via": 0,
+          "to": 3,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.spray.gain",
+          "mode": "add",
+          "from": -3,
+          "via": 0,
+          "to": 6,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.splash.gain",
+          "mode": "add",
+          "from": -2,
+          "via": 0,
+          "to": 4,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.patter.gain",
+          "mode": "add",
+          "from": -3,
+          "via": 0,
+          "to": 5,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.bubbles.gain",
+          "mode": "add",
+          "from": -1,
+          "via": 0,
+          "to": 2,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.bubbles.source.density",
+          "mode": "mul",
+          "from": 0.8,
+          "via": 1,
+          "to": 1.6
+        },
+        {
+          "path": "tracks.patter.source.density",
+          "mode": "mul",
+          "from": 0.8,
+          "via": 1,
+          "to": 1.8
+        },
+        {
+          "path": "tracks.drips.gain",
+          "mode": "add",
+          "from": 2,
+          "via": 0,
+          "to": -7,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.drips.source.duration",
+          "mode": "set",
+          "from": 0.5,
+          "via": 0.36,
+          "to": 0.11,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
       "id": "depth",
       "label": "Depth",
-      "hint": "A wet pavement to an ankle-deep puddle: more gulp, lower and longer.",
-      "value": 0.45,
+      "hint": "A wet pavement to ankle-deep puddles: more shlop and fat low bubbles, a lower and longer splash, less street under it.",
+      "value": 0.4959777832031246,
+      "default": 0.45,
       "vary": 0.08,
       "targets": [
         {
-          "path": "tracks.gulp.gain",
+          "path": "tracks.shlop.gain",
           "mode": "set",
-          "from": -30,
-          "to": 0,
-          "curve": -0.455
+          "from": -28,
+          "via": -12,
+          "to": -5,
+          "curve": "linear"
         },
         {
-          "path": "tracks.gulp.source.freq",
+          "path": "tracks.shlop.fx.hollow.freq",
           "mode": "mul",
           "from": 1.6,
-          "to": 0.6
+          "via": 1,
+          "to": 0.7
         },
         {
-          "path": "tracks.slap.source.env.decay",
-          "mode": "set",
-          "from": 0.06,
-          "to": 0.22
+          "path": "tracks.shlop.source.filter.cutoff",
+          "mode": "mul",
+          "from": 1.6,
+          "via": 1,
+          "to": 0.7
         },
         {
-          "path": "tracks.ground.gain",
+          "path": "tracks.shlop.source.env",
+          "mode": "stretch",
+          "from": 0.6,
+          "via": 1,
+          "to": 1.7
+        },
+        {
+          "path": "tracks.deep.gain",
           "mode": "set",
-          "from": -3,
-          "to": -20
+          "from": -30,
+          "via": -7,
+          "to": 0,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.deep.source.pitch",
+          "mode": "set",
+          "from": 6,
+          "via": 0,
+          "to": -6,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.bubbles.source.pitch",
+          "mode": "set",
+          "from": 5,
+          "via": 0,
+          "to": -5,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.bubbles.source.duration",
+          "mode": "set",
+          "from": 0.16,
+          "via": 0.28,
+          "to": 0.42
+        },
+        {
+          "path": "tracks.heel.gain",
+          "mode": "set",
+          "from": -10,
+          "via": -16,
+          "to": -26,
+          "curve": "linear"
         }
       ]
     },
     {
       "id": "splash",
       "label": "Splash",
-      "hint": "A careful step, or a jump that throws water everywhere.",
-      "value": 0.5,
+      "hint": "A careful step that barely breaks the surface, or a stamp that throws water everywhere: a bigger, longer crackle, more spray and more drops landing.",
+      "value": 0.4858795166015625,
+      "default": 0.5,
       "vary": 0.12,
       "targets": [
         {
-          "path": "tracks.drops.gain",
+          "path": "tracks.splash.gain",
           "mode": "set",
-          "from": -24,
-          "to": 2,
-          "curve": -0.467
+          "from": -14,
+          "via": -2,
+          "to": 3,
+          "curve": "linear"
         },
         {
-          "path": "tracks.drops.source.density",
-          "mode": "set",
-          "from": 50,
-          "to": 520
+          "path": "tracks.splash.source.density",
+          "mode": "mul",
+          "from": 0.4,
+          "via": 1,
+          "to": 2
         },
         {
-          "path": "tracks.drops.source.duration",
+          "path": "tracks.splash.source.duration",
+          "mode": "mul",
+          "from": 0.6,
+          "via": 1,
+          "to": 1.8
+        },
+        {
+          "path": "tracks.bubbles.gain",
           "mode": "set",
-          "from": 0.18,
-          "to": 0.8
+          "from": -16,
+          "via": -8,
+          "to": -3,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.bubbles.source.density",
+          "mode": "mul",
+          "from": 0.45,
+          "via": 1,
+          "to": 2.4
+        },
+        {
+          "path": "tracks.spray.gain",
+          "mode": "set",
+          "from": -30,
+          "via": -11,
+          "to": -7,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.spray.source.env.decay",
+          "mode": "set",
+          "from": 0.08,
+          "via": 0.16,
+          "to": 0.3
+        },
+        {
+          "path": "tracks.patter.gain",
+          "mode": "set",
+          "from": -18,
+          "via": -7,
+          "to": 0,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.patter.source.density",
+          "mode": "mul",
+          "from": 0.35,
+          "via": 1,
+          "to": 2.2
         }
       ]
     },
     {
       "id": "stomp",
       "label": "Stomp",
-      "hint": "A soft wade in, or a hard flat slap.",
-      "value": 0.5,
+      "hint": "A soft wade in, or a hard flat slap of the sole on the water.",
+      "value": 0.522931247287326,
+      "default": 0.5,
       "vary": 0.1,
       "targets": [
         {
           "path": "tracks.slap.source.filter.cutoff",
           "mode": "mul",
-          "from": 0.4,
-          "to": 1.8
+          "from": 0.45,
+          "via": 1,
+          "to": 1.6
         },
         {
           "path": "tracks.slap.source.env.attack",
           "mode": "set",
-          "from": 0.012,
+          "from": 0.01,
+          "via": 0.0015,
           "to": 0.0005
         },
         {
           "path": "tracks.slap.gain",
           "mode": "set",
-          "from": -8,
-          "to": 2
+          "from": -20,
+          "via": -9,
+          "to": -3,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.heel.gain",
+          "mode": "add",
+          "from": -4,
+          "via": 0,
+          "to": 6,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.splash.source.grain.decayHi",
+          "mode": "set",
+          "from": 0.011,
+          "via": 0.008,
+          "to": 0.005
+        }
+      ]
+    },
+    {
+      "id": "drips",
+      "label": "Drips",
+      "hint": "Dry boots, or boots that shed drops back into the puddle after every step.",
+      "value": 0.5332031250000001,
+      "default": 0.5,
+      "targets": [
+        {
+          "path": "tracks.drips.gain",
+          "mode": "set",
+          "from": -40,
+          "via": -15,
+          "to": -5,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.drips.source.density",
+          "mode": "mul",
+          "from": 0.5,
+          "via": 1,
+          "to": 2.2
         }
       ]
     },
@@ -251,12 +927,14 @@
       "label": "Street",
       "hint": "Open and dry-sounding, or between wet walls.",
       "value": 0.3,
+      "default": 0.3,
       "targets": [
         {
           "path": "master.fx.street.mix",
           "mode": "set",
           "from": 0,
-          "to": 0.35,
+          "via": 0.08,
+          "to": 0.3,
           "curve": "linear"
         }
       ]

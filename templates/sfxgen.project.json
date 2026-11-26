@@ -1,0 +1,486 @@
+{
+  "format": "sfxgen-project/1",
+  "name": "Gallery review",
+  "description": "Every template in the gallery, one pad each, grouped by category. Tweaks to a sound save into its template file (templates/<category>/<name>.sfx.json); run `npm run templates` to rebuild the gallery from them. Gains and groups here belong to this review project only and do not change the gallery.",
+  "outDir": "../scratch/gallery-review/out",
+  "groups": [
+    {
+      "id": "ambience",
+      "label": "Ambience"
+    },
+    {
+      "id": "creatures",
+      "label": "Creatures"
+    },
+    {
+      "id": "doors",
+      "label": "Doors"
+    },
+    {
+      "id": "explosions",
+      "label": "Explosions"
+    },
+    {
+      "id": "footsteps",
+      "label": "Footsteps"
+    },
+    {
+      "id": "impacts",
+      "label": "Impacts"
+    },
+    {
+      "id": "magic",
+      "label": "Magic"
+    },
+    {
+      "id": "mechanical",
+      "label": "Mechanical"
+    },
+    {
+      "id": "movement",
+      "label": "Movement"
+    },
+    {
+      "id": "nature",
+      "label": "Nature"
+    },
+    {
+      "id": "retro",
+      "label": "Retro"
+    },
+    {
+      "id": "scifi",
+      "label": "Sci-fi"
+    },
+    {
+      "id": "ui",
+      "label": "UI"
+    },
+    {
+      "id": "vehicles",
+      "label": "Vehicles"
+    },
+    {
+      "id": "weapons",
+      "label": "Weapons"
+    }
+  ],
+  "sounds": [
+    {
+      "file": "ambience/machine-room-loop.sfx.json",
+      "group": "ambience"
+    },
+    {
+      "file": "ambience/spaceship-engine-loop.sfx.json",
+      "group": "ambience"
+    },
+    {
+      "file": "creatures/bird-tweet.sfx.json",
+      "group": "creatures"
+    },
+    {
+      "file": "creatures/critter-chirp.sfx.json",
+      "group": "creatures"
+    },
+    {
+      "file": "creatures/ghost-moan.sfx.json",
+      "group": "creatures"
+    },
+    {
+      "file": "creatures/insect-flyby.sfx.json",
+      "group": "creatures"
+    },
+    {
+      "file": "creatures/kaiju-roar.sfx.json",
+      "group": "creatures"
+    },
+    {
+      "file": "creatures/monster-growl.sfx.json",
+      "group": "creatures"
+    },
+    {
+      "file": "creatures/robot-chatter.sfx.json",
+      "group": "creatures"
+    },
+    {
+      "file": "creatures/slime-squelch.sfx.json",
+      "group": "creatures"
+    },
+    {
+      "file": "doors/latch-click.sfx.json",
+      "group": "doors"
+    },
+    {
+      "file": "doors/metal-hatch-slam.sfx.json",
+      "group": "doors"
+    },
+    {
+      "file": "doors/wooden-door-creak.sfx.json",
+      "group": "doors"
+    },
+    {
+      "file": "explosions/big-boom.sfx.json",
+      "group": "explosions"
+    },
+    {
+      "file": "explosions/distant-explosion.sfx.json",
+      "group": "explosions"
+    },
+    {
+      "file": "explosions/firework.sfx.json",
+      "group": "explosions"
+    },
+    {
+      "file": "explosions/grenade.sfx.json",
+      "group": "explosions"
+    },
+    {
+      "file": "explosions/small-pop.sfx.json",
+      "group": "explosions"
+    },
+    {
+      "file": "footsteps/concrete-shoe.sfx.json",
+      "group": "footsteps"
+    },
+    {
+      "file": "footsteps/creaky-wood-floor.sfx.json",
+      "group": "footsteps"
+    },
+    {
+      "file": "footsteps/gravel.sfx.json",
+      "group": "footsteps"
+    },
+    {
+      "file": "footsteps/metal-grate.sfx.json",
+      "group": "footsteps"
+    },
+    {
+      "file": "footsteps/puddle-splash.sfx.json",
+      "group": "footsteps"
+    },
+    {
+      "file": "footsteps/snow.sfx.json",
+      "group": "footsteps"
+    },
+    {
+      "file": "impacts/body-punch.sfx.json",
+      "group": "impacts"
+    },
+    {
+      "file": "impacts/cardboard-box.sfx.json",
+      "group": "impacts"
+    },
+    {
+      "file": "impacts/coin-drop.sfx.json",
+      "group": "impacts"
+    },
+    {
+      "file": "impacts/door-knock.sfx.json",
+      "group": "impacts"
+    },
+    {
+      "file": "impacts/giant-metal-slam.sfx.json",
+      "group": "impacts"
+    },
+    {
+      "file": "impacts/glass-clink.sfx.json",
+      "group": "impacts"
+    },
+    {
+      "file": "impacts/glass-shatter.sfx.json",
+      "group": "impacts"
+    },
+    {
+      "file": "impacts/metal-pipe.sfx.json",
+      "group": "impacts"
+    },
+    {
+      "file": "impacts/rock-on-rock.sfx.json",
+      "group": "impacts"
+    },
+    {
+      "file": "impacts/rubber-ball-bounce.sfx.json",
+      "group": "impacts"
+    },
+    {
+      "file": "impacts/thud.sfx.json",
+      "group": "impacts"
+    },
+    {
+      "file": "impacts/trash-can-kick.sfx.json",
+      "group": "impacts"
+    },
+    {
+      "file": "magic/fire-spell.sfx.json",
+      "group": "magic"
+    },
+    {
+      "file": "magic/portal-open.sfx.json",
+      "group": "magic"
+    },
+    {
+      "file": "magic/sparkle-pickup.sfx.json",
+      "group": "magic"
+    },
+    {
+      "file": "magic/spell-cast.sfx.json",
+      "group": "magic"
+    },
+    {
+      "file": "mechanical/chain-rattle.sfx.json",
+      "group": "mechanical"
+    },
+    {
+      "file": "mechanical/clock-tick.sfx.json",
+      "group": "mechanical"
+    },
+    {
+      "file": "mechanical/motor-start.sfx.json",
+      "group": "mechanical"
+    },
+    {
+      "file": "mechanical/ratchet.sfx.json",
+      "group": "mechanical"
+    },
+    {
+      "file": "mechanical/servo-move.sfx.json",
+      "group": "mechanical"
+    },
+    {
+      "file": "mechanical/spring-boing.sfx.json",
+      "group": "mechanical"
+    },
+    {
+      "file": "mechanical/toggle-switch.sfx.json",
+      "group": "mechanical"
+    },
+    {
+      "file": "movement/cloth-swish.sfx.json",
+      "group": "movement"
+    },
+    {
+      "file": "movement/jump-takeoff.sfx.json",
+      "group": "movement"
+    },
+    {
+      "file": "movement/land-soft.sfx.json",
+      "group": "movement"
+    },
+    {
+      "file": "movement/whoosh-fast.sfx.json",
+      "group": "movement"
+    },
+    {
+      "file": "movement/whoosh-heavy.sfx.json",
+      "group": "movement"
+    },
+    {
+      "file": "nature/cave-drip.sfx.json",
+      "group": "nature"
+    },
+    {
+      "file": "nature/fire-loop.sfx.json",
+      "group": "nature"
+    },
+    {
+      "file": "nature/rain-loop.sfx.json",
+      "group": "nature"
+    },
+    {
+      "file": "nature/splash.sfx.json",
+      "group": "nature"
+    },
+    {
+      "file": "nature/stream-loop.sfx.json",
+      "group": "nature"
+    },
+    {
+      "file": "nature/thunder.sfx.json",
+      "group": "nature"
+    },
+    {
+      "file": "nature/wind-loop.sfx.json",
+      "group": "nature"
+    },
+    {
+      "file": "retro/bounce.sfx.json",
+      "group": "retro"
+    },
+    {
+      "file": "retro/coin.sfx.json",
+      "group": "retro"
+    },
+    {
+      "file": "retro/explosion.sfx.json",
+      "group": "retro"
+    },
+    {
+      "file": "retro/hurt.sfx.json",
+      "group": "retro"
+    },
+    {
+      "file": "retro/jump.sfx.json",
+      "group": "retro"
+    },
+    {
+      "file": "retro/laser.sfx.json",
+      "group": "retro"
+    },
+    {
+      "file": "retro/menu-select.sfx.json",
+      "group": "retro"
+    },
+    {
+      "file": "retro/one-up.sfx.json",
+      "group": "retro"
+    },
+    {
+      "file": "retro/power-up.sfx.json",
+      "group": "retro"
+    },
+    {
+      "file": "scifi/console-power-up.sfx.json",
+      "group": "scifi"
+    },
+    {
+      "file": "scifi/data-chirps.sfx.json",
+      "group": "scifi"
+    },
+    {
+      "file": "scifi/force-field-hum.sfx.json",
+      "group": "scifi"
+    },
+    {
+      "file": "scifi/laser-zap.sfx.json",
+      "group": "scifi"
+    },
+    {
+      "file": "scifi/plasma-charge.sfx.json",
+      "group": "scifi"
+    },
+    {
+      "file": "scifi/power-down.sfx.json",
+      "group": "scifi"
+    },
+    {
+      "file": "scifi/scanner-sweep.sfx.json",
+      "group": "scifi"
+    },
+    {
+      "file": "scifi/shield-impact.sfx.json",
+      "group": "scifi"
+    },
+    {
+      "file": "scifi/teleport.sfx.json",
+      "group": "scifi"
+    },
+    {
+      "file": "scifi/warp-jump.sfx.json",
+      "group": "scifi"
+    },
+    {
+      "file": "ui/cancel-back.sfx.json",
+      "group": "ui"
+    },
+    {
+      "file": "ui/error-buzz.sfx.json",
+      "group": "ui"
+    },
+    {
+      "file": "ui/hover-tick.sfx.json",
+      "group": "ui"
+    },
+    {
+      "file": "ui/mechanical-click.sfx.json",
+      "group": "ui"
+    },
+    {
+      "file": "ui/notification-chime.sfx.json",
+      "group": "ui"
+    },
+    {
+      "file": "ui/panel-close.sfx.json",
+      "group": "ui"
+    },
+    {
+      "file": "ui/panel-open.sfx.json",
+      "group": "ui"
+    },
+    {
+      "file": "ui/slider-tick.sfx.json",
+      "group": "ui"
+    },
+    {
+      "file": "ui/soft-click.sfx.json",
+      "group": "ui"
+    },
+    {
+      "file": "ui/soft-confirm.sfx.json",
+      "group": "ui"
+    },
+    {
+      "file": "ui/success-flourish.sfx.json",
+      "group": "ui"
+    },
+    {
+      "file": "ui/swipe.sfx.json",
+      "group": "ui"
+    },
+    {
+      "file": "ui/text-blip.sfx.json",
+      "group": "ui"
+    },
+    {
+      "file": "ui/toggle-off.sfx.json",
+      "group": "ui"
+    },
+    {
+      "file": "ui/toggle-on.sfx.json",
+      "group": "ui"
+    },
+    {
+      "file": "ui/warning-ping.sfx.json",
+      "group": "ui"
+    },
+    {
+      "file": "vehicles/car-passby.sfx.json",
+      "group": "vehicles"
+    },
+    {
+      "file": "vehicles/engine-idle-loop.sfx.json",
+      "group": "vehicles"
+    },
+    {
+      "file": "vehicles/helicopter-loop.sfx.json",
+      "group": "vehicles"
+    },
+    {
+      "file": "vehicles/jet-flyby.sfx.json",
+      "group": "vehicles"
+    },
+    {
+      "file": "vehicles/motorbike-rev.sfx.json",
+      "group": "vehicles"
+    },
+    {
+      "file": "weapons/bow-shot.sfx.json",
+      "group": "weapons"
+    },
+    {
+      "file": "weapons/bullet-flyby.sfx.json",
+      "group": "weapons"
+    },
+    {
+      "file": "weapons/reload-click.sfx.json",
+      "group": "weapons"
+    },
+    {
+      "file": "weapons/sword-clash.sfx.json",
+      "group": "weapons"
+    },
+    {
+      "file": "weapons/sword-swing.sfx.json",
+      "group": "weapons"
+    }
+  ]
+}

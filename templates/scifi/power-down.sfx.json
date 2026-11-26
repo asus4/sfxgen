@@ -1,7 +1,7 @@
 {
   "format": "sfxgen/1",
   "name": "Power down",
-  "description": "The main breaker is pulled on a ship's deck and everything on it dies. 0 ms: the breaker handle, a heavy plastic-and-steel clack. From 60 ms the turbine generator, with nothing left to drive it, winds down like a stopping tape over 1.8 s: its whine and the hum of the lights fall together, slowing as they go, into a growl and then nothing. At 1.5 s a last relay drops out somewhere in the dark.",
+  "description": "The main breaker is pulled on a ship's deck and everything on it dies. First the breaker handle, a heavy plastic-and-steel clack. Then the turbine generator, with nothing left to drive it, winds down like a stopping tape: its whine and the hum of the lights fall together, slowing as they go, into a growl and then nothing. As it dies, a last relay drops out somewhere in the dark.",
   "tags": ["scifi", "power down", "shutdown", "machine", "generator", "off", "wind down", "failure"],
   "duration": "auto",
   "seed": 9,
@@ -18,9 +18,18 @@
         "decay": 0.09,
         "position": 0.7,
         "dent": 0.3,
-        "exciter": { "kind": "mallet", "hardness": 0.8 }
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.8
+        }
       },
-      "fx": [{ "type": "transient", "attack": 6, "sustain": -4 }]
+      "fx": [
+        {
+          "type": "transient",
+          "attack": 6,
+          "sustain": -4
+        }
+      ]
     },
     {
       "id": "generator",
@@ -33,19 +42,47 @@
         "blades": 16,
         "load": [[0, 0.5], [0.4, 0.15]],
         "roughness": 0.3,
-        "whine": 0.792,
-        "size": 1.14,
-        "env": { "attack": 0.004, "hold": 1.2, "decay": 0.4 }
+        "whine": 0.7925,
+        "size": 1.14018,
+        "env": {
+          "attack": 0.004,
+          "hold": 1.2,
+          "decay": 0.4
+        }
       },
-      "fx": [{ "type": "varispeed", "id": "stop", "rate": [[0, 1], [0.12, 1], [1.8, 0, -0.25]] }]
+      "fx": [
+        {
+          "type": "varispeed",
+          "id": "stop",
+          "rate": [[0, 1], [0.12, 1], [1.8, 0, -0.25]]
+        }
+      ]
     },
     {
       "id": "lights",
       "note": "Mains hum of the lighting: the low body under the whine, dying on the same curve.",
       "start": 0.06,
       "gain": -7.7,
-      "source": { "type": "additive", "freq": 118, "harmonics": 9, "odd": 0.8, "tilt": -4, "decay": 0, "env": { "attack": 0.004, "hold": 1.1, "decay": 0.4 } },
-      "fx": [{ "type": "varispeed", "id": "stop", "rate": [[0, 1], [0.12, 1], [1.8, 0, -0.25]] }]
+      "source": {
+        "type": "additive",
+        "freq": 118,
+        "harmonics": 9,
+        "odd": 0.8,
+        "tilt": -4,
+        "decay": 0,
+        "env": {
+          "attack": 0.004,
+          "hold": 1.1,
+          "decay": 0.4
+        }
+      },
+      "fx": [
+        {
+          "type": "varispeed",
+          "id": "stop",
+          "rate": [[0, 1], [0.12, 1], [1.8, 0, -0.25]]
+        }
+      ]
     },
     {
       "id": "relay",
@@ -59,11 +96,25 @@
         "freq": 870,
         "decay": 0.12,
         "damping": 2.5,
-        "exciter": { "kind": "mallet", "hardness": 0.85 }
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.85
+        }
       }
     }
   ],
-  "master": { "fx": [{ "type": "reverb", "id": "deck", "space": "tank", "size": 9, "decay": 0.703, "mix": 0.14 }] },
+  "master": {
+    "fx": [
+      {
+        "type": "reverb",
+        "id": "deck",
+        "space": "tank",
+        "size": 9,
+        "decay": 0.702586,
+        "mix": 0.14
+      }
+    ]
+  },
   "controls": [
     {
       "id": "time",
@@ -71,9 +122,24 @@
       "hint": "A light that just cuts out to a huge rotor taking seconds to stop.",
       "value": 0.5,
       "targets": [
-        { "path": "tracks.generator.fx.stop.rate", "mode": "stretch", "from": 0.35, "to": 2.4 },
-        { "path": "tracks.lights.fx.stop.rate", "mode": "stretch", "from": 0.35, "to": 2.4 },
-        { "path": "tracks.relay.start", "mode": "mul", "from": 0.35, "to": 2.4 }
+        {
+          "path": "tracks.generator.fx.stop.rate",
+          "mode": "stretch",
+          "from": 0.35,
+          "to": 2.4
+        },
+        {
+          "path": "tracks.lights.fx.stop.rate",
+          "mode": "stretch",
+          "from": 0.35,
+          "to": 2.4
+        },
+        {
+          "path": "tracks.relay.start",
+          "mode": "mul",
+          "from": 0.35,
+          "to": 2.4
+        }
       ]
     },
     {
@@ -82,10 +148,29 @@
       "hint": "A desk gadget to a reactor hall: lower and heavier.",
       "value": 0.5,
       "targets": [
-        { "path": "tracks.generator.source.rpm", "mode": "mul", "from": 2.1, "to": 0.5 },
-        { "path": "tracks.generator.source.size", "from": 0.5, "to": 2.6 },
-        { "path": "tracks.lights.source.freq", "mode": "mul", "from": 1.8, "to": 0.55 },
-        { "path": "tracks.breaker.source.freq", "mode": "mul", "from": 2.2, "to": 0.5 }
+        {
+          "path": "tracks.generator.source.rpm",
+          "mode": "mul",
+          "from": 2.1,
+          "to": 0.5
+        },
+        {
+          "path": "tracks.generator.source.size",
+          "from": 0.5,
+          "to": 2.6
+        },
+        {
+          "path": "tracks.lights.source.freq",
+          "mode": "mul",
+          "from": 1.8,
+          "to": 0.55
+        },
+        {
+          "path": "tracks.breaker.source.freq",
+          "mode": "mul",
+          "from": 2.2,
+          "to": 0.5
+        }
       ]
     },
     {
@@ -93,21 +178,55 @@
       "label": "Whine",
       "hint": "Mostly low hum, or a screaming turbine on top.",
       "value": 0.55,
-      "targets": [{ "path": "tracks.generator.source.whine", "from": 0.05, "to": 1.4 }, { "path": "tracks.lights.gain", "from": 0, "to": -14 }]
+      "targets": [
+        {
+          "path": "tracks.generator.source.whine",
+          "from": 0.05,
+          "to": 1.4
+        },
+        {
+          "path": "tracks.lights.gain",
+          "from": 0,
+          "to": -14
+        }
+      ]
     },
     {
       "id": "switch",
       "label": "Switch",
       "hint": "How loud the breaker and the last relay are.",
       "value": 0.6,
-      "targets": [{ "path": "tracks.breaker.gain", "from": -24, "to": 8 }, { "path": "tracks.relay.gain", "from": -30, "to": 2 }]
+      "targets": [
+        {
+          "path": "tracks.breaker.gain",
+          "from": -24,
+          "to": 8
+        },
+        {
+          "path": "tracks.relay.gain",
+          "from": -30,
+          "to": 2
+        }
+      ]
     },
     {
       "id": "space",
       "label": "Deck",
       "hint": "Dry and close to a ringing metal hall.",
       "value": 0.35,
-      "targets": [{ "path": "master.fx.deck.mix", "from": 0, "to": 0.4, "curve": "linear" }, { "path": "master.fx.deck.decay", "from": 0.4, "to": 2 }]
+      "targets": [
+        {
+          "path": "master.fx.deck.mix",
+          "from": 0,
+          "to": 0.4,
+          "curve": "linear"
+        },
+        {
+          "path": "master.fx.deck.decay",
+          "from": 0.4,
+          "to": 2
+        }
+      ]
     }
   ]
 }

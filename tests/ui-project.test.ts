@@ -149,7 +149,7 @@ describe('projects in the editor', () => {
       'Bird tweet',
       'Insect fly-by',
       'Machine room hum (loop)',
-      'Footstep: puddle splash',
+      'Footsteps: puddles (loop)',
       'Rubber ball bounces to rest',
       'Soft confirm',
     ]);
