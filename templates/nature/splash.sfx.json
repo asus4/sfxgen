@@ -1,171 +1,129 @@
 {
   "format": "sfxgen/1",
   "name": "Water splash",
-  "description": "A rock the size of two fists thrown into a pond from the bank, four metres away: the flat slap as it breaks the surface, the deep hollow \"gloop\" of the air pocket closing behind it at 60 ms (its pitch rising as the cavity shrinks), the hiss of the crown of water going up, and its droplets raining back from 200 to 900 ms, big ones first. Open air, a short reflection from the far bank.",
-  "tags": [
-    "nature",
-    "water",
-    "splash",
-    "plunge",
-    "pond",
-    "dive",
-    "impact",
-    "liquid"
-  ],
+  "description": "A rock the size of two fists thrown into a pond from the bank, a few steps away. The flat slap as it breaks the surface and the roar of water thrown aside; a moment later the hollow \"gloop\" of the air pocket closing behind it, a rough gulp and two smaller ones whose pitch climbs as the cavity shrinks, buried in the wash; the hissing crown of water going up and falling back, fine spray pattering around it, and its droplets raining back last, big ones first, small ones at the end. Open air, a short reflection from the far bank.",
+  "tags": ["nature", "water", "splash", "plunge", "pond", "dive", "impact", "liquid"],
   "duration": "auto",
-  "seed": 12,
+  "seed": 78610,
   "tracks": [
     {
       "id": "slap",
-      "note": "The first 30 ms: the surface breaking. A hard broad noise burst; it tells how flat and how fast the thing hit.",
+      "note": "The surface breaking and the water thrown aside: a hard broad burst that darkens quickly. It tells how flat and how fast the thing hit.",
       "source": {
         "type": "noise",
         "color": "white",
         "env": {
           "attack": 0.0006,
-          "decay": 0.14
+          "decay": 0.3
         },
         "filter": {
           "mode": "lowpass",
-          "cutoff": [
-            [
-              0,
-              9000
-            ],
-            [
-              0.1,
-              1500
-            ]
-          ],
+          "cutoff": [[0, 9000], [0.22, 2200]],
           "q": 0.7
         }
       },
       "fx": [
         {
           "type": "transient",
-          "attack": 3,
+          "attack": 3.39019,
           "window": 0.006
         }
-      ]
+      ],
+      "gain": -1.23582
     },
     {
       "id": "gloop",
-      "note": "The cavity collapsing under water: a low resonant bubble at 150 to 400 Hz whose pitch climbs. The weight of the splash, in the range small speakers have.",
+      "note": "The cavity collapsing under water: a low rough gulp whose pitch climbs, then two smaller pockets after it, each higher and quieter. Noise-driven and half hidden by the wash, so it is turbulence, not a note. The weight of the splash, kept in the range small speakers have.",
       "start": 0.058,
-      "gain": -2,
+      "gain": 0.728603,
       "source": {
         "type": "modal",
         "material": "rubber",
         "shape": "tube",
-        "freq": [
-          [
-            0,
-            135
-          ],
-          [
-            0.08,
-            190
-          ],
-          [
-            0.22,
-            420
-          ]
-        ],
-        "decay": 0.3,
-        "modes": 4,
-        "brightness": 0.25,
+        "freq": [[0, 135], [0.08, 190], [0.22, 420]],
+        "decay": 0.336874,
+        "modes": 9,
+        "brightness": 0.42,
         "exciter": {
           "kind": "noise",
-          "hardness": 0.25,
-          "duration": 0.09
+          "hardness": 0.4,
+          "duration": 0.16
+        },
+        "dent": 0.5,
+        "damping": 1.6
+      },
+      "events": [
+        0,
+        {
+          "t": 0.071,
+          "pitch": 4.3,
+          "vel": 0.5
+        },
+        {
+          "t": 0.163,
+          "pitch": 8.6,
+          "vel": 0.22
         }
-      }
+      ]
     },
     {
       "id": "crown",
-      "note": "The sheet of water thrown up: a wash of noise that opens and dies over 400 ms.",
+      "note": "The sheet of water thrown up and falling back: a broad wash of noise that opens fast, brightens, then dies away slowly. The body of the splash.",
       "start": 0.02,
-      "gain": -8,
+      "gain": 0.159896,
       "source": {
         "type": "noise",
         "color": "pink",
         "env": {
-          "points": [
-            [
-              0,
-              0
-            ],
-            [
-              0.05,
-              1
-            ],
-            [
-              0.2,
-              0.35
-            ],
-            [
-              0.55,
-              0
-            ]
-          ],
-          "curve": "linear"
+          "points": [[0, 0], [0.04, 1], [0.25, 0.4], [0.95, 0]],
+          "curve": "exp"
         },
         "filter": {
           "mode": "bandpass",
-          "cutoff": [
-            [
-              0,
-              1400
-            ],
-            [
-              0.1,
-              4200
-            ],
-            [
-              0.5,
-              2200
-            ]
-          ],
-          "q": 0.6
+          "cutoff": [[0, 1200], [0.1, 3500], [0.8, 1700]],
+          "q": 0.4
         }
       }
     },
     {
       "id": "droplets",
-      "note": "The water coming back down: drops with rising pitch, the heavy ones first and the fine spray last.",
+      "note": "The water coming back down: a shower of drops with rising pitch, the heavy ones first. Dense enough that they cannot be counted.",
       "start": 0.2,
-      "gain": -6,
+      "gain": -2,
       "source": {
         "type": "particles",
         "distribution": "burst",
-        "density": 130,
-        "duration": 0.75,
+        "density": 765.414,
+        "duration": 1.14371,
         "grain": {
           "kind": "drop",
-          "lo": [
-            [
-              0,
-              500
-            ],
-            [
-              0.7,
-              1500
-            ]
-          ],
-          "hi": [
-            [
-              0,
-              2400
-            ],
-            [
-              0.7,
-              5200
-            ]
-          ],
-          "decayLo": 0.012,
-          "decayHi": 0.05,
-          "levelJitter": 16,
-          "size": 0.7
+          "lo": [[0, 500], [0.7, 1500]],
+          "hi": [[0, 2400], [0.7, 5200]],
+          "decayLo": 0.008,
+          "decayHi": 0.035,
+          "levelJitter": 20,
+          "size": 0.6
+        },
+        "pitch": -2.0929
+      }
+    },
+    {
+      "id": "spray",
+      "note": "The fine spray: a burst of tiny high ticks pattering onto the surface around the crown, thinning out before the droplets are done.",
+      "start": 0.09,
+      "gain": -2.8401,
+      "source": {
+        "type": "particles",
+        "distribution": "burst",
+        "density": 900,
+        "duration": 0.7,
+        "grain": {
+          "kind": "tick",
+          "lo": 3000,
+          "hi": 9000,
+          "decayLo": 0.002,
+          "decayHi": 0.009,
+          "levelJitter": 16
         }
       }
     }
@@ -188,9 +146,9 @@
         "id": "bank",
         "type": "reverb",
         "space": "forest",
-        "decay": 0.9,
+        "decay": 0.918832,
         "predelay": 35,
-        "mix": 0.12
+        "mix": 0.128558
       }
     ]
   },
@@ -199,7 +157,7 @@
       "id": "size",
       "label": "Size",
       "hint": "A pebble to a boulder (or a body): deeper gloop, longer rain of drops.",
-      "value": 0.5,
+      "value": 0.6728602786079169,
       "vary": 0.06,
       "targets": [
         {
@@ -211,20 +169,29 @@
         {
           "path": "tracks.gloop.source.decay",
           "mode": "set",
-          "from": 0.12,
-          "to": 0.6
+          "from": 0.1,
+          "via": 0.26,
+          "to": 0.55
         },
         {
           "path": "tracks.gloop.gain",
           "mode": "set",
-          "from": -12,
-          "to": 3
+          "from": -14,
+          "via": -1,
+          "to": 4
+        },
+        {
+          "path": "tracks.crown.source.env.points",
+          "mode": "stretch",
+          "from": 0.5,
+          "to": 1.8
         },
         {
           "path": "tracks.droplets.source.duration",
           "mode": "set",
-          "from": 0.3,
-          "to": 1.5
+          "from": 0.35,
+          "via": 0.9,
+          "to": 1.8
         },
         {
           "path": "tracks.droplets.source.pitch",
@@ -232,19 +199,21 @@
           "from": 8,
           "to": -7
         }
-      ]
+      ],
+      "default": 0.5
     },
     {
       "id": "impact",
       "label": "Impact",
       "hint": "Slipping in edge-first to a flat, stinging belly flop.",
-      "value": 0.5,
+      "value": 0.6260128445095489,
       "vary": 0.08,
       "targets": [
         {
           "path": "tracks.slap.gain",
           "mode": "set",
-          "from": -18,
+          "from": -20,
+          "via": -3,
           "to": 4
         },
         {
@@ -253,48 +222,62 @@
           "from": -6,
           "to": 9
         }
-      ]
+      ],
+      "default": 0.5
     },
     {
       "id": "spray",
       "label": "Spray",
       "hint": "A clean plunge to a wide, hissing crown and a shower of droplets.",
-      "value": 0.5,
+      "value": 0.7971354166666665,
       "vary": 0.05,
       "targets": [
         {
           "path": "tracks.crown.gain",
           "mode": "set",
-          "from": -24,
-          "to": -1
+          "from": -22,
+          "via": -4,
+          "to": 3
         },
         {
           "path": "tracks.droplets.source.density",
           "mode": "set",
-          "from": 30,
-          "to": 420
+          "from": 60,
+          "via": 450,
+          "to": 1100
+        },
+        {
+          "path": "tracks.spray.gain",
+          "mode": "set",
+          "from": -36,
+          "via": -7,
+          "to": 0
         }
-      ]
+      ],
+      "default": 0.5
     },
     {
       "id": "distance",
       "label": "Distance",
       "hint": "At your feet to across the lake.",
-      "value": 0.3,
+      "value": 0.3181537089279797,
       "targets": [
         {
           "path": "master.fx.bank.mix",
           "mode": "set",
-          "from": 0,
+          "from": 0.04,
+          "via": 0.12,
           "to": 0.45
         },
         {
           "path": "master.fx.bank.decay",
           "mode": "set",
           "from": 0.5,
+          "via": 0.9,
           "to": 2
         }
-      ]
+      ],
+      "default": 0.3
     }
   ]
 }

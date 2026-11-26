@@ -1,48 +1,39 @@
 {
   "format": "sfxgen/1",
   "name": "Robot creature chatter",
-  "description": "A knee-high maintenance droid with opinions: about 0.9 s of burbling electronic speech, a dozen syllables of unstable tone that jump in pitch like words, squeezed through a small plastic speaker-mouth, ending on a rising two-note \"bee-woop?\" at 950 ms. Its head servo twitches as it finishes. Close, in a corridor.",
-  "tags": [
-    "creature",
-    "robot",
-    "droid",
-    "chatter",
-    "beep",
-    "talk",
-    "cute",
-    "scifi"
-  ],
+  "description": "A knee-high maintenance droid with opinions: a short burst of burbling electronic speech, syllables of unstable tone that jump in pitch like words, squeezed through a small plastic speaker-mouth, ending on a rising two-note \"bee-woop?\". Its arms and head jerk about on little servos as it talks, and the head tilts as it finishes. Close, in a corridor.",
+  "tags": ["creature", "robot", "droid", "chatter", "beep", "talk", "cute", "scifi"],
   "duration": "auto",
   "seed": 42,
   "tracks": [
     {
       "id": "babble",
-      "note": "The speech: two cross-modulating oscillators whose pitch is thrown to a new value 13 times a second, each syllable a little chaotic. Seeds change what it says.",
+      "note": "The speech: two cross-modulating oscillators whose pitch is thrown to a new value on every syllable, each syllable a little chaotic. Seeds change what it says.",
       "source": {
         "type": "chaos",
         "mode": "feedback",
-        "ratio": 2.02,
+        "ratio": 2.12344581459741,
         "rate": {
-          "value": 880,
+          "value": 1097.4922312261237,
           "mod": [
             {
               "type": "lfo",
               "shape": "random",
-              "rate": 13,
-              "depth": 11,
+              "rate": 15.6544,
+              "depth": 5.47723,
               "unit": "st"
             },
             {
               "type": "lfo",
               "shape": "saw",
-              "rate": 13,
+              "rate": 15.6544,
               "depth": 2.5,
               "unit": "st"
             }
           ]
         },
         "chaos": {
-          "value": 0.32,
+          "value": 0.421246,
           "mod": [
             {
               "type": "lfo",
@@ -52,20 +43,22 @@
             }
           ]
         },
-        "smooth": 0.45,
+        "smooth": 0.385836,
         "env": {
           "attack": 0.004,
           "hold": 0.86,
           "decay": 0.03
-        }
+        },
+        "pitch": -0.777199
       },
       "fx": [
         {
           "id": "syllables",
           "type": "tremolo",
-          "rate": 13,
+          "rate": 15.6544,
           "depth": 0.85,
-          "shape": "saw"
+          "shape": "saw",
+          "phase": 0
         },
         {
           "id": "mouth",
@@ -81,7 +74,7 @@
               }
             ]
           },
-          "size": 0.62,
+          "size": 0.632412,
           "resonance": 1.5,
           "mix": 0.75
         }
@@ -90,7 +83,7 @@
     {
       "id": "question",
       "note": "The sign-off: two clean notes, the second sliding up. It turns noise into a sentence with a meaning.",
-      "start": 0.95,
+      "start": 0.8728,
       "events": [
         {
           "t": 0,
@@ -105,89 +98,70 @@
       "source": {
         "type": "chaos",
         "mode": "feedback",
-        "ratio": 2,
-        "rate": [
-          [
-            0,
-            1250
-          ],
-          [
-            0.11,
-            1250
-          ],
-          [
-            0.25,
-            1900
-          ]
-        ],
-        "chaos": 0.12,
-        "smooth": 0.5,
+        "ratio": 2.5617570366745546,
+        "rate": [[0, 1250], [0.11, 1250], [0.25, 1900]],
+        "chaos": 0.23685519748263886,
+        "smooth": 0.4470194498697917,
         "env": {
           "attack": 0.004,
           "sustain": 1,
           "release": 0.05
-        }
+        },
+        "gain": -3.602457682291657,
+        "pitch": -0.777199
       },
       "fx": [
         {
           "type": "formant",
-          "vowel": [
-            [
-              0,
-              2
-            ],
-            [
-              0.11,
-              4
-            ],
-            [
-              0.3,
-              1
-            ]
-          ],
-          "size": 0.62,
+          "vowel": [[0, 2], [0.11, 4], [0.3, 1]],
+          "size": 0.632412,
           "resonance": 1.5,
           "mix": 0.75
         }
       ]
     },
     {
+      "id": "twitches",
+      "note": "Its arms and head jerking about while it talks: small servo moves scattered through the speech, each at its own moment, speed and strength (the seed decides). Low-passed, so they are darker and softer than the head tilt at the end.",
+      "start": 0.04,
+      "gain": -0.0000377116,
+      "repeat": {
+        "count": 4,
+        "interval": 0.199975,
+        "jitter": 0.07,
+        "pitchJitter": 4,
+        "velJitter": 0.4
+      },
+      "source": {
+        "type": "machine",
+        "kind": "servo",
+        "size": 0.4,
+        "rpm": [[0, 4500], [0.025, 10500], [0.055, 9500], [0.08, 3500]],
+        "load": [[0, 0.3], [0.08, 0.6]],
+        "env": {
+          "attack": 0.005,
+          "hold": 0.055,
+          "decay": 0.025
+        },
+        "filter": {
+          "mode": "lowpass",
+          "cutoff": 2200,
+          "q": 0.707,
+          "slope": "12"
+        }
+      }
+    },
+    {
       "id": "servo",
-      "note": "The head tilting as it asks: a small geared motor, 160 ms. Gives the voice a body.",
-      "start": 1.08,
-      "gain": 0,
+      "note": "The head tilting as it finishes the question: a small geared motor. Gives the voice a body.",
+      "start": 1.1521,
+      "gain": 0.754262,
       "source": {
         "type": "machine",
         "kind": "servo",
         "size": 0.5,
-        "rpm": [
-          [
-            0,
-            5000
-          ],
-          [
-            0.05,
-            12500
-          ],
-          [
-            0.13,
-            11000
-          ],
-          [
-            0.17,
-            4000
-          ]
-        ],
-        "load": [
-          [
-            0,
-            0.3
-          ],
-          [
-            0.17,
-            0.7
-          ]
-        ],
+        "rpm": [[0, 5000], [0.05, 12500], [0.13, 11000], [0.17, 4000]],
+        "load": [[0, 0.3], [0.17, 0.7]],
         "env": {
           "attack": 0.008,
           "hold": 0.13,
@@ -234,7 +208,7 @@
       "id": "size",
       "label": "Size",
       "hint": "A pocket-sized bot to a barrel-shaped one: lower voice, bigger mouth.",
-      "value": 0.4,
+      "value": 0.4250956217447925,
       "vary": 0.05,
       "targets": [
         {
@@ -267,7 +241,7 @@
       "id": "talk",
       "label": "Talk speed",
       "hint": "Slow, deliberate words to an excited gabble.",
-      "value": 0.5,
+      "value": 0.6917680528428828,
       "vary": 0.1,
       "targets": [
         {
@@ -309,7 +283,7 @@
       "id": "glitch",
       "label": "Glitch",
       "hint": "A healthy clean voice to a damaged, crackling one.",
-      "value": 0.3,
+      "value": 0.42832743326822925,
       "targets": [
         {
           "path": "tracks.babble.source.chaos.value",
@@ -328,14 +302,40 @@
     {
       "id": "servo",
       "label": "Servo",
-      "hint": "How loudly its head motor twitches at the end.",
-      "value": 0.5,
+      "hint": "How loud its motors are: the twitches as it talks and the head tilt at the end.",
+      "value": 0.7885708279079864,
       "targets": [
         {
           "path": "tracks.servo.gain",
           "mode": "set",
           "from": -30,
           "to": 9
+        },
+        {
+          "path": "tracks.twitches.gain",
+          "mode": "set",
+          "from": -30.7543,
+          "to": 8.2457
+        }
+      ]
+    },
+    {
+      "id": "fidget",
+      "label": "Fidget",
+      "hint": "Still while it talks to jerking about on every other word: from a single servo twitch to many.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.twitches.repeat.count",
+          "mode": "set",
+          "from": 1,
+          "to": 7
+        },
+        {
+          "path": "tracks.twitches.repeat.interval",
+          "mode": "set",
+          "from": 0.3,
+          "to": 0.1333
         }
       ]
     }

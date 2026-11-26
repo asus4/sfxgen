@@ -1,111 +1,349 @@
 {
   "format": "sfxgen/1",
   "name": "Reload",
-  "description": "A pistol reloaded in a quiet room, close to the microphone. 0 ms: a fresh magazine is slapped into the grip, a steel box seating in a polymer frame with a palm thump behind it. 260 to 400 ms: the slide is racked back, steel dragged over steel for 140 ms, its ridges slowing as the spring loads. 410 ms: let go, the slide slams home (the hardest, brightest hit) and its recoil spring twangs for a moment inside the frame.",
-  "tags": ["weapon", "gun", "reload", "click", "pistol", "magazine", "slide", "rack", "mechanical", "foley"],
+  "description": "A service pistol reloaded in a quiet room, close to the microphone: dry, dense, damped clacks with steel sliding between them, nothing that rings. A full magazine rasps up the magazine well and seats, the catch snapping over it just after, with the palm's thump on the polymer grip behind both. A pause, then the slide is racked back, a 'shh' of steel on steel with the rails' machining ticking under it, slowing as the spring loads, and knocks its rear stop. Let go, the slide runs home, the loudest hit: slide meeting barrel, then the lock-up right after, a chunky double clack with the frame's knock under it and the recoil spring chattering for a moment after.",
+  "tags": [
+    "weapon",
+    "gun",
+    "reload",
+    "click",
+    "pistol",
+    "magazine",
+    "slide",
+    "rack",
+    "mechanical",
+    "foley"
+  ],
   "duration": "auto",
   "seed": 7,
   "tracks": [
     {
+      "id": "magin",
+      "note": "The magazine sliding up the well: a short rising rasp of sheet steel on polymer, before the click.",
+      "gain": -12,
+      "source": {
+        "type": "noise",
+        "color": "pink",
+        "env": {
+          "points": [[0, 0], [0.012, 0.5], [0.05, 1], [0.058, 0]]
+        },
+        "filter": {
+          "mode": "bandpass",
+          "cutoff": [[0, 1300], [0.055, 2900]],
+          "q": 1.1
+        }
+      },
+      "sends": {
+        "room": -14
+      }
+    },
+    {
       "id": "magazine",
-      "note": "Mag seating: a small steel box hit inside the grip. Dented and damped, because it is full of rounds and held in a hand.",
+      "note": "Mag seating, then the catch snapping over it just after: a full steel box held in a hand, so many crowded modes, heavily damped, dented. A clack with no note in it.",
+      "start": 0.058,
+      "gain": -3,
       "source": {
         "type": "modal",
         "material": "metal",
         "shape": "box",
-        "freq": 720,
-        "decay": 0.07,
-        "damping": 2.2,
-        "dent": 0.5,
-        "position": 0.6,
+        "freq": 420,
+        "decay": 0.035,
+        "damping": 2.4,
+        "modes": 48,
+        "stretch": 0.9,
+        "dent": 0.8,
+        "position": 0.7,
         "variant": 5,
-        "exciter": { "kind": "mallet", "hardness": 0.73 }
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.76,
+          "spread": 0.003
+        },
+        "brightness": 0.8
+      },
+      "events": [
+        {
+          "t": 0,
+          "vel": 1
+        },
+        {
+          "t": 0.013,
+          "vel": 0.55,
+          "pitch": 5
+        }
+      ],
+      "sends": {
+        "room": -12
       }
     },
     {
       "id": "palm",
-      "note": "The palm and the polymer frame taking the slap: the low part of the click, 2 ms late.",
-      "start": 0.002,
-      "gain": -5.7,
+      "note": "The palm and the polymer grip taking the slap: the low half of the magazine's clack, a hair late.",
+      "start": 0.06,
+      "gain": -5,
       "source": {
         "type": "modal",
         "material": "plastic",
         "shape": "box",
-        "freq": 205,
-        "decay": 0.08,
-        "position": 0.3,
-        "exciter": { "kind": "mallet", "hardness": 0.4 }
+        "freq": 185,
+        "decay": 0.045,
+        "damping": 2,
+        "modes": 40,
+        "dent": 0.6,
+        "position": 0.4,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.45,
+          "spread": 0.004
+        }
+      },
+      "sends": {
+        "room": -12
       }
     },
     {
       "id": "rack",
-      "note": "The slide pulled back: a scrape with fairly regular ridges (machined rails), slowing. Quieter than the hits either side of it.",
-      "start": 0.26,
-      "gain": -5.2,
+      "note": "The slide dragged back: the 'shh' of steel on oiled steel, falling in pitch as it slows, coloured by a very short metallic resonance so it is a gun and not paper.",
+      "start": 0.3,
+      "gain": -16,
       "source": {
-        "type": "modal",
-        "material": "metal",
-        "shape": "tube",
-        "freq": 1150,
-        "decay": 0.05,
-        "damping": 1.5,
-        "modes": 18,
-        "dent": 0.3,
-        "exciter": { "kind": "scrape", "hardness": 0.75, "duration": 0.14, "density": [[0, 520], [0.14, 160]], "roughness": 0.3 }
+        "type": "noise",
+        "color": "pink",
+        "env": {
+          "points": [[0, 0], [0.015, 1], [0.11, 0.55], [0.135, 0]]
+        },
+        "filter": {
+          "mode": "bandpass",
+          "cutoff": [[0, 3000], [0.135, 1500]],
+          "q": 1.1
+        }
+      },
+      "fx": [
+        {
+          "type": "resonator",
+          "id": "steel",
+          "mode": "metal",
+          "freq": 870,
+          "decay": 0.015,
+          "brightness": 0.4,
+          "chord": [0, 3.3, 7.4, 11.9],
+          "mix": 0.45
+        }
+      ],
+      "sends": {
+        "room": -14
+      }
+    },
+    {
+      "id": "rails",
+      "note": "The rails' machining and the disconnector riding over them: a loosely regular run of small steel ticks, slowing with the slide.",
+      "start": 0.302,
+      "gain": -5,
+      "source": {
+        "type": "particles",
+        "distribution": "regular",
+        "density": [[0, 190], [0.13, 70]],
+        "duration": 0.13,
+        "jitter": 0.2,
+        "grain": {
+          "kind": "tick",
+          "lo": 1800,
+          "hi": 5000,
+          "decayLo": 0.002,
+          "decayHi": 0.005,
+          "levelJitter": 8
+        }
+      },
+      "sends": {
+        "room": -14
       }
     },
     {
       "id": "slam",
-      "note": "Slide home: steel on steel, a bar this time so it has a pitch different from the magazine. The loudest moment.",
-      "start": 0.41,
-      "gain": 2,
+      "note": "The slide's three knocks: its rear stop at the end of the rack (softer, higher), then home against the barrel and the lock-up right after. A dense, dented steel box with many modes, dead almost at once.",
+      "start": 0.43,
+      "gain": 0,
       "source": {
         "type": "modal",
         "material": "metal",
-        "shape": "bar",
-        "freq": 1040,
-        "decay": 0.1,
-        "damping": 1.8,
-        "dent": 0.35,
+        "shape": "box",
+        "freq": 310,
+        "decay": 0.045,
+        "damping": 2.2,
+        "modes": 64,
+        "stretch": 0.9,
+        "dent": 0.7,
         "position": 0.85,
         "variant": 9,
-        "exciter": { "kind": "mallet", "hardness": 0.8 }
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.78,
+          "spread": 0.002
+        },
+        "brightness": 0.85
       },
-      "fx": [{ "type": "transient", "attack": 4.8, "window": 0.005 }]
+      "events": [
+        {
+          "t": 0,
+          "vel": 0.4,
+          "pitch": 3
+        },
+        {
+          "t": 0.04,
+          "vel": 1
+        },
+        {
+          "t": 0.049,
+          "vel": 0.6,
+          "pitch": 4
+        }
+      ],
+      "fx": [
+        {
+          "type": "transient",
+          "id": "snap",
+          "attack": 3.8,
+          "window": 0.004
+        }
+      ],
+      "sends": {
+        "room": -12
+      }
+    },
+    {
+      "id": "frame",
+      "note": "The frame and the hand taking the slide's mass as it stops: the knock under the slam that makes it a clunk and not a tick.",
+      "start": 0.471,
+      "gain": -4,
+      "source": {
+        "type": "modal",
+        "material": "plastic",
+        "shape": "box",
+        "freq": 165,
+        "decay": 0.04,
+        "damping": 3,
+        "modes": 48,
+        "dent": 0.6,
+        "position": 0.5,
+        "variant": 3,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.5,
+          "spread": 0.004
+        }
+      },
+      "sends": {
+        "room": -12
+      }
     },
     {
       "id": "spring",
-      "note": "The recoil spring ringing after the slam: a very stiff string, choked quickly. Small, but it is the detail that says 'mechanism'.",
-      "start": 0.413,
-      "gain": -24.8,
+      "note": "The recoil spring and loose parts chattering after the slam: a thinning burst of tiny dull steel ticks. Small, but it says 'mechanism'.",
+      "start": 0.486,
+      "gain": -5,
       "source": {
-        "type": "pluck",
-        "freq": 137,
-        "decay": 0.269,
-        "stiffness": 0.92,
-        "brightness": 0.75,
-        "position": 0.08,
-        "excite": "strike",
-        "hardness": 0.8,
-        "mute": [[0, 0.1], [0.12, 0.7]]
+        "type": "particles",
+        "distribution": "burst",
+        "density": 380,
+        "duration": 0.09,
+        "grain": {
+          "kind": "tick",
+          "lo": 900,
+          "hi": 3600,
+          "decayLo": 0.003,
+          "decayHi": 0.009,
+          "levelJitter": 10,
+          "size": 0.5
+        }
+      },
+      "sends": {
+        "room": -14
       }
     }
   ],
-  "master": { "fx": [{ "type": "reverb", "id": "room", "space": "room", "decay": 0.324, "mix": 0.12 }] },
+  "buses": [
+    {
+      "id": "room",
+      "fx": [
+        {
+          "type": "reverb",
+          "id": "space",
+          "space": "room",
+          "size": 3.5,
+          "decay": 0.314046,
+          "damping": 0.6,
+          "early": 0.8,
+          "predelay": 2,
+          "lowcut": 150,
+          "highcut": 6000,
+          "bass": 0.6
+        }
+      ],
+      "gain": -18.6
+    }
+  ],
+  "master": {
+    "normalize": {
+      "mode": "peak",
+      "target": -1
+    }
+  },
   "controls": [
     {
       "id": "weight",
       "label": "Weight",
       "hint": "A pocket pistol's ticks to a heavy rifle's clunks.",
-      "value": 0.45,
+      "value": 0.5,
       "vary": 0.05,
       "targets": [
-        { "path": "tracks.magazine.source.freq", "mode": "mul", "from": 1.8, "to": 0.5 },
-        { "path": "tracks.palm.source.freq", "mode": "mul", "from": 1.6, "to": 0.55 },
-        { "path": "tracks.palm.gain", "from": -12, "to": 2 },
-        { "path": "tracks.rack.source.freq", "mode": "mul", "from": 1.7, "to": 0.55 },
-        { "path": "tracks.slam.source.freq", "mode": "mul", "from": 1.8, "to": 0.5 },
-        { "path": "tracks.spring.source.freq", "mode": "mul", "from": 1.6, "to": 0.6 }
+        {
+          "path": "tracks.magazine.source.freq",
+          "mode": "mul",
+          "from": 1.8,
+          "to": 0.55
+        },
+        {
+          "path": "tracks.palm.source.freq",
+          "mode": "mul",
+          "from": 1.6,
+          "to": 0.62
+        },
+        {
+          "path": "tracks.palm.gain",
+          "from": -14,
+          "via": -5,
+          "to": 0
+        },
+        {
+          "path": "tracks.slam.source.freq",
+          "mode": "mul",
+          "from": 1.8,
+          "to": 0.55
+        },
+        {
+          "path": "tracks.slam.source.decay",
+          "mode": "mul",
+          "from": 0.7,
+          "to": 1.43
+        },
+        {
+          "path": "tracks.frame.source.freq",
+          "mode": "mul",
+          "from": 1.6,
+          "to": 0.62
+        },
+        {
+          "path": "tracks.frame.gain",
+          "from": -14,
+          "via": -4,
+          "to": 1
+        },
+        {
+          "path": "tracks.rack.fx.steel.freq",
+          "mode": "mul",
+          "from": 1.6,
+          "to": 0.62
+        }
       ]
     },
     {
@@ -115,43 +353,178 @@
       "value": 0.5,
       "vary": 0.08,
       "targets": [
-        { "path": "tracks.rack.start", "mode": "mul", "from": 1.9, "to": 0.5 },
-        { "path": "tracks.slam.start", "mode": "mul", "from": 1.9, "to": 0.5 },
-        { "path": "tracks.spring.start", "mode": "mul", "from": 1.9, "to": 0.5 },
-        { "path": "tracks.rack.source.exciter.duration", "mode": "mul", "from": 1.9, "to": 0.5 },
-        { "path": "tracks.rack.source.exciter.density", "mode": "stretch", "from": 1.9, "to": 0.5 }
+        {
+          "path": "tracks.rack.start",
+          "mode": "mul",
+          "from": 1.8,
+          "to": 0.55
+        },
+        {
+          "path": "tracks.rails.start",
+          "mode": "mul",
+          "from": 1.8,
+          "to": 0.55
+        },
+        {
+          "path": "tracks.slam.start",
+          "mode": "mul",
+          "from": 1.8,
+          "to": 0.55
+        },
+        {
+          "path": "tracks.frame.start",
+          "mode": "mul",
+          "from": 1.8,
+          "to": 0.55
+        },
+        {
+          "path": "tracks.spring.start",
+          "mode": "mul",
+          "from": 1.8,
+          "to": 0.55
+        },
+        {
+          "path": "tracks.rack.source.env",
+          "mode": "stretch",
+          "from": 1.8,
+          "to": 0.55
+        },
+        {
+          "path": "tracks.rack.source.filter.cutoff",
+          "mode": "stretch",
+          "from": 1.8,
+          "to": 0.55
+        },
+        {
+          "path": "tracks.rails.source.duration",
+          "mode": "mul",
+          "from": 1.8,
+          "to": 0.55
+        },
+        {
+          "path": "tracks.rails.source.density",
+          "mode": "stretch",
+          "from": 1.8,
+          "to": 0.55
+        }
       ]
     },
     {
       "id": "snap",
       "label": "Snap",
-      "hint": "Oiled and soft to dry, hard and clacking.",
+      "hint": "Oiled and soft, a muffled clunk, to dry, hard and clacking.",
       "value": 0.6,
       "vary": 0.1,
       "targets": [
-        { "path": "tracks.slam.source.exciter.hardness", "from": 0.5, "to": 1 },
-        { "path": "tracks.magazine.source.exciter.hardness", "from": 0.4, "to": 0.95 },
-        { "path": "tracks.slam.fx.0.attack", "from": -3, "to": 10 }
+        {
+          "path": "tracks.slam.source.exciter.hardness",
+          "from": 0.45,
+          "to": 1
+        },
+        {
+          "path": "tracks.magazine.source.exciter.hardness",
+          "from": 0.4,
+          "to": 1
+        },
+        {
+          "path": "tracks.slam.source.damping",
+          "from": 5,
+          "via": 2.2,
+          "to": 1.4
+        },
+        {
+          "path": "tracks.slam.fx.snap.attack",
+          "from": -4,
+          "to": 9
+        },
+        {
+          "path": "tracks.slam.source.brightness",
+          "from": 0.3,
+          "via": 0.85,
+          "to": 1
+        },
+        {
+          "path": "tracks.magazine.source.brightness",
+          "from": 0.3,
+          "via": 0.8,
+          "to": 1
+        },
+        {
+          "path": "tracks.magazine.source.damping",
+          "from": 5,
+          "via": 2.4,
+          "to": 1.5
+        },
+        {
+          "path": "tracks.rails.source.grain.hi",
+          "from": 2600,
+          "via": 5000,
+          "to": 8000
+        }
+      ],
+      "default": 0.6
+    },
+    {
+      "id": "slide",
+      "label": "Slide",
+      "hint": "A barely heard rack to a long gritty drag of steel on steel.",
+      "value": 0.5,
+      "vary": 0.1,
+      "targets": [
+        {
+          "path": "tracks.rack.gain",
+          "from": -28,
+          "via": -16,
+          "to": -7
+        },
+        {
+          "path": "tracks.rails.gain",
+          "from": -22,
+          "via": -5,
+          "to": 3
+        }
       ]
     },
     {
       "id": "spring",
-      "label": "Spring",
-      "hint": "A tight new gun, or a loose one that twangs and rattles.",
+      "label": "Looseness",
+      "hint": "A tight new gun, or a worn one whose spring and parts rattle after the slam.",
       "value": 0.4,
       "vary": 0.1,
       "targets": [
-        { "path": "tracks.spring.gain", "from": -40, "to": -2 },
-        { "path": "tracks.spring.source.decay", "from": 0.12, "to": 0.9 },
-        { "path": "tracks.rack.gain", "from": -10, "to": 2 }
-      ]
+        {
+          "path": "tracks.spring.gain",
+          "from": -30,
+          "via": -5,
+          "to": 4
+        },
+        {
+          "path": "tracks.spring.source.duration",
+          "from": 0.05,
+          "via": 0.09,
+          "to": 0.22
+        }
+      ],
+      "default": 0.4
     },
     {
       "id": "room",
       "label": "Room",
       "hint": "Dead close-up foley to a bare concrete room.",
       "value": 0.3,
-      "targets": [{ "path": "master.fx.room.mix", "from": 0, "to": 0.4, "curve": "linear" }, { "path": "master.fx.room.decay", "from": 0.2, "to": 1 }]
+      "targets": [
+        {
+          "path": "buses.room.gain",
+          "from": -30,
+          "to": 8,
+          "curve": "linear"
+        },
+        {
+          "path": "buses.room.fx.space.decay",
+          "from": 0.2,
+          "to": 0.9
+        }
+      ]
     }
   ]
 }

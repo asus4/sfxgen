@@ -1,56 +1,30 @@
 {
   "format": "sfxgen/1",
   "name": "Ghostly moan",
-  "description": "Something that used to be a person, sighing in an empty stone church: a breathy \"oooh\" with no chest in it rises a third over the first second, trembles, and sinks away by 2.6 s, doubled by a second voice a little out of tune. Before it, a whisper is sucked in backwards, and a draught whistles thinly through a keyhole above everything. Most of what you hear is the building.",
-  "tags": [
-    "creature",
-    "ghost",
-    "moan",
-    "spirit",
-    "haunted",
-    "horror",
-    "undead",
-    "voice"
-  ],
+  "description": "Something that used to be a person, sighing in an empty stone church: a breathy \"oooh\" with no chest in it that darkens through \"ü\" to a covered \"ö\", a cry that drops, rises once more and sinks away, rough with a growl, and a second voice a little out of tune. A cold draught moans low through the stones beneath it. Most of what you hear is the building.",
+  "tags": ["creature", "ghost", "moan", "spirit", "haunted", "horror", "undead", "voice"],
   "duration": "auto",
   "maxDuration": 6.5,
-  "seed": 31,
+  "seed": 13001,
   "output": {
     "channels": 2
   },
   "tracks": [
     {
       "id": "moan",
-      "gain": -6,
-      "note": "The voice: slack folds, half breath, vowel drifting between \"oo\" and \"oh\". The slow vibrato that fades in is the sorrow.",
+      "gain": -6.059936523437493,
+      "note": "The voice: slack folds, half breath and a heavy growl that roughens it; the vowel darkens from \"oo\" through \"ü\" to a covered \"ö\". The vibrato that fades in is the sorrow.",
       "start": 0.2,
       "source": {
         "type": "voice",
         "freq": {
-          "env": [
-            [
-              0,
-              196
-            ],
-            [
-              1,
-              247
-            ],
-            [
-              1.6,
-              233
-            ],
-            [
-              2.4,
-              165
-            ]
-          ],
+          "env": [[0, 311.7], [0.6344, 157.3], [1.597, 239], [2.435, 124.4]],
           "curve": "smooth",
           "mod": [
             {
               "type": "lfo",
               "rate": 4.6,
-              "depth": 0.45,
+              "depth": 0.291136,
               "unit": "st",
               "delay": 0.5,
               "fade": 0.8
@@ -63,51 +37,19 @@
             }
           ]
         },
-        "vowel": [
-          [
-            0,
-            4
-          ],
-          [
-            1.1,
-            3
-          ],
-          [
-            2.4,
-            3.9
-          ]
-        ],
-        "size": 1.15,
-        "tension": 0.08,
-        "breath": 0.5,
-        "resonance": 1.6,
-        "shimmer": 2.2,
+        "vowel": [[0, 3.968], [1.06, 4.774], [2.323, 6]],
+        "size": 0.862106,
+        "tension": 0.227984,
+        "breath": 0.653134,
+        "resonance": 0.956269304665148,
+        "shimmer": 2.77984,
         "jitter": 1.6,
         "env": {
-          "points": [
-            [
-              0,
-              0
-            ],
-            [
-              0.6,
-              0.8
-            ],
-            [
-              1.2,
-              1
-            ],
-            [
-              1.9,
-              0.5
-            ],
-            [
-              2.5,
-              0
-            ]
-          ],
+          "points": [[0, 0], [0.6, 0.8], [1.2, 1], [1.9, 0.5], [2.5, 0]],
           "curve": "linear"
-        }
+        },
+        "growl": 0.9314520941840282,
+        "pitch": 5.95517
       },
       "fx": [
         {
@@ -122,98 +64,27 @@
       ]
     },
     {
-      "id": "inhale",
-      "note": "A whispered breath played backwards, so it swells and is cut off just as the moan begins: the \"wrong\" detail that makes it a ghost.",
-      "gain": 8,
-      "source": {
-        "type": "voice",
-        "freq": 150,
-        "vowel": [
-          [
-            0,
-            0
-          ],
-          [
-            0.5,
-            2
-          ]
-        ],
-        "size": 1.1,
-        "breath": 1,
-        "tension": 0,
-        "env": {
-          "points": [
-            [
-              0,
-              0
-            ],
-            [
-              0.004,
-              1
-            ],
-            [
-              0.12,
-              0.4
-            ],
-            [
-              0.3,
-              0
-            ]
-          ],
-          "curve": "linear"
-        }
-      },
-      "fx": [
-        {
-          "type": "reverse"
-        }
-      ]
-    },
-    {
       "id": "draught",
-      "note": "Cold air through a gap: noise ringing in a narrow tube whose pitch follows the moan a fifth above, very quiet.",
-      "start": 0.2,
-      "gain": -14,
+      "note": "Cold air through a gap: noise ringing in a narrow tube, low-passed with a little resonance, so it moans low under the voice instead of whistling.",
+      "start": 0,
+      "gain": -16.2995,
       "source": {
         "type": "noise",
-        "color": "pink",
+        "color": "velvet",
         "env": {
-          "points": [
-            [
-              0,
-              0
-            ],
-            [
-              1.2,
-              1
-            ],
-            [
-              2.8,
-              0
-            ]
-          ],
+          "points": [[0, 0], [1.2, 1], [2.8, 0]],
           "curve": "linear"
-        }
+        },
+        "pitch": 20.06946614583336,
+        "density": 145.9696617902927,
+        "width": 0.7475406222873263
       },
       "fx": [
         {
           "type": "resonator",
           "mode": "tube",
           "freq": {
-            "env": [
-              [
-                0,
-                590
-              ],
-              [
-                1.2,
-                760
-              ],
-              [
-                2.8,
-                500
-              ]
-            ],
+            "env": [[0, 590], [1.2, 760], [2.8, 500]],
             "mod": [
               {
                 "type": "wander",
@@ -223,8 +94,17 @@
               }
             ]
           },
-          "decay": 0.5,
-          "brightness": 0.2
+          "decay": 0.059493915333392156,
+          "brightness": 0.3100545247395836,
+          "mix": 0.8571322970920147
+        },
+        {
+          "id": "muffle",
+          "type": "filter",
+          "mode": "lowpass",
+          "cutoff": 512.4172550356606,
+          "q": 1.6189740467889802,
+          "slope": 12
         }
       ]
     }
@@ -245,9 +125,9 @@
         "id": "church",
         "type": "reverb",
         "space": "cathedral",
-        "decay": 3.4,
+        "decay": 3.72682,
         "predelay": 30,
-        "mix": 0.5
+        "mix": 0.52262
       }
     ]
   },
@@ -255,8 +135,8 @@
     {
       "id": "sorrow",
       "label": "Sorrow",
-      "hint": "A flat, empty sigh to a wailing lament: wider pitch arc and tremble.",
-      "value": 0.5,
+      "hint": "A flat, empty sigh to a wailing lament: deeper vibrato, a tighter throat and a shakier voice.",
+      "value": 0.5699591445818788,
       "targets": [
         {
           "path": "tracks.moan.source.freq.mod.0.depth",
@@ -282,7 +162,7 @@
       "id": "age",
       "label": "Voice",
       "hint": "A lost child, a woman, to a hollow old man.",
-      "value": 0.45,
+      "value": 0.18385583762692975,
       "vary": 0.06,
       "targets": [
         {
@@ -300,36 +180,50 @@
       ]
     },
     {
+      "id": "menace",
+      "label": "Menace",
+      "hint": "A sorrowful sigh to a rough, growling throat.",
+      "value": 0.9314520941840282,
+      "targets": [
+        {
+          "path": "tracks.moan.source.growl",
+          "mode": "set",
+          "from": 0,
+          "to": 1
+        }
+      ]
+    },
+    {
       "id": "breath",
       "label": "Breath",
       "hint": "A sung tone to almost nothing but air.",
-      "value": 0.5,
+      "value": 0.6708454852905159,
       "targets": [
         {
           "path": "tracks.moan.source.breath",
           "mode": "set",
           "from": 0.15,
           "to": 0.9
-        },
-        {
-          "path": "tracks.inhale.gain",
-          "mode": "set",
-          "from": -20,
-          "to": 12
         }
       ]
     },
     {
       "id": "draught",
       "label": "Draught",
-      "hint": "The thin whistle of cold air around the voice.",
-      "value": 0.4,
+      "hint": "Still air to a cold wind moaning under the voice: louder, and less muffled as it grows.",
+      "value": 0.8208541666666668,
       "targets": [
         {
           "path": "tracks.draught.gain",
           "mode": "set",
-          "from": -40,
-          "to": -3
+          "from": -36,
+          "to": -12
+        },
+        {
+          "path": "tracks.draught.fx.muffle.cutoff",
+          "mode": "set",
+          "from": 220,
+          "to": 616.2584369596009
         }
       ]
     },
@@ -337,7 +231,7 @@
       "id": "beyond",
       "label": "Beyond",
       "hint": "In the room with you, to far away on the other side.",
-      "value": 0.5,
+      "value": 0.49682730704384237,
       "targets": [
         {
           "path": "master.fx.church.mix",

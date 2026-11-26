@@ -1,84 +1,212 @@
 {
   "format": "sfxgen/1",
   "name": "Sword clash",
-  "description": "Two steel blades meet edge to edge in a stone courtyard. 0 ms: the attacker's blade (a long bar, 640 Hz) strikes near its tip. 4 ms later the defender's blade, shorter and held tight so it rings higher and dies sooner, answers. Both are real hand-forged bars, a little out of true. 30 to 260 ms: the edges grind along each other as the swords slide to the guards, a rasp that slows down. A few sparks tick off the contact. Walls give it a short hard slap.",
-  "tags": ["weapon", "sword", "clash", "clang", "metal", "blade", "parry", "melee", "impact", "steel"],
+  "description": "Two steel blades meet edge to edge in a stone courtyard: a harsh bite, a clank and a ring, not a chime. First the edges bite, a brief broadband crunch of steel on steel. With it the attacker's long blade is set ringing, struck near its tip and chattering twice more against the other edge: a bright, crowded, beating cluster of high overtones, with no single bell note under it. A hair later the defender's blade, gripped hard, answers with the clank, lower, dented and quickly dead. Then the edges grind along each other to the guards, a gritty 'shing' that slows down. The walls give it a short hard slap, and the attacker's blade sings on after the rest.",
+  "tags": [
+    "weapon",
+    "sword",
+    "clash",
+    "clang",
+    "metal",
+    "blade",
+    "parry",
+    "melee",
+    "impact",
+    "steel"
+  ],
   "duration": "auto",
   "seed": 15,
   "tracks": [
     {
+      "id": "bite",
+      "note": "The contact itself: a brief burst of clipped noise as the edges cut into each other. The harshness that makes it a blow, not a bell.",
+      "gain": -1,
+      "source": {
+        "type": "noise",
+        "color": "white",
+        "env": {
+          "attack": 0.0003,
+          "decay": 0.016
+        },
+        "filter": {
+          "mode": "bandpass",
+          "cutoff": 3600,
+          "q": 0.7
+        }
+      },
+      "fx": [
+        {
+          "type": "drive",
+          "mode": "hard",
+          "amount": 10
+        }
+      ],
+      "sends": {
+        "yard": -12
+      }
+    },
+    {
       "id": "attacker",
-      "note": "The swung blade: free to ring, struck near the end so every mode sounds. Steel on steel, so the hardest mallet.",
+      "note": "The swung blade: free to ring, struck near the end, then chattering twice against the other edge. Many crowded, dented, beating modes with the bar's low note filtered away, so the ring is a shimmering cluster and not a chime bar.",
+      "gain": 0,
       "source": {
         "type": "modal",
         "material": "metal",
         "shape": "bar",
         "freq": 640,
         "decay": 1.1,
-        "modes": 22,
-        "dent": 0.25,
+        "damping": 0.8,
+        "modes": 40,
+        "stretch": 0.85,
+        "dent": 0.6,
+        "beat": 6,
         "position": 0.85,
-        "brightness": 0.665,
+        "brightness": 0.5,
         "variant": 3,
-        "exciter": { "kind": "mallet", "hardness": 0.865 },
-        "damping": 1.75
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.9
+        }
       },
-      "sends": { "yard": -10 }
+      "events": [
+        {
+          "t": 0,
+          "vel": 1
+        },
+        {
+          "t": 0.014,
+          "vel": 0.5,
+          "pitch": 0.4
+        },
+        {
+          "t": 0.031,
+          "vel": 0.28,
+          "pitch": -0.3
+        }
+      ],
+      "fx": [
+        {
+          "type": "filter",
+          "id": "tang",
+          "mode": "highpass",
+          "cutoff": 1250,
+          "q": 0.7,
+          "slope": "24"
+        },
+        {
+          "type": "eq",
+          "id": "air",
+          "bands": [
+            {
+              "mode": "highshelf",
+              "freq": 7000,
+              "gain": -9
+            }
+          ]
+        }
+      ],
+      "sends": {
+        "yard": -10
+      }
     },
     {
       "id": "defender",
-      "note": "The parrying blade: gripped hard (more damping), another object (other variant), 4 ms late. The flam is what makes it two swords.",
+      "note": "The parrying blade: gripped hard, so it clanks and dies. A different object (another `variant`), a hair late; the flam is what makes it two swords, and its low-mids are the weight of the blow.",
       "start": 0.004,
-      "gain": -2,
+      "gain": -1,
       "source": {
         "type": "modal",
         "material": "metal",
         "shape": "bar",
-        "freq": 913,
-        "decay": 0.49,
-        "damping": 1.7,
-        "modes": 18,
-        "dent": 0.4,
+        "freq": 340,
+        "decay": 0.25,
+        "damping": 2.8,
+        "modes": 40,
+        "stretch": 0.88,
+        "dent": 0.7,
         "position": 0.6,
         "variant": 11,
-        "exciter": { "kind": "mallet", "hardness": 0.85 }
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.85,
+          "spread": 0.002
+        }
       },
-      "sends": { "yard": -10 }
+      "sends": {
+        "yard": -10
+      }
     },
     {
       "id": "slide",
-      "note": "Edges grinding to the hilt: a scrape exciter on a plate-like blade flat, ridge rate falling as the slide slows.",
-      "start": 0.03,
-      "gain": -20.5,
+      "note": "Edges grinding to the hilt, the 'shing': gritty scrape on a dented blade flat, ridge rate falling as the slide slows.",
+      "start": 0.025,
+      "gain": -8,
       "source": {
         "type": "modal",
         "material": "metal",
         "shape": "plate",
-        "freq": 1480,
-        "decay": 0.18,
-        "modes": 30,
-        "brightness": 0.8,
-        "dent": 0.5,
-        "exciter": { "kind": "scrape", "hardness": 0.9, "duration": 0.219, "density": [[0, 1400], [0.23, 180]], "roughness": 0.55 }
+        "freq": 820,
+        "decay": 0.12,
+        "damping": 1.5,
+        "modes": 40,
+        "brightness": 0.55,
+        "dent": 0.6,
+        "variant": 6,
+        "exciter": {
+          "kind": "scrape",
+          "hardness": 0.9,
+          "duration": 0.26,
+          "density": [[0, 2200], [0.23, 400]],
+          "roughness": 0.8
+        }
       },
-      "sends": { "yard": -12 }
-    },
-    {
-      "id": "sparks",
-      "note": "Flecks of hot steel: a handful of bare clicks right after the hit.",
-      "start": 0.002,
-      "gain": -17.6,
-      "source": {
-        "type": "particles",
-        "distribution": "burst",
-        "density": 180,
-        "duration": 0.12,
-        "grain": { "kind": "click", "lo": 5000, "hi": 12000, "levelJitter": 16 }
-      }
+      "sends": {
+        "yard": -12
+      },
+      "fx": [
+        {
+          "type": "eq",
+          "bands": [
+            {
+              "mode": "highshelf",
+              "freq": 6500,
+              "gain": -10
+            },
+            {
+              "mode": "lowcut",
+              "freq": 500
+            }
+          ]
+        }
+      ]
     }
   ],
-  "buses": [{ "id": "yard", "fx": [{ "type": "reverb", "id": "walls", "space": "stairwell", "size": 12, "decay": 0.614, "predelay": 22 }], "gain": -15.6 }],
-  "master": { "fx": [{ "type": "limiter", "gain": 7, "release": 0.08 }] },
+  "buses": [
+    {
+      "id": "yard",
+      "fx": [
+        {
+          "type": "reverb",
+          "id": "walls",
+          "space": "stairwell",
+          "size": 12,
+          "decay": 0.6,
+          "predelay": 22,
+          "bass": 0.6
+        }
+      ],
+      "gain": -14
+    }
+  ],
+  "master": {
+    "fx": [
+      {
+        "type": "limiter",
+        "gain": 4,
+        "release": 0.08
+      }
+    ]
+  },
   "controls": [
     {
       "id": "size",
@@ -87,31 +215,103 @@
       "value": 0.5,
       "vary": 0.07,
       "targets": [
-        { "path": "tracks.attacker.source.freq", "mode": "mul", "from": 2.1, "to": 0.48 },
-        { "path": "tracks.defender.source.freq", "mode": "mul", "from": 2.3, "to": 0.5 },
-        { "path": "tracks.attacker.source.decay", "from": 0.5, "to": 2.4 },
-        { "path": "tracks.slide.source.freq", "mode": "mul", "from": 1.6, "to": 0.6 }
+        {
+          "path": "tracks.attacker.source.freq",
+          "mode": "mul",
+          "from": 2,
+          "to": 0.5
+        },
+        {
+          "path": "tracks.attacker.fx.tang.cutoff",
+          "mode": "mul",
+          "from": 2,
+          "to": 0.5
+        },
+        {
+          "path": "tracks.defender.source.freq",
+          "mode": "mul",
+          "from": 2,
+          "to": 0.5
+        },
+        {
+          "path": "tracks.attacker.source.decay",
+          "mode": "mul",
+          "from": 0.6,
+          "to": 1.67
+        },
+        {
+          "path": "tracks.slide.source.freq",
+          "mode": "mul",
+          "from": 1.6,
+          "to": 0.625
+        }
       ]
     },
     {
       "id": "force",
       "label": "Force",
-      "hint": "A light tap of blades to a full-strength blow.",
+      "hint": "A light tap of blades to a full-strength blow with a harsh bite.",
       "value": 0.7,
+      "default": 0.7,
       "vary": 0.12,
       "targets": [
-        { "path": "tracks.attacker.source.exciter.hardness", "from": 0.55, "to": 1 },
-        { "path": "tracks.defender.source.exciter.hardness", "from": 0.5, "to": 1 },
-        { "path": "tracks.attacker.source.brightness", "from": 0.35, "to": 0.8 },
-        { "path": "tracks.sparks.gain", "from": -40, "to": -8 }
+        {
+          "path": "tracks.attacker.source.exciter.hardness",
+          "from": 0.5,
+          "via": 0.9,
+          "to": 1
+        },
+        {
+          "path": "tracks.defender.source.exciter.hardness",
+          "from": 0.45,
+          "via": 0.85,
+          "to": 1
+        },
+        {
+          "path": "tracks.attacker.source.brightness",
+          "from": 0.25,
+          "via": 0.5,
+          "to": 0.7
+        },
+        {
+          "path": "tracks.bite.gain",
+          "from": -30,
+          "via": -1,
+          "to": 4
+        },
+        {
+          "path": "tracks.defender.gain",
+          "from": -10,
+          "via": -1,
+          "to": 2
+        }
       ]
     },
     {
       "id": "ring",
       "label": "Ring",
-      "hint": "Blades caught and deadened, or left singing.",
+      "hint": "Blades caught and deadened, a dry clank, or left singing.",
       "value": 0.5,
-      "targets": [{ "path": "tracks.attacker.source.damping", "from": 3, "to": 0.5 }, { "path": "tracks.defender.source.decay", "from": 0.15, "to": 1.6 }]
+      "targets": [
+        {
+          "path": "tracks.attacker.source.damping",
+          "from": 3.5,
+          "via": 0.8,
+          "to": 0.4
+        },
+        {
+          "path": "tracks.attacker.source.decay",
+          "mode": "mul",
+          "from": 0.3,
+          "to": 3.3
+        },
+        {
+          "path": "tracks.defender.source.decay",
+          "from": 0.1,
+          "via": 0.25,
+          "to": 0.9
+        }
+      ]
     },
     {
       "id": "slide",
@@ -120,9 +320,24 @@
       "value": 0.5,
       "vary": 0.15,
       "targets": [
-        { "path": "tracks.slide.gain", "from": -40, "to": -1 },
-        { "path": "tracks.slide.source.exciter.duration", "from": 0.08, "to": 0.6 },
-        { "path": "tracks.slide.source.exciter.density", "mode": "stretch", "from": 0.35, "to": 2.6 }
+        {
+          "path": "tracks.slide.gain",
+          "from": -36,
+          "via": -8,
+          "to": 0
+        },
+        {
+          "path": "tracks.slide.source.exciter.duration",
+          "from": 0.08,
+          "via": 0.26,
+          "to": 0.6
+        },
+        {
+          "path": "tracks.slide.source.exciter.density",
+          "mode": "stretch",
+          "from": 0.4,
+          "to": 2.5
+        }
       ]
     },
     {
@@ -130,7 +345,21 @@
       "label": "Courtyard",
       "hint": "Open field, dry, to hard stone walls close by.",
       "value": 0.4,
-      "targets": [{ "path": "buses.yard.gain", "mode": "set", "from": -30, "to": 6 }, { "path": "buses.yard.fx.walls.decay", "from": 0.3, "to": 1.8 }]
+      "default": 0.4,
+      "targets": [
+        {
+          "path": "buses.yard.gain",
+          "from": -36,
+          "via": -14,
+          "to": 0
+        },
+        {
+          "path": "buses.yard.fx.walls.decay",
+          "from": 0.3,
+          "via": 0.6,
+          "to": 1.8
+        }
+      ]
     }
   ]
 }

@@ -1,16 +1,8 @@
 {
   "format": "sfxgen/1",
   "name": "Kaiju roar",
-  "description": "A skyscraper-sized monster roaring over a city, made the way the classic one was: a resined glove dragged down a slack bass string, slowed down. A metallic shriek climbs for 400 ms, holds and wavers, then falls away over two seconds, on top of a chest roar an octave and more below it and a blast of air. The roar hits the far buildings and comes back 180 ms later.",
-  "tags": [
-    "creature",
-    "kaiju",
-    "roar",
-    "giant",
-    "monster",
-    "dinosaur",
-    "boss"
-  ],
+  "description": "A skyscraper-sized monster roaring over a city, made the way the classic one was: a resined glove dragged down a slack bass string, slowed down. A metallic shriek climbs, holds and wavers, then falls away slowly, on top of a chest roar far below it and a blast of air. The roar hits the far buildings and comes back a moment later.",
+  "tags": ["creature", "kaiju", "roar", "giant", "monster", "dinosaur", "boss"],
   "duration": "auto",
   "maxDuration": 5,
   "seed": 3,
@@ -29,41 +21,11 @@
         "excite": "bow",
         "hardness": 0.85,
         "freq": {
-          "env": [
-            [
-              0,
-              330
-            ],
-            [
-              0.38,
-              660
-            ],
-            [
-              0.8,
-              610
-            ],
-            [
-              1.5,
-              400
-            ],
-            [
-              2.3,
-              185
-            ]
-          ],
+          "env": [[0, 330], [0.38, 660], [0.8, 610], [1.5, 400], [2.3, 185]],
           "mod": [
             {
               "type": "lfo",
-              "rate": [
-                [
-                  0,
-                  5
-                ],
-                [
-                  2,
-                  9
-                ]
-              ],
+              "rate": [[0, 5], [2, 9]],
               "depth": 0.5,
               "unit": "st",
               "delay": 0.4,
@@ -71,133 +33,66 @@
             }
           ]
         },
-        "decay": 1.1,
-        "brightness": 0.86,
-        "stiffness": 0.35,
-        "position": 0.07
+        "decay": 2.1358234423156652,
+        "brightness": 0.690184,
+        "stiffness": 0.4115600585937501,
+        "position": 0.09230598958333337,
+        "mute": 0.1749864366319452,
+        "bowTime": 2.22413073042816,
+        "env": {
+          "attack": 0.017257145207305088,
+          "sustain": 0.6739000108506947,
+          "release": 1.6737582977648164,
+          "decay": 0.009515860722544294,
+          "gate": 2.6629096137152786
+        },
+        "pitch": -0.842356
       },
       "fx": [
         {
           "type": "drive",
           "mode": "fuzz",
-          "amount": 16,
-          "tone": 6500
+          "amount": 17.55970052083333,
+          "tone": 1550.4129384441028,
+          "bias": -0.09149305555555542,
+          "mix": 0.6355617947048614
         },
         {
           "type": "formant",
-          "vowel": [
-            [
-              0,
-              3
-            ],
-            [
-              0.4,
-              0.2
-            ],
-            [
-              1.5,
-              0.6
-            ],
-            [
-              2.5,
-              3.5
-            ]
-          ],
-          "size": 1.7,
+          "vowel": [[0, 3], [0.4, 0.2], [1.5, 0.6], [2.5, 3.5]],
+          "size": 1.7695,
           "resonance": 0.9,
           "mix": 0.8
         }
-      ]
+      ],
+      "start": 0.0378,
+      "gain": -12.3313
     },
     {
       "id": "chest",
-      "note": "The body under the shriek: a kaiju-sized throat growling at 50 to 70 Hz with harmonics up to 400 Hz so laptops still get the weight.",
-      "start": 0.05,
+      "note": "The body under the shriek: a kaiju-sized throat growling far below it, driven so its harmonics give laptops the weight too.",
       "gain": -11,
       "source": {
         "type": "voice",
-        "freq": [
-          [
-            0,
-            46
-          ],
-          [
-            0.4,
-            71
-          ],
-          [
-            1.3,
-            60
-          ],
-          [
-            2.5,
-            37
-          ]
-        ],
-        "vowel": [
-          [
-            0,
-            3.5
-          ],
-          [
-            0.5,
-            0
-          ],
-          [
-            2.4,
-            3
-          ]
-        ],
-        "size": 3.4,
+        "freq": [[0, 46], [0.4, 71], [1.3, 60], [2.5, 37]],
+        "vowel": [[0, 3.5], [0.5, 0], [2.4, 3]],
+        "size": 3.46312,
         "growl": 0.85,
-        "rasp": [
-          [
-            0,
-            0.3
-          ],
-          [
-            0.5,
-            0.6
-          ],
-          [
-            2.4,
-            0.2
-          ]
-        ],
+        "rasp": [[0, 0.3], [0.5, 0.6], [2.4, 0.2]],
         "tension": 0.75,
         "breath": 0.2,
         "jitter": 3,
         "env": {
-          "points": [
-            [
-              0,
-              0
-            ],
-            [
-              0.2,
-              0.7
-            ],
-            [
-              0.5,
-              1
-            ],
-            [
-              1.5,
-              0.75
-            ],
-            [
-              2.6,
-              0
-            ]
-          ],
+          "points": [[0, 0], [0.2, 0.7], [0.5, 1], [1.5, 0.75], [2.6, 0]],
           "curve": "linear"
-        }
+        },
+        "pitch": -0.184414
       },
       "fx": [
         {
           "type": "drive",
           "mode": "tanh",
-          "amount": 14,
+          "amount": 16,
           "tone": 3000
         }
       ]
@@ -205,48 +100,18 @@
     {
       "id": "blast",
       "note": "The air leaving a mouth the size of a bus: a noise swell that peaks with the shriek and outlasts it a little.",
-      "start": 0.1,
-      "gain": -4,
+      "start": 0.0583,
+      "gain": -7.5,
       "source": {
         "type": "noise",
         "color": "pink",
         "env": {
-          "points": [
-            [
-              0,
-              0
-            ],
-            [
-              0.35,
-              1
-            ],
-            [
-              1.2,
-              0.6
-            ],
-            [
-              2.6,
-              0
-            ]
-          ],
+          "points": [[0, 0], [0.35, 1], [1.2, 0.6], [2.6, 0]],
           "curve": "linear"
         },
         "filter": {
           "mode": "bandpass",
-          "cutoff": [
-            [
-              0,
-              700
-            ],
-            [
-              0.4,
-              2400
-            ],
-            [
-              2.5,
-              500
-            ]
-          ],
+          "cutoff": [[0, 700], [0.4, 2400], [2.5, 500]],
           "q": 0.7
         }
       }
@@ -265,11 +130,11 @@
       {
         "id": "city",
         "type": "delay",
-        "time": 180,
+        "time": 154.31,
         "feedback": 0.18,
         "tone": 2200,
         "highpass": 150,
-        "mix": 0.2
+        "mix": 0.1795
       },
       {
         "id": "sky",
@@ -280,7 +145,8 @@
         "predelay": 60,
         "damping": 0.6,
         "lowcut": 220,
-        "mix": 0.24
+        "mix": 0.249,
+        "highcut": 7660.59
       }
     ]
   },
@@ -289,7 +155,7 @@
       "id": "size",
       "label": "Size",
       "hint": "A dinosaur to a monster that blocks out the sky: everything drops and slows.",
-      "value": 0.5,
+      "value": 0.5526472303602434,
       "targets": [
         {
           "path": "tracks.shriek.source.pitch",
@@ -321,7 +187,7 @@
       "id": "shriek",
       "label": "Shriek",
       "hint": "How much of the metallic scream rides on top: a deep bellow to a piercing screech.",
-      "value": 0.55,
+      "value": 0.2576684027777772,
       "targets": [
         {
           "path": "tracks.shriek.gain",

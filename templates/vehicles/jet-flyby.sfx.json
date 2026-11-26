@@ -1,17 +1,8 @@
 {
   "format": "sfxgen/1",
   "name": "Jet fly-by",
-  "description": "A fighter jet crossing low over an airfield at 120 m/s, 250 m up: almost nothing until it is on you, the compressor whine arriving first and thin, then at 1.9 s the pass, and behind it the real sound: the tearing, crackling roar of the exhaust that drops in pitch and takes four seconds to roll away, hollowed by its reflection off the runway. Left to right, stereo, six and a half seconds.",
-  "tags": [
-    "vehicle",
-    "jet",
-    "aircraft",
-    "plane",
-    "fighter",
-    "fly-by",
-    "doppler",
-    "roar"
-  ],
+  "description": "A fighter jet crossing low and fast over an airfield: almost nothing until it is on you, the compressor whine arriving first and thin, then the pass, and behind it the real sound: the tearing, crackling roar of the exhaust that drops in pitch and takes a long time to roll away, hollowed by its reflection off the runway. Left to right, in stereo.",
+  "tags": ["vehicle", "jet", "aircraft", "plane", "fighter", "fly-by", "doppler", "roar"],
   "duration": 6.5,
   "seed": 18,
   "output": {
@@ -21,7 +12,7 @@
     {
       "id": "whine",
       "note": "The compressor: a thin whistle you hear from the front, fading as the jet shows its tail.",
-      "gain": 0,
+      "gain": -6.5,
       "source": {
         "type": "machine",
         "kind": "turbine",
@@ -30,28 +21,7 @@
         "whine": 0.9,
         "load": 0.5,
         "env": {
-          "points": [
-            [
-              0,
-              0.6
-            ],
-            [
-              1.8,
-              1
-            ],
-            [
-              2.5,
-              0.25
-            ],
-            [
-              6.4,
-              0.1
-            ],
-            [
-              6.5,
-              0
-            ]
-          ],
+          "points": [[0, 0.6], [1.8, 1], [2.5, 0.25], [6.4, 0.1], [6.5, 0]],
           "curve": "linear"
         }
       }
@@ -64,50 +34,12 @@
         "type": "noise",
         "color": "pink",
         "env": {
-          "points": [
-            [
-              0,
-              0.12
-            ],
-            [
-              1.5,
-              0.3
-            ],
-            [
-              2.1,
-              1
-            ],
-            [
-              3.5,
-              0.8
-            ],
-            [
-              6.4,
-              0.3
-            ],
-            [
-              6.5,
-              0
-            ]
-          ],
+          "points": [[0, 0.12], [1.5, 0.3], [2.1, 1], [3.5, 0.8], [6.4, 0.3], [6.5, 0]],
           "curve": "linear"
         },
         "filter": {
           "mode": "lowpass",
-          "cutoff": [
-            [
-              0,
-              2500
-            ],
-            [
-              2.2,
-              9000
-            ],
-            [
-              6.5,
-              1400
-            ]
-          ],
+          "cutoff": [[0, 2500], [2.2, 9000], [6.5, 1400]],
           "q": 0.6
         }
       },
@@ -115,23 +47,10 @@
         {
           "id": "ground",
           "type": "flanger",
-          "delay": [
-            [
-              0,
-              0.009
-            ],
-            [
-              2.5,
-              0.0018
-            ],
-            [
-              6.5,
-              0.008
-            ]
-          ],
+          "delay": [[0, 0.009], [2.5, 0.0018], [6.5, 0.008]],
           "depth": 0,
           "feedback": 0.45,
-          "mix": 0.6
+          "mix": 0.5
         },
         {
           "id": "tear",
@@ -146,81 +65,26 @@
               }
             ]
           },
-          "depth": [
-            [
-              0,
-              0.1
-            ],
-            [
-              2.4,
-              0.2
-            ],
-            [
-              3,
-              0.6
-            ],
-            [
-              6.5,
-              0.4
-            ]
-          ],
+          "depth": [[0, 0.1], [2.4, 0.2], [3, 0.6], [6.5, 0.4]],
           "shape": "random"
         },
         {
           "type": "drive",
           "mode": "tanh",
-          "amount": [
-            [
-              0,
-              3
-            ],
-            [
-              2.6,
-              16
-            ],
-            [
-              6.5,
-              8
-            ]
-          ],
+          "amount": [[0, 3], [2.6, 16], [6.5, 8]],
           "tone": 7000
         }
       ]
     },
     {
       "id": "thunder",
-      "note": "The low end of the exhaust: a rumble from 80 to 250 Hz that arrives with the pass and outlasts everything.",
-      "gain": 1,
+      "note": "The low end of the exhaust: a rumble that arrives with the pass and outlasts everything.",
+      "gain": -0.1,
       "source": {
         "type": "noise",
         "color": "brown",
         "env": {
-          "points": [
-            [
-              0,
-              0.05
-            ],
-            [
-              1.7,
-              0.2
-            ],
-            [
-              2.4,
-              1
-            ],
-            [
-              4.5,
-              0.7
-            ],
-            [
-              6.4,
-              0.3
-            ],
-            [
-              6.5,
-              0
-            ]
-          ],
+          "points": [[0, 0.05], [1.7, 0.2], [2.4, 1], [4.5, 0.7], [6.4, 0.3], [6.5, 0]],
           "curve": "linear"
         },
         "filter": {
@@ -244,8 +108,8 @@
       {
         "id": "pass",
         "type": "doppler",
-        "speed": 120,
-        "distance": 250,
+        "speed": 107.177,
+        "distance": 226.07,
         "time": 1.9,
         "rolloff": 1.7,
         "air": 1,

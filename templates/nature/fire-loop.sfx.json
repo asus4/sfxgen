@@ -1,17 +1,8 @@
 {
   "format": "sfxgen/1",
   "name": "Crackling fire (loop)",
-  "description": "A campfire of dry pine an arm's length away: the soft low flutter of the flames, a steady fine crackle from the embers, sharp resin pops a few times a second with a little wooden knock in each, and now and then a hiss of sap. A 5 s loop; the flames and pops are random, and the end is crossfaded into the start over 0.5 s.",
-  "tags": [
-    "nature",
-    "fire",
-    "campfire",
-    "crackle",
-    "loop",
-    "ambience",
-    "flames",
-    "torch"
-  ],
+  "description": "A campfire of dry pine an arm's length away: the soft low flutter of the flames, a steady fine crackle from the embers, sharp resin pops at random, and now and then a small wooden knock as a log cracks. A loop; the flames and pops are random, and the end is crossfaded into the start.",
+  "tags": ["nature", "fire", "campfire", "crackle", "loop", "ambience", "flames", "torch"],
   "duration": 5,
   "loop": {
     "mode": "crossfade",
@@ -21,8 +12,8 @@
   "tracks": [
     {
       "id": "flames",
-      "note": "The flames: low noise that flutters irregularly at 8 to 12 times a second, as burning gas does. The warmth and the size of the fire.",
-      "gain": -7,
+      "note": "The flames: low noise that flutters fast and irregularly, as burning gas does, its colour and level drifting. The warmth and the size of the fire.",
+      "gain": -13.85,
       "source": {
         "type": "noise",
         "color": "pink",
@@ -32,7 +23,7 @@
         "filter": {
           "mode": "bandpass",
           "cutoff": {
-            "value": 300,
+            "value": 379.906,
             "mod": [
               {
                 "type": "wander",
@@ -50,7 +41,7 @@
           "id": "flutter",
           "type": "tremolo",
           "rate": {
-            "value": 10,
+            "value": 9.93158,
             "mod": [
               {
                 "type": "wander",
@@ -80,42 +71,44 @@
     {
       "id": "embers",
       "note": "The fine crackle: dense tiny pops with very uneven levels. The texture that says \"fire\" on any speaker.",
-      "gain": -10,
+      "gain": -10.7,
       "source": {
         "type": "noise",
         "color": "crackle",
-        "density": 55,
+        "density": 51.3809,
         "env": {
           "attack": 0.01
         },
         "filter": {
           "mode": "highpass",
-          "cutoff": 1400
+          "cutoff": 1344.53
         }
       }
     },
     {
       "id": "pops",
-      "note": "Resin pockets bursting: sharp ragged pops, a few a second, some much louder than the rest.",
+      "note": "Resin pockets bursting: sharp ragged pops scattered at random, some much louder than the rest.",
       "source": {
         "type": "particles",
-        "density": 7,
+        "density": 6,
         "duration": 6,
         "grain": {
           "kind": "crackle",
           "lo": 900,
           "hi": 6500,
           "decayLo": 0.004,
-          "decayHi": 0.03,
+          "decayHi": 0.0242967,
           "levelJitter": 16,
           "size": 0.6
-        }
-      }
+        },
+        "pitch": 0.6
+      },
+      "gain": -1.25
     },
     {
       "id": "wood",
       "note": "The logs themselves cracking: small wooden knocks under some of the pops, so the fire is made of wood.",
-      "gain": 0,
+      "gain": -5,
       "source": {
         "type": "particles",
         "density": 2.2,

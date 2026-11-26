@@ -1,7 +1,7 @@
 {
   "format": "sfxgen/1",
   "name": "Fireball",
-  "description": "A fireball lit in the caster's hand and thrown. 0 ms: ignition, a soft 'whoomp' as the air catches (low noise opening quickly from 150 Hz to 2 kHz, with a pressure thump under it). 0 to 1.3 s: the ball roars and flutters like a torch swung through the air, and it travels away from you at 28 m/s, so the roar drops in pitch and dulls. All the way it spits and crackles: embers popping off, thinning as it goes.",
+  "description": "A fireball lit in the caster's hand and thrown. First the ignition, a soft 'whoomp' as the air catches: the flame's noise opening quickly from dull to bright, with a pressure thump under it. Then the ball roars and flutters like a torch swung through the air, and it travels away from you, so the roar drops in pitch, dulls and fades. All the way it spits and crackles: bright embers popping off and a few fat, low spits of resin, thinning as it goes.",
   "tags": ["magic", "fire", "fireball", "flame", "burn", "spell", "whoosh", "ignite"],
   "duration": "auto",
   "seed": 27,
@@ -14,61 +14,208 @@
         "material": "rubber",
         "shape": "membrane",
         "freq": [[0, 190], [0.12, 104]],
-        "decay": 0.313,
-        "position": 0.3,
-        "exciter": { "kind": "noise", "hardness": 0.3, "duration": 0.07 }
-      },
-      "fx": [{ "type": "drive", "mode": "tanh", "amount": 10, "tone": 3000 }],
-      "gain": -9.6
-    },
-    {
-      "id": "roar",
-      "note": "The flame: pink noise whose filter flutters at random (wander plus a fast random tremolo) is what makes it burn instead of hiss. Doppler carries it away.",
-      "source": {
-        "type": "noise",
-        "color": "pink",
-        "env": { "attack": 0.03, "hold": 0.5, "decay": 1.1 },
-        "filter": {
-          "mode": "lowpass",
-          "q": 1.1,
-          "cutoff": { "env": [[0, 300], [0.06, 3200], [0.4, 1700], [1.4, 600]], "mod": [{ "type": "wander", "rate": 13, "depth": 0.7, "unit": "oct" }] }
+        "decay": 0.242839,
+        "damping": 2,
+        "modes": 40,
+        "stretch": 0.8,
+        "dent": 0.8,
+        "position": 0.7,
+        "exciter": {
+          "kind": "noise",
+          "hardness": 0.45,
+          "duration": 0.11,
+          "spread": 0.02
         }
       },
       "fx": [
-        { "type": "tremolo", "id": "flutter", "rate": 21.8, "depth": 0.5, "shape": "random" },
-        { "type": "drive", "mode": "tube", "amount": 8 },
-        { "type": "eq", "bands": [{ "mode": "lowcut", "freq": 95, "slope": "24" }, { "mode": "peak", "freq": 220, "gain": 3, "q": 0.8 }] },
-        { "type": "doppler", "id": "throw", "speed": 7.58, "distance": 1.5, "time": 0.05, "direction": "front-to-back", "air": 2 }
+        {
+          "type": "drive",
+          "mode": "tanh",
+          "amount": 10,
+          "tone": 3000
+        }
+      ],
+      "gain": 2
+    },
+    {
+      "id": "roar",
+      "gain": -4,
+      "note": "The flame: pink noise whose filter wanders at random and whose level flutters (a fast random tremolo); together they make it burn instead of hiss. Doppler carries it away.",
+      "source": {
+        "type": "noise",
+        "color": "pink",
+        "env": {
+          "attack": 0.11,
+          "hold": 0.42,
+          "decay": 1.1
+        },
+        "filter": {
+          "mode": "lowpass",
+          "q": 1.1,
+          "cutoff": {
+            "env": [[0, 300], [0.06, 3200], [0.4, 1700], [1.4, 600]],
+            "mod": [
+              {
+                "type": "wander",
+                "rate": 13,
+                "depth": 0.7,
+                "unit": "oct"
+              }
+            ]
+          }
+        }
+      },
+      "fx": [
+        {
+          "type": "tremolo",
+          "id": "flutter",
+          "rate": 26.054,
+          "depth": 0.32,
+          "shape": "random"
+        },
+        {
+          "type": "drive",
+          "mode": "tube",
+          "amount": 8,
+          "tone": 770
+        },
+        {
+          "type": "eq",
+          "bands": [
+            {
+              "mode": "lowcut",
+              "freq": 95,
+              "slope": "24"
+            },
+            {
+              "mode": "peak",
+              "freq": 220,
+              "gain": 3,
+              "q": 0.8
+            }
+          ]
+        },
+        {
+          "type": "doppler",
+          "id": "throw",
+          "speed": 6.73616,
+          "distance": 1.5,
+          "time": 0.05,
+          "direction": "front-to-back",
+          "air": 2
+        }
       ]
     },
     {
       "id": "embers",
       "note": "Sparks and pops: sharp, uneven, never regular. Without them it is wind.",
       "start": 0.02,
-      "gain": -2,
+      "gain": 10,
       "source": {
         "type": "particles",
-        "distribution": "burst",
-        "density": 155,
-        "duration": 1.2,
-        "grain": { "kind": "crackle", "lo": 900, "hi": 7000, "decayLo": 0.004, "decayHi": 0.05, "levelJitter": 24 }
+        "distribution": "random",
+        "density": [[0, 70], [1.2, 16]],
+        "duration": 1.45703,
+        "grain": {
+          "kind": "crackle",
+          "lo": 900,
+          "hi": 7000,
+          "decayLo": 0.004,
+          "decayHi": 0.05,
+          "levelJitter": 24
+        }
       },
-      "fx": [{ "type": "doppler", "speed": 7.58, "distance": 1.5, "time": 0.03, "direction": "front-to-back", "rolloff": 0.7 }]
+      "fx": [
+        {
+          "type": "doppler",
+          "speed": 6.73616,
+          "distance": 1.5,
+          "time": 0.03,
+          "direction": "front-to-back",
+          "rolloff": 0.6,
+          "air": 0.5
+        }
+      ]
+    },
+    {
+      "id": "spit",
+      "note": "The fat in the fire: a few low, loud pops and spits of resin, scattered along the flight. They are what a listener calls 'fire'.",
+      "start": 0.06,
+      "gain": 9,
+      "source": {
+        "type": "particles",
+        "distribution": "random",
+        "density": [[0, 11], [1.1, 5]],
+        "duration": 1.33561,
+        "grain": {
+          "kind": "crackle",
+          "lo": 300,
+          "hi": 950,
+          "decayLo": 0.012,
+          "decayHi": 0.07,
+          "levelJitter": 14
+        }
+      },
+      "fx": [
+        {
+          "type": "doppler",
+          "speed": 6.73616,
+          "distance": 1.5,
+          "time": 0.03,
+          "direction": "front-to-back",
+          "rolloff": 0.6,
+          "air": 0.5
+        }
+      ]
     }
   ],
+  "master": {
+    "normalize": {
+      "mode": "peak",
+      "target": -2
+    }
+  },
   "controls": [
     {
       "id": "size",
       "label": "Size",
       "hint": "A candle-sized firebolt to a cart-sized ball of flame.",
-      "value": 0.5,
+      "value": 0.64,
       "vary": 0.05,
       "targets": [
-        { "path": "tracks.whoomp.source.freq", "mode": "mul", "from": 1.9, "to": 0.55 },
-        { "path": "tracks.whoomp.source.decay", "from": 0.14, "to": 0.7 },
-        { "path": "tracks.roar.source.filter.cutoff", "mode": "mul", "from": 1.8, "to": 0.55 },
-        { "path": "tracks.roar.source.env", "mode": "stretch", "from": 0.5, "to": 1.9 },
-        { "path": "tracks.embers.source.duration", "from": 0.6, "to": 2.4 }
+        {
+          "path": "tracks.whoomp.source.freq",
+          "mode": "mul",
+          "from": 1.9,
+          "to": 0.55
+        },
+        {
+          "path": "tracks.whoomp.source.decay",
+          "from": 0.1,
+          "to": 0.4
+        },
+        {
+          "path": "tracks.roar.source.filter.cutoff",
+          "mode": "mul",
+          "from": 1.8,
+          "to": 0.55
+        },
+        {
+          "path": "tracks.roar.source.env",
+          "mode": "stretch",
+          "from": 0.5,
+          "to": 1.9
+        },
+        {
+          "path": "tracks.embers.source.duration",
+          "from": 0.6,
+          "to": 2.4
+        },
+        {
+          "path": "tracks.spit.source.duration",
+          "from": 0.55,
+          "to": 2.2
+        }
       ]
     },
     {
@@ -77,28 +224,87 @@
       "hint": "Smooth clean flame to a spitting, popping blaze.",
       "value": 0.5,
       "vary": 0.1,
-      "targets": [{ "path": "tracks.embers.gain", "from": -16, "to": 12 }, { "path": "tracks.embers.source.density", "from": 40, "to": 600 }]
+      "targets": [
+        {
+          "path": "tracks.embers.gain",
+          "from": -14,
+          "via": 10,
+          "to": 12
+        },
+        {
+          "path": "tracks.spit.gain",
+          "from": -20,
+          "via": 9,
+          "to": 12
+        },
+        {
+          "path": "tracks.embers.source.density",
+          "mode": "mul",
+          "from": 0.3,
+          "to": 3.3
+        },
+        {
+          "path": "tracks.spit.source.density",
+          "mode": "mul",
+          "from": 0.5,
+          "to": 2
+        }
+      ]
     },
     {
       "id": "flutter",
       "label": "Flutter",
       "hint": "A steady jet to a wildly guttering torch.",
-      "value": 0.5,
-      "targets": [{ "path": "tracks.roar.fx.flutter.depth", "from": 0.05, "to": 0.95 }, { "path": "tracks.roar.fx.flutter.rate", "from": 34, "to": 14 }]
+      "value": 0.3,
+      "targets": [
+        {
+          "path": "tracks.roar.fx.flutter.depth",
+          "from": 0.05,
+          "to": 0.95
+        },
+        {
+          "path": "tracks.roar.fx.flutter.rate",
+          "from": 34,
+          "to": 14
+        }
+      ]
     },
     {
       "id": "throw",
       "label": "Throw",
       "hint": "Held burning in the hand, or hurled away fast.",
-      "value": 0.45,
-      "targets": [{ "path": "tracks.roar.fx.throw.speed", "from": 1, "to": 90 }, { "path": "tracks.embers.fx.0.speed", "from": 1, "to": 90 }]
+      "value": 0.476,
+      "targets": [
+        {
+          "path": "tracks.roar.fx.throw.speed",
+          "from": 1,
+          "to": 55
+        },
+        {
+          "path": "tracks.embers.fx.0.speed",
+          "from": 1,
+          "to": 55
+        },
+        {
+          "path": "tracks.spit.fx.0.speed",
+          "from": 1,
+          "to": 55
+        }
+      ]
     },
     {
       "id": "ignite",
       "label": "Ignition",
       "hint": "How hard it catches at the start.",
-      "value": 0.6,
-      "targets": [{ "path": "tracks.whoomp.gain", "from": -30, "to": 4 }]
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.whoomp.gain",
+          "from": -30,
+          "via": 2,
+          "to": 9
+        }
+      ]
     }
   ]
 }

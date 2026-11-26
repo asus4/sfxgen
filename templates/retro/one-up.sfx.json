@@ -1,17 +1,8 @@
 {
   "format": "sfxgen/1",
   "name": "1-up",
-  "description": "An extra life on an 8-bit console: a six-note rising figure on the first pulse channel, 80 ms a note, each note re-struck by a volume ramp, the last one held and faded. The second pulse channel plays the same line 80 ms late with a thinner duty and less volume, the trick old games used for echo when they had no reverb.",
-  "tags": [
-    "retro",
-    "8-bit",
-    "chiptune",
-    "1-up",
-    "extra life",
-    "jingle",
-    "reward",
-    "melody"
-  ],
+  "description": "An extra life on an 8-bit console: a quick six-note figure on the first pulse channel that climbs to a high last note, each note re-struck by a volume ramp, the last one held and faded. The second pulse channel plays the same line one note late with a thinner duty and less volume, the trick old games used for echo when they had no reverb.",
+  "tags": ["retro", "8-bit", "chiptune", "1-up", "extra life", "jingle", "reward", "melody"],
   "duration": "auto",
   "seed": 8,
   "tracks": [
@@ -24,55 +15,15 @@
         "pw": 0.5,
         "freq": 659,
         "pitch": [
-          [
-            0,
-            0
-          ],
-          [
-            0.08,
-            4,
-            "hold"
-          ],
-          [
-            0.16,
-            7,
-            "hold"
-          ],
-          [
-            0.24,
-            12,
-            "hold"
-          ],
-          [
-            0.32,
-            7,
-            "hold"
-          ],
-          [
-            0.4,
-            16,
-            "hold"
-          ]
+          [0, 0],
+          [0.08, 4, "hold"],
+          [0.16, 7, "hold"],
+          [0.24, 12, "hold"],
+          [0.32, 7, "hold"],
+          [0.4, 16, "hold"]
         ],
         "env": {
-          "points": [
-            [
-              0,
-              1
-            ],
-            [
-              0.4,
-              1
-            ],
-            [
-              0.401,
-              1
-            ],
-            [
-              0.75,
-              0
-            ]
-          ],
+          "points": [[0, 1], [0.4, 1], [0.401, 1], [0.75, 0]],
           "curve": "linear"
         }
       },
@@ -94,62 +45,22 @@
       "id": "echo",
       "note": "The same tune one note late on the other channel: a fake echo.",
       "start": 0.08,
-      "gain": -9,
+      "gain": -17.8,
       "source": {
         "type": "osc",
         "wave": "pulse",
         "pw": 0.25,
         "freq": 659,
         "pitch": [
-          [
-            0,
-            0
-          ],
-          [
-            0.08,
-            4,
-            "hold"
-          ],
-          [
-            0.16,
-            7,
-            "hold"
-          ],
-          [
-            0.24,
-            12,
-            "hold"
-          ],
-          [
-            0.32,
-            7,
-            "hold"
-          ],
-          [
-            0.4,
-            16,
-            "hold"
-          ]
+          [0, 0],
+          [0.08, 4, "hold"],
+          [0.16, 7, "hold"],
+          [0.24, 12, "hold"],
+          [0.32, 7, "hold"],
+          [0.4, 16, "hold"]
         ],
         "env": {
-          "points": [
-            [
-              0,
-              1
-            ],
-            [
-              0.4,
-              1
-            ],
-            [
-              0.401,
-              1
-            ],
-            [
-              0.75,
-              0
-            ]
-          ],
+          "points": [[0, 1], [0.4, 1], [0.401, 1], [0.75, 0]],
           "curve": "linear"
         }
       },
@@ -216,8 +127,8 @@
         {
           "path": "tracks.lead.fx.strike.rate",
           "mode": "mul",
-          "from": 0.5555555555555556,
-          "to": 1.8181818181818181
+          "from": 0.556,
+          "to": 1.82
         },
         {
           "path": "tracks.echo.source.pitch",
@@ -234,8 +145,8 @@
         {
           "path": "tracks.echo.fx.strike.rate",
           "mode": "mul",
-          "from": 0.5555555555555556,
-          "to": 1.8181818181818181
+          "from": 0.556,
+          "to": 1.82
         },
         {
           "path": "tracks.echo.start",

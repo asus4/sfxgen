@@ -1,16 +1,8 @@
 {
   "format": "sfxgen/1",
   "name": "Swipe",
-  "description": "A card flicked sideways across a touchscreen: 180 ms of air that swells and rises in pitch as the finger accelerates, with a faint hollow whistle from the gap under the card. No click at either end; it starts from nothing and thins out.",
-  "tags": [
-    "ui",
-    "swipe",
-    "whoosh",
-    "slide",
-    "transition",
-    "air",
-    "page"
-  ],
+  "description": "A card flicked sideways across a touchscreen: a short rush of air that swells and rises in pitch as the finger accelerates, with a faint hollow whistle from the gap under the card. No click at either end; it starts from nothing and thins out.",
+  "tags": ["ui", "swipe", "whoosh", "slide", "transition", "air", "page"],
   "duration": "auto",
   "seed": 11,
   "tracks": [
@@ -26,16 +18,7 @@
         },
         "filter": {
           "mode": "bandpass",
-          "cutoff": [
-            [
-              0,
-              650
-            ],
-            [
-              0.17,
-              4200
-            ]
-          ],
+          "cutoff": [[0, 650], [0.17, 4200]],
           "q": 1.3
         }
       }
@@ -43,7 +26,7 @@
     {
       "id": "gap",
       "note": "A hollow pitch inside the air, so the direction is heard and not only felt.",
-      "gain": -11,
+      "gain": -17,
       "source": {
         "type": "noise",
         "color": "white",
@@ -57,16 +40,7 @@
           "type": "resonator",
           "id": "pipe",
           "mode": "tube",
-          "freq": [
-            [
-              0,
-              480
-            ],
-            [
-              0.17,
-              1500
-            ]
-          ],
+          "freq": [[0, 480], [0.17, 1500]],
           "decay": 0.06,
           "brightness": 0.3
         }
@@ -84,51 +58,15 @@
         {
           "label": "Up",
           "set": {
-            "tracks.air.source.filter.cutoff": [
-              [
-                0,
-                650
-              ],
-              [
-                0.17,
-                4200
-              ]
-            ],
-            "tracks.gap.fx.pipe.freq": [
-              [
-                0,
-                480
-              ],
-              [
-                0.17,
-                1500
-              ]
-            ]
+            "tracks.air.source.filter.cutoff": [[0, 650], [0.17, 4200]],
+            "tracks.gap.fx.pipe.freq": [[0, 480], [0.17, 1500]]
           }
         },
         {
           "label": "Down",
           "set": {
-            "tracks.air.source.filter.cutoff": [
-              [
-                0,
-                4200
-              ],
-              [
-                0.17,
-                650
-              ]
-            ],
-            "tracks.gap.fx.pipe.freq": [
-              [
-                0,
-                1500
-              ],
-              [
-                0.17,
-                480
-              ]
-            ]
+            "tracks.air.source.filter.cutoff": [[0, 4200], [0.17, 650]],
+            "tracks.gap.fx.pipe.freq": [[0, 1500], [0.17, 480]]
           }
         }
       ],

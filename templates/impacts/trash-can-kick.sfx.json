@@ -1,17 +1,8 @@
 {
   "format": "sfxgen/1",
   "name": "Trash can kicked",
-  "description": "A dented galvanised trash can kicked hard in a back alley. 0 ms: the boot lands on the thin steel wall with a dull bong (rubber sole, so no tick); the wall is creased, so the clang is sour and uneven and buckles downward in pitch for the first 60 ms; from 30 ms the loose lid chatters on the rim for half a second, slowing down; brick walls throw back a short hard echo.",
-  "tags": [
-    "impact",
-    "metal",
-    "trash can",
-    "bin",
-    "kick",
-    "clang",
-    "alley",
-    "dented"
-  ],
+  "description": "A dented galvanised trash can kicked hard in a back alley. The boot lands on the thin steel wall with a dull bong and no tick; the wall is creased, so the clang is sour and uneven and buckles downward in pitch at the start; as the clang fades, the loose lid chatters on the rim, slowing to a stop; brick walls throw back a short hard echo.",
+  "tags": ["impact", "metal", "trash can", "bin", "kick", "clang", "alley", "dented"],
   "duration": "auto",
   "seed": 17,
   "tracks": [
@@ -22,81 +13,71 @@
         "type": "modal",
         "material": "metal",
         "shape": "plate",
-        "freq": [
-          [
-            0,
-            163
-          ],
-          [
-            0.06,
-            139
-          ]
-        ],
+        "freq": [[0, 163], [0.06, 139]],
         "decay": 0.85,
-        "damping": 2.2,
-        "brightness": 0.5,
+        "damping": 1.9252,
+        "brightness": 0.34011840820312494,
         "modes": 44,
-        "dent": 0.75,
+        "dent": 0.462601,
         "variant": 7,
-        "position": 0.55,
+        "position": 0.2067267523871532,
         "stretch": 0.9,
         "exciter": {
           "kind": "mallet",
-          "hardness": 0.42
-        }
+          "hardness": 0.657379,
+          "duration": 0.4086559743266036
+        },
+        "env": {
+          "attack": 0.0018436567342059692,
+          "sustain": 1,
+          "release": 0.04
+        },
+        "beat": 1.8197292751736114
       },
       "fx": [
         {
           "type": "drive",
           "mode": "tube",
-          "amount": 8
+          "amount": 13.5301
         }
       ],
       "sends": {
-        "alley": -11
+        "alley": -10.9983
       }
     },
     {
       "id": "lid",
       "note": "The loose lid rattling on the rim: a rolling chatter that slows to a stop.",
-      "start": 0.03,
-      "gain": -5,
+      "start": 0.3833,
+      "gain": -4.3523,
       "source": {
         "type": "modal",
         "material": "metal",
         "shape": "plate",
         "freq": 520,
         "decay": 0.3,
-        "damping": 1.8,
+        "damping": 2.013888888888888,
         "modes": 30,
         "dent": 0.5,
         "variant": 3,
         "position": 0.9,
         "exciter": {
           "kind": "roll",
-          "hardness": 0.7,
-          "duration": 0.55,
-          "density": [
-            [
-              0,
-              75
-            ],
-            [
-              0.5,
-              22
-            ]
-          ],
+          "hardness": 0.5350552029079866,
+          "duration": 0.607942,
+          "density": [[0, 75], [0.5, 22]],
           "roughness": 0.7
-        }
+        },
+        "brightness": 0.38259548611111144
       },
       "sends": {
-        "alley": -11
+        "alley": -10.9983
       }
     },
     {
       "id": "air",
       "note": "The empty drum: the low breath of the can body under the clang.",
-      "gain": -6,
+      "gain": -5.88194,
       "source": {
         "type": "modal",
         "material": "metal",
@@ -140,7 +121,7 @@
       "id": "size",
       "label": "Size",
       "hint": "A paint tin to an oil drum.",
-      "value": 0.5,
+      "value": 0.722005208333333,
       "vary": 0.04,
       "targets": [
         {
@@ -173,7 +154,7 @@
       "id": "kick",
       "label": "Kick",
       "hint": "A nudge with a sneaker to a full swing with a steel toecap.",
-      "value": 0.45,
+      "value": 0.6765048556857641,
       "vary": 0.1,
       "targets": [
         {
@@ -200,7 +181,7 @@
       "id": "dents",
       "label": "Dents",
       "hint": "A new can with a clean clang to battered junk.",
-      "value": 0.75,
+      "value": 0.46260138617621555,
       "targets": [
         {
           "path": "tracks.can.source.dent",
@@ -220,7 +201,7 @@
       "id": "lid",
       "label": "Lid",
       "hint": "No lid, or a loose one that chatters on.",
-      "value": 0.5,
+      "value": 0.59976806640625,
       "vary": 0.1,
       "targets": [
         {

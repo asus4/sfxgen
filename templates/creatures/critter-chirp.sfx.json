@@ -1,23 +1,14 @@
 {
   "format": "sfxgen/1",
   "name": "Critter chirp",
-  "description": "A palm-sized furry critter asking a question: two quick squeaks from a tiny throat, \"pri-rip?\", the second one higher and curling up at the end (0 and 130 ms, each about 90 ms), with a fast throat flutter, then a wet little sniff at 330 ms. Close, dry, in a burrow.",
-  "tags": [
-    "creature",
-    "critter",
-    "chirp",
-    "squeak",
-    "cute",
-    "animal",
-    "pet",
-    "voice"
-  ],
+  "description": "A palm-sized furry critter asking a question: two quick squeaks from a tiny throat, \"pri-rip?\", the second one higher and curling up at the end, with a fast throat flutter, then a wet little sniff. Close, dry, in a burrow.",
+  "tags": ["creature", "critter", "chirp", "squeak", "cute", "animal", "pet", "voice"],
   "duration": "auto",
   "seed": 11,
   "tracks": [
     {
       "id": "squeak",
-      "note": "The voice: a tiny throat (size 0.42) squeaking twice. The pitch curve is the question mark; the flutter makes it furry, not a whistle.",
+      "note": "The voice: a tiny throat squeaking twice. The pitch curve is the question mark; the flutter makes it furry, not a whistle.",
       "events": [
         {
           "t": 0,
@@ -25,85 +16,47 @@
         },
         {
           "t": 0.131,
-          "pitch": 2.6
+          "pitch": 1.90827
         }
       ],
       "source": {
         "type": "voice",
         "freq": {
-          "env": [
-            [
-              0,
-              610
-            ],
-            [
-              0.035,
-              960
-            ],
-            [
-              0.075,
-              830
-            ],
-            [
-              0.12,
-              1180
-            ]
-          ],
+          "env": [[0, 610], [0.035, 960], [0.075, 830], [0.12, 1180]],
           "mod": [
             {
               "type": "lfo",
               "rate": 31,
-              "depth": 0.7,
+              "depth": 1.04721,
               "unit": "st"
             }
           ]
         },
-        "vowel": [
-          [
-            0,
-            2
-          ],
-          [
-            0.05,
-            1.2
-          ],
-          [
-            0.12,
-            2
-          ]
-        ],
-        "size": 0.42,
+        "vowel": [[0, 2], [0.05, 1.2], [0.12, 2]],
+        "size": 0.486789,
         "tension": 0.62,
         "breath": 0.16,
-        "jitter": 1.8,
+        "jitter": 2.24536,
         "shimmer": 1,
         "resonance": 1.3,
         "env": {
           "attack": 0.006,
           "hold": 0.06,
           "decay": 0.07
-        }
+        },
+        "pitch": -1.92404
       }
     },
     {
       "id": "sniff",
       "note": "A short wet sniff after the question: breath only, through the same small throat. Mute it and the critter is less alive.",
       "start": 0.33,
-      "gain": -3,
+      "gain": -16.801,
       "source": {
         "type": "voice",
         "freq": 400,
-        "vowel": [
-          [
-            0,
-            4
-          ],
-          [
-            0.07,
-            2
-          ]
-        ],
-        "size": 0.5,
+        "vowel": [[0, 4], [0.07, 2]],
+        "size": 0.581414,
         "breath": 1,
         "tension": 0.1,
         "env": {
@@ -129,7 +82,7 @@
       "id": "size",
       "label": "Size",
       "hint": "A mouse-sized squeaker to a fat guinea pig: lower and rounder.",
-      "value": 0.4,
+      "value": 0.5282694498697914,
       "vary": 0.05,
       "targets": [
         {
@@ -156,7 +109,7 @@
       "id": "question",
       "label": "Question",
       "hint": "How far the second squeak jumps up: flat and bored to a startled \"eep?\".",
-      "value": 0.5,
+      "value": 0.3908274332682293,
       "vary": 0.12,
       "targets": [
         {
@@ -171,7 +124,7 @@
       "id": "flutter",
       "label": "Flutter",
       "hint": "The purring roll in the throat: a clean peep to a rolled \"prrr\".",
-      "value": 0.45,
+      "value": 0.5817850748697924,
       "targets": [
         {
           "path": "tracks.squeak.source.freq.mod.0.depth",
@@ -191,7 +144,7 @@
       "id": "sniff",
       "label": "Sniff",
       "hint": "The wet sniff after the squeaks, from none to a snuffly nose.",
-      "value": 0.5,
+      "value": 0.4194875081380205,
       "targets": [
         {
           "path": "tracks.sniff.gain",

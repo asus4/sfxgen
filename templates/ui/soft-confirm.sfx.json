@@ -1,22 +1,14 @@
 {
   "format": "sfxgen/1",
   "name": "Soft confirm",
-  "description": "A friendly yes: two small glass tumblers tapped with a felt stick, the second a fourth above the first and 85 ms later, answering it. Each has the uneven partials of real glass and a slow shimmer; the felt gives a short warm bump under each note. A small bright room keeps them from sounding like a test tone.",
-  "tags": [
-    "ui",
-    "confirm",
-    "ok",
-    "accept",
-    "positive",
-    "chime",
-    "glass"
-  ],
+  "description": "A friendly yes: two small glass tumblers tapped with a felt stick, the second higher and just after the first, answering it, and louder so the rise is what you remember. Each has the uneven partials of real glass and a slow shimmer; the felt gives a short warm bump under each note. A small bright room keeps them from sounding like a test tone.",
+  "tags": ["ui", "confirm", "ok", "accept", "positive", "chime", "glass"],
   "duration": "auto",
   "seed": 1,
   "tracks": [
     {
       "id": "notes",
-      "note": "The two glasses; the second note is the answer.",
+      "note": "The two glasses, low then high; the second note is the answer and rings on after a finger stops the first.",
       "source": {
         "type": "additive",
         "freq": 1046,
@@ -37,39 +29,30 @@
             "amp": 0.15
           }
         ],
-        "decay": 0.6,
+        "decay": 0.519615,
         "damping": 0.8,
         "beat": 3,
         "env": {
           "attack": 0.002
         },
-        "pitch": [
-          [
-            0,
-            0
-          ],
-          [
-            0.085,
-            5,
-            "hold"
-          ]
-        ]
+        "pitch": 0
       },
       "events": [
         {
           "t": 0,
-          "vel": 0.75,
-          "dur": 0.085
+          "vel": 0.7,
+          "dur": 0.2
         },
         {
-          "t": 0.085
+          "t": 0.085,
+          "pitch": 5
         }
       ]
     },
     {
       "id": "felt",
-      "note": "The felt stick: a short octave-below bump that gives the notes weight on small speakers.",
-      "gain": -9,
+      "note": "The felt stick: a short, lower bump under each note that gives them weight on small speakers.",
+      "gain": -12,
       "source": {
         "type": "osc",
         "wave": "sine",
@@ -78,26 +61,17 @@
           "attack": 0.002,
           "decay": 0.09
         },
-        "pitch": [
-          [
-            0,
-            0
-          ],
-          [
-            0.085,
-            5,
-            "hold"
-          ]
-        ]
+        "pitch": 0
       },
       "events": [
         {
           "t": 0,
-          "vel": 0.75,
-          "dur": 0.085
+          "vel": 0.7,
+          "dur": 0.2
         },
         {
-          "t": 0.085
+          "t": 0.085,
+          "pitch": 5
         }
       ]
     }
@@ -111,7 +85,7 @@
         "size": 4,
         "decay": 0.45,
         "damping": 0.2,
-        "mix": 0.14
+        "mix": 0.142
       }
     ]
   },
@@ -183,7 +157,7 @@
       "targets": [
         {
           "path": "tracks.felt.gain",
-          "from": -30,
+          "from": -24,
           "to": 0,
           "curve": "linear"
         }

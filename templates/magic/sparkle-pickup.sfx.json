@@ -1,52 +1,167 @@
 {
   "format": "sfxgen/1",
   "name": "Sparkle pickup",
-  "description": "The hero's hand closes on a floating star shard. Five tiny glass notes run up a pentatonic scale in 240 ms, each one a small bowl-shaped chime with its partials beating, the last one ringing longest. As they rise, a puff of fairy dust goes up with them: a hundred faint pure pings from 3 to 11 kHz that climb and thin out over half a second. All of it in a bright plate so it glows instead of clicking.",
+  "description": "The hero's hand closes on a floating star shard. Five tiny glass notes run quickly up a pentatonic scale, each one a small bowl-shaped chime with its partials beating, the top one left to ring longer than the rest. As they rise, a puff of fairy dust goes up with them: separate pure pings, high above the notes, that climb and thin out and are still glittering after the last note. All of it in a bright plate so it glows instead of clicking.",
   "tags": ["magic", "pickup", "sparkle", "collect", "coin", "star", "reward", "chime", "fairy"],
   "duration": "auto",
   "seed": 12,
-  "output": { "channels": 2 },
+  "output": {
+    "channels": 2
+  },
   "tracks": [
     {
       "id": "chimes",
-      "note": "The melody: glass-bowl ratios (1, 2.32, 4.25, 6.63), not a synth beep. Slightly uneven timing and velocities so a hand could have played it.",
+      "note": "The melody: the inharmonic partials of a glass bowl, not a synth beep. Slightly uneven timing and rising velocities so a hand could have played it.",
       "source": {
         "type": "additive",
         "freq": 1568,
-        "partials": [{ "ratio": 1 }, { "ratio": 2.32, "amp": 0.55 }, { "ratio": 4.25, "amp": 0.3 }, { "ratio": 6.63, "amp": 0.14 }],
-        "decay": 0.514,
+        "partials": [
+          {
+            "ratio": 1
+          },
+          {
+            "ratio": 2.32,
+            "amp": 0.55
+          },
+          {
+            "ratio": 4.25,
+            "amp": 0.3
+          },
+          {
+            "ratio": 6.63,
+            "amp": 0.14
+          }
+        ],
+        "decay": 0.513809,
         "damping": 1.1,
         "beat": 4,
         "width": 0.6,
-        "env": { "attack": 0.001 }
+        "env": {
+          "attack": 0.003
+        }
       },
       "events": [
-        { "t": 0, "pitch": 0, "vel": 0.7 },
-        { "t": 0.055, "pitch": 2, "vel": 0.75 },
-        { "t": 0.118, "pitch": 4, "vel": 0.8 },
-        { "t": 0.17, "pitch": 7, "vel": 0.9 },
-        { "t": 0.238, "pitch": 12, "vel": 1 }
+        {
+          "t": 0,
+          "pitch": 0,
+          "vel": 0.7
+        },
+        {
+          "t": 0.055,
+          "pitch": 2,
+          "vel": 0.75
+        },
+        {
+          "t": 0.118,
+          "pitch": 4,
+          "vel": 0.8
+        },
+        {
+          "t": 0.17,
+          "pitch": 7,
+          "vel": 0.9
+        }
       ],
-      "sends": { "glow": -18 }
+      "fx": [
+        {
+          "type": "eq",
+          "bands": [
+            {
+              "mode": "lowcut",
+              "freq": 800
+            }
+          ]
+        }
+      ],
+      "sends": {
+        "glow": -18
+      }
+    },
+    {
+      "id": "top",
+      "note": "The last and highest note: the same glass, left to ring longer than the run so the run arrives somewhere.",
+      "start": 0.238,
+      "gain": -2.5,
+      "source": {
+        "type": "additive",
+        "freq": 3136,
+        "partials": [
+          {
+            "ratio": 1
+          },
+          {
+            "ratio": 2.32,
+            "amp": 0.5
+          },
+          {
+            "ratio": 4.25,
+            "amp": 0.22
+          }
+        ],
+        "decay": 0.770714,
+        "damping": 1,
+        "beat": 5.3,
+        "width": 0.6,
+        "env": {
+          "attack": 0.003
+        }
+      },
+      "fx": [
+        {
+          "type": "eq",
+          "bands": [
+            {
+              "mode": "lowcut",
+              "freq": 800
+            }
+          ]
+        }
+      ],
+      "sends": {
+        "glow": -15
+      }
     },
     {
       "id": "dust",
       "note": "Fairy dust: separate pings, their range rising. This is what makes it magic and not a coin.",
       "start": 0.03,
-      "gain": -19.1,
+      "gain": -4,
       "source": {
         "type": "particles",
         "distribution": "burst",
-        "density": 420,
-        "duration": 0.536,
+        "density": 300,
+        "duration": 0.8,
         "spread": 0.9,
-        "grain": { "kind": "ping", "lo": [[0, 3000], [0.5, 6500]], "hi": [[0, 7000], [0.5, 13000]], "decayLo": 0.02, "decayHi": 0.12, "levelJitter": 14 },
+        "grain": {
+          "kind": "ping",
+          "lo": [[0, 5000], [0.7, 8200]],
+          "hi": [[0, 9500], [0.7, 14500]],
+          "decayLo": 0.02,
+          "decayHi": 0.12,
+          "levelJitter": 14
+        },
         "pitch": -1
       },
-      "sends": { "glow": -6 }
+      "sends": {
+        "glow": -6
+      }
     }
   ],
-  "buses": [{ "id": "glow", "fx": [{ "type": "reverb", "id": "plate", "space": "plate", "decay": 1.22, "damping": 0.15, "lowcut": 600 }] }],
+  "buses": [
+    {
+      "id": "glow",
+      "fx": [
+        {
+          "type": "reverb",
+          "id": "plate",
+          "space": "plate",
+          "decay": 1.22474,
+          "damping": 0.15,
+          "lowcut": 600
+        }
+      ]
+    }
+  ],
   "controls": [
     {
       "id": "pitch",
@@ -55,8 +170,24 @@
       "value": 0.5,
       "vary": 0.04,
       "targets": [
-        { "path": "tracks.chimes.source.freq", "mode": "mul", "from": 0.5, "to": 1.8 },
-        { "path": "tracks.dust.source.pitch", "mode": "set", "from": -8, "to": 6 }
+        {
+          "path": "tracks.chimes.source.freq",
+          "mode": "mul",
+          "from": 0.5,
+          "to": 1.8
+        },
+        {
+          "path": "tracks.top.source.freq",
+          "mode": "mul",
+          "from": 0.5,
+          "to": 1.8
+        },
+        {
+          "path": "tracks.dust.source.pitch",
+          "mode": "set",
+          "from": -8,
+          "to": 6
+        }
       ]
     },
     {
@@ -64,22 +195,73 @@
       "label": "Ring",
       "hint": "Short muted ticks to long singing glass.",
       "value": 0.5,
-      "targets": [{ "path": "tracks.chimes.source.decay", "from": 0.12, "to": 2.2 }, { "path": "tracks.chimes.source.damping", "from": 1.8, "to": 0.4 }]
+      "targets": [
+        {
+          "path": "tracks.chimes.source.decay",
+          "from": 0.12,
+          "to": 2.2
+        },
+        {
+          "path": "tracks.top.source.decay",
+          "from": 0.18,
+          "to": 3.3
+        },
+        {
+          "path": "tracks.chimes.source.damping",
+          "from": 1.8,
+          "to": 0.4
+        }
+      ]
     },
     {
       "id": "dust",
       "label": "Dust",
       "hint": "Just the notes, or a whole cloud of glitter around them.",
-      "value": 0.55,
+      "value": 0.5,
       "vary": 0.1,
-      "targets": [{ "path": "tracks.dust.gain", "from": -40, "to": -2 }, { "path": "tracks.dust.source.duration", "from": 0.2, "to": 1.2 }]
+      "targets": [
+        {
+          "path": "tracks.dust.gain",
+          "from": -40,
+          "via": -4,
+          "to": 0
+        },
+        {
+          "path": "tracks.dust.source.duration",
+          "from": 0.3,
+          "via": 0.8,
+          "to": 1.6
+        },
+        {
+          "path": "tracks.dust.source.density",
+          "from": 150,
+          "via": 300,
+          "to": 700
+        }
+      ]
     },
     {
       "id": "glow",
       "label": "Glow",
       "hint": "Dry and close, or hanging in the air.",
       "value": 0.5,
-      "targets": [{ "path": "tracks.chimes.sends.glow", "from": -36, "to": 0 }, { "path": "buses.glow.fx.plate.decay", "from": 0.5, "to": 3 }]
+      "targets": [
+        {
+          "path": "tracks.chimes.sends.glow",
+          "from": -36,
+          "to": 0
+        },
+        {
+          "path": "tracks.top.sends.glow",
+          "from": -33,
+          "to": 3
+        },
+        {
+          "path": "buses.glow.fx.plate.decay",
+          "from": 0.5,
+          "to": 3
+        }
+      ]
     }
   ]
 }

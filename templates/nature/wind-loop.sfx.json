@@ -1,17 +1,8 @@
 {
   "format": "sfxgen/1",
   "name": "Wind (loop)",
-  "description": "Wind over an open hillside with a hut on it: a broad rush of air that swells and falls in gusts every few seconds, a low buffeting underneath when it leans on the walls, and a thin whistle where it gets through a gap in the window frame, rising when the gust does. An 8 s stereo loop; the gusts repeat exactly once per loop (they are tied to 1/8 Hz and its multiples) and the seam is crossfaded over 1 s.",
-  "tags": [
-    "nature",
-    "wind",
-    "weather",
-    "loop",
-    "ambience",
-    "storm",
-    "howl",
-    "air"
-  ],
+  "description": "Wind over an open hillside with a hut on it: a broad rush of air that swells and falls in gusts, a low buffeting underneath when it leans on the walls, and a thin whistle where it gets through a gap in the window frame, rising when the gust does. A stereo loop; the gusts are slow cycles that fit the loop exactly, so they meet themselves at the seam, which is crossfaded.",
+  "tags": ["nature", "wind", "weather", "loop", "ambience", "storm", "howl", "air"],
   "duration": 8,
   "loop": {
     "mode": "crossfade",
@@ -24,7 +15,7 @@
   "tracks": [
     {
       "id": "rush",
-      "note": "The air itself: pink noise whose colour and level rise and fall together with the gusts (one slow, one twice as fast, both whole cycles per loop).",
+      "note": "The air itself: pink noise whose colour and level rise and fall together with the gusts (one slow cycle and a faster one, both whole cycles per loop), with a little random drift on top.",
       "source": {
         "type": "noise",
         "color": "pink",
@@ -35,12 +26,12 @@
         "filter": {
           "mode": "bandpass",
           "cutoff": {
-            "value": 520,
+            "value": 553.974,
             "mod": [
               {
                 "type": "lfo",
                 "rate": 0.125,
-                "depth": 7,
+                "depth": 3.27912,
                 "unit": "st"
               },
               {
@@ -57,7 +48,7 @@
               }
             ]
           },
-          "q": 0.8
+          "q": 0.79521
         }
       },
       "fx": [
@@ -70,7 +61,7 @@
               {
                 "type": "lfo",
                 "rate": 0.125,
-                "depth": 5
+                "depth": 5.225
               },
               {
                 "type": "lfo",
@@ -80,12 +71,13 @@
             ]
           }
         }
-      ]
+      ],
+      "gain": -5.66
     },
     {
       "id": "buffet",
-      "note": "Pressure on the walls and in the ears: slow, irregular low thumping between 60 and 200 Hz. The weight of the wind.",
-      "gain": 0,
+      "note": "Pressure on the walls and in the ears: slow, irregular low thumping that swells with the slow gust. The weight of the wind.",
+      "gain": -0.72,
       "source": {
         "type": "noise",
         "color": "brown",
@@ -124,14 +116,15 @@
     {
       "id": "whistle",
       "note": "The gap in the window frame: noise ringing in a narrow tube, its pitch pushed up by each gust. The detail that gives the wind a voice.",
-      "gain": 0,
+      "gain": -21.36,
       "source": {
         "type": "noise",
-        "color": "white",
-        "width": 0.3,
+        "color": "blue",
+        "width": 0.69,
         "env": {
           "attack": 0.01
-        }
+        },
+        "density": 324
       },
       "fx": [
         {
@@ -139,12 +132,12 @@
           "type": "resonator",
           "mode": "tube",
           "freq": {
-            "value": 640,
+            "value": 600.416,
             "mod": [
               {
                 "type": "lfo",
                 "rate": 0.125,
-                "depth": 3.2,
+                "depth": 1.52968,
                 "unit": "st"
               },
               {
@@ -161,7 +154,7 @@
               }
             ]
           },
-          "decay": 0.35,
+          "decay": 0.185436,
           "brightness": 0.12
         },
         {
@@ -205,7 +198,7 @@
       "id": "strength",
       "label": "Strength",
       "hint": "A breeze to a gale: brighter, fuller and heavier on the walls.",
-      "value": 0.5,
+      "value": 0.47,
       "targets": [
         {
           "path": "tracks.rush.source.filter.cutoff.value",
@@ -216,8 +209,8 @@
         {
           "path": "tracks.buffet.gain",
           "mode": "set",
-          "from": -16,
-          "to": 8
+          "from": -12,
+          "to": 12
         },
         {
           "path": "tracks.rush.source.filter.q",
@@ -231,7 +224,7 @@
       "id": "gusts",
       "label": "Gusts",
       "hint": "An even, steady blow to wild surges and lulls.",
-      "value": 0.5,
+      "value": 0.45,
       "targets": [
         {
           "path": "tracks.rush.fx.gust.gain.mod.0.depth",
@@ -257,7 +250,7 @@
       "id": "whistle",
       "label": "Whistle",
       "hint": "Open country with nothing to whistle through, to a howling gap.",
-      "value": 0.45,
+      "value": 0.216,
       "targets": [
         {
           "path": "tracks.whistle.gain",

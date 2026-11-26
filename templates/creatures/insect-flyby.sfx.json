@@ -1,17 +1,8 @@
 {
   "format": "sfxgen/1",
   "name": "Insect fly-by",
-  "description": "A fat bumblebee crossing in front of your face from left to right at five metres a second, passing 30 cm from the nose at 1.1 s: 170 wing beats a second, never quite steady, the buzz bending down as it passes and fading into the garden by 2.3 s. Stereo.",
-  "tags": [
-    "creature",
-    "insect",
-    "bee",
-    "fly",
-    "mosquito",
-    "buzz",
-    "doppler",
-    "pass-by"
-  ],
+  "description": "A fat bumblebee crossing in front of your face from left to right, passing close to the nose: a fast wing buzz, never quite steady, bending down as it passes and fading into the garden. Stereo.",
+  "tags": ["creature", "insect", "bee", "fly", "mosquito", "buzz", "doppler", "pass-by"],
   "duration": 2.3,
   "seed": 21,
   "output": {
@@ -40,7 +31,7 @@
             {
               "type": "wander",
               "rate": 7,
-              "depth": 0.9,
+              "depth": 0.454715,
               "unit": "st"
             },
             {
@@ -60,7 +51,7 @@
         },
         "filter": {
           "mode": "bandpass",
-          "cutoff": 760,
+          "cutoff": 822.024,
           "q": 0.6
         }
       },
@@ -68,14 +59,14 @@
         {
           "type": "tremolo",
           "rate": 13,
-          "depth": 0.25,
+          "depth": 0.27,
           "shape": "random"
         },
         {
           "id": "pass",
           "type": "doppler",
-          "speed": 5,
-          "distance": 0.3,
+          "speed": 3.86636,
+          "distance": 0.340959,
           "time": 1.1,
           "amount": 1.6
         }
@@ -110,8 +101,8 @@
         {
           "id": "pass",
           "type": "doppler",
-          "speed": 5,
-          "distance": 0.3,
+          "speed": 3.86636,
+          "distance": 0.340959,
           "time": 1.1,
           "amount": 1.6,
           "air": 3

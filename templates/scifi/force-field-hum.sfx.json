@@ -1,58 +1,216 @@
 {
   "format": "sfxgen/1",
   "name": "Force field hum (loop)",
-  "description": "Standing a metre from a containment field across a doorway, a 4 s seamless loop. The field's emitters hum at 58 Hz with a hollow, mostly odd set of harmonics, slowly breathing through a phaser as the field ripples. Its metal frame sings faintly along. Somewhere inside, an unstable current wanders and flips (a quiet buzzing that never repeats), and every so often dust touches the field and pops.",
+  "description": "Standing close to a containment field across a doorway, a seamless loop. The field's emitters hum low, with a hollow, mostly odd set of harmonics that reach up into a rasping edge, slowly breathing through a phaser as the field ripples. Its metal frame sings faintly along. Over the hum the surface of the field fizzes like a power line in rain, a hiss chopped at twice the hum's frequency. Somewhere inside, an unstable current wanders and flips (a gritty buzzing that never repeats), and now and then dust touches the field and pops.",
   "tags": ["scifi", "force field", "hum", "loop", "ambience", "energy", "barrier", "drone"],
   "duration": 4,
-  "loop": { "mode": "crossfade", "crossfade": 0.5 },
+  "loop": {
+    "mode": "crossfade",
+    "crossfade": 0.5
+  },
   "seed": 17,
   "tracks": [
     {
       "id": "emitters",
-      "note": "The hum: weight at 58 to 290 Hz so it survives small speakers. The phaser runs exactly two cycles per loop.",
+      "note": "The hum: its weight sits in the low harmonics rather than the fundamental, which is cut, so it survives small speakers, and a buzzing edge of upper harmonics, roughened at twice the hum's frequency. The phaser's cycles fit the loop exactly.",
       "source": {
         "type": "additive",
-        "freq": { "value": 58.3, "mod": [{ "type": "wander", "rate": 0.7, "depth": 7, "unit": "cents" }] },
-        "harmonics": 18,
+        "freq": {
+          "value": 58.3,
+          "mod": [
+            {
+              "type": "wander",
+              "rate": 0.7,
+              "depth": 7,
+              "unit": "cents"
+            }
+          ]
+        },
+        "harmonics": 32,
         "odd": 0.85,
-        "tilt": -4.75,
+        "tilt": -3.2,
         "decay": 0,
         "beat": 4
       },
       "fx": [
-        { "type": "eq", "bands": [{ "mode": "lowcut", "freq": 110, "slope": "12" }, { "mode": "peak", "freq": 190, "gain": 3, "q": 0.8 }] },
-        { "type": "phaser", "id": "ripple", "freq": 600, "depth": 2.04, "rate": 0.5, "stages": "6", "feedback": 0.55 },
-        { "type": "resonator", "id": "frame", "mode": "metal", "freq": 233, "decay": 1.2, "brightness": 0.35, "mix": 0.22 }
+        {
+          "type": "eq",
+          "bands": [
+            {
+              "mode": "lowcut",
+              "freq": 110,
+              "slope": "12"
+            },
+            {
+              "mode": "peak",
+              "freq": 190,
+              "gain": 3,
+              "q": 0.8
+            }
+          ]
+        },
+        {
+          "type": "tremolo",
+          "id": "rasp",
+          "rate": 116.5,
+          "depth": 0.22,
+          "shape": "saw"
+        },
+        {
+          "type": "phaser",
+          "id": "ripple",
+          "freq": 600,
+          "depth": 2.04,
+          "rate": 0.5,
+          "stages": "6",
+          "feedback": 0.55
+        },
+        {
+          "type": "resonator",
+          "id": "frame",
+          "mode": "metal",
+          "freq": 233,
+          "decay": 1.2,
+          "brightness": 0.35,
+          "mix": 0.22
+        }
       ]
     },
     {
       "id": "current",
-      "note": "The unstable current: a Lorenz attractor flipping between two lobes. This is what makes it dangerous instead of a fridge.",
-      "gain": -9.6,
-      "source": { "type": "chaos", "mode": "lorenz", "rate": 240, "chaos": 0.53, "smooth": 0.05 },
+      "note": "The unstable current: a Lorenz attractor flipping between two lobes, overdriven so it buzzes and spits. This is what makes it dangerous instead of a fridge.",
+      "gain": -15,
+      "source": {
+        "type": "chaos",
+        "mode": "lorenz",
+        "rate": 870,
+        "chaos": 0.53,
+        "smooth": 0.05,
+        "env": {
+          "attack": 0.01,
+          "sustain": 1
+        }
+      },
       "fx": [
         {
           "type": "filter",
           "mode": "bandpass",
-          "cutoff": { "value": 800, "mod": [{ "type": "wander", "rate": 1.5, "depth": 0.6, "unit": "oct" }] },
+          "cutoff": {
+            "value": 1400,
+            "mod": [
+              {
+                "type": "wander",
+                "rate": 1.5,
+                "depth": 0.6,
+                "unit": "oct"
+              }
+            ]
+          },
           "q": 0.6
+        },
+        {
+          "type": "drive",
+          "mode": "tube",
+          "amount": 8,
+          "tone": 7000
+        },
+        {
+          "type": "tremolo",
+          "rate": {
+            "value": 7,
+            "mod": [
+              {
+                "type": "wander",
+                "rate": 0.8,
+                "depth": 4
+              }
+            ]
+          },
+          "depth": 0.8,
+          "shape": "random"
         }
       ]
     },
     {
       "id": "arcs",
-      "note": "Dust and moths meeting the field: sparse pops with ragged tails.",
-      "gain": -12,
+      "note": "Dust and moths meeting the field: pops with ragged tails, now and then, uneven in size.",
+      "gain": 0,
       "source": {
         "type": "particles",
         "distribution": "random",
-        "density": 3.79,
+        "density": 6,
         "duration": 4,
-        "grain": { "kind": "crackle", "lo": 1500, "hi": 7000, "decayLo": 0.004, "decayHi": 0.035, "levelJitter": 22 }
+        "grain": {
+          "kind": "crackle",
+          "lo": 1500,
+          "hi": 8000,
+          "decayLo": 0.004,
+          "decayHi": 0.04,
+          "levelJitter": 18
+        }
       }
+    },
+    {
+      "id": "corona",
+      "note": "The surface of the field: corona hiss up high, chopped at twice the hum's frequency the way a high-voltage line fizzes. It puts the sound on a laptop speaker and says electricity, not motor.",
+      "gain": -16,
+      "source": {
+        "type": "noise",
+        "color": "white",
+        "filter": {
+          "mode": "bandpass",
+          "cutoff": {
+            "value": 4200,
+            "mod": [
+              {
+                "type": "wander",
+                "rate": 0.6,
+                "depth": 0.35,
+                "unit": "oct"
+              }
+            ]
+          },
+          "q": 1.3,
+          "slope": "24"
+        },
+        "gain": 0,
+        "env": {
+          "attack": 0.01,
+          "sustain": 1
+        }
+      },
+      "fx": [
+        {
+          "type": "tremolo",
+          "id": "chop",
+          "rate": 116.5,
+          "depth": 0.95,
+          "shape": "saw"
+        },
+        {
+          "type": "tremolo",
+          "rate": {
+            "value": 3,
+            "mod": [
+              {
+                "type": "wander",
+                "rate": 0.5,
+                "depth": 2
+              }
+            ]
+          },
+          "depth": 0.35,
+          "shape": "random"
+        }
+      ]
     }
   ],
-  "master": { "normalize": { "mode": "loudness", "target": -20 } },
+  "master": {
+    "normalize": {
+      "mode": "loudness",
+      "target": -20
+    }
+  },
   "controls": [
     {
       "id": "pitch",
@@ -60,10 +218,38 @@
       "hint": "A deep generator drone to a higher, tenser hum.",
       "value": 0.4,
       "targets": [
-        { "path": "tracks.emitters.source.freq", "mode": "mul", "from": 0.62, "to": 2.1 },
-        { "path": "tracks.emitters.fx.frame.freq", "mode": "mul", "from": 0.62, "to": 2.1 },
-        { "path": "tracks.current.source.rate", "mode": "mul", "from": 0.62, "to": 2.1 }
-      ]
+        {
+          "path": "tracks.emitters.source.freq",
+          "mode": "mul",
+          "from": 0.62,
+          "to": 2.1
+        },
+        {
+          "path": "tracks.emitters.fx.frame.freq",
+          "mode": "mul",
+          "from": 0.62,
+          "to": 2.1
+        },
+        {
+          "path": "tracks.current.source.rate",
+          "mode": "mul",
+          "from": 0.62,
+          "to": 2.1
+        },
+        {
+          "path": "tracks.emitters.fx.rasp.rate",
+          "mode": "mul",
+          "from": 0.62,
+          "to": 2.1
+        },
+        {
+          "path": "tracks.corona.fx.chop.rate",
+          "mode": "mul",
+          "from": 0.62,
+          "to": 2.1
+        }
+      ],
+      "default": 0.4
     },
     {
       "id": "instability",
@@ -71,24 +257,71 @@
       "hint": "A healthy steady field to one that buzzes and spits, about to fail.",
       "value": 0.4,
       "targets": [
-        { "path": "tracks.current.gain", "from": -24, "to": 12 },
-        { "path": "tracks.current.source.chaos", "from": 0.25, "to": 0.95 },
-        { "path": "tracks.arcs.source.density", "from": 0.6, "to": 60 }
-      ]
+        {
+          "path": "tracks.current.gain",
+          "from": -40,
+          "via": -15,
+          "to": -2
+        },
+        {
+          "path": "tracks.current.source.chaos",
+          "from": 0.25,
+          "via": 0.53,
+          "to": 0.95
+        },
+        {
+          "path": "tracks.arcs.source.density",
+          "from": 0.6,
+          "via": 6,
+          "to": 60
+        }
+      ],
+      "default": 0.4
     },
     {
       "id": "edge",
       "label": "Edge",
       "hint": "Soft and dull behind glass to bright, buzzing and close.",
       "value": 0.5,
-      "targets": [{ "path": "tracks.emitters.source.tilt", "from": -9, "to": -0.5 }, { "path": "tracks.arcs.gain", "from": -22, "to": -2 }]
+      "targets": [
+        {
+          "path": "tracks.emitters.source.tilt",
+          "from": -5.5,
+          "via": -3.2,
+          "to": -0.5
+        },
+        {
+          "path": "tracks.arcs.gain",
+          "from": -16,
+          "via": 0,
+          "to": 3
+        },
+        {
+          "path": "tracks.corona.gain",
+          "from": -48,
+          "via": -16,
+          "to": -8
+        }
+      ],
+      "default": 0.5
     },
     {
       "id": "ripple",
       "label": "Ripple",
       "hint": "How deeply the field breathes.",
       "value": 0.6,
-      "targets": [{ "path": "tracks.emitters.fx.ripple.depth", "from": 0, "to": 3.4 }, { "path": "tracks.emitters.fx.ripple.feedback", "from": 0.1, "to": 0.85 }]
+      "targets": [
+        {
+          "path": "tracks.emitters.fx.ripple.depth",
+          "from": 0,
+          "to": 3.4
+        },
+        {
+          "path": "tracks.emitters.fx.ripple.feedback",
+          "from": 0.1,
+          "to": 0.85
+        }
+      ]
     }
   ]
 }

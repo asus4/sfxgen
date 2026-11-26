@@ -1,16 +1,8 @@
 {
   "format": "sfxgen/1",
   "name": "Coin",
-  "description": "A coin picked up on an 8-bit console with two pulse channels. One 50% square plays B5 for 70 ms and jumps a fourth to E6, which fades for 400 ms through the chip's 16 volume steps. No attack, no vibrato, nothing else: the jump is the reward.",
-  "tags": [
-    "retro",
-    "8-bit",
-    "chiptune",
-    "coin",
-    "pickup",
-    "collect",
-    "square"
-  ],
+  "description": "A coin picked up on an 8-bit console with two pulse channels. One square plays a short high note and jumps up to a second, higher one, struck again at full volume, which fades through the chip's coarse volume steps. No attack, no vibrato, nothing else: the jump is the reward.",
+  "tags": ["retro", "8-bit", "chiptune", "coin", "pickup", "collect", "square"],
   "duration": "auto",
   "seed": 1,
   "tracks": [
@@ -22,36 +14,9 @@
         "wave": "pulse",
         "pw": 0.5,
         "freq": 988,
-        "pitch": [
-          [
-            0,
-            0
-          ],
-          [
-            0.07,
-            5,
-            "hold"
-          ]
-        ],
+        "pitch": [[0, 0], [0.07, 5, "hold"]],
         "env": {
-          "points": [
-            [
-              0,
-              1
-            ],
-            [
-              0.07,
-              0.85
-            ],
-            [
-              0.071,
-              1
-            ],
-            [
-              0.48,
-              0
-            ]
-          ],
+          "points": [[0, 1], [0.07, 0.85], [0.071, 1], [0.48, 0]],
           "curve": "linear"
         }
       },
@@ -93,7 +58,7 @@
     {
       "id": "jump",
       "label": "Jump",
-      "hint": "How far the second note leaps: a minor third to an octave and a fifth.",
+      "hint": "How far the second note leaps: a small step to a wide leap.",
       "value": 5,
       "min": 3,
       "max": 19,
@@ -113,7 +78,7 @@
       "id": "length",
       "label": "Length",
       "hint": "A quick blip to a long ringing coin.",
-      "value": 0.5,
+      "value": 0.488498263888889,
       "targets": [
         {
           "path": "tracks.pulse.source.env",
@@ -132,7 +97,7 @@
     {
       "id": "duty",
       "label": "Duty",
-      "hint": "A thin, nasal 12.5% pulse to a full hollow square.",
+      "hint": "A thin, nasal pulse to a full hollow square.",
       "value": 1,
       "targets": [
         {

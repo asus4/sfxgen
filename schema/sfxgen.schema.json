@@ -2128,7 +2128,7 @@
     },
     "source-machine": {
       "title": "machine: Machine",
-      "description": "Rotating machinery driven by `rpm`: pick the `kind` (motor, servo, drill, engine, turbine, rotor) and move `rpm` with breakpoints so it spins up, holds, strains and winds down; every tone, pulse and chop follows it. `load` is the strain (rougher, brighter, louder), `roughness` how uneven it is, `whine` its gear whine. For a helicopter, layer the main rotor with a second, small, fast rotor for the tail (4 blades, about 1000 rpm, size 0.4) and a quiet turbine; for a car pass-by, put an engine through doppler.",
+      "description": "Rotating machinery driven by `rpm`: pick the `kind` (motor, servo, drill, engine, turbine, rotor) and move `rpm` with breakpoints so it spins up, holds, strains and winds down; every tone, pulse and chop follows it. `load` is the strain (rougher, brighter, louder), `roughness` how uneven it is, `whine` its gear whine. An engine is modelled from its firing order (`firing`), exhaust (`muffler`), intake and overrun pops: draw `load` as the throttle and shut it to 0 when the revs should fall with a burble. For a helicopter, layer the main rotor with a second, small, fast rotor for the tail (4 blades, about 1000 rpm, size 0.4) and a quiet turbine; for a car pass-by, put an engine through doppler.",
       "type": "object",
       "properties": {
         "type": {
@@ -2382,11 +2382,44 @@
           "maximum": 2000
         },
         "cylinders": {
-          "description": "Engine only: 1 thumps like a dirt bike or lawnmower, 2 a twin, 4 a car, 6 smooth, 8 a V8 rumble. Fires cylinders * rpm / 120 times a second, each cylinder a little different. (1 to 12)",
+          "description": "Engine only, with `firing` even: 1 thumps like a dirt bike or lawnmower, 2 a parallel twin, 3 a triple, 4 a car or a sports bike, 5 an Audi five, 6 smooth. Fires cylinders * rpm / 120 times a second, evenly spaced over two turns of the crank, each cylinder a little different. The other `firing` layouts set their own count. (1 to 12)",
           "default": 4,
           "type": "number",
           "minimum": 1,
           "maximum": 16
+        },
+        "firing": {
+          "description": "Engine only: the firing order, which sets the engine's rhythm and is most of its character. even: `cylinders` spaced evenly over two crank turns (singles, parallel twins, triples, inline fours and sixes: a steady buzz or hum). v-twin: a 45 degree V-twin, firing 315 then 405 degrees apart, the loping \"potato-potato\" of a big cruiser. twin-270: a 90 degree V-twin or a 270 degree parallel twin (270 then 450): a sport twin's off-beat thrum. crossplane: a crossplane inline four (270, 180, 90, 180): a superbike's growl. v8: a crossplane V8, two banks of four each firing unevenly into its own pipe: the American burble. boxer: a flat four with unequal-length headers, the two banks out of step: the Subaru rumble.",
+          "default": "even",
+          "enum": [
+            "even",
+            "v-twin",
+            "twin-270",
+            "crossplane",
+            "v8",
+            "boxer"
+          ]
+        },
+        "muffler": {
+          "description": "Engine only: the exhaust. 0 straight pipes (loud, raw and raspy, every crack of the valves heard), 0.3 a loud aftermarket can, 0.5 a sports exhaust, 1 a quiet stock silencer (a soft, deep, booming thrum). (0 to 1)",
+          "default": 0.5,
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "intake": {
+          "description": "Engine only: induction roar, the air rushing in through the throttle on every intake stroke. It follows `load` (only an open throttle sucks hard) and rpm. 0 none, 0.3 a car heard from outside, 0.6 a bike or a car with a big open intake, 1 a carburettor howling. (0 to 1)",
+          "default": 0.3,
+          "type": "number",
+          "minimum": 0,
+          "maximum": 2
+        },
+        "pops": {
+          "description": "Engine only: afterfire on the overrun. When the throttle shuts (`load` near 0) above about 1800 rpm, unburnt fuel lights in the hot pipe: sharp pops and crackles among the weak, fuel-cut firings. 0 never, 0.2 a stock engine's odd pop, 0.6 a tuned bike crackling, 1 a race car spitting. (0 to 1)",
+          "default": 0.2,
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
         },
         "blades": {
           "description": "Rotor: blades per revolution, slapping blades * rpm / 60 times a second (2 a helicopter, 4 to 7 a fan). Turbine: fan blades, setting the whine at blades * rpm / 60 Hz (default 22). (2 to 40)",

@@ -1,11 +1,13 @@
 {
   "format": "sfxgen/1",
   "name": "Portal opening",
-  "description": "A doorway to somewhere else is forced open in a cave. It opens like a mouth: a deep buzzing drone (two sines grinding against each other) is shaped by a giant throat that moves from a closed 'oo' to a wide 'ah' over 1.8 s, growing as it goes. The rim spins: a rotor-like chop that starts at 3 beats a second and accelerates to 14 as the portal stabilises. Wind from the other side whistles through the gap, rising. After 2 s it holds open and the drone sinks back into the cave's long echo.",
+  "description": "A doorway to somewhere else is forced open in a cave. It opens like a mouth: a deep buzzing drone (two sines grinding against each other) is shaped by a giant throat that moves from a closed 'oo' to a wide 'ah', climbing and growing as it goes. The rim spins: a rotor-like chop that starts slow and accelerates as the portal stabilises. Wind from the other side whistles through the gap, rising. Then it arrives: the gate locks open with a heavy stone thud that the whole cave answers, the drone at its loudest and widest. It holds open for a moment and then sinks back into the cave's long echo.",
   "tags": ["magic", "portal", "gate", "rift", "summon", "dimension", "open", "drone", "vortex"],
   "duration": "auto",
   "seed": 41,
-  "output": { "channels": 2 },
+  "output": {
+    "channels": 2
+  },
   "tracks": [
     {
       "id": "maw",
@@ -17,20 +19,66 @@
         "ratio": 2.76,
         "chaos": [[0, 0.35], [1.8, 0.55]],
         "smooth": 0.1,
-        "env": { "attack": 0.3, "hold": 1.7, "decay": 1.3 }
+        "env": {
+          "attack": 0.03,
+          "hold": 2,
+          "decay": 1.3
+        }
       },
       "fx": [
-        { "type": "formant", "id": "throat", "vowel": [[0, 4], [1.8, 0, "smooth"]], "size": 1.75, "resonance": 1.45 },
-        { "type": "tremolo", "id": "spin", "rate": [[0, 3], [2, 14]], "depth": 0.6, "shape": "ramp", "stereo": 0.25 },
-        { "type": "eq", "bands": [{ "mode": "lowcut", "freq": 60 }] }
+        {
+          "type": "formant",
+          "id": "throat",
+          "vowel": [[0, 4], [1.8, 0, "smooth"]],
+          "size": 1.74929,
+          "resonance": 1.45012
+        },
+        {
+          "type": "tremolo",
+          "id": "spin",
+          "rate": [[0, 3], [2, 14]],
+          "depth": 0.6,
+          "shape": "ramp",
+          "stereo": 0.25
+        },
+        {
+          "type": "eq",
+          "bands": [
+            {
+              "mode": "lowcut",
+              "freq": 75
+            },
+            {
+              "mode": "highshelf",
+              "freq": 1200,
+              "gain": 4
+            }
+          ]
+        },
+        {
+          "type": "gain",
+          "id": "grow",
+          "gain": [[0, -13], [1.2, -7, "linear"], [1.8, 0, "linear"], [2.4, -3, "linear"]]
+        }
       ],
-      "sends": { "cave": -7 }
+      "sends": {
+        "cave": -7
+      }
     },
     {
       "id": "wind",
       "note": "Air from the other side: noise whistling through a tube whose note climbs as the gap widens. Wander keeps it gusting.",
       "gain": -19,
-      "source": { "type": "noise", "color": "pink", "width": 0.8, "env": { "attack": 0.9, "hold": 1.1, "decay": 1.5 } },
+      "source": {
+        "type": "noise",
+        "color": "pink",
+        "width": 0.8,
+        "env": {
+          "attack": 1.75,
+          "hold": 0.4,
+          "decay": 1.5
+        }
+      },
       "fx": [
         {
           "type": "resonator",
@@ -38,23 +86,126 @@
           "mode": "tube",
           "decay": 0.5,
           "brightness": 0.35,
-          "freq": { "env": [[0, 420], [1.8, 1180]], "mod": [{ "type": "wander", "rate": 3, "depth": 1.5, "unit": "st" }] }
+          "freq": {
+            "env": [[0, 420], [1.8, 1180]],
+            "mod": [
+              {
+                "type": "wander",
+                "rate": 3,
+                "depth": 1.5,
+                "unit": "st"
+              }
+            ]
+          }
         },
-        { "type": "width", "width": 1.6 }
+        {
+          "type": "tremolo",
+          "id": "spin",
+          "rate": [[0, 3], [2, 14]],
+          "depth": 0.5,
+          "shape": "ramp",
+          "stereo": 0.5
+        },
+        {
+          "type": "width",
+          "width": 1.3
+        }
       ],
-      "sends": { "cave": -5 }
+      "sends": {
+        "cave": -5
+      }
     },
     {
       "id": "rim",
-      "note": "The edge burning: glittering metal shimmer from sparse crackles ringing a metal resonator. High, quiet, wide.",
+      "note": "The edge burning: glittering metal shimmer from crackles, sparse at first and thickening, ringing a metal resonator. High and wide, chopped by the same spin as the drone, so the chop is heard as a turning edge.",
       "start": 0.3,
-      "gain": -19,
-      "source": { "type": "noise", "color": "crackle", "density": [[0, 30], [1.6, 400]], "width": 1, "env": { "attack": 0.6, "hold": 1.1, "decay": 1 } },
-      "fx": [{ "type": "resonator", "mode": "metal", "freq": 1870, "decay": 0.9, "brightness": 0.7, "mix": 0.8 }],
-      "sends": { "cave": -4 }
+      "gain": -5,
+      "source": {
+        "type": "noise",
+        "color": "crackle",
+        "density": [[0, 30], [1.6, 400]],
+        "width": 1,
+        "env": {
+          "attack": 0.6,
+          "hold": 1.1,
+          "decay": 1
+        }
+      },
+      "fx": [
+        {
+          "type": "resonator",
+          "mode": "metal",
+          "freq": 1870,
+          "decay": 0.9,
+          "brightness": 0.7,
+          "mix": 0.8
+        },
+        {
+          "type": "tremolo",
+          "id": "spin",
+          "rate": [[0, 3], [1.7, 14]],
+          "depth": 0.75,
+          "shape": "ramp",
+          "stereo": 0.6
+        }
+      ],
+      "sends": {
+        "cave": -4
+      }
+    },
+    {
+      "id": "arrive",
+      "note": "The arrival: the gate locking open. A slab of rock taking the load all at once (a big stone plate, its blow slightly spread), a crowded low knock with no note of its own, thrown into the cave.",
+      "start": 1.8,
+      "gain": 0,
+      "source": {
+        "type": "modal",
+        "material": "stone",
+        "shape": "plate",
+        "freq": 41,
+        "decay": 0.5,
+        "damping": 1.6,
+        "modes": 64,
+        "dent": 0.5,
+        "position": 0.8,
+        "variant": 3,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.5,
+          "spread": 0.012
+        }
+      },
+      "fx": [
+        {
+          "type": "eq",
+          "bands": [
+            {
+              "mode": "lowcut",
+              "freq": 80
+            }
+          ]
+        }
+      ],
+      "sends": {
+        "cave": -2
+      }
     }
   ],
-  "buses": [{ "id": "cave", "fx": [{ "type": "reverb", "id": "rock", "space": "cave", "decay": 3, "predelay": 25 }] }],
+  "buses": [
+    {
+      "id": "cave",
+      "fx": [
+        {
+          "type": "reverb",
+          "id": "rock",
+          "space": "cave",
+          "decay": 3,
+          "predelay": 25,
+          "bass": 0.6
+        }
+      ]
+    }
+  ],
   "controls": [
     {
       "id": "size",
@@ -62,9 +213,23 @@
       "hint": "A keyhole rift to a gate a dragon could walk through.",
       "value": 0.5,
       "targets": [
-        { "path": "tracks.maw.source.rate", "mode": "mul", "from": 2.2, "to": 0.55 },
-        { "path": "tracks.maw.fx.throat.size", "from": 0.9, "to": 3.4 },
-        { "path": "tracks.wind.fx.gap.freq", "mode": "mul", "from": 1.8, "to": 0.55 }
+        {
+          "path": "tracks.maw.source.rate",
+          "mode": "mul",
+          "from": 2.2,
+          "to": 0.55
+        },
+        {
+          "path": "tracks.maw.fx.throat.size",
+          "from": 0.9,
+          "to": 3.4
+        },
+        {
+          "path": "tracks.wind.fx.gap.freq",
+          "mode": "mul",
+          "from": 1.8,
+          "to": 0.55
+        }
       ]
     },
     {
@@ -73,23 +238,124 @@
       "hint": "Ripped open in a moment, or slowly prised apart.",
       "value": 0.5,
       "targets": [
-        { "path": "tracks.maw.source.rate", "mode": "stretch", "from": 0.35, "to": 2.2 },
-        { "path": "tracks.maw.source.chaos", "mode": "stretch", "from": 0.35, "to": 2.2 },
-        { "path": "tracks.maw.source.env", "mode": "stretch", "from": 0.35, "to": 2.2 },
-        { "path": "tracks.maw.fx.throat.vowel", "mode": "stretch", "from": 0.35, "to": 2.2 },
-        { "path": "tracks.maw.fx.spin.rate", "mode": "stretch", "from": 0.35, "to": 2.2 },
-        { "path": "tracks.wind.source.env", "mode": "stretch", "from": 0.35, "to": 2.2 },
-        { "path": "tracks.wind.fx.gap.freq.env", "mode": "stretch", "from": 0.35, "to": 2.2 },
-        { "path": "tracks.rim.source.env", "mode": "stretch", "from": 0.35, "to": 2.2 },
-        { "path": "tracks.rim.source.density", "mode": "stretch", "from": 0.35, "to": 2.2 }
+        {
+          "path": "tracks.maw.source.rate",
+          "mode": "stretch",
+          "from": 0.35,
+          "via": 1,
+          "to": 2.1
+        },
+        {
+          "path": "tracks.maw.source.chaos",
+          "mode": "stretch",
+          "from": 0.35,
+          "via": 1,
+          "to": 2.1
+        },
+        {
+          "path": "tracks.maw.source.env",
+          "mode": "stretch",
+          "from": 0.35,
+          "via": 1,
+          "to": 2.1
+        },
+        {
+          "path": "tracks.maw.fx.throat.vowel",
+          "mode": "stretch",
+          "from": 0.35,
+          "via": 1,
+          "to": 2.1
+        },
+        {
+          "path": "tracks.maw.fx.spin.rate",
+          "mode": "stretch",
+          "from": 0.35,
+          "via": 1,
+          "to": 2.1
+        },
+        {
+          "path": "tracks.maw.fx.grow.gain",
+          "mode": "stretch",
+          "from": 0.35,
+          "via": 1,
+          "to": 2.1
+        },
+        {
+          "path": "tracks.wind.fx.spin.rate",
+          "mode": "stretch",
+          "from": 0.35,
+          "via": 1,
+          "to": 2.1
+        },
+        {
+          "path": "tracks.rim.fx.spin.rate",
+          "mode": "stretch",
+          "from": 0.35,
+          "via": 1,
+          "to": 2.1
+        },
+        {
+          "path": "tracks.arrive.start",
+          "mode": "mul",
+          "from": 0.35,
+          "via": 1,
+          "to": 2.1
+        },
+        {
+          "path": "tracks.wind.source.env",
+          "mode": "stretch",
+          "from": 0.35,
+          "via": 1,
+          "to": 2.1
+        },
+        {
+          "path": "tracks.wind.fx.gap.freq.env",
+          "mode": "stretch",
+          "from": 0.35,
+          "via": 1,
+          "to": 2.1
+        },
+        {
+          "path": "tracks.rim.source.env",
+          "mode": "stretch",
+          "from": 0.35,
+          "via": 1,
+          "to": 2.1
+        },
+        {
+          "path": "tracks.rim.source.density",
+          "mode": "stretch",
+          "from": 0.35,
+          "via": 1,
+          "to": 2.1
+        }
       ]
     },
     {
       "id": "spin",
       "label": "Spin",
       "hint": "A still doorway to a hard-chopping vortex.",
-      "value": 0.6,
-      "targets": [{ "path": "tracks.maw.fx.spin.depth", "from": 0, "to": 1 }]
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "tracks.maw.fx.spin.depth",
+          "from": 0,
+          "via": 0.6,
+          "to": 1
+        },
+        {
+          "path": "tracks.wind.fx.spin.depth",
+          "from": 0,
+          "via": 0.5,
+          "to": 0.9
+        },
+        {
+          "path": "tracks.rim.fx.spin.depth",
+          "from": 0,
+          "via": 0.75,
+          "to": 1
+        }
+      ]
     },
     {
       "id": "menace",
@@ -97,8 +363,17 @@
       "hint": "A calm humming gate to a grinding, tearing wound in the air.",
       "value": 0.45,
       "targets": [
-        { "path": "tracks.maw.source.chaos", "mode": "mul", "from": 0.3, "to": 1.6 },
-        { "path": "tracks.maw.fx.throat.resonance", "from": 0.8, "to": 3 }
+        {
+          "path": "tracks.maw.source.chaos",
+          "mode": "mul",
+          "from": 0.3,
+          "to": 1.6
+        },
+        {
+          "path": "tracks.maw.fx.throat.resonance",
+          "from": 0.8,
+          "to": 3
+        }
       ]
     },
     {
@@ -106,7 +381,20 @@
       "label": "Wind",
       "hint": "How much air howls through from the other side.",
       "value": 0.5,
-      "targets": [{ "path": "tracks.wind.gain", "from": -36, "to": -2 }, { "path": "tracks.rim.gain", "from": -30, "to": -8 }]
+      "targets": [
+        {
+          "path": "tracks.wind.gain",
+          "from": -36,
+          "via": -19,
+          "to": -11
+        },
+        {
+          "path": "tracks.rim.gain",
+          "from": -30,
+          "via": -5,
+          "to": 2
+        }
+      ]
     }
   ]
 }

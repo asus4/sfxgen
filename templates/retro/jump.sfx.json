@@ -1,16 +1,8 @@
 {
   "format": "sfxgen/1",
   "name": "Jump",
-  "description": "A character jumping on an 8-bit console. A 25% pulse sweeps up an octave and a half in 190 ms, its volume stepping down as it goes, and the noise channel spits a 25 ms scuff at take-off for the feet leaving the ground. It is cut off, not faded: the channel is needed for the next sound.",
-  "tags": [
-    "retro",
-    "8-bit",
-    "chiptune",
-    "jump",
-    "hop",
-    "platformer",
-    "pulse"
-  ],
+  "description": "A character jumping on an 8-bit console. A narrow pulse sweeps up in pitch, its volume stepping down as it goes, and the noise channel spits a short scuff at take-off for the feet leaving the ground. It is cut off, not faded: the channel is needed for the next sound.",
+  "tags": ["retro", "8-bit", "chiptune", "jump", "hop", "platformer", "pulse"],
   "duration": "auto",
   "seed": 2,
   "tracks": [
@@ -20,34 +12,11 @@
       "source": {
         "type": "osc",
         "wave": "pulse",
-        "pw": 0.25,
+        "pw": 0.24875,
         "freq": 215,
-        "pitch": [
-          [
-            0,
-            0
-          ],
-          [
-            0.19,
-            19,
-            0.35
-          ]
-        ],
+        "pitch": [[0, 0], [0.19, 19, 0.35]],
         "env": {
-          "points": [
-            [
-              0,
-              1
-            ],
-            [
-              0.19,
-              0.35
-            ],
-            [
-              0.205,
-              0
-            ]
-          ],
+          "points": [[0, 1], [0.19, 0.35], [0.205, 0]],
           "curve": "linear"
         }
       },
@@ -71,20 +40,11 @@
     {
       "id": "feet",
       "note": "Take-off: one short burst from the noise channel.",
-      "gain": -6,
+      "gain": -12.4,
       "source": {
         "type": "noise",
         "color": "digital",
-        "density": [
-          [
-            0,
-            9000
-          ],
-          [
-            0.04,
-            2500
-          ]
-        ],
+        "density": [[0, 9000], [0.04, 2500]],
         "env": {
           "attack": 0,
           "decay": 0.045
@@ -137,7 +97,7 @@
     {
       "id": "duty",
       "label": "Duty",
-      "hint": "A thin, nasal 12.5% pulse to a full hollow square.",
+      "hint": "A thin, nasal pulse to a full hollow square.",
       "value": 0.33,
       "targets": [
         {

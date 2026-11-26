@@ -1,79 +1,232 @@
 {
   "format": "sfxgen/1",
-  "name": "Panel open",
-  "description": "A panel unfolding into view: a soft synthetic tone that climbs a fifth and opens from dull to clear over 200 ms, pushing a breath of air outward ahead of it, then settles in a small room. Gentle and rounded; nothing lands.",
+  "name": "Sci-fi panel open",
+  "description": "A holographic panel snapping open on a starship display, the way film interfaces sound. Everything rises, brightens and widens, and the weight is after the snap: a rush of swirling air and a rising tonal glide swell out of nothing and land on a light, bright click with a soft sub under it; out of it a glassy chord climbs in quick steps and blooms, still lifting a touch, thrown left and right by a ping-pong echo, while glittering grains rise and thin and a few data pings fill the panel. A large, clean hall. Its pair, Sci-fi panel close, does the opposite.",
   "tags": [
     "ui",
     "panel",
+    "sci-fi",
+    "scifi",
+    "hud",
+    "hologram",
+    "interface",
+    "futuristic",
+    "cinematic",
+    "menu",
+    "window",
     "open",
     "expand",
-    "menu",
-    "popup",
-    "appear",
-    "window"
+    "appear"
   ],
   "duration": "auto",
   "seed": 12,
+  "output": {
+    "channels": 2
+  },
   "tracks": [
     {
-      "id": "tone",
-      "note": "The panel: harmonics that are let in as it opens, on a rising pitch.",
+      "id": "riser",
+      "note": "The panel being drawn: wide air that swells from nothing and climbs, swirled by a phaser, cut dead at the snap so the motion lands on it.",
+      "gain": -7,
       "source": {
-        "type": "additive",
-        "freq": 330,
-        "pitch": [
-          [
-            0,
-            0
-          ],
-          [
-            0.2,
-            7
-          ]
-        ],
-        "harmonics": 10,
-        "tilt": [
-          [
-            0,
-            -20
-          ],
-          [
-            0.2,
-            -5
-          ]
-        ],
-        "odd": 0.6,
-        "decay": 0,
+        "type": "noise",
+        "color": "white",
+        "width": 0.8,
+        "gain": 0,
         "env": {
-          "attack": 0.06,
-          "decay": 0.38
+          "points": [[0, 0], [0.09, 0.3], [0.15, 1], [0.17, 0]],
+          "curve": "linear"
+        },
+        "filter": {
+          "mode": "bandpass",
+          "cutoff": [[0, 900], [0.16, 7000]],
+          "q": 1.4
+        }
+      },
+      "fx": [
+        {
+          "type": "phaser",
+          "freq": 1800,
+          "depth": 2,
+          "rate": 5,
+          "stages": "8",
+          "feedback": 0.5,
+          "stereo": 0.3,
+          "mix": 0.5
+        }
+      ]
+    },
+    {
+      "id": "zip",
+      "note": "A tonal edge on the riser: detuned saws gliding up through an opening filter, a \"vwip\" of something powering on.",
+      "gain": -16,
+      "source": {
+        "type": "osc",
+        "wave": "saw",
+        "unison": 3,
+        "detune": 18,
+        "width": 0.8,
+        "gain": 0,
+        "freq": [[0, 180], [0.16, 1400]],
+        "env": {
+          "points": [[0, 0], [0.1, 0.4], [0.15, 1], [0.17, 0]],
+          "curve": "linear"
+        },
+        "filter": {
+          "mode": "lowpass",
+          "cutoff": [[0, 600], [0.16, 5000]],
+          "q": 2
         }
       }
     },
     {
-      "id": "air",
-      "note": "Displaced air, rising with the tone: the size of the thing that moved.",
+      "id": "snap",
+      "note": "The panel arriving: a light, bright, glassy-metal click, the transient the bloom hangs on.",
+      "start": 0.16,
       "gain": -10,
       "source": {
-        "type": "noise",
-        "color": "pink",
+        "type": "modal",
+        "material": "metal",
+        "shape": "plate",
+        "freq": 2800,
+        "decay": 0.05,
+        "damping": 2.5,
+        "modes": 24,
+        "dent": 0.3,
+        "position": 0.8,
+        "gain": 0,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 1,
+          "spread": 0.001
+        }
+      }
+    },
+    {
+      "id": "thump",
+      "note": "A light sub under the snap, a falling sine: enough weight to feel, not to land hard.",
+      "start": 0.16,
+      "gain": -11,
+      "source": {
+        "type": "osc",
+        "wave": "sine",
+        "gain": 0,
+        "freq": [[0, 110], [0.08, 55]],
         "env": {
-          "attack": 0.1,
-          "decay": 0.16
+          "attack": 0.001,
+          "decay": 0.22
+        }
+      }
+    },
+    {
+      "id": "bloom",
+      "note": "The panel opening out: a bright, glassy FM chord climbing in quick steps out of the snap and still rising a touch as it rings on, widened by a slow chorus and thrown left and right by a ping-pong echo. All the open's energy is after the snap.",
+      "start": 0.16,
+      "gain": -9,
+      "events": [
+        {
+          "t": 0,
+          "pitch": 0
         },
-        "filter": {
-          "mode": "bandpass",
-          "cutoff": [
-            [
-              0,
-              900
-            ],
-            [
-              0.22,
-              6000
-            ]
-          ],
-          "q": 0.9
+        {
+          "t": 0.035,
+          "pitch": 7,
+          "vel": 0.85
+        },
+        {
+          "t": 0.07,
+          "pitch": 12,
+          "vel": 0.75
+        }
+      ],
+      "source": {
+        "type": "fm",
+        "freq": 659.26,
+        "gain": 0,
+        "algorithm": "stack",
+        "pitch": [[0, 0], [0.6, 0.35]],
+        "ops": [
+          {
+            "ratio": 1
+          },
+          {
+            "id": "glass",
+            "ratio": 3.5,
+            "index": 2.6,
+            "env": {
+              "decay": 0.4,
+              "sustain": 0.15
+            }
+          }
+        ],
+        "env": {
+          "attack": 0.002,
+          "decay": 1
+        }
+      },
+      "fx": [
+        {
+          "type": "chorus",
+          "rate": 0.5,
+          "depth": 0.25,
+          "voices": 3,
+          "spread": 1,
+          "mix": 0.5
+        },
+        {
+          "type": "delay",
+          "id": "echo",
+          "time": 95,
+          "feedback": 0.38,
+          "pingpong": true,
+          "tone": 6000,
+          "mix": 0.32
+        }
+      ]
+    },
+    {
+      "id": "sparkle",
+      "note": "The hologram resolving: a spray of tiny glittering grains rising in pitch and thinning out, scattered wide.",
+      "start": 0.14,
+      "gain": -12,
+      "source": {
+        "type": "particles",
+        "distribution": "random",
+        "spread": 1,
+        "gain": 0,
+        "density": [[0, 140], [0.4, 8]],
+        "duration": 0.42,
+        "grain": {
+          "kind": "grain",
+          "tone": 0.85,
+          "decayLo": 0.02,
+          "decayHi": 0.06,
+          "levelJitter": 14,
+          "lo": [[0, 2500], [0.4, 6000]],
+          "hi": [[0, 6000], [0.4, 11000]]
+        }
+      }
+    },
+    {
+      "id": "data",
+      "note": "The panel filling with content: a few tiny pings at uneven intervals just after it opens.",
+      "start": 0.24,
+      "gain": -10,
+      "source": {
+        "type": "particles",
+        "distribution": "regular",
+        "density": 26,
+        "jitter": 0.5,
+        "duration": 0.25,
+        "spread": 0.8,
+        "gain": 0,
+        "grain": {
+          "kind": "ping",
+          "lo": 2600,
+          "hi": 4400,
+          "decayLo": 0.008,
+          "decayHi": 0.02,
+          "levelJitter": 8
         }
       }
     }
@@ -81,99 +234,142 @@
   "master": {
     "fx": [
       {
+        "type": "eq",
+        "bands": [
+          {
+            "mode": "lowcut",
+            "freq": 30,
+            "slope": "24"
+          }
+        ]
+      },
+      {
         "type": "reverb",
-        "id": "room",
-        "space": "room",
-        "decay": 0.5,
-        "mix": 0.14
+        "id": "hall",
+        "space": "hall",
+        "size": 12,
+        "decay": 1.5,
+        "bass": 0.25,
+        "mix": 0.17
       }
     ]
   },
   "controls": [
     {
-      "id": "size",
-      "label": "Size",
-      "hint": "A small tooltip to a full-screen sheet: lower and slower.",
+      "id": "tone",
+      "label": "Tone",
       "value": 0.5,
+      "default": 0.5,
+      "hint": "A deep, heavy console to a small, bright, glassy display.",
       "targets": [
         {
-          "path": "tracks.tone.source.freq",
+          "path": "tracks.bloom.source.freq",
           "mode": "mul",
-          "from": 2,
-          "to": 0.5
+          "from": 0.5,
+          "via": 1,
+          "to": 1.6
         },
         {
-          "path": "tracks.tone.source.pitch",
-          "mode": "stretch",
-          "from": 0.5,
-          "to": 2
+          "path": "tracks.snap.source.freq",
+          "mode": "mul",
+          "from": 0.6,
+          "via": 1,
+          "to": 1.5
         },
         {
-          "path": "tracks.tone.source.tilt",
-          "mode": "stretch",
-          "from": 0.5,
-          "to": 2
+          "path": "tracks.sparkle.source.grain.lo",
+          "mode": "mul",
+          "from": 0.6,
+          "via": 1,
+          "to": 1.4
         },
         {
-          "path": "tracks.tone.source.env",
-          "mode": "stretch",
-          "from": 0.5,
-          "to": 2
+          "path": "tracks.sparkle.source.grain.hi",
+          "mode": "mul",
+          "from": 0.6,
+          "via": 1,
+          "to": 1.4
         },
         {
-          "path": "tracks.air.source.env",
-          "mode": "stretch",
-          "from": 0.5,
-          "to": 2
-        },
-        {
-          "path": "tracks.air.source.filter.cutoff",
-          "mode": "stretch",
-          "from": 0.5,
-          "to": 2
+          "path": "tracks.zip.source.freq",
+          "mode": "mul",
+          "from": 0.6,
+          "via": 1,
+          "to": 1.5
         }
       ]
     },
     {
-      "id": "brightness",
-      "label": "Brightness",
-      "hint": "Muffled and felt-like to open and reedy.",
+      "id": "weight",
+      "label": "Weight",
       "value": 0.5,
+      "default": 0.5,
+      "hint": "A light touch on glass to a heavy panel thudding open.",
       "targets": [
         {
-          "path": "tracks.tone.source.tilt",
-          "mode": "mul",
-          "from": 1.5,
-          "to": 0.5,
-          "curve": "linear"
-        }
-      ]
-    },
-    {
-      "id": "rise",
-      "label": "Rise",
-      "hint": "Almost level to a clear upward leap.",
-      "value": 0.5,
-      "targets": [
-        {
-          "path": "tracks.tone.source.pitch",
-          "mode": "mul",
-          "from": 0.28,
-          "to": 1.72,
-          "curve": "linear"
-        }
-      ]
-    },
-    {
-      "id": "air",
-      "label": "Air",
-      "hint": "A pure tone to mostly a breath of air.",
-      "value": 0.5,
-      "targets": [
-        {
-          "path": "tracks.air.gain",
-          "from": -36,
+          "path": "tracks.thump.gain",
+          "mode": "set",
+          "from": -34,
+          "via": -11,
           "to": -2,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.snap.gain",
+          "mode": "set",
+          "from": -22,
+          "via": -10,
+          "to": -4,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "motion",
+      "label": "Motion",
+      "value": 0.5,
+      "default": 0.5,
+      "hint": "A panel that simply appears to one that sweeps in on a rush of air.",
+      "targets": [
+        {
+          "path": "tracks.riser.gain",
+          "mode": "set",
+          "from": -36,
+          "via": -7,
+          "to": -1,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.zip.gain",
+          "mode": "set",
+          "from": -40,
+          "via": -16,
+          "to": -8,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
+      "id": "sparkle",
+      "label": "Sparkle",
+      "value": 0.5,
+      "default": 0.5,
+      "hint": "A plain solid panel to a shimmering hologram busy with data.",
+      "targets": [
+        {
+          "path": "tracks.sparkle.gain",
+          "mode": "set",
+          "from": -40,
+          "via": -12,
+          "to": -4,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.data.gain",
+          "mode": "set",
+          "from": -40,
+          "via": -10,
+          "to": -3,
           "curve": "linear"
         }
       ]
@@ -181,13 +377,31 @@
     {
       "id": "space",
       "label": "Space",
-      "hint": "Flat on the glass to a panel in a room.",
-      "value": 0.3,
+      "value": 0.4,
+      "default": 0.4,
+      "hint": "Dry on a cockpit display to a panel opening in a vast, echoing hangar.",
       "targets": [
         {
-          "path": "master.fx.room.mix",
+          "path": "master.fx.hall.mix",
+          "mode": "set",
           "from": 0,
+          "via": 0.17,
           "to": 0.45,
+          "curve": "linear"
+        },
+        {
+          "path": "master.fx.hall.decay",
+          "mode": "set",
+          "from": 0.6,
+          "via": 1.5,
+          "to": 3.5
+        },
+        {
+          "path": "tracks.bloom.fx.echo.mix",
+          "mode": "set",
+          "from": 0.05,
+          "via": 0.32,
+          "to": 0.55,
           "curve": "linear"
         }
       ]

@@ -1,52 +1,26 @@
 {
   "format": "sfxgen/1",
   "name": "Bird tweet",
-  "description": "A robin-sized songbird on a branch ten metres away, one phrase: four clear whistled notes that each swoop down and flick up (every 115 ms, drifting higher), then a fast dry trill of a dozen chips from 520 ms that tumbles down and stops at 800 ms. The wood answers softly.",
-  "tags": [
-    "creature",
-    "bird",
-    "tweet",
-    "song",
-    "chirp",
-    "forest",
-    "morning",
-    "nature"
-  ],
+  "description": "A robin-sized songbird on a branch a little way off, one phrase: four clear whistled notes that each swoop down and flick up, drifting higher, then a short, soft dry trill that tumbles down and stops. The wood answers softly.",
+  "tags": ["creature", "bird", "tweet", "song", "chirp", "forest", "morning", "nature"],
   "duration": "auto",
-  "seed": 17,
+  "seed": 57039,
   "tracks": [
     {
       "id": "whistle",
       "note": "The whistled notes: a nearly pure tone from the syrinx with a fast swoop in each note. The second voice of the syrinx adds a faint shimmer above.",
       "repeat": {
         "count": 4,
-        "interval": 0.115,
-        "pitchStep": 1.2,
-        "pitchJitter": 0.8,
+        "interval": 0.114175,
+        "pitchStep": 1.22332,
+        "pitchJitter": 1.23094,
         "jitter": 0.006,
         "velJitter": 0.25
       },
       "source": {
         "type": "fm",
         "algorithm": "pairs",
-        "freq": [
-          [
-            0,
-            4300
-          ],
-          [
-            0.03,
-            2950
-          ],
-          [
-            0.055,
-            3250
-          ],
-          [
-            0.075,
-            4700
-          ]
-        ],
+        "freq": [[0, 4300], [0.03, 2950], [0.055, 3250], [0.075, 4700]],
         "ops": [
           {
             "ratio": 1
@@ -67,39 +41,22 @@
           "attack": 0.006,
           "hold": 0.045,
           "decay": 0.045
-        }
+        },
+        "pitch": -7.97634
       }
     },
     {
       "id": "trill",
-      "note": "The rattle that ends the phrase: quick falling chips at about 30 a second, the whole run sliding down a third.",
+      "note": "The rattle that ends the phrase, after the whistles: quick falling chips, the whole run sliding down. The Trill control sets how loud and long it is.",
       "start": 0.52,
-      "gain": 10,
+      "gain": -23.6493,
       "source": {
         "type": "particles",
         "distribution": "regular",
         "jitter": 0.12,
-        "density": [
-          [
-            0,
-            26
-          ],
-          [
-            0.28,
-            38
-          ]
-        ],
-        "duration": 0.28,
-        "pitch": [
-          [
-            0,
-            0
-          ],
-          [
-            0.28,
-            -4
-          ]
-        ],
+        "density": [[0, 26], [0.28, 38]],
+        "duration": 0.121793,
+        "pitch": [[0, 0], [0.28, -4]],
         "grain": {
           "kind": "chirp",
           "lo": 4600,
@@ -128,7 +85,7 @@
         "id": "wood",
         "type": "reverb",
         "space": "forest",
-        "mix": 0.2
+        "mix": 0.481913
       }
     ]
   },
@@ -137,7 +94,7 @@
       "id": "size",
       "label": "Size",
       "hint": "A tiny wren to a blackbird: lower, rounder notes.",
-      "value": 0.4,
+      "value": 0.8320186430485865,
       "vary": 0.05,
       "targets": [
         {
@@ -164,7 +121,7 @@
       "id": "tempo",
       "label": "Tempo",
       "hint": "A lazy song to a hurried one.",
-      "value": 0.5,
+      "value": 0.5715404698833606,
       "vary": 0.08,
       "targets": [
         {
@@ -185,7 +142,7 @@
       "id": "melody",
       "label": "Melody",
       "hint": "Every note the same, to a phrase that climbs and wanders.",
-      "value": 0.5,
+      "value": 0.49237617457173966,
       "vary": 0.15,
       "targets": [
         {
@@ -206,7 +163,7 @@
       "id": "trill",
       "label": "Trill",
       "hint": "Whistles only, to a long rattle at the end.",
-      "value": 0.5,
+      "value": 0.009742572994624221,
       "targets": [
         {
           "path": "tracks.trill.gain",
@@ -226,7 +183,7 @@
       "id": "distance",
       "label": "Distance",
       "hint": "On your windowsill to far off in the wood.",
-      "value": 0.35,
+      "value": 0.7964023315690351,
       "targets": [
         {
           "path": "master.fx.wood.mix",

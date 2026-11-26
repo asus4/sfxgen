@@ -1,16 +1,8 @@
 {
   "format": "sfxgen/1",
   "name": "Helicopter (loop)",
-  "description": "A light two-blade helicopter in a hover 150 m away: the main rotor slapping ten times a second (300 rpm), the tail rotor buzzing at 80 Hz, the turbine whining above both, and the downwash hissing in time with the blades. A 2 s stereo loop holding exactly 20 blade slaps, crossfaded over 200 ms.",
-  "tags": [
-    "vehicle",
-    "helicopter",
-    "chopper",
-    "rotor",
-    "aircraft",
-    "loop",
-    "military"
-  ],
+  "description": "A light two-blade helicopter in a hover some way off: the main rotor slapping steadily, the tail rotor buzzing faster and higher with a hard edge, the downwash hissing in time with the blades, and the turbine only a faint, breathy whine far behind them, chopped by the passing blades and dulled by the air in between. A short stereo loop, crossfaded at the seam.",
+  "tags": ["vehicle", "helicopter", "chopper", "rotor", "aircraft", "loop", "military"],
   "duration": 2,
   "loop": {
     "mode": "crossfade",
@@ -23,15 +15,15 @@
   "tracks": [
     {
       "id": "main",
-      "note": "The main rotor: two blades at 300 rpm, a slap every 100 ms. The \"wop-wop\" that is the whole character.",
+      "note": "The main rotor: two blades, a slap each time one passes. The \"wop-wop\" that is the whole character.",
       "source": {
         "type": "machine",
         "kind": "rotor",
         "blades": 2,
-        "rpm": 300,
-        "load": 0.45,
+        "rpm": 300.837,
+        "load": 0.448126,
         "roughness": 0.2,
-        "size": 1.1,
+        "size": 1.09358,
         "env": {
           "attack": 0.005,
           "sustain": 1
@@ -40,8 +32,8 @@
     },
     {
       "id": "tail",
-      "note": "The tail rotor: four small blades at 1200 rpm, an 80 Hz buzz with a hard edge. Heard most from the side.",
-      "gain": -11,
+      "note": "The tail rotor: four small blades spinning much faster than the main rotor, a buzz with a hard edge. Panned a little off centre.",
+      "gain": -8.3934,
       "pan": 0.2,
       "source": {
         "type": "machine",
@@ -49,7 +41,7 @@
         "blades": 4,
         "rpm": 1200,
         "size": 0.4,
-        "load": 0.3,
+        "load": 0.298929,
         "roughness": 0.15,
         "env": {
           "attack": 0.005,
@@ -59,25 +51,59 @@
     },
     {
       "id": "turbine",
-      "note": "The engine: a steady jet whine and hiss above the rotors. What separates a helicopter from a big fan.",
-      "gain": -10,
+      "note": "The engine: mostly hiss, with a faint whine that drifts slightly, is chopped by the blades passing in front of it and is dulled by the air in between. It sits well under the rotors: it separates a helicopter from a big fan without ever being a whistle.",
+      "gain": -16.7868,
       "source": {
         "type": "machine",
         "kind": "turbine",
-        "rpm": 9600,
+        "rpm": {
+          "value": 9600,
+          "mod": [
+            {
+              "type": "lfo",
+              "rate": 0.5,
+              "depth": 9,
+              "unit": "cents"
+            },
+            {
+              "type": "wander",
+              "rate": 3,
+              "depth": 5,
+              "unit": "cents"
+            }
+          ]
+        },
         "blades": 19,
-        "load": 0.35,
-        "whine": 0.5,
+        "load": 0.55,
+        "whine": 0.205214,
         "env": {
           "attack": 0.005,
           "sustain": 1
+        },
+        "gain": -6.71788
+      },
+      "fx": [
+        {
+          "id": "chop",
+          "type": "tremolo",
+          "rate": 10.0279,
+          "depth": 0.45,
+          "shape": "sine",
+          "phase": 0.25
+        },
+        {
+          "id": "far",
+          "type": "filter",
+          "mode": "lowpass",
+          "cutoff": 4806.49,
+          "q": 0.6
         }
-      }
+      ]
     },
     {
       "id": "wash",
       "note": "Downwash: air noise that pulses with each blade passing, the soft part of the slap.",
-      "gain": -12,
+      "gain": -12.5245,
       "source": {
         "type": "noise",
         "color": "pink",
@@ -95,7 +121,7 @@
         {
           "id": "chop",
           "type": "tremolo",
-          "rate": 10,
+          "rate": 10.0279,
           "depth": 0.75,
           "shape": "saw"
         }
@@ -108,7 +134,7 @@
         "id": "air",
         "type": "filter",
         "mode": "lowpass",
-        "cutoff": 9000
+        "cutoff": 4620.47
       },
       {
         "type": "eq",
@@ -127,30 +153,36 @@
       "id": "distance",
       "label": "Distance",
       "hint": "Standing under the disc to a speck on the horizon: only the thump of the blades carries.",
-      "value": 0.35,
+      "value": 0.5163916693793409,
       "targets": [
         {
           "path": "master.fx.air.cutoff",
-          "mode": "set",
           "from": 16000,
+          "via": 5000,
           "to": 450
         },
         {
           "path": "tracks.turbine.gain",
-          "mode": "set",
-          "from": -3,
-          "to": -26
+          "from": -6,
+          "via": -16,
+          "to": -40
+        },
+        {
+          "path": "tracks.turbine.fx.far.cutoff",
+          "from": 12000,
+          "via": 5000,
+          "to": 1500
         },
         {
           "path": "tracks.wash.gain",
-          "mode": "set",
           "from": -5,
+          "via": -12,
           "to": -28
         },
         {
           "path": "tracks.tail.gain",
-          "mode": "set",
-          "from": -7,
+          "from": -4,
+          "via": -8,
           "to": -20
         }
       ]
@@ -159,27 +191,31 @@
       "id": "size",
       "label": "Size",
       "hint": "A two-seat trainer to a heavy-lift transport: slower, deeper blades.",
-      "value": 0.35,
+      "value": 0.4923611111111107,
       "targets": [
         {
           "path": "tracks.main.source.size",
-          "mode": "set",
           "from": 0.75,
+          "via": 1.1,
           "to": 2.3
         },
         {
           "path": "tracks.main.source.rpm",
-          "mode": "set",
           "from": 360,
-          "to": 180,
-          "curve": "exp"
+          "via": 300,
+          "to": 180
         },
         {
           "path": "tracks.wash.fx.chop.rate",
-          "mode": "set",
           "from": 12,
-          "to": 6,
-          "curve": "exp"
+          "via": 10,
+          "to": 6
+        },
+        {
+          "path": "tracks.turbine.fx.chop.rate",
+          "from": 12,
+          "via": 10,
+          "to": 6
         }
       ]
     },
@@ -187,39 +223,47 @@
       "id": "strain",
       "label": "Strain",
       "hint": "Idling on the pad to hauling a load in a hard turn: louder, harsher slaps.",
-      "value": 0.45,
+      "value": 0.49732326931423637,
       "targets": [
         {
           "path": "tracks.main.source.load",
-          "mode": "set",
           "from": 0.1,
-          "to": 0.95
+          "via": 0.45,
+          "to": 0.95,
+          "curve": "linear"
         },
         {
           "path": "tracks.tail.source.load",
-          "mode": "set",
           "from": 0.1,
-          "to": 0.8
+          "via": 0.3,
+          "to": 0.8,
+          "curve": "linear"
         }
       ]
     },
     {
       "id": "turbine",
       "label": "Turbine",
-      "hint": "How much jet whine sits over the rotors.",
-      "value": 0.5,
+      "hint": "No engine to hear at all, a faint whine behind the rotors, or a jet turbine screaming over them.",
+      "value": 0.38803541395399327,
       "targets": [
         {
+          "path": "tracks.turbine.source.gain",
+          "from": -30,
+          "via": 0,
+          "to": 10
+        },
+        {
           "path": "tracks.turbine.source.whine",
-          "mode": "set",
-          "from": 0.1,
-          "to": 1
+          "from": 0.05,
+          "via": 0.25,
+          "to": 0.8
         },
         {
           "path": "tracks.turbine.source.rpm",
-          "mode": "set",
-          "from": 7000,
-          "to": 12500
+          "mode": "mul",
+          "from": 0.75,
+          "to": 1.3333
         }
       ]
     }

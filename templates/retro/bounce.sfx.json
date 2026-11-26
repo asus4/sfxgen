@@ -1,17 +1,8 @@
 {
   "format": "sfxgen/1",
   "name": "Bounce",
-  "description": "A ball bouncing in a 16-bit console game, on its two-operator FM chip. Each bounce is a rubbery boing: the pitch dips from 330 to 150 Hz in 40 ms as the ball squashes and springs back up past 400 Hz, while the FM index flares and relaxes. Three bounces, each sooner and quieter than the last, through the console's slightly grainy converter.",
-  "tags": [
-    "retro",
-    "16-bit",
-    "fm",
-    "bounce",
-    "boing",
-    "ball",
-    "spring",
-    "genesis"
-  ],
+  "description": "A ball bouncing in a 16-bit console game, on its two-operator FM chip. Each bounce is a rubbery boing: the pitch dips as the ball squashes and springs back up past where it started, while the FM index starts high and relaxes. Three bounces, each sooner, quieter and a little higher than the last, through the console's slightly grainy converter.",
+  "tags": ["retro", "16-bit", "fm", "bounce", "boing", "ball", "spring", "genesis"],
   "duration": "auto",
   "seed": 9,
   "tracks": [
@@ -20,20 +11,7 @@
       "note": "One squash and rebound, repeated as the ball settles.",
       "source": {
         "type": "fm",
-        "freq": [
-          [
-            0,
-            330
-          ],
-          [
-            0.04,
-            150
-          ],
-          [
-            0.15,
-            420
-          ]
-        ],
+        "freq": [[0, 330], [0.04, 150], [0.15, 420]],
         "ops": [
           {
             "ratio": 1
@@ -41,20 +19,7 @@
           {
             "id": "rubber",
             "ratio": 1,
-            "index": [
-              [
-                0,
-                5
-              ],
-              [
-                0.05,
-                2.2
-              ],
-              [
-                0.17,
-                0.6
-              ]
-            ],
+            "index": [[0, 5], [0.05, 2.2], [0.17, 0.6]],
             "feedback": 0.3
           }
         ],
@@ -65,9 +30,9 @@
       },
       "repeat": {
         "count": 3,
-        "interval": 0.2,
-        "accel": 0.72,
-        "decay": -7,
+        "interval": 0.197484,
+        "accel": 0.735,
+        "decay": -7.5,
         "pitchStep": 1
       },
       "fx": [

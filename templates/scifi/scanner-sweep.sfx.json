@@ -1,42 +1,100 @@
 {
   "format": "sfxgen/1",
   "name": "Scanner sweep",
-  "description": "A hand-held sensor passed slowly over a wall and back, 1.5 s. The scanner's beam is heard as air ringing in a narrow tube whose length changes with the sweep: the hollow tone glides from 320 Hz up to 1.9 kHz at 750 ms and back down, fluttering 21 times a second like scan lines. At the top of the sweep, when the beam crosses something, it pings (a small glassy FM note) and the ping echoes twice inside the device.",
+  "description": "A hand-held sensor passed slowly over a wall and back. The scanner's beam is heard as air ringing in a narrow tube whose length changes with the sweep: the hollow tone glides up to the top of the sweep and back down, fluttering like scan lines. At the top of the sweep, when the beam crosses something, the beam ducks for a moment and the device pings (a small glassy FM note, clear over the beam), and the ping echoes inside the device.",
   "tags": ["scifi", "scanner", "sensor", "sweep", "tricorder", "detect", "radar", "ui"],
   "duration": "auto",
   "seed": 4,
   "tracks": [
     {
       "id": "beam",
-      "note": "The sweep: noise ringing in a tube resonator whose pitch follows the hand. Odd harmonics make it hollow, which reads as a beam rather than a synth.",
-      "source": { "type": "noise", "color": "pink", "env": { "attack": 0.12, "hold": 1.2, "decay": 0.3, "curve": "exp" } },
+      "note": "The sweep: noise ringing in a tube resonator whose pitch follows the hand. Odd harmonics make it hollow, which reads as a beam rather than a synth. It ducks briefly at the turn so the ping has a hole to land in.",
+      "source": {
+        "type": "noise",
+        "color": "pink",
+        "env": {
+          "attack": 0.12,
+          "hold": 1.2,
+          "decay": 0.3,
+          "curve": "exp"
+        },
+        "gain": -14
+      },
       "fx": [
         {
           "type": "resonator",
           "id": "tube",
           "mode": "tube",
           "freq": [[0, 320], [0.75, 1900, "smooth"], [1.5, 380, "smooth"]],
-          "decay": 0.31,
+          "decay": 0.309839,
           "brightness": 0.45,
           "mix": 0.95
         },
-        { "type": "tremolo", "id": "lines", "rate": 19.9, "depth": 0.55, "shape": "triangle" },
-        { "type": "eq", "bands": [{ "mode": "lowcut", "freq": 250 }, { "mode": "highshelf", "freq": 7000, "gain": -5 }] }
+        {
+          "type": "tremolo",
+          "id": "lines",
+          "rate": 19.8742,
+          "depth": 0.55,
+          "shape": "triangle"
+        },
+        {
+          "type": "eq",
+          "bands": [
+            {
+              "mode": "lowcut",
+              "freq": 250
+            },
+            {
+              "mode": "highshelf",
+              "freq": 7000,
+              "gain": -5
+            }
+          ]
+        },
+        {
+          "type": "gain",
+          "id": "duck",
+          "gain": [[0, 0], [0.73, 0], [0.76, -7, "linear"], [0.86, -7, "linear"], [1, 0, "linear"]]
+        }
       ]
     },
     {
       "id": "ping",
-      "note": "The find: lands where the sweep turns round. The delay is the device's own little echo.",
+      "note": "The find: lands where the sweep turns round, about as loud as the beam. A hard glassy attack that quickly mellows; the delay is the device's own little echo.",
       "start": 0.75,
-      "gain": -14.4,
+      "gain": -5,
       "source": {
         "type": "fm",
         "freq": 2637,
         "algorithm": "stack",
-        "ops": [{ "ratio": 1 }, { "ratio": 2.41, "index": 2.2, "env": { "decay": 0.09, "sustain": 0.05 } }],
-        "env": { "attack": 0.001, "decay": 0.3 }
+        "ops": [
+          {
+            "ratio": 1
+          },
+          {
+            "ratio": 2.41,
+            "index": 2.2,
+            "env": {
+              "decay": 0.09,
+              "sustain": 0.05
+            }
+          }
+        ],
+        "env": {
+          "attack": 0.001,
+          "decay": 0.3
+        }
       },
-      "fx": [{ "type": "delay", "id": "echo", "time": 130, "feedback": 0.485, "tone": 5000, "mix": 0.4 }]
+      "fx": [
+        {
+          "type": "delay",
+          "id": "echo",
+          "time": 130,
+          "feedback": 0.485,
+          "tone": 5000,
+          "mix": 0.5
+        }
+      ]
     }
   ],
   "controls": [
@@ -46,9 +104,30 @@
       "hint": "A slow careful pass to a quick flick.",
       "value": 0.5,
       "targets": [
-        { "path": "tracks.beam.fx.tube.freq", "mode": "stretch", "from": 2.2, "to": 0.45 },
-        { "path": "tracks.beam.source.env", "mode": "stretch", "from": 2.2, "to": 0.45 },
-        { "path": "tracks.ping.start", "mode": "mul", "from": 2.2, "to": 0.45 }
+        {
+          "path": "tracks.beam.fx.tube.freq",
+          "mode": "stretch",
+          "from": 2.2,
+          "to": 0.45
+        },
+        {
+          "path": "tracks.beam.source.env",
+          "mode": "stretch",
+          "from": 2.2,
+          "to": 0.45
+        },
+        {
+          "path": "tracks.ping.start",
+          "mode": "mul",
+          "from": 2.2,
+          "to": 0.45
+        },
+        {
+          "path": "tracks.beam.fx.duck.gain",
+          "mode": "stretch",
+          "from": 2.2,
+          "to": 0.45
+        }
       ]
     },
     {
@@ -57,8 +136,18 @@
       "hint": "A big deep-scan unit to a small shrill one.",
       "value": 0.5,
       "targets": [
-        { "path": "tracks.beam.fx.tube.freq", "mode": "mul", "from": 0.5, "to": 2 },
-        { "path": "tracks.ping.source.freq", "mode": "mul", "from": 0.6, "to": 1.6 }
+        {
+          "path": "tracks.beam.fx.tube.freq",
+          "mode": "mul",
+          "from": 0.5,
+          "to": 2
+        },
+        {
+          "path": "tracks.ping.source.freq",
+          "mode": "mul",
+          "from": 0.6,
+          "to": 1.6
+        }
       ]
     },
     {
@@ -66,21 +155,51 @@
       "label": "Scan lines",
       "hint": "A smooth beam to a hard, buzzing flicker.",
       "value": 0.55,
-      "targets": [{ "path": "tracks.beam.fx.lines.depth", "from": 0, "to": 1 }, { "path": "tracks.beam.fx.lines.rate", "from": 9, "to": 38 }]
+      "targets": [
+        {
+          "path": "tracks.beam.fx.lines.depth",
+          "from": 0,
+          "to": 1
+        },
+        {
+          "path": "tracks.beam.fx.lines.rate",
+          "from": 9,
+          "to": 38
+        }
+      ]
     },
     {
       "id": "focus",
       "label": "Focus",
       "hint": "A breathy wide beam to a tight whistling one.",
       "value": 0.5,
-      "targets": [{ "path": "tracks.beam.fx.tube.decay", "from": 0.06, "to": 1.6 }]
+      "targets": [
+        {
+          "path": "tracks.beam.fx.tube.decay",
+          "from": 0.06,
+          "to": 1.6
+        }
+      ]
     },
     {
       "id": "ping",
       "label": "Ping",
       "hint": "Nothing found, or a clear echoing contact.",
       "value": 0.7,
-      "targets": [{ "path": "tracks.ping.gain", "from": -48, "to": 0 }, { "path": "tracks.ping.fx.echo.feedback", "from": 0.1, "to": 0.65 }]
+      "targets": [
+        {
+          "path": "tracks.ping.gain",
+          "from": -48,
+          "via": -5,
+          "to": 1
+        },
+        {
+          "path": "tracks.ping.fx.echo.feedback",
+          "from": 0.1,
+          "to": 0.65
+        }
+      ],
+      "default": 0.7
     }
   ]
 }

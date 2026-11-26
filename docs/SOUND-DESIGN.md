@@ -76,6 +76,9 @@ The richest nodes describe objects, so use them for objects:
   someone moaning. Friction is a `modal` `scrape` whose `exciter.density` is the slip rate: slow enough at the start
   and end to hear single ticks (10 to 40 a second), fused into a tone in between, through a few narrow modes.
 - **`machine`** for motors, engines, rotors and servos: drive `rpm` with breakpoints so it spins up and strains.
+  An engine's character is mostly its `firing` order (a V-twin's lope, a crossplane four's growl, a V8's burble)
+  and its `muffler` (straight pipes rasp, a stock silencer thrums); draw `load` as the throttle, leading `rpm`,
+  and shut it to 0 on the overrun so the fuel cuts and the pipes pop (`pops`).
 - **`fm`** for bells, alarms, zaps and metallic tones; give the modulator index its own envelope so the brightness
   decays faster than the level.
 - **`chaos`** for glitches, alien electronics, broken machines: textures nothing else makes.

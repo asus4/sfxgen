@@ -362,6 +362,50 @@ describe('machine', () => {
     for (const k of [1, 2, 3]) expect(levelAt(s, 100 * k, 2, 16384)).toBeGreaterThan(levelAt(s, 100 * k + 50, 2, 16384) + 10);
   });
 
+  it('an engine fires in its firing order: a V-twin lopes where an even twin beats steadily', () => {
+    // 1200 rpm: one four-stroke cycle is 0.1 s. An even twin fires every 50 ms; a 45 degree V-twin 43.75 then 56.25.
+    const envOf = (x: Float64Array) => {
+      const hop = 48;
+      const e: number[] = [];
+      for (let i = 0; i + hop <= x.length; i += hop) {
+        let s = 0;
+        for (let j = 0; j < hop; j++) s += x[i + j] * x[i + j];
+        e.push(Math.sqrt(s / hop));
+      }
+      const m = mean(e);
+      return e.map((v) => v - m);
+    };
+    const corr = (e: number[], lagMs: number) => {
+      const lag = Math.round(lagMs);
+      let a = 0;
+      let b = 0;
+      for (let i = 0; i + lag < e.length; i++) {
+        a += e[i] * e[i + lag];
+        b += e[i] * e[i];
+      }
+      return a / b;
+    };
+    const spec = { type: 'machine', kind: 'engine', cylinders: 2, rpm: 1200, load: 0.3, roughness: 0, env: HOLD };
+    const even = envOf(voice(spec as SourceSpec, 2));
+    const vtwin = envOf(voice({ ...spec, firing: 'v-twin' } as SourceSpec, 2));
+    // Every firing a beat later looks like itself on the even twin, not on the V-twin; a whole cycle later, both do.
+    expect(corr(even, 50)).toBeGreaterThan(corr(vtwin, 50) + 0.2);
+    expect(corr(vtwin, 100)).toBeGreaterThan(corr(vtwin, 50) + 0.2);
+  });
+
+  it('an engine\'s muffler darkens it, and a shut throttle at speed pops', () => {
+    const base = { type: 'machine', kind: 'engine', firing: 'v-twin', rpm: 4000, env: HOLD };
+    const open = voice({ ...base, load: 0.8, muffler: 0 } as SourceSpec, 1);
+    const stock = voice({ ...base, load: 0.8, muffler: 1 } as SourceSpec, 1);
+    expect(centroid(spectrum(stock, 0.2, 0.9))).toBeLessThan(0.75 * centroid(spectrum(open, 0.2, 0.9)));
+    // On the overrun (load 0) the firings go weak; with pops, the pipe bangs well above them.
+    const crest = (x: Float64Array) => peakOf(x) / rms(x);
+    const clean = voice({ ...base, load: 0, pops: 0 } as SourceSpec, 2);
+    const popping = voice({ ...base, load: 0, pops: 1 } as SourceSpec, 2);
+    expect(peakOf(popping)).toBeGreaterThan(1.5 * peakOf(clean));
+    expect(crest(popping)).toBeGreaterThan(crest(clean));
+  });
+
   it('a turbine whines at blades * rpm / 60 and a motor hums at rpm / 30', () => {
     const t = spectrum(voice({ type: 'machine', kind: 'turbine', rpm: 6000, blades: 20, load: 0, env: HOLD }, 1), 0.2, 0.9);
     expect(levelAt(t, 2000, 10)).toBeGreaterThan(-3);

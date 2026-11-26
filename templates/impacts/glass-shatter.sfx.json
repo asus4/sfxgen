@@ -1,16 +1,8 @@
 {
   "format": "sfxgen/1",
   "name": "Glass shatters",
-  "description": "A window pane broken by a thrown stone, heard from inside a kitchen. 0 ms: the pane cracks with one hard, noisy clang; from 15 ms the pieces let go, a dense shower of shards that thins out over a second, the big pieces low and loud, the splinters high and faint; from 250 ms the first shards reach the tiled floor and skitter and tinkle to rest.",
-  "tags": [
-    "impact",
-    "glass",
-    "shatter",
-    "break",
-    "window",
-    "smash",
-    "debris"
-  ],
+  "description": "A small window pane smashed in with a bar, heard from inside a tiled kitchen. The bar meets the pane and the glass lets go all at once, a hard, bright crash: the sheet rings out as it cracks and bursts into a mass of pieces. Then the pieces keep coming, pouring out of the frame and raining onto the tiles: a sparse glitter of separate pieces, each heard on its own as it clinks and rings on, thin and high, with no hiss under it, and larger shards bouncing among them. It holds up for a while, then thins quickly to the last few splinters ringing faintly on their own.",
+  "tags": ["impact", "glass", "shatter", "break", "window", "smash", "debris"],
   "duration": "auto",
   "seed": 21,
   "output": {
@@ -19,32 +11,62 @@
   "tracks": [
     {
       "id": "crack",
-      "note": "The pane giving way: a sheet of glass excited by a rough, crumbling hit.",
+      "note": "The pane giving way: the sheet of glass itself, rung hard along a crack, a bright glassy crash with a clear, short ring in it.",
       "source": {
         "type": "modal",
         "material": "glass",
         "shape": "plate",
-        "freq": 610,
-        "decay": 0.2,
-        "damping": 1.6,
+        "freq": 650,
+        "decay": 0.3,
+        "damping": 1,
         "brightness": 0.8,
         "modes": 48,
         "dent": 0.5,
-        "position": 0.7,
+        "position": 0.8,
         "exciter": {
           "kind": "noise",
-          "hardness": 0.95,
-          "duration": 0.05
+          "hardness": 1,
+          "duration": 0.03,
+          "spread": 0.002
         }
       },
       "sends": {
         "kitchen": -12
+      },
+      "gain": -5
+    },
+    {
+      "id": "crash",
+      "note": "The pane bursting into a mass of pieces at once: a dense burst of small glass plates, each with its own short, high ring, so the first moment is a wall of glittering clinks rather than a hiss.",
+      "start": 0.001,
+      "gain": -2.98368,
+      "source": {
+        "type": "particles",
+        "gain": 0,
+        "distribution": "burst",
+        "density": 9000,
+        "duration": 0.3,
+        "spread": 0.9,
+        "grain": {
+          "kind": "modal",
+          "material": "glass",
+          "shape": "plate",
+          "lo": 1500,
+          "hi": 10000,
+          "decayLo": 0.02,
+          "decayHi": 0.15,
+          "levelJitter": 16,
+          "size": 0.5
+        }
+      },
+      "sends": {
+        "kitchen": -14
       }
     },
     {
       "id": "frame",
-      "note": "The stone meeting the pane in its wooden frame: the low knock that gives the break a body.",
-      "gain": -7,
+      "note": "The bar meeting the pane in its wooden frame: a low knock under the break, small next to the glass.",
+      "gain": -11,
       "source": {
         "type": "modal",
         "material": "wood",
@@ -60,71 +82,223 @@
     },
     {
       "id": "shards",
-      "note": "The pieces: a burst of small glass plates, thinning out.",
-      "start": 0.015,
-      "gain": -3,
-      "source": {
-        "type": "particles",
-        "distribution": "burst",
-        "density": 420,
-        "duration": 0.9,
-        "spread": 0.8,
-        "grain": {
-          "kind": "modal",
-          "material": "glass",
-          "shape": "plate",
-          "lo": 1500,
-          "hi": 9500,
-          "decayLo": 0.015,
-          "decayHi": 0.22,
-          "levelJitter": 16,
-          "size": 0.7
-        }
-      },
-      "sends": {
-        "kitchen": -12
-      }
-    },
-    {
-      "id": "floor",
-      "note": "Shards landing on tiles and settling: sparse bright pings, late.",
-      "start": 0.25,
-      "gain": -10,
+      "note": "The pieces pouring out of the frame and raining down: thick at first, thinning to a scatter, each a clink that rings on, lower than the glitter, so every piece is heard on its own. Big pieces lower and louder, small ones higher and fainter, and a few loud ones over a quiet bed.",
+      "start": 0.1275,
+      "gain": -1.4531656901041217,
       "source": {
         "type": "particles",
         "distribution": "random",
         "density": [
-          [
-            0,
-            45
-          ],
-          [
-            0.5,
-            18
-          ],
-          [
-            1.1,
-            2
-          ]
+          [0, 390],
+          [0.15, 270],
+          [0.6, 195],
+          [1.4, 135],
+          [1.8, 68],
+          [2.2, 27],
+          [2.6, 6],
+          [2.9, 1]
         ],
+        "duration": 1.04304,
+        "spread": 0.7668260362413195,
+        "grain": {
+          "kind": "modal",
+          "material": "glass",
+          "shape": "plate",
+          "lo": 1200,
+          "hi": 2260.7224301056326,
+          "decayLo": 0.03,
+          "decayHi": 0.25,
+          "levelJitter": 25.97338867187501,
+          "size": 0.498776,
+          "pitchJitter": 1.3996500651041655,
+          "sweep": -2.789930555555558
+        },
+        "env": {
+          "points": [
+            [0, 1],
+            [0.3, 0.95],
+            [1.4, 0.8],
+            [1.8, 0.45],
+            [2.2, 0.2],
+            [2.6, 0.06],
+            [2.9, 0]
+          ],
+          "curve": "linear"
+        },
+        "interval": 0.06358077133716063,
+        "jitter": 0.19576144748263927,
+        "gain": -0.01818847656248579
+      },
+      "sends": {
+        "kitchen": -13
+      }
+    },
+    {
+      "id": "glitter",
+      "note": "The fine splinters among the pieces: a sparse sprinkle of pure, high rings that each ring on a while, over the whole rain and thinning with it. This is what makes the cascade sound like glass and not gravel.",
+      "gain": 0,
+      "source": {
+        "type": "particles",
+        "gain": 0,
+        "distribution": "random",
+        "duration": 2.9,
+        "spread": 1,
+        "density": [[0, 120], [0.3, 84], [1.4, 60], [2, 20], [2.9, 1]],
+        "grain": {
+          "kind": "ping",
+          "lo": 4500,
+          "hi": 13000,
+          "decayLo": 0.05,
+          "decayHi": 0.3,
+          "levelJitter": 14
+        },
+        "env": {
+          "points": [[0, 1], [1.4, 0.75], [2, 0.3], [2.9, 0]],
+          "curve": "linear"
+        }
+      },
+      "sends": {
+        "kitchen": -14
+      },
+      "start": 0.4593
+    },
+    {
+      "id": "falls",
+      "note": "Clumps that hung on in the frame breaking loose and landing: a fresh burst of ringing pieces each time, the waves in the cascade, fainter as it ends. A small pane has few to lose, so they are barely there; Size brings them up.",
+      "gain": -25.7783,
+      "events": [
+        {
+          "t": 0.55,
+          "vel": 0.9
+        },
+        {
+          "t": 1.5,
+          "vel": 0.7
+        },
+        {
+          "t": 1.58,
+          "vel": 0.5
+        },
+        {
+          "t": 1.9,
+          "vel": 0.55
+        },
+        {
+          "t": 2.3,
+          "vel": 0.4
+        },
+        {
+          "t": 2.62,
+          "vel": 0.22
+        }
+      ],
+      "source": {
+        "type": "particles",
+        "gain": 0,
+        "distribution": "burst",
+        "density": 1800,
+        "duration": 0.3,
+        "spread": 0.9,
+        "velDensity": 0.8,
+        "grain": {
+          "kind": "modal",
+          "material": "glass",
+          "shape": "plate",
+          "lo": 600,
+          "hi": 9000,
+          "decayLo": 0.025,
+          "decayHi": 0.2,
+          "levelJitter": 18,
+          "size": 0.7
+        }
+      },
+      "sends": {
+        "kitchen": -13
+      }
+    },
+    {
+      "id": "floor",
+      "note": "Larger shards landing on the tiles among the rain: a few pieces spread over the cascade, each bouncing to rest in a quickening chatter of dry clinks.",
+      "start": 0.258034,
+      "gain": -3.96181,
+      "source": {
+        "type": "particles",
+        "distribution": "bounce",
+        "interval": 0.085,
+        "ratio": 0.676424,
+        "jitter": 0.35,
+        "duration": 0.5,
+        "spread": 1,
+        "grain": {
+          "kind": "modal",
+          "material": "glass",
+          "shape": "plate",
+          "lo": 2500,
+          "hi": 11000,
+          "decayLo": 0.02,
+          "decayHi": 0.12,
+          "levelJitter": 8,
+          "pitchJitter": 2.5
+        },
+        "env": {
+          "points": [[0, 1], [0.1, 0.7], [0.2, 0.3], [0.3, 0]],
+          "curve": "linear"
+        }
+      },
+      "sends": {
+        "kitchen": -16
+      },
+      "events": [
+        {
+          "t": 0,
+          "vel": 1,
+          "pitch": 0
+        },
+        {
+          "t": 0.42,
+          "vel": 0.6,
+          "pitch": 5
+        },
+        {
+          "t": 1.05,
+          "vel": 0.8,
+          "pitch": -4
+        },
+        {
+          "t": 1.6,
+          "vel": 0.5,
+          "pitch": 8
+        },
+        {
+          "t": 2.2,
+          "vel": 0.45,
+          "pitch": 3
+        }
+      ]
+    },
+    {
+      "id": "tinkle",
+      "note": "The last splinters settling after the rain has stopped: a few tiny pieces ringing clear and high on their own, faint, at the very end.",
+      "start": 1.16206,
+      "gain": -27,
+      "source": {
+        "type": "particles",
+        "gain": 0,
+        "distribution": "random",
+        "density": [[0, 7], [1.1, 2]],
         "duration": 1.1,
         "spread": 1,
         "grain": {
           "kind": "ping",
-          "lo": 3200,
-          "hi": 11000,
-          "decayLo": 0.02,
-          "decayHi": 0.12,
-          "levelJitter": 20
-        },
-        "env": {
-          "attack": 0.05,
-          "hold": 0.5,
-          "decay": 0.9
+          "lo": 4200,
+          "hi": 12000,
+          "decayLo": 0.06,
+          "decayHi": 0.18,
+          "levelJitter": 10
         }
       },
       "sends": {
-        "kitchen": -10
+        "kitchen": -12
       }
     }
   ],
@@ -139,52 +313,129 @@
           "decay": 0.55,
           "predelay": 7
         }
-      ]
+      ],
+      "gain": 0
     }
   ],
   "controls": [
     {
       "id": "size",
       "label": "Size",
-      "hint": "A drinking glass to a shop window.",
-      "value": 0.5,
+      "hint": "A drinking glass to a shop window: lower, longer, the pieces falling for longer.",
+      "value": 0.20914272732204828,
       "vary": 0.05,
       "targets": [
         {
           "path": "tracks.crack.source.freq",
           "mode": "mul",
           "from": 2.4,
+          "via": 1,
           "to": 0.4
         },
         {
           "path": "tracks.crack.source.decay",
           "mode": "mul",
           "from": 0.6,
+          "via": 1,
           "to": 1.9
         },
         {
+          "path": "tracks.crash.source.duration",
+          "mode": "mul",
+          "from": 0.4,
+          "via": 1,
+          "to": 1.6
+        },
+        {
           "path": "tracks.shards.source.duration",
-          "mode": "set",
-          "from": 0.35,
-          "to": 1.9
+          "from": 0.5,
+          "via": 2.9,
+          "to": 4.5
+        },
+        {
+          "path": "tracks.shards.source.density",
+          "mode": "stretch",
+          "from": 0.15,
+          "via": 1,
+          "to": 1.5
+        },
+        {
+          "path": "tracks.shards.source.env",
+          "mode": "stretch",
+          "from": 0.15,
+          "via": 1,
+          "to": 1.5
         },
         {
           "path": "tracks.shards.source.grain.lo",
           "mode": "mul",
           "from": 1.8,
+          "via": 1,
           "to": 0.5
         },
         {
           "path": "tracks.shards.source.grain.decayHi",
           "mode": "mul",
           "from": 0.6,
-          "to": 1.8
+          "via": 1,
+          "to": 1.6
         },
         {
           "path": "tracks.floor.start",
-          "mode": "set",
           "from": 0.12,
-          "to": 0.5
+          "via": 0.45,
+          "to": 0.7
+        },
+        {
+          "path": "tracks.falls.events",
+          "mode": "stretch",
+          "from": 0.15,
+          "via": 1,
+          "to": 1.5
+        },
+        {
+          "path": "tracks.falls.gain",
+          "mode": "set",
+          "from": -40,
+          "via": -6,
+          "to": -3,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.floor.events",
+          "mode": "stretch",
+          "from": 0.3,
+          "via": 1,
+          "to": 1.5
+        },
+        {
+          "path": "tracks.tinkle.start",
+          "mode": "set",
+          "from": 0.2,
+          "via": 2.5,
+          "to": 4,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.glitter.source.duration",
+          "mode": "mul",
+          "from": 0.15,
+          "via": 1,
+          "to": 1.5
+        },
+        {
+          "path": "tracks.glitter.source.density",
+          "mode": "stretch",
+          "from": 0.15,
+          "via": 1,
+          "to": 1.5
+        },
+        {
+          "path": "tracks.glitter.source.env",
+          "mode": "stretch",
+          "from": 0.15,
+          "via": 1,
+          "to": 1.5
         }
       ]
     },
@@ -192,21 +443,49 @@
       "id": "pieces",
       "label": "Pieces",
       "hint": "A clean break into a few big pieces, or an explosion of splinters.",
-      "value": 0.5,
+      "value": 0.5020399305555547,
       "vary": 0.08,
       "targets": [
         {
           "path": "tracks.shards.source.density",
-          "mode": "set",
-          "from": 60,
-          "to": 1400
+          "mode": "mul",
+          "from": 0.08,
+          "via": 1,
+          "to": 3.5
         },
         {
           "path": "tracks.shards.source.grain.size",
-          "mode": "set",
-          "from": 0.95,
-          "to": 0.3,
+          "from": 0.9,
+          "via": 0.5,
+          "to": 0.2,
           "curve": "linear"
+        },
+        {
+          "path": "tracks.crash.gain",
+          "from": -14,
+          "via": -3,
+          "to": 1
+        },
+        {
+          "path": "tracks.falls.source.density",
+          "mode": "mul",
+          "from": 0.15,
+          "via": 1,
+          "to": 2.5
+        },
+        {
+          "path": "tracks.crash.source.density",
+          "mode": "mul",
+          "from": 0.15,
+          "via": 1,
+          "to": 2
+        },
+        {
+          "path": "tracks.glitter.source.density",
+          "mode": "mul",
+          "from": 0.3,
+          "via": 1,
+          "to": 2.2
         }
       ]
     },
@@ -214,14 +493,20 @@
       "id": "floor",
       "label": "Floor",
       "hint": "Carpet that swallows the pieces, or hard tiles they dance on.",
-      "value": 0.5,
+      "value": 0.7170138888888891,
       "targets": [
         {
           "path": "tracks.floor.gain",
-          "mode": "set",
           "from": -40,
-          "to": -2,
-          "curve": -0.517
+          "via": -7,
+          "to": 0
+        },
+        {
+          "path": "tracks.floor.source.ratio",
+          "from": 0.45,
+          "via": 0.62,
+          "to": 0.75,
+          "curve": "linear"
         }
       ]
     },
@@ -229,32 +514,33 @@
       "id": "force",
       "label": "Force",
       "hint": "A crack that lets go slowly, or a violent smash.",
-      "value": 0.6,
+      "value": 0.5,
       "vary": 0.08,
       "targets": [
         {
           "path": "tracks.crack.source.exciter.duration",
-          "mode": "set",
-          "from": 0.12,
-          "to": 0.02
+          "from": 0.08,
+          "via": 0.03,
+          "to": 0.012
         },
         {
           "path": "tracks.crack.gain",
-          "mode": "set",
-          "from": -8,
-          "to": 3
-        },
-        {
-          "path": "tracks.frame.gain",
-          "mode": "set",
-          "from": -20,
+          "from": -14,
+          "via": -5,
           "to": -2
         },
         {
+          "path": "tracks.frame.gain",
+          "from": -26,
+          "via": -11,
+          "to": -6
+        },
+        {
           "path": "tracks.crack.source.brightness",
-          "mode": "set",
           "from": 0.5,
-          "to": 0.95
+          "via": 0.8,
+          "to": 0.95,
+          "curve": "linear"
         }
       ]
     },
@@ -262,28 +548,13 @@
       "id": "room",
       "label": "Room",
       "hint": "Dry, or a hard tiled room.",
-      "value": 0.35,
+      "value": 0.5,
       "targets": [
         {
-          "path": "tracks.crack.sends.kitchen",
-          "mode": "set",
-          "from": -40,
-          "to": -4,
-          "curve": -0.688
-        },
-        {
-          "path": "tracks.shards.sends.kitchen",
-          "mode": "set",
-          "from": -40,
-          "to": -4,
-          "curve": -0.688
-        },
-        {
-          "path": "tracks.floor.sends.kitchen",
-          "mode": "set",
-          "from": -40,
-          "to": -3,
-          "curve": -0.775
+          "path": "buses.kitchen.gain",
+          "from": -30,
+          "via": 0,
+          "to": 9
         }
       ]
     }

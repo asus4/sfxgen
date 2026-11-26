@@ -1,21 +1,27 @@
 {
   "format": "sfxgen/1",
   "name": "Blaster bolt",
-  "description": "A heavy plasma blaster fired down a ship's corridor. 0 ms: the capacitor snaps, a 15 ms digital crack. 2 ms: the bolt leaves, an FM tone whose pitch and sidebands collapse together (a 'bwow' from 1.9 kHz to 150 Hz in 220 ms), slightly overheated. 15 to 200 ms: sparks spit off the muzzle, each a tiny falling chirp. The steel corridor answers with a short ringing slap.",
+  "description": "A heavy plasma blaster fired down a ship's corridor. First the capacitor snaps, a very short digital crack. Straight after, the bolt leaves: an FM tone whose pitch and sidebands collapse together (a 'bwow' from high to low), slightly overheated. Just behind it sparks spit off the muzzle, each a tiny falling chirp. The steel corridor answers with a short ringing slap.",
   "tags": ["scifi", "weapon", "laser", "blaster", "plasma", "zap", "shot"],
   "duration": "auto",
   "seed": 11,
   "tracks": [
     {
       "id": "snap",
-      "note": "The capacitor letting go: the first 15 ms, stepped digital noise so it reads as electric, not as gunpowder.",
+      "note": "The capacitor letting go: the very first instant, stepped digital noise so it reads as electric, not as gunpowder.",
       "gain": -5,
       "source": {
         "type": "noise",
         "color": "digital",
         "density": 9000,
-        "env": { "attack": 0.0003, "decay": 0.018 },
-        "filter": { "mode": "highpass", "cutoff": 1800 }
+        "env": {
+          "attack": 0.0003,
+          "decay": 0.018
+        },
+        "filter": {
+          "mode": "highpass",
+          "cutoff": 1800
+        }
       }
     },
     {
@@ -27,14 +33,41 @@
         "freq": [[0, 1900], [0.035, 760], [0.22, 150]],
         "algorithm": "stack",
         "ops": [
-          { "ratio": 1, "feedback": 0.405 },
-          { "id": "growl", "ratio": [[0, 2.6], [0.2, 0.51]], "index": [[0, 7], [0.06, 3.2], [0.25, 0.8]] },
-          { "ratio": 7.13, "index": 1.6, "env": { "decay": 0.05 } }
+          {
+            "ratio": 1,
+            "feedback": 0.405
+          },
+          {
+            "id": "growl",
+            "ratio": [[0, 2.6], [0.2, 0.51]],
+            "index": [[0, 7], [0.06, 3.2], [0.25, 0.8]]
+          },
+          {
+            "ratio": 7.13,
+            "index": 1.6,
+            "env": {
+              "decay": 0.05
+            }
+          }
         ],
-        "env": { "attack": 0.001, "hold": 0.03, "decay": 0.3 }
+        "env": {
+          "attack": 0.001,
+          "hold": 0.03,
+          "decay": 0.3
+        }
       },
-      "fx": [{ "type": "drive", "id": "heat", "mode": "tube", "amount": 12.6, "tone": 9000 }],
-      "sends": { "corridor": -21.6 }
+      "fx": [
+        {
+          "type": "drive",
+          "id": "heat",
+          "mode": "tube",
+          "amount": 12.6,
+          "tone": 9000
+        }
+      ],
+      "sends": {
+        "corridor": -21.6
+      }
     },
     {
       "id": "sparks",
@@ -46,12 +79,36 @@
         "distribution": "burst",
         "density": 260,
         "duration": 0.2,
-        "grain": { "kind": "chirp", "lo": 2500, "hi": 9000, "sweep": -2.5, "decayLo": 0.004, "decayHi": 0.02, "levelJitter": 14 }
+        "grain": {
+          "kind": "chirp",
+          "lo": 2500,
+          "hi": 9000,
+          "sweep": -2.5,
+          "decayLo": 0.004,
+          "decayHi": 0.02,
+          "levelJitter": 14
+        }
       },
-      "sends": { "corridor": -12 }
+      "sends": {
+        "corridor": -12
+      }
     }
   ],
-  "buses": [{ "id": "corridor", "fx": [{ "type": "reverb", "id": "walls", "space": "tank", "size": 7, "decay": 0.498, "predelay": 18 }] }],
+  "buses": [
+    {
+      "id": "corridor",
+      "fx": [
+        {
+          "type": "reverb",
+          "id": "walls",
+          "space": "tank",
+          "size": 7,
+          "decay": 0.497984,
+          "predelay": 18
+        }
+      ]
+    }
+  ],
   "controls": [
     {
       "id": "caliber",
@@ -60,9 +117,24 @@
       "value": 0.5,
       "vary": 0.04,
       "targets": [
-        { "path": "tracks.bolt.source.freq", "mode": "mul", "from": 2, "to": 0.5 },
-        { "path": "tracks.bolt.source.env", "mode": "stretch", "from": 0.7, "to": 1.5 },
-        { "path": "tracks.snap.source.filter.cutoff", "mode": "mul", "from": 1.6, "to": 0.5 }
+        {
+          "path": "tracks.bolt.source.freq",
+          "mode": "mul",
+          "from": 2,
+          "to": 0.5
+        },
+        {
+          "path": "tracks.bolt.source.env",
+          "mode": "stretch",
+          "from": 0.7,
+          "to": 1.5
+        },
+        {
+          "path": "tracks.snap.source.filter.cutoff",
+          "mode": "mul",
+          "from": 1.6,
+          "to": 0.5
+        }
       ]
     },
     {
@@ -71,10 +143,30 @@
       "hint": "A quick stab to a long drawn-out bwooow.",
       "value": 0.4,
       "targets": [
-        { "path": "tracks.bolt.source.freq", "mode": "stretch", "from": 0.45, "to": 2.6 },
-        { "path": "tracks.bolt.source.ops.growl.ratio", "mode": "stretch", "from": 0.45, "to": 2.6 },
-        { "path": "tracks.bolt.source.ops.growl.index", "mode": "stretch", "from": 0.45, "to": 2.6 },
-        { "path": "tracks.bolt.source.env", "mode": "stretch", "from": 0.45, "to": 2.6 }
+        {
+          "path": "tracks.bolt.source.freq",
+          "mode": "stretch",
+          "from": 0.45,
+          "to": 2.6
+        },
+        {
+          "path": "tracks.bolt.source.ops.growl.ratio",
+          "mode": "stretch",
+          "from": 0.45,
+          "to": 2.6
+        },
+        {
+          "path": "tracks.bolt.source.ops.growl.index",
+          "mode": "stretch",
+          "from": 0.45,
+          "to": 2.6
+        },
+        {
+          "path": "tracks.bolt.source.env",
+          "mode": "stretch",
+          "from": 0.45,
+          "to": 2.6
+        }
       ]
     },
     {
@@ -84,9 +176,22 @@
       "value": 0.45,
       "vary": 0.08,
       "targets": [
-        { "path": "tracks.bolt.fx.heat.amount", "from": 0, "to": 28, "curve": "linear" },
-        { "path": "tracks.sparks.gain", "from": -30, "to": -4 },
-        { "path": "tracks.bolt.source.ops.0.feedback", "from": 0, "to": 0.9 }
+        {
+          "path": "tracks.bolt.fx.heat.amount",
+          "from": 0,
+          "to": 28,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.sparks.gain",
+          "from": -30,
+          "to": -4
+        },
+        {
+          "path": "tracks.bolt.source.ops.0.feedback",
+          "from": 0,
+          "to": 0.9
+        }
       ]
     },
     {
@@ -94,7 +199,18 @@
       "label": "Corridor",
       "hint": "Dry and close, or ringing down a long metal passage.",
       "value": 0.4,
-      "targets": [{ "path": "tracks.bolt.sends.corridor", "from": -36, "to": 0 }, { "path": "buses.corridor.fx.walls.decay", "from": 0.25, "to": 1.4 }]
+      "targets": [
+        {
+          "path": "tracks.bolt.sends.corridor",
+          "from": -36,
+          "to": 0
+        },
+        {
+          "path": "buses.corridor.fx.walls.decay",
+          "from": 0.25,
+          "to": 1.4
+        }
+      ]
     }
   ]
 }

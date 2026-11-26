@@ -1,12 +1,17 @@
 {
   "format": "sfxgen/1",
-  "name": "Footstep: metal grate",
-  "description": "One step of a work boot on a steel catwalk grating in a ship's engine room. 0 ms: the rubber sole lands and the loose panel clanks down onto its frame; the grating rings with a dense, sour clang of many bars for a third of a second; 35 ms after the step the panel bounces once more on its clips with a smaller rattle; the steel compartment rings back.",
+  "name": "Footsteps: metal grate",
+  "description": "Eight steps of work boots running along a steel catwalk deep inside a steel hull, as a seamless loop. Each step: the rubber heel lands with a dull thud and the heavy grating panel clanks, a dense, sour, low clang of many crowded bars, no one note; a moment later the panel knocks down onto its frame and its bars tick against each other; the ball of the foot follows with a lighter second clank, at this pace so close behind the heel that the two close to one hard clang. No two steps are alike: the feet differ in weight and timing, and most steps land on a sound panel but some on a shorter, bent one that chatters on its clips. At a run the rattle grows and the catwalk under the panels hums; Speed takes it back to a slow walk, where heel and toe come apart. The hull answers each step, hard and metallic.",
   "tags": [
     "footstep",
-    "step",
+    "footsteps",
+    "steps",
+    "walk",
+    "run",
+    "loop",
     "metal",
     "grate",
+    "grating",
     "catwalk",
     "clang",
     "industrial",
@@ -14,92 +19,16 @@
     "scifi",
     "foley"
   ],
-  "duration": "auto",
+  "duration": 2.62329,
   "seed": 15,
+  "loop": {
+    "mode": "wrap"
+  },
   "tracks": [
     {
-      "id": "grating",
-      "note": "The grating: a welded lattice, struck by a rubber sole. Dense, dented, short.",
-      "source": {
-        "type": "modal",
-        "material": "metal",
-        "shape": "plate",
-        "freq": 286,
-        "decay": 0.42,
-        "damping": 2.6,
-        "brightness": 0.55,
-        "modes": 40,
-        "dent": 0.45,
-        "variant": 9,
-        "position": 0.5,
-        "stretch": 1.08,
-        "exciter": {
-          "kind": "mallet",
-          "hardness": 0.5
-        }
-      },
-      "sends": {
-        "hull": -12
-      }
-    },
-    {
-      "id": "frame",
-      "note": "The loose panel hitting its frame: steel on steel, then a rebound 35 ms later.",
-      "start": 0.004,
-      "gain": -12,
-      "source": {
-        "type": "fm",
-        "freq": 1130,
-        "algorithm": "stack",
-        "ops": [
-          {
-            "ratio": 1
-          },
-          {
-            "ratio": 2.76,
-            "index": 5,
-            "env": {
-              "decay": 0.05,
-              "sustain": 0.05
-            }
-          },
-          {
-            "ratio": 5.4,
-            "index": 2,
-            "env": {
-              "decay": 0.02
-            }
-          }
-        ],
-        "env": {
-          "attack": 0.0005,
-          "decay": 0.09
-        }
-      },
-      "events": [
-        {
-          "t": 0,
-          "vel": 1
-        },
-        {
-          "t": 0.035,
-          "vel": 0.5,
-          "pitch": -0.6
-        },
-        {
-          "t": 0.058,
-          "vel": 0.22,
-          "pitch": 0.4
-        }
-      ],
-      "sends": {
-        "hull": -12
-      }
-    },
-    {
       "id": "boot",
-      "note": "The boot itself: a soft rubber thud under the clang.",
-      "gain": -7,
+      "note": "The boot itself, every step: a soft rubber heel thud under the clank. It carries the weight of the walker.",
+      "gain": -9.31999,
       "source": {
         "type": "modal",
         "material": "rubber",
@@ -109,8 +38,322 @@
         "modes": 8,
         "exciter": {
           "kind": "mallet",
-          "hardness": 0.35
+          "hardness": 0.576433
+        },
+        "gain": 0
+      },
+      "repeat": {
+        "count": 8,
+        "interval": 0.327911,
+        "jitter": 0.01,
+        "velJitter": 0.22,
+        "pitchJitter": 1.1,
+        "accents": [1, 0.8, 0.95, 0.75, 1, 0.85, 0.9, 0.7],
+        "group": "step"
+      }
+    },
+    {
+      "id": "grating",
+      "note": "The sound panel, under most of the steps: a heavy welded lattice struck by a rubber heel. A big panel, so the modes are low, crowded and dented: a sour clank, not a ting.",
+      "start": 0.004,
+      "source": {
+        "type": "modal",
+        "material": "metal",
+        "shape": "plate",
+        "freq": 102,
+        "decay": 0.478825,
+        "damping": 1.86836,
+        "brightness": 0.746803,
+        "modes": 64,
+        "dent": 0.5330579969618053,
+        "variant": 9,
+        "position": 0.7900750054253475,
+        "stretch": 0.8906634521484376,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.531491,
+          "spread": 0.004
+        },
+        "pitch": -6.54977
+      },
+      "sends": {
+        "hull": -4.93924
+      },
+      "fx": [
+        {
+          "type": "filter",
+          "mode": "highpass",
+          "cutoff": 90,
+          "slope": "24"
         }
+      ],
+      "repeat": {
+        "count": 8,
+        "interval": 0.327911,
+        "jitter": 0.01,
+        "velJitter": 0.22,
+        "pitchJitter": 1.1,
+        "accents": [1, 0.8, 0, 0.75, 1, 0, 0.9, 0],
+        "group": "step"
+      }
+    },
+    {
+      "id": "grating2",
+      "note": "The next panel along, under the other steps: a shorter, more bent panel that sits badly in its frame, so it clanks higher, duller and shorter. It is the one that rattles.",
+      "start": 0.004,
+      "gain": 0,
+      "source": {
+        "type": "modal",
+        "material": "metal",
+        "shape": "plate",
+        "freq": 121,
+        "decay": 0.384366,
+        "damping": 2.36456,
+        "brightness": 0.746803,
+        "modes": 64,
+        "dent": 0.8,
+        "variant": 23,
+        "position": 0.62,
+        "stretch": 0.9,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.531491,
+          "spread": 0.006
+        },
+        "pitch": -6.54977
+      },
+      "sends": {
+        "hull": -4.93924
+      },
+      "fx": [
+        {
+          "type": "filter",
+          "mode": "highpass",
+          "cutoff": 100,
+          "slope": "24"
+        }
+      ],
+      "repeat": {
+        "count": 8,
+        "interval": 0.327911,
+        "jitter": 0.01,
+        "velJitter": 0.22,
+        "pitchJitter": 1.1,
+        "accents": [0, 0, 0.95, 0, 0, 0.85, 0, 0.7],
+        "group": "step"
+      }
+    },
+    {
+      "id": "toe",
+      "note": "The ball of the foot rolling on after the heel: a lighter, softer second clank struck nearer the middle of the panel. Running closes the gap to a flam and makes it the main blow.",
+      "start": 0.0283363,
+      "gain": -7,
+      "source": {
+        "type": "modal",
+        "material": "metal",
+        "shape": "plate",
+        "freq": 109,
+        "decay": 0.28974,
+        "damping": 2.4,
+        "brightness": 0.5,
+        "modes": 56,
+        "dent": 0.6,
+        "variant": 9,
+        "position": 0.4,
+        "stretch": 0.92,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.45,
+          "spread": 0.006
+        },
+        "pitch": -6.54977,
+        "gain": 4.52866
+      },
+      "sends": {
+        "hull": -4.93924
+      },
+      "fx": [
+        {
+          "type": "filter",
+          "mode": "highpass",
+          "cutoff": 110,
+          "slope": "24"
+        }
+      ],
+      "repeat": {
+        "count": 8,
+        "interval": 0.327911,
+        "jitter": 0.01,
+        "velJitter": 0.22,
+        "pitchJitter": 1.1,
+        "accents": [1, 0.8, 0.95, 0.75, 1, 0.85, 0.9, 0.7],
+        "group": "step"
+      }
+    },
+    {
+      "id": "frame",
+      "note": "The panel knocking down onto its frame a moment after the heel: one small, dead steel knock on every step.",
+      "start": 0.013,
+      "gain": -11.6259,
+      "source": {
+        "type": "modal",
+        "material": "metal",
+        "shape": "plate",
+        "freq": 310,
+        "decay": 0.045,
+        "damping": 3.5,
+        "brightness": 0.5,
+        "modes": 48,
+        "dent": 0.85,
+        "variant": 4,
+        "position": 0.7,
+        "stretch": 0.9,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.75,
+          "spread": 0.001
+        },
+        "pitch": -4.09361,
+        "gain": 3.62293
+      },
+      "sends": {
+        "hull": -4.93924
+      },
+      "repeat": {
+        "count": 8,
+        "interval": 0.327911,
+        "jitter": 0.01,
+        "velJitter": 0.22,
+        "pitchJitter": 1.1,
+        "accents": [1, 0.8, 0.95, 0.75, 1, 0.85, 0.9, 0.7],
+        "group": "step"
+      }
+    },
+    {
+      "id": "bars",
+      "note": "The bars of the lattice ticking against each other after each blow: a short sprinkle of small dead steel ticks, new ones every step.",
+      "start": 0.008,
+      "gain": -12.3993,
+      "source": {
+        "type": "particles",
+        "distribution": "burst",
+        "density": 800,
+        "duration": 0.112984,
+        "gain": 6.34013,
+        "grain": {
+          "kind": "modal",
+          "material": "metal",
+          "shape": "plate",
+          "lo": 1200,
+          "hi": 4500,
+          "decayLo": 0.004,
+          "decayHi": 0.018,
+          "levelJitter": 14,
+          "size": 0.6
+        }
+      },
+      "sends": {
+        "hull": -4.93924
+      },
+      "repeat": {
+        "count": 8,
+        "interval": 0.327911,
+        "jitter": 0.01,
+        "velJitter": 0.22,
+        "pitchJitter": 1.1,
+        "accents": [1, 0.8, 0.95, 0.75, 1, 0.85, 0.9, 0.7],
+        "group": "step"
+      }
+    },
+    {
+      "id": "loose",
+      "note": "The loose panel chattering on its clips, only on the steps that land on it: one piece of steel bouncing to rest, its knocks closing up.",
+      "start": 0.0213197,
+      "gain": -10.6259,
+      "source": {
+        "type": "particles",
+        "distribution": "bounce",
+        "interval": 0.0404126,
+        "ratio": 0.7,
+        "jitter": 0.25,
+        "duration": 0.184002,
+        "gain": 4.52866,
+        "grain": {
+          "kind": "modal",
+          "material": "metal",
+          "shape": "plate",
+          "lo": 330,
+          "hi": 330,
+          "pitchJitter": 1.5,
+          "decayLo": 0.03,
+          "decayHi": 0.05,
+          "levelJitter": 4,
+          "size": 0.5
+        }
+      },
+      "sends": {
+        "hull": -4.93924
+      },
+      "fx": [
+        {
+          "type": "filter",
+          "mode": "highpass",
+          "cutoff": 180,
+          "slope": "24"
+        }
+      ],
+      "repeat": {
+        "count": 8,
+        "interval": 0.327911,
+        "velJitter": 0.25,
+        "pitchJitter": 0.8,
+        "accents": [0, 0, 1, 0, 0, 0.55, 0, 0.8]
+      }
+    },
+    {
+      "id": "catwalk",
+      "note": "The catwalk itself, the stringers and handrail the panels sit on, shaken by every step: a low, dull, dented hum that is barely there at a walk and builds when running.",
+      "start": 0.002,
+      "gain": -17,
+      "source": {
+        "type": "modal",
+        "material": "metal",
+        "shape": "plate",
+        "freq": 47,
+        "decay": 0.9,
+        "damping": 2.6,
+        "brightness": 0.4,
+        "modes": 48,
+        "dent": 0.7,
+        "variant": 31,
+        "position": 0.55,
+        "stretch": 0.88,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.3,
+          "spread": 0.012
+        },
+        "gain": 8.15159
+      },
+      "sends": {
+        "hull": -3.9595
+      },
+      "fx": [
+        {
+          "type": "filter",
+          "mode": "highpass",
+          "cutoff": 120,
+          "slope": "24"
+        }
+      ],
+      "repeat": {
+        "count": 8,
+        "interval": 0.327911,
+        "jitter": 0.01,
+        "velJitter": 0.22,
+        "pitchJitter": 1.1,
+        "accents": [1, 0.8, 0.95, 0.75, 1, 0.85, 0.9, 0.7],
+        "group": "step"
       }
     }
   ],
@@ -121,37 +364,228 @@
         {
           "type": "reverb",
           "space": "tank",
-          "size": 7,
-          "decay": 0.8,
-          "predelay": 8
+          "size": 4.9937091131383236,
+          "decay": 0.99127,
+          "predelay": 8,
+          "bass": 0.7741149902343745,
+          "damping": 0.3361253526475694,
+          "mix": 1
         }
       ]
     }
   ],
   "controls": [
     {
+      "id": "speed",
+      "label": "Speed",
+      "hint": "A slow walk to a run: quicker steps, heel and toe closing to one hard clang, more rattle and the catwalk starting to ring.",
+      "value": 0.9340128580729167,
+      "default": 0.3,
+      "targets": [
+        {
+          "path": "duration",
+          "mode": "set",
+          "from": 4.96,
+          "via": 4,
+          "to": 2.48,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.boot.repeat.interval",
+          "mode": "set",
+          "from": 0.62,
+          "via": 0.5,
+          "to": 0.31,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.grating.repeat.interval",
+          "mode": "set",
+          "from": 0.62,
+          "via": 0.5,
+          "to": 0.31,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.grating2.repeat.interval",
+          "mode": "set",
+          "from": 0.62,
+          "via": 0.5,
+          "to": 0.31,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.toe.repeat.interval",
+          "mode": "set",
+          "from": 0.62,
+          "via": 0.5,
+          "to": 0.31,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.frame.repeat.interval",
+          "mode": "set",
+          "from": 0.62,
+          "via": 0.5,
+          "to": 0.31,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.bars.repeat.interval",
+          "mode": "set",
+          "from": 0.62,
+          "via": 0.5,
+          "to": 0.31,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.loose.repeat.interval",
+          "mode": "set",
+          "from": 0.62,
+          "via": 0.5,
+          "to": 0.31,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.catwalk.repeat.interval",
+          "mode": "set",
+          "from": 0.62,
+          "via": 0.5,
+          "to": 0.31,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.toe.start",
+          "mode": "set",
+          "from": 0.092,
+          "via": 0.07,
+          "to": 0.024,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.loose.start",
+          "mode": "set",
+          "from": 0.04,
+          "via": 0.034,
+          "to": 0.02,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.toe.source.gain",
+          "mode": "set",
+          "from": -2,
+          "via": 0,
+          "to": 5,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.grating.source.brightness",
+          "mode": "set",
+          "from": 0.57,
+          "via": 0.62,
+          "to": 0.76,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.grating2.source.brightness",
+          "mode": "set",
+          "from": 0.57,
+          "via": 0.62,
+          "to": 0.76,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.boot.source.exciter.hardness",
+          "mode": "set",
+          "from": 0.3,
+          "via": 0.35,
+          "to": 0.6,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.frame.source.gain",
+          "mode": "set",
+          "from": -2,
+          "via": 0,
+          "to": 4,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.bars.source.gain",
+          "mode": "set",
+          "from": -3,
+          "via": 0,
+          "to": 7,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.loose.source.gain",
+          "mode": "set",
+          "from": -3,
+          "via": 0,
+          "to": 5,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.catwalk.source.gain",
+          "mode": "set",
+          "from": -4,
+          "via": 0,
+          "to": 9,
+          "curve": "linear"
+        }
+      ]
+    },
+    {
       "id": "weight",
       "label": "Weight",
-      "hint": "A light quick step to a heavy armoured stomp.",
-      "value": 0.5,
-      "vary": 0.08,
+      "hint": "A light quick tread to a heavy armoured stomp.",
+      "value": 0.39454583062065945,
+      "default": 0.5,
       "targets": [
         {
           "path": "tracks.boot.gain",
           "mode": "set",
           "from": -18,
-          "to": 1
+          "via": -7,
+          "to": 1,
+          "curve": "linear"
         },
         {
           "path": "tracks.grating.source.exciter.hardness",
           "mode": "set",
-          "from": 0.3,
-          "to": 0.8
+          "from": 0.35,
+          "via": 0.58,
+          "to": 0.85,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.grating2.source.exciter.hardness",
+          "mode": "set",
+          "from": 0.35,
+          "via": 0.58,
+          "to": 0.85,
+          "curve": "linear"
         },
         {
           "path": "tracks.grating.source.freq",
           "mode": "mul",
           "from": 1.25,
+          "via": 1,
+          "to": 0.8
+        },
+        {
+          "path": "tracks.grating2.source.freq",
+          "mode": "mul",
+          "from": 1.25,
+          "via": 1,
+          "to": 0.8
+        },
+        {
+          "path": "tracks.toe.source.freq",
+          "mode": "mul",
+          "from": 1.25,
+          "via": 1,
           "to": 0.8
         }
       ]
@@ -159,51 +593,131 @@
     {
       "id": "loose",
       "label": "Loose",
-      "hint": "A welded deck that only rings, or a loose panel that clatters on its frame.",
-      "value": 0.5,
-      "vary": 0.12,
+      "hint": "A tight, well-clipped deck that only clanks, or panels that knock and clatter in their frames.",
+      "value": 0.3866899278428822,
+      "default": 0.5,
       "targets": [
         {
           "path": "tracks.frame.gain",
           "mode": "set",
-          "from": -36,
-          "to": -4,
-          "curve": -0.423
+          "from": -24,
+          "via": -8,
+          "to": 1,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.bars.gain",
+          "mode": "set",
+          "from": -24,
+          "via": -9,
+          "to": 0,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.loose.gain",
+          "mode": "set",
+          "from": -23,
+          "via": -7,
+          "to": 2,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.loose.source.interval",
+          "mode": "set",
+          "from": 0.028,
+          "via": 0.045,
+          "to": 0.07
+        },
+        {
+          "path": "tracks.loose.source.duration",
+          "mode": "set",
+          "from": 0.1,
+          "via": 0.22,
+          "to": 0.36
+        },
+        {
+          "path": "tracks.bars.source.duration",
+          "mode": "set",
+          "from": 0.07,
+          "via": 0.13,
+          "to": 0.3
         }
       ]
     },
     {
       "id": "ring",
       "label": "Ring",
-      "hint": "Thick damped plate that clunks, to thin grating that sings.",
-      "value": 0.4,
-      "vary": 0.05,
+      "hint": "Thick damped plate that clunks, to thin grating that sings on after each step.",
+      "value": 0.38480868869357604,
+      "default": 0.4,
       "targets": [
         {
           "path": "tracks.grating.source.decay",
           "mode": "set",
-          "from": 0.15,
+          "from": 0.16,
+          "via": 0.5,
           "to": 1.3
         },
         {
           "path": "tracks.grating.source.damping",
           "mode": "set",
           "from": 3.6,
-          "to": 1.2
+          "via": 1.8,
+          "to": 0.9,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.grating2.source.decay",
+          "mode": "set",
+          "from": 0.14,
+          "via": 0.4,
+          "to": 1
+        },
+        {
+          "path": "tracks.grating2.source.damping",
+          "mode": "set",
+          "from": 4,
+          "via": 2.3,
+          "to": 1.2,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.toe.source.decay",
+          "mode": "set",
+          "from": 0.12,
+          "via": 0.3,
+          "to": 0.7
         }
       ]
     },
     {
       "id": "panel",
       "label": "Panel",
-      "hint": "A small stair tread to a long span of walkway.",
-      "value": 0.5,
-      "vary": 0.04,
+      "hint": "Small stair treads to long spans of walkway.",
+      "value": 0.9093607584635415,
+      "default": 0.5,
       "targets": [
         {
           "path": "tracks.grating.source.pitch",
           "mode": "set",
           "from": 8,
+          "via": 0,
+          "to": -8,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.grating2.source.pitch",
+          "mode": "set",
+          "from": 8,
+          "via": 0,
+          "to": -8,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.toe.source.pitch",
+          "mode": "set",
+          "from": 8,
+          "via": 0,
           "to": -8,
           "curve": "linear"
         },
@@ -211,6 +725,7 @@
           "path": "tracks.frame.source.pitch",
           "mode": "set",
           "from": 5,
+          "via": 0,
           "to": -5,
           "curve": "linear"
         }
@@ -218,23 +733,73 @@
     },
     {
       "id": "hull",
-      "label": "Compartment",
-      "hint": "Open air gantry, or deep inside a steel hull.",
-      "value": 0.45,
+      "label": "Space",
+      "hint": "An open-air gantry, or deep inside a steel hull.",
+      "value": 0.8530378553602433,
+      "default": 0.4,
       "targets": [
         {
           "path": "tracks.grating.sends.hull",
           "mode": "set",
           "from": -40,
+          "via": -14,
           "to": -2,
-          "curve": -0.462
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.grating2.sends.hull",
+          "mode": "set",
+          "from": -40,
+          "via": -14,
+          "to": -2,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.toe.sends.hull",
+          "mode": "set",
+          "from": -40,
+          "via": -14,
+          "to": -2,
+          "curve": "linear"
         },
         {
           "path": "tracks.frame.sends.hull",
           "mode": "set",
           "from": -40,
+          "via": -14,
           "to": -2,
-          "curve": -0.462
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.bars.sends.hull",
+          "mode": "set",
+          "from": -40,
+          "via": -14,
+          "to": -2,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.loose.sends.hull",
+          "mode": "set",
+          "from": -40,
+          "via": -14,
+          "to": -2,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.catwalk.sends.hull",
+          "mode": "set",
+          "from": -40,
+          "via": -10,
+          "to": -2,
+          "curve": "linear"
+        },
+        {
+          "path": "buses.hull.fx.0.decay",
+          "mode": "set",
+          "from": 0.3,
+          "via": 0.55,
+          "to": 1.2
         }
       ]
     }

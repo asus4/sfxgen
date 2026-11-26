@@ -1,17 +1,8 @@
 {
   "format": "sfxgen/1",
   "name": "Slider detent",
-  "description": "One notch of a dial with a ceramic detent wheel: a hard, dry 2.3 kHz tick as the ball drops into the groove, with a tiny low bump of the knob in the fingers, over in 20 ms. Drive Position from the slider value and a drag plays a rising row of ticks.",
-  "tags": [
-    "ui",
-    "slider",
-    "detent",
-    "tick",
-    "dial",
-    "knob",
-    "scroll",
-    "step"
-  ],
+  "description": "One notch of a dial with a ceramic detent wheel: a hard, dry, high tick as the ball drops into the groove, with a tiny low bump of the knob in the fingers, over almost at once. Drive Position from the slider value and a drag plays a rising row of ticks.",
+  "tags": ["ui", "slider", "detent", "tick", "dial", "knob", "scroll", "step"],
   "duration": "auto",
   "seed": 9,
   "tracks": [
@@ -23,38 +14,31 @@
         "material": "ceramic",
         "shape": "bar",
         "freq": 2300,
-        "decay": 0.022,
+        "decay": 0.0180267,
         "damping": 2.5,
-        "brightness": 0.3,
+        "brightness": 0.38,
         "modes": 6,
         "position": 0.4,
         "exciter": {
           "kind": "mallet",
-          "hardness": 0.9
-        }
+          "hardness": 0.86
+        },
+        "pitch": 0
       }
     },
     {
       "id": "seat",
-      "note": "The knob settling in the hand: two cycles of a low bump, felt more than heard.",
-      "gain": -12,
+      "note": "The knob settling in the hand: a brief low bump, felt more than heard.",
+      "gain": -15,
       "source": {
         "type": "osc",
         "wave": "sine",
-        "freq": [
-          [
-            0,
-            520
-          ],
-          [
-            0.012,
-            380
-          ]
-        ],
+        "freq": [[0, 520], [0.012, 380]],
         "env": {
           "attack": 0.0008,
           "decay": 0.014
-        }
+        },
+        "pitch": 0
       }
     }
   ],
@@ -68,7 +52,7 @@
     {
       "id": "position",
       "label": "Position",
-      "hint": "Where on the slider: low end to high end, a little over an octave of ticks.",
+      "hint": "Where on the slider: low end to high end, the ticks rising in pitch along it.",
       "value": 0.4,
       "vary": 0.02,
       "targets": [

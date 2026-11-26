@@ -1,75 +1,203 @@
 {
   "format": "sfxgen/1",
   "name": "Bow shot",
-  "description": "A longbow loosed beside your ear in a wood. 0 ms: the fingers let go and the string snaps forward, a short dull twang at 82 Hz, slapped silent against the bracer within 150 ms (a real waveguide string, muted fast). 3 ms: the limbs kick, a wooden knock in the bow's body. 10 ms on: the arrow leaves, a thin hiss with fletching flutter that drops in pitch as it flies away at 55 m/s. The trees give back a soft scatter.",
+  "description": "A longbow loosed beside your ear in a wood: 'thwp-fff', not a note. The fingers let go and the string snaps forward, a short dry thrum with its buzz on top. At once the limbs kick forward and stop, a dull crowded wooden knock in the stave. As the arrow leaves, the string reaches the end of its travel and slaps the bracer, a flat leathery smack that chokes the thrum. The arrow's breathy hiss, with fletching flutter, falls in pitch and fades as it flies off. The trees give back a soft, short scatter.",
   "tags": ["weapon", "bow", "arrow", "shot", "twang", "archery", "release", "ranged", "string"],
   "duration": "auto",
   "seed": 22,
   "tracks": [
     {
       "id": "string",
-      "note": "The bowstring: plucked close to its middle with soft fingers, a little stiff, and choked by the mute curve the way a bracer stops it.",
+      "note": "The bowstring: a real waveguide string let go near its middle, stiff and buzzy, choked by the mute curve the way the bracer and the limbs stop it. A short thrum, with the bass cut so it never reads as a bass note.",
+      "gain": -4,
       "source": {
         "type": "pluck",
-        "freq": [[0, 88], [0.05, 82]],
-        "decay": 0.5,
-        "brightness": 0.52,
-        "position": 0.4,
-        "stiffness": 0.25,
-        "hardness": 0.45,
-        "mute": [[0, 0.1], [0.07, 0.25], [0.15, 0.95]]
+        "freq": [[0, 172], [0.04, 150]],
+        "decay": 0.2,
+        "brightness": 0.7,
+        "position": 0.38,
+        "stiffness": 0.4,
+        "hardness": 0.8,
+        "mute": [[0, 0.2], [0.03, 0.5], [0.09, 0.97]]
       },
-      "fx": [{ "type": "drive", "mode": "tube", "amount": 8, "tone": 5000 }],
-      "sends": { "wood": -14 }
+      "fx": [
+        {
+          "type": "filter",
+          "mode": "highpass",
+          "cutoff": 95,
+          "q": 0.7
+        },
+        {
+          "type": "drive",
+          "mode": "tube",
+          "amount": 7,
+          "tone": 6000
+        }
+      ],
+      "sends": {
+        "wood": -20
+      }
     },
     {
-      "id": "limbs",
-      "note": "The bow stave kicking in the hand: a small hollow wooden box. This is the 'thock' that makes it a bow and not a guitar.",
-      "start": 0.003,
-      "gain": -5.5,
-      "source": {
-        "type": "modal",
-        "material": "wood",
-        "shape": "tube",
-        "freq": 265,
-        "decay": 0.14,
-        "position": 0.6,
-        "dent": 0.2,
-        "exciter": { "kind": "mallet", "hardness": 0.55 }
-      },
-      "sends": { "wood": -12 }
-    },
-    {
-      "id": "arrow",
-      "note": "The arrow in flight: a narrow hiss, fluttered by the fletching (fast tremolo), carried away by the doppler so it falls in pitch and fades.",
-      "start": 0.01,
-      "gain": -6.9,
+      "id": "slap",
+      "note": "The string smacking the bracer at the end of its travel: a short, flat slap of noise with a leathery low-mid body. This is the 'p' of 'thwp'.",
+      "start": 0.018,
+      "gain": -3.86,
       "source": {
         "type": "noise",
         "color": "white",
-        "env": { "attack": 0.004, "hold": 0.1, "decay": 0.511 },
-        "filter": { "mode": "bandpass", "cutoff": 4110, "q": 2.4 }
+        "env": {
+          "attack": 0.0005,
+          "decay": 0.0283266
+        },
+        "filter": {
+          "mode": "bandpass",
+          "cutoff": [[0, 2400], [0.02, 1100]],
+          "q": 0.8
+        }
       },
       "fx": [
-        { "type": "tremolo", "id": "fletch", "rate": 58, "depth": 0.475, "shape": "triangle" },
-        { "type": "doppler", "id": "flight", "speed": 52, "distance": 0.6, "time": 0, "direction": "front-to-back", "air": 2.5, "rolloff": 0.8 }
+        {
+          "type": "resonator",
+          "id": "leather",
+          "mode": "tube",
+          "freq": 410,
+          "decay": 0.012,
+          "brightness": 0.3,
+          "chord": [0, 5.3],
+          "mix": 0.35
+        }
       ],
-      "sends": { "wood": -9 }
+      "sends": {
+        "wood": -11
+      }
+    },
+    {
+      "id": "limbs",
+      "note": "The stave kicking in the hand: a damped wooden body with many crowded modes, struck with a slightly smeared hit. The 'thock' that makes it a bow and not a guitar.",
+      "start": 0.003,
+      "gain": -6.75,
+      "source": {
+        "type": "modal",
+        "material": "wood",
+        "shape": "box",
+        "freq": 210,
+        "decay": 0.06,
+        "damping": 2.5,
+        "modes": 40,
+        "dent": 0.4,
+        "position": 0.6,
+        "variant": 4,
+        "exciter": {
+          "kind": "mallet",
+          "hardness": 0.55,
+          "spread": 0.003
+        }
+      },
+      "sends": {
+        "wood": -12
+      }
+    },
+    {
+      "id": "arrow",
+      "note": "The arrow in flight: a broad breathy hiss, fluttered by the fletching (fast tremolo), carried away by the doppler so it falls in pitch and fades.",
+      "start": 0.012,
+      "gain": -4,
+      "source": {
+        "type": "noise",
+        "color": "white",
+        "env": {
+          "attack": 0.006,
+          "hold": 0.06,
+          "decay": 0.4
+        },
+        "filter": {
+          "mode": "bandpass",
+          "cutoff": [[0, 4800], [0.3, 2700]],
+          "q": 1
+        }
+      },
+      "fx": [
+        {
+          "type": "tremolo",
+          "id": "fletch",
+          "rate": {
+            "value": 58,
+            "mod": [
+              {
+                "type": "wander",
+                "rate": 9,
+                "depth": 2
+              }
+            ]
+          },
+          "depth": 0.536,
+          "shape": "triangle"
+        },
+        {
+          "type": "doppler",
+          "id": "flight",
+          "speed": 56.3711,
+          "distance": 0.6,
+          "time": 0,
+          "direction": "front-to-back",
+          "air": 2.5,
+          "rolloff": 0.8
+        }
+      ],
+      "sends": {
+        "wood": -9
+      }
     }
   ],
-  "buses": [{ "id": "wood", "fx": [{ "type": "reverb", "id": "trees", "space": "forest", "decay": 0.6 }] }],
+  "buses": [
+    {
+      "id": "wood",
+      "fx": [
+        {
+          "type": "reverb",
+          "id": "trees",
+          "space": "forest",
+          "decay": 0.455093,
+          "bass": 0.5,
+          "lowcut": 180
+        }
+      ],
+      "gain": -9.375
+    }
+  ],
   "controls": [
     {
       "id": "draw",
       "label": "Draw weight",
-      "hint": "A light hunting bow to a heavy war bow: deeper twang, harder kick, faster arrow.",
-      "value": 0.5,
+      "hint": "A light hunting bow to a heavy war bow: deeper thrum, harder kick, faster arrow.",
+      "value": 0.525,
       "vary": 0.06,
       "targets": [
-        { "path": "tracks.string.source.freq", "mode": "mul", "from": 1.7, "to": 0.62 },
-        { "path": "tracks.limbs.source.freq", "mode": "mul", "from": 1.6, "to": 0.65 },
-        { "path": "tracks.limbs.gain", "from": -12, "to": 1 },
-        { "path": "tracks.arrow.fx.flight.speed", "from": 30, "to": 90 }
+        {
+          "path": "tracks.string.source.freq",
+          "mode": "mul",
+          "from": 1.6,
+          "to": 0.625
+        },
+        {
+          "path": "tracks.limbs.source.freq",
+          "mode": "mul",
+          "from": 1.6,
+          "to": 0.625
+        },
+        {
+          "path": "tracks.limbs.gain",
+          "from": -14,
+          "via": -7,
+          "to": -2
+        },
+        {
+          "path": "tracks.arrow.fx.flight.speed",
+          "from": 30,
+          "via": 55,
+          "to": 90
+        }
       ]
     },
     {
@@ -77,10 +205,49 @@
       "label": "Twang",
       "hint": "A well-silenced thump to a long buzzing string.",
       "value": 0.4,
+      "default": 0.4,
       "vary": 0.08,
       "targets": [
-        { "path": "tracks.string.source.mute", "mode": "stretch", "from": 0.4, "to": 4 },
-        { "path": "tracks.string.source.brightness", "from": 0.3, "to": 0.85 }
+        {
+          "path": "tracks.string.source.mute",
+          "mode": "stretch",
+          "from": 0.4,
+          "via": 1,
+          "to": 5
+        },
+        {
+          "path": "tracks.string.source.brightness",
+          "from": 0.4,
+          "via": 0.7,
+          "to": 0.9
+        },
+        {
+          "path": "tracks.string.gain",
+          "from": -10,
+          "via": -4,
+          "to": 1
+        }
+      ]
+    },
+    {
+      "id": "slap",
+      "label": "Bracer slap",
+      "hint": "A clean release to the string cracking hard against the arm guard.",
+      "value": 0.51,
+      "vary": 0.1,
+      "targets": [
+        {
+          "path": "tracks.slap.gain",
+          "from": -26,
+          "via": -4,
+          "to": 3
+        },
+        {
+          "path": "tracks.slap.source.env.decay",
+          "from": 0.015,
+          "via": 0.028,
+          "to": 0.05
+        }
       ]
     },
     {
@@ -88,14 +255,62 @@
       "label": "Arrow",
       "hint": "Just the bow, or a loud hissing shaft leaving it.",
       "value": 0.55,
-      "targets": [{ "path": "tracks.arrow.gain", "from": -30, "to": 12 }, { "path": "tracks.arrow.source.env.decay", "from": 0.2, "to": 1.1 }]
+      "default": 0.55,
+      "targets": [
+        {
+          "path": "tracks.arrow.gain",
+          "from": -26,
+          "via": -4,
+          "to": 6
+        },
+        {
+          "path": "tracks.arrow.source.env.decay",
+          "from": 0.2,
+          "via": 0.4,
+          "to": 0.9
+        }
+      ]
     },
     {
       "id": "fletching",
       "label": "Fletching",
-      "hint": "A smooth bolt to big fluttering feathers.",
-      "value": 0.5,
-      "targets": [{ "path": "tracks.arrow.fx.fletch.depth", "from": 0, "to": 0.95 }, { "path": "tracks.arrow.source.filter.cutoff", "from": 6500, "to": 2600 }]
+      "hint": "A smooth thin bolt to big fluttering feathers.",
+      "value": 0.54,
+      "targets": [
+        {
+          "path": "tracks.arrow.fx.fletch.depth",
+          "from": 0,
+          "via": 0.5,
+          "to": 0.95
+        },
+        {
+          "path": "tracks.arrow.source.filter.cutoff",
+          "mode": "mul",
+          "from": 1.5,
+          "to": 0.667
+        }
+      ]
+    },
+    {
+      "id": "woods",
+      "label": "Woods",
+      "hint": "An open field, dry, to deep among the trunks.",
+      "value": 0.275,
+      "default": 0.4,
+      "targets": [
+        {
+          "path": "buses.wood.gain",
+          "from": -30,
+          "via": 0,
+          "to": 7
+        },
+        {
+          "path": "buses.wood.fx.trees.decay",
+          "from": 0.3,
+          "via": 0.55,
+          "to": 1.3
+        }
+      ]
     }
   ]
 }

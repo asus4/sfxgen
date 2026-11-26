@@ -1,7 +1,7 @@
 {
   "format": "sfxgen/1",
   "name": "Soft landing",
-  "description": "A cat-burglar dropping from a wall onto a lawn in soft shoes: the balls of both feet meet the turf 28 ms apart (two padded thumps, nothing sharp), the knees give and the heels settle at 110 ms, grass and soil crush under the soles, and the clothes catch up with a last rustle around 150 ms. Outdoors and close: no echo at all.",
+  "description": "The runner from \"Jump take-off\" coming back down on the same sprung gym floor, landing softly on the balls of the feet with the knees bent. First the forefoot: a padded slap of thick rubber sole and a dull, dense knock from the boards, the soles scrubbing as they grip. Then the second foot, a little lower and quieter, so it is two feet and not one drum. The soles bite the lacquer with a short falling sneaker chirp. Then the heels and the body's weight arrive, a lower, softer knock, while the tracksuit catches up and settles. A small gym answers quietly.",
   "tags": [
     "movement",
     "landing",
@@ -10,284 +10,466 @@
     "footstep",
     "soft",
     "stealth",
-    "grass",
+    "sneaker",
+    "player",
+    "platformer",
     "foley"
   ],
   "duration": "auto",
   "seed": 29,
   "tracks": [
     {
-      "id": "feet",
-      "note": "Left and right foot, 28 ms apart: a drum-skin-like patch of ground hit with something soft. The flam is what makes it two feet and a body.",
+      "id": "floor",
+      "note": "The boards taking the body: the same damped wooden panel as the take-off (many crowded modes, its lowest filtered off), hit by something soft and wide. Ball of the first foot, the second just after and a little lower, then the heels and the weight, lower again. Dense low knocks, no drum note.",
+      "gain": 0,
       "events": [
         {
           "t": 0
         },
         {
           "t": 0.028,
-          "pitch": -1.5,
-          "vel": 0.85
+          "pitch": -2,
+          "vel": 0.7
+        },
+        {
+          "t": 0.105,
+          "pitch": -4,
+          "vel": 0.5
         }
       ],
       "source": {
         "type": "modal",
-        "material": "skin",
-        "shape": "membrane",
-        "freq": [
-          [
-            0,
-            128
-          ],
-          [
-            0.06,
-            96
-          ]
-        ],
-        "decay": 0.12,
-        "damping": 2.6,
-        "position": 0.1,
-        "brightness": 0.45,
+        "material": "wood",
+        "shape": "plate",
+        "variant": 11,
+        "freq": 38,
+        "decay": 0.07,
+        "damping": 2,
+        "brightness": 0.65,
+        "modes": 64,
+        "dent": 0.9,
+        "position": 0.6,
+        "pitch": 0,
         "exciter": {
-          "kind": "mallet",
-          "hardness": 0.3
+          "kind": "noise",
+          "hardness": 0.45,
+          "duration": 0.012,
+          "spread": 0.009
+        },
+        "filter": {
+          "mode": "highpass",
+          "cutoff": 110,
+          "q": 0.7,
+          "slope": "24"
         }
       },
-      "fx": [
-        {
-          "type": "drive",
-          "mode": "tanh",
-          "amount": 15,
-          "tone": 3500
-        }
-      ],
-      "gain": -15
-    },
-    {
-      "id": "heels",
-      "note": "The weight coming down through the heels as the knees bend: one lower, duller bump at 110 ms.",
-      "start": 0.11,
-      "gain": -16,
-      "source": {
-        "type": "modal",
-        "material": "rubber",
-        "shape": "box",
-        "freq": 71,
-        "decay": 0.1,
-        "exciter": {
-          "kind": "mallet",
-          "hardness": 0.1
-        }
+      "sends": {
+        "gym": -14
       }
     },
     {
-      "id": "turf",
-      "note": "Grass and soil crushed under the soles: a soft crunch of low, short grains that begins with the first foot.",
-      "start": 0.004,
-      "gain": 4,
-      "source": {
-        "type": "particles",
-        "distribution": "burst",
-        "density": 1400,
-        "duration": 0.16,
-        "grain": {
-          "kind": "tick",
-          "lo": 500,
-          "hi": 3200,
-          "decayLo": 0.004,
-          "decayHi": 0.014,
-          "levelJitter": 14,
-          "size": 0.6
-        }
-      }
-    },
-    {
-      "id": "crush",
-      "note": "The turf giving way under the soles: a crumbling, noisy press on something dead and fibrous. It carries the landing on small speakers, where the thumps vanish.",
-      "start": 0.006,
+      "id": "sole",
+      "note": "The trainers themselves: thick rubber soles slapping flat on the lacquer, a dead, crowded pat under each forefoot and a softer, lower one as the heels come down. This is what carries the landing on small speakers.",
       "gain": -3,
+      "start": 0.001,
       "events": [
         {
           "t": 0
         },
         {
-          "t": 0.03,
-          "vel": 0.8,
-          "pitch": -2
+          "t": 0.028,
+          "pitch": -3,
+          "vel": 0.75
+        },
+        {
+          "t": 0.105,
+          "pitch": -6,
+          "vel": 0.35
         }
       ],
       "source": {
         "type": "modal",
-        "material": "cardboard",
-        "shape": "random",
-        "variant": 7,
-        "freq": 520,
-        "modes": 30,
-        "brightness": 0.7,
+        "material": "rubber",
+        "shape": "plate",
+        "variant": 9,
+        "freq": 150,
+        "decay": 0.045,
+        "damping": 1.2,
+        "brightness": 0.5,
+        "modes": 48,
+        "dent": 0.7,
+        "position": 0.6,
+        "pitch": 0,
         "exciter": {
           "kind": "noise",
           "hardness": 0.55,
-          "duration": 0.09
-        }
+          "duration": 0.014,
+          "spread": 0.004
+        },
+        "filter": {
+          "mode": "highpass",
+          "cutoff": 200,
+          "q": 0.7
+        },
+        "stretch": 0.8
+      },
+      "sends": {
+        "gym": -15
       }
     },
     {
-      "id": "clothes",
-      "note": "The jacket arriving after the body: a breath of fabric noise, 100 ms long.",
-      "start": 0.1,
-      "gain": -12,
+      "id": "scuff",
+      "note": "The soles gripping and scrubbing a short way as they take the weight: the same dry rubber-on-lacquer grains as the take-off, once under the forefeet and again, smaller, as the heels come down.",
+      "start": 0.006,
+      "gain": -9,
       "source": {
-        "type": "noise",
-        "color": "pink",
+        "type": "particles",
+        "distribution": "burst",
+        "density": 1800,
+        "duration": 0.09,
+        "grain": {
+          "kind": "tick",
+          "lo": 650,
+          "hi": 4500,
+          "decayLo": 0.002,
+          "decayHi": 0.009,
+          "levelJitter": 12,
+          "size": 0.4
+        },
         "env": {
-          "points": [
-            [
-              0,
-              0
-            ],
-            [
-              0.04,
-              1
-            ],
-            [
-              0.13,
-              0
-            ]
-          ],
+          "attack": 0.004,
+          "hold": 0.2,
+          "decay": 0.05
+        }
+      },
+      "sends": {
+        "gym": -16
+      },
+      "events": [
+        {
+          "t": 0
+        },
+        {
+          "t": 0.1,
+          "vel": 0.5,
+          "pitch": -2
+        }
+      ]
+    },
+    {
+      "id": "chirp",
+      "note": "The same sneaker squeak as the take-off, the other way round: the soles skid a hair and bite as the knees absorb the drop, a short falling chirp just after both feet are down. A voice source used as a stick-slip oscillator.",
+      "start": 0.038,
+      "gain": -13,
+      "source": {
+        "type": "voice",
+        "gain": 0,
+        "freq": {
+          "env": [[0, 1340], [0.025, 1080], [0.06, 840]],
+          "mod": [
+            {
+              "type": "wander",
+              "rate": 40,
+              "depth": 0.5,
+              "unit": "st"
+            }
+          ]
+        },
+        "formants": [[1900, 10, 0.7], [2850, 12, 1], [4300, 10, 0.7], [6100, 8, 0.3]],
+        "tension": 0.85,
+        "breath": 0.04,
+        "jitter": 3.5,
+        "shimmer": 2.5,
+        "rasp": 0.15,
+        "env": {
+          "points": [[0, 0], [0.008, 1], [0.035, 0.6], [0.062, 0]],
+          "curve": "linear"
+        }
+      },
+      "sends": {
+        "gym": -16
+      }
+    },
+    {
+      "id": "cloth",
+      "note": "The tracksuit catching up with the body: the same fine fibre grains as the take-off, arriving as the knees bend and settling away.",
+      "start": 0.07,
+      "gain": -14,
+      "source": {
+        "type": "particles",
+        "distribution": "random",
+        "density": [[0, 400], [0.05, 2600], [0.14, 900], [0.26, 200]],
+        "duration": 0.26,
+        "grain": {
+          "kind": "tick",
+          "lo": [[0, 2000], [0.25, 1300]],
+          "hi": [[0, 8500], [0.25, 5000]],
+          "decayLo": 0.002,
+          "decayHi": 0.007,
+          "levelJitter": 14,
+          "size": 0.3
+        },
+        "env": {
+          "points": [[0, 0], [0.05, 1], [0.13, 0.5], [0.2, 0.2], [0.262, 0]],
           "curve": "linear"
         },
-        "filter": {
-          "mode": "bandpass",
-          "cutoff": [
-            [
-              0,
-              2600
-            ],
-            [
-              0.12,
-              1300
-            ]
-          ],
-          "q": 0.7
-        }
+        "pitch": 0,
+        "gain": 0
       }
+    }
+  ],
+  "buses": [
+    {
+      "id": "gym",
+      "fx": [
+        {
+          "type": "reverb",
+          "id": "space",
+          "space": "room",
+          "size": 7,
+          "decay": 0.45,
+          "damping": 0.5,
+          "predelay": 6,
+          "lowcut": 150,
+          "bass": 0.6
+        }
+      ],
+      "gain": 0
     }
   ],
   "controls": [
     {
       "id": "weight",
       "label": "Weight",
-      "hint": "A cat to a heavy man with a pack: lower, longer, with more heel.",
-      "value": 0.45,
+      "hint": "A child to a heavy man in boots: lower, bigger knocks and more heel.",
+      "value": 0.5,
       "vary": 0.07,
       "targets": [
         {
-          "path": "tracks.feet.source.pitch",
-          "mode": "set",
-          "from": 10,
-          "to": -8
+          "path": "tracks.floor.source.pitch",
+          "from": 8,
+          "via": 0,
+          "to": -7,
+          "curve": "linear"
         },
         {
-          "path": "tracks.feet.source.decay",
-          "mode": "set",
-          "from": 0.07,
-          "to": 0.2
+          "path": "tracks.floor.source.exciter.spread",
+          "from": 0.005,
+          "via": 0.009,
+          "to": 0.016
         },
         {
-          "path": "tracks.heels.gain",
-          "mode": "set",
-          "from": -30,
-          "to": -8
+          "path": "tracks.sole.source.pitch",
+          "from": 6,
+          "via": 0,
+          "to": -6,
+          "curve": "linear"
         },
         {
-          "path": "tracks.feet.gain",
-          "mode": "set",
-          "from": -19,
-          "to": -10
+          "path": "tracks.floor.events.2.vel",
+          "from": 0.2,
+          "via": 0.5,
+          "to": 1
+        },
+        {
+          "path": "tracks.sole.gain",
+          "mode": "add",
+          "from": 2,
+          "via": 0,
+          "to": -3
         }
       ]
     },
     {
       "id": "softness",
       "label": "Softness",
-      "hint": "Bare stone under thin soles to deep moss: the thump loses its edge.",
-      "value": 0.55,
+      "hint": "A flat-footed slap, to a cat-like landing where the knees take everything.",
+      "value": 0.5,
       "vary": 0.06,
       "targets": [
         {
-          "path": "tracks.crush.source.exciter.hardness",
-          "mode": "set",
+          "path": "tracks.floor.source.exciter.hardness",
+          "from": 0.8,
+          "via": 0.45,
+          "to": 0.15,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.sole.source.exciter.hardness",
+          "from": 0.9,
+          "via": 0.55,
+          "to": 0.25,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.sole.source.exciter.spread",
+          "from": 0.001,
+          "via": 0.004,
+          "to": 0.01
+        },
+        {
+          "path": "tracks.floor.source.brightness",
           "from": 0.85,
-          "to": 0.3
-        },
-        {
-          "path": "tracks.feet.source.exciter.hardness",
-          "mode": "set",
-          "from": 0.6,
-          "to": 0.04
-        },
-        {
-          "path": "tracks.feet.source.brightness",
-          "mode": "set",
-          "from": 0.65,
-          "to": 0.15
+          "via": 0.65,
+          "to": 0.4,
+          "curve": "linear"
         }
       ]
     },
     {
-      "id": "ground",
-      "label": "Ground",
-      "hint": "Bare, swept ground to leaves, twigs and gravel.",
-      "value": 0.4,
-      "vary": 0.08,
-      "targets": [
+      "id": "floor",
+      "label": "Floor",
+      "hint": "What they land on: gym boards, packed earth, a metal deck or concrete. The same choices as Jump take-off.",
+      "widget": "select",
+      "value": 0,
+      "options": [
         {
-          "path": "tracks.turf.gain",
-          "mode": "set",
-          "from": -30,
-          "to": 12
+          "label": "Wood",
+          "set": {
+            "tracks.floor.source.material": "wood",
+            "tracks.floor.source.freq": 38,
+            "tracks.floor.source.decay": 0.07,
+            "tracks.floor.source.damping": 2,
+            "tracks.chirp.source.gain": 0,
+            "tracks.scuff.source.grain.hi": 4500
+          }
         },
         {
-          "path": "tracks.turf.source.grain.hi",
-          "mode": "set",
-          "from": 1800,
-          "to": 6500
+          "label": "Earth",
+          "set": {
+            "tracks.floor.source.material": "cardboard",
+            "tracks.floor.source.freq": 46,
+            "tracks.floor.source.decay": 0.04,
+            "tracks.floor.source.damping": 3,
+            "tracks.chirp.source.gain": -40,
+            "tracks.scuff.source.grain.hi": 7500
+          }
         },
         {
-          "path": "tracks.crush.gain",
-          "mode": "set",
-          "from": -20,
-          "to": 5
+          "label": "Metal",
+          "set": {
+            "tracks.floor.source.material": "metal",
+            "tracks.floor.source.freq": 52,
+            "tracks.floor.source.decay": 0.3,
+            "tracks.floor.source.damping": 2.5,
+            "tracks.chirp.source.gain": -8,
+            "tracks.scuff.source.grain.hi": 6000
+          }
+        },
+        {
+          "label": "Concrete",
+          "set": {
+            "tracks.floor.source.material": "stone",
+            "tracks.floor.source.freq": 64,
+            "tracks.floor.source.decay": 0.03,
+            "tracks.floor.source.damping": 3,
+            "tracks.chirp.source.gain": -14,
+            "tracks.scuff.source.grain.hi": 7000
+          }
         }
       ]
     },
     {
       "id": "flam",
       "label": "Feet",
-      "hint": "Both feet together to one after the other.",
-      "value": 0.3,
+      "hint": "Both feet together, to one clearly after the other.",
+      "value": 0.5,
       "vary": 0.1,
       "targets": [
         {
-          "path": "tracks.feet.events.1.t",
-          "mode": "set",
+          "path": "tracks.floor.events.1.t",
           "from": 0.004,
-          "to": 0.09
+          "via": 0.028,
+          "to": 0.085
+        },
+        {
+          "path": "tracks.sole.events.1.t",
+          "from": 0.004,
+          "via": 0.028,
+          "to": 0.085
+        }
+      ]
+    },
+    {
+      "id": "grip",
+      "label": "Squeak",
+      "hint": "Dusty soles that only scuff, to clean rubber chirping on fresh lacquer.",
+      "value": 0.5,
+      "vary": 0.1,
+      "targets": [
+        {
+          "path": "tracks.chirp.gain",
+          "from": -40,
+          "via": -13,
+          "to": -3
+        },
+        {
+          "path": "tracks.chirp.source.rasp",
+          "from": 0.5,
+          "via": 0.15,
+          "to": 0.03,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.chirp.source.env.points",
+          "mode": "stretch",
+          "from": 0.6,
+          "to": 1.67
         }
       ]
     },
     {
       "id": "clothes",
       "label": "Clothes",
-      "hint": "Tight, silent gear to a flapping coat.",
-      "value": 0.4,
+      "hint": "Bare legs and a vest, to a rustling shell suit: finer and louder fabric.",
+      "value": 0.5,
       "targets": [
         {
-          "path": "tracks.clothes.gain",
-          "mode": "set",
-          "from": -36,
-          "to": 0
+          "path": "tracks.cloth.source.pitch",
+          "from": -6,
+          "via": 0,
+          "to": 6,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.cloth.source.gain",
+          "from": -24,
+          "via": 0,
+          "to": 7
+        }
+      ]
+    },
+    {
+      "id": "room",
+      "label": "Room",
+      "hint": "Dead and close, a small gym, or an empty sports hall answering.",
+      "value": 0.5,
+      "targets": [
+        {
+          "path": "buses.gym.gain",
+          "from": -40,
+          "via": 0,
+          "to": 9
+        },
+        {
+          "path": "buses.gym.fx.space.decay",
+          "from": 0.25,
+          "via": 0.45,
+          "to": 1.2
+        },
+        {
+          "path": "buses.gym.fx.space.size",
+          "from": 4,
+          "via": 7,
+          "to": 22
         }
       ]
     }
-  ]
+  ],
+  "master": {
+    "normalize": {
+      "mode": "peak",
+      "target": -2
+    }
+  }
 }

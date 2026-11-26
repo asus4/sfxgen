@@ -1,17 +1,8 @@
 {
   "format": "sfxgen/1",
   "name": "Menu select",
-  "description": "The cursor moving in an 8-bit menu, played on the triangle channel, which has no volume control: it is either on or off. A 16-step triangle at 660 Hz for 35 ms, then an octave up for 45 ms, switched off dead. The staircase of the 4-bit wave gives it a faint buzzing edge that a clean triangle does not have.",
-  "tags": [
-    "retro",
-    "8-bit",
-    "chiptune",
-    "menu",
-    "select",
-    "cursor",
-    "blip",
-    "triangle"
-  ],
+  "description": "The cursor moving in an 8-bit menu, played on the triangle channel, which has no volume control: it is either on or off. A coarse stepped triangle plays a short note, then a higher, slightly longer one, and is switched off dead. The staircase of the coarse wave gives it a faint buzzing edge that a clean triangle does not have.",
+  "tags": ["retro", "8-bit", "chiptune", "menu", "select", "cursor", "blip", "triangle"],
   "duration": "auto",
   "seed": 7,
   "tracks": [
@@ -22,17 +13,7 @@
         "type": "osc",
         "wave": "triangle",
         "freq": 660,
-        "pitch": [
-          [
-            0,
-            0
-          ],
-          [
-            0.035,
-            12,
-            "hold"
-          ]
-        ],
+        "pitch": [[0, 0], [0.035, 12, "hold"]],
         "env": {
           "attack": 0,
           "gate": 0.08,
@@ -72,7 +53,7 @@
     {
       "id": "leap",
       "label": "Leap",
-      "hint": "A flat double blip to a jump of an octave and a fifth.",
+      "hint": "A flat double blip to a wide jump.",
       "value": 0.63,
       "targets": [
         {
@@ -107,7 +88,7 @@
     {
       "id": "steps",
       "label": "Steps",
-      "hint": "A buzzing 4-level staircase to a smooth, flute-like triangle.",
+      "hint": "A coarse, buzzing staircase to a smooth, flute-like triangle.",
       "value": 0.4,
       "targets": [
         {

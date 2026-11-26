@@ -1,52 +1,126 @@
 {
   "format": "sfxgen/1",
   "name": "Firecracker pop",
-  "description": "A single firecracker going off on a pavement three metres away. 0 ms: the crack, 4 ms of full-band noise as the paper tube bursts. 1 ms: the tube itself, a short hollow cardboard 'pok' at 480 Hz that gives the bang its small size. 15 to 250 ms: shreds of paper and grit scatter on the ground. 55 ms: one hard echo off the house across the street, duller, then a short street tail.",
+  "description": "A single firecracker going off on a pavement a few steps away. First the bang, a hard unpitched crack of full-band noise that darkens almost at once as the paper tube bursts, with a short low thump of pushed air under it. On the bang, the tube itself: a dead hollow cardboard colour, gone at once, never a note. Then shreds of paper and grit patter down on the pavement, while a hard echo comes back off the house across the street, duller, then a short street tail.",
   "tags": ["explosion", "pop", "firecracker", "bang", "small", "cap", "snap", "burst"],
   "duration": "auto",
   "seed": 2,
   "tracks": [
     {
       "id": "crack",
-      "note": "The burst: as short and bright as possible. Everything else is context for these 4 ms.",
+      "note": "The bang: clipped white noise, full-band for an instant and then closing fast. Unpitched; this is the firecracker.",
       "source": {
         "type": "noise",
         "color": "white",
-        "env": { "attack": 0.0002, "decay": 0.0297 },
-        "filter": { "mode": "lowpass", "cutoff": [[0, 16000], [0.03, 2500]] }
+        "env": {
+          "attack": 0.0002,
+          "hold": 0.002,
+          "decay": 0.0593833
+        },
+        "filter": {
+          "mode": "lowpass",
+          "cutoff": [[0, 16000], [0.012, 5500], [0.06, 1000]]
+        }
       },
-      "fx": [{ "type": "drive", "mode": "hard", "amount": 12 }],
-      "sends": { "street": -8 },
-      "gain": -3
+      "fx": [
+        {
+          "type": "drive",
+          "mode": "hard",
+          "amount": 12
+        }
+      ],
+      "sends": {
+        "street": -8
+      },
+      "gain": -2.83811
+    },
+    {
+      "id": "thump",
+      "note": "The push of air: a short burst of low-passed pink noise whose filter closes. Gives the bang weight without a pitch.",
+      "start": 0.0005,
+      "gain": 1.84953,
+      "source": {
+        "type": "noise",
+        "color": "pink",
+        "env": {
+          "attack": 0.0005,
+          "hold": 0.004,
+          "decay": 0.0545937
+        },
+        "filter": {
+          "mode": "lowpass",
+          "slope": "24",
+          "cutoff": [[0, 900], [0.04, 320]]
+        }
+      },
+      "fx": [
+        {
+          "type": "drive",
+          "mode": "tanh",
+          "amount": 10
+        },
+        {
+          "type": "eq",
+          "bands": [
+            {
+              "mode": "lowcut",
+              "freq": 110
+            }
+          ]
+        }
+      ],
+      "sends": {
+        "street": -10
+      }
     },
     {
       "id": "tube",
-      "note": "The paper tube: a cardboard pipe has almost no ring, just a hollow knock. This is what says 'small and paper' rather than 'gun'.",
+      "note": "The paper tube bursting: a dented cardboard pipe with crowded, heavily damped modes, set off by a short burst of rough noise. A hollow colour on the bang that says 'small and paper', not a 'pok'.",
       "start": 0.001,
-      "gain": -0.35,
+      "gain": 2,
       "source": {
         "type": "modal",
         "material": "cardboard",
         "shape": "tube",
         "freq": [[0, 560], [0.03, 470]],
-        "decay": 0.099,
+        "decay": 0.0397401,
+        "damping": 3,
+        "modes": 40,
+        "dent": 0.6,
+        "stretch": 0.9,
         "position": 0.8,
         "brightness": 0.6,
-        "exciter": { "kind": "noise", "hardness": 0.9, "duration": 0.012 }
+        "exciter": {
+          "kind": "noise",
+          "hardness": 0.9,
+          "duration": 0.02
+        }
       },
-      "sends": { "street": -8 }
+      "sends": {
+        "street": -8
+      }
     },
     {
       "id": "shreds",
       "note": "Paper and grit landing: sparse dry ticks, thinning out.",
       "start": 0.015,
-      "gain": -23,
+      "gain": -2.30626,
       "source": {
         "type": "particles",
         "distribution": "burst",
-        "density": 140,
-        "duration": 0.245,
-        "grain": { "kind": "tick", "lo": 1200, "hi": 7000, "decayLo": 0.003, "decayHi": 0.015, "levelJitter": 16 }
+        "density": 220,
+        "duration": 0.618999,
+        "grain": {
+          "kind": "tick",
+          "lo": 1200,
+          "hi": 7000,
+          "decayLo": 0.003,
+          "decayHi": 0.015,
+          "levelJitter": 16
+        }
+      },
+      "sends": {
+        "street": -6
       }
     }
   ],
@@ -54,10 +128,28 @@
     {
       "id": "street",
       "fx": [
-        { "type": "delay", "id": "wall", "time": 55.5, "feedback": 0.225, "tone": 3000, "highpass": 200, "mix": 0.6 },
-        { "type": "reverb", "id": "tail", "space": "stairwell", "size": 14, "decay": 0.6, "damping": 0.5, "mix": 0.5 }
+        {
+          "type": "delay",
+          "id": "wall",
+          "time": 41.3914,
+          "feedback": 0.321458,
+          "tone": 3000,
+          "highpass": 200,
+          "mix": 0.6
+        },
+        {
+          "type": "reverb",
+          "id": "tail",
+          "space": "stairwell",
+          "size": 14,
+          "decay": 0.6,
+          "damping": 0.5,
+          "bass": 0.5,
+          "highcut": 5000,
+          "mix": 0.5
+        }
       ],
-      "gain": -12
+      "gain": -5.14074
     }
   ],
   "controls": [
@@ -65,40 +157,117 @@
       "id": "size",
       "label": "Size",
       "hint": "A toy cap, a tiny snap, to a fat banger with a hollow thump.",
-      "value": 0.45,
+      "value": 0.4952979193793406,
       "vary": 0.08,
       "targets": [
-        { "path": "tracks.tube.source.freq", "mode": "mul", "from": 2.2, "to": 0.4 },
-        { "path": "tracks.tube.source.decay", "from": 0.04, "to": 0.3 },
-        { "path": "tracks.tube.gain", "from": -8, "to": 9 },
-        { "path": "tracks.crack.source.env.decay", "from": 0.012, "to": 0.09 }
+        {
+          "path": "tracks.tube.source.freq",
+          "mode": "mul",
+          "from": 2.2,
+          "via": 1,
+          "to": 0.45
+        },
+        {
+          "path": "tracks.tube.source.decay",
+          "from": 0.02,
+          "via": 0.04,
+          "to": 0.09
+        },
+        {
+          "path": "tracks.thump.gain",
+          "from": -14,
+          "via": 2,
+          "to": 8
+        },
+        {
+          "path": "tracks.thump.source.filter.cutoff",
+          "mode": "mul",
+          "from": 1.8,
+          "via": 1,
+          "to": 0.6
+        },
+        {
+          "path": "tracks.thump.source.env.decay",
+          "from": 0.025,
+          "via": 0.055,
+          "to": 0.16
+        },
+        {
+          "path": "tracks.crack.source.env.decay",
+          "from": 0.02,
+          "via": 0.06,
+          "to": 0.14
+        }
       ]
     },
     {
       "id": "snap",
       "label": "Snap",
       "hint": "A dull damp pop to an ear-stinging crack.",
-      "value": 0.6,
+      "value": 0.516189236111111,
       "vary": 0.08,
-      "targets": [{ "path": "tracks.crack.source.filter.cutoff", "mode": "mul", "from": 0.25, "to": 1.3 }, { "path": "tracks.crack.gain", "from": -12, "to": 3 }]
+      "targets": [
+        {
+          "path": "tracks.crack.source.filter.cutoff",
+          "mode": "mul",
+          "from": 0.2,
+          "via": 1,
+          "to": 1.4
+        },
+        {
+          "path": "tracks.crack.gain",
+          "from": -16,
+          "via": -3,
+          "to": 2
+        }
+      ]
     },
     {
       "id": "shreds",
       "label": "Shreds",
       "hint": "Paper and grit raining down afterwards.",
-      "value": 0.5,
+      "value": 0.9274302164713542,
       "vary": 0.15,
-      "targets": [{ "path": "tracks.shreds.gain", "from": -40, "to": -6 }, { "path": "tracks.shreds.source.duration", "from": 0.1, "to": 0.6 }]
+      "targets": [
+        {
+          "path": "tracks.shreds.gain",
+          "from": -40,
+          "via": -10,
+          "to": -1
+        },
+        {
+          "path": "tracks.shreds.source.duration",
+          "from": 0.1,
+          "via": 0.3,
+          "to": 0.7
+        }
+      ]
     },
     {
       "id": "street",
       "label": "Street",
       "hint": "Open field, no echo, to a narrow alley slapping it back.",
-      "value": 0.5,
+      "value": 0.7143517388237848,
       "targets": [
-        { "path": "buses.street.gain", "mode": "set", "from": -30, "to": 6 },
-        { "path": "buses.street.fx.wall.time", "from": 110, "to": 28 },
-        { "path": "buses.street.fx.wall.feedback", "from": 0, "to": 0.45 }
+        {
+          "path": "buses.street.gain",
+          "from": -22,
+          "via": -12,
+          "to": 4
+        },
+        {
+          "path": "buses.street.fx.wall.time",
+          "from": 110,
+          "via": 55.5,
+          "to": 28
+        },
+        {
+          "path": "buses.street.fx.wall.feedback",
+          "from": 0,
+          "via": 0.225,
+          "to": 0.45,
+          "curve": "linear"
+        }
       ]
     }
   ]

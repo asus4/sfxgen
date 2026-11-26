@@ -1,17 +1,8 @@
 {
   "format": "sfxgen/1",
   "name": "Laser",
-  "description": "A shot from a home-computer sound chip with a real filter. A pulse falls from 2.1 kHz to 260 Hz in 140 ms while its width opens from a thin sliver to a square, and the chip's resonant low-pass closes behind it. The player routine retriggers it twice more, quieter each time, 70 ms apart: the cheap echo of the era. Low sample rate leaves metallic aliasing on top.",
-  "tags": [
-    "retro",
-    "8-bit",
-    "chiptune",
-    "laser",
-    "shoot",
-    "pew",
-    "zap",
-    "c64"
-  ],
+  "description": "A shot from a home-computer sound chip with a real filter. A pulse falls steeply in pitch while its width opens from a thin sliver to a square, and the chip's resonant low-pass closes behind it. The player routine retriggers it twice more in quick succession, quieter each time: the cheap echo of the era. A low sample rate leaves metallic aliasing on top.",
+  "tags": ["retro", "8-bit", "chiptune", "laser", "shoot", "pew", "zap", "c64"],
   "duration": "auto",
   "seed": 5,
   "tracks": [
@@ -21,69 +12,29 @@
       "source": {
         "type": "osc",
         "wave": "pulse",
-        "freq": [
-          [
-            0,
-            2100
-          ],
-          [
-            0.14,
-            260
-          ]
-        ],
-        "pw": [
-          [
-            0,
-            0.08
-          ],
-          [
-            0.14,
-            0.5
-          ]
-        ],
+        "freq": [[0, 2100], [0.14, 260]],
+        "pw": [[0, 0.08], [0.14, 0.5]],
         "env": {
-          "points": [
-            [
-              0,
-              1
-            ],
-            [
-              0.14,
-              0.45
-            ],
-            [
-              0.19,
-              0
-            ]
-          ],
+          "points": [[0, 1], [0.14, 0.45], [0.19, 0]],
           "curve": "linear"
         },
         "filter": {
           "mode": "lowpass",
-          "cutoff": [
-            [
-              0,
-              9000
-            ],
-            [
-              0.14,
-              900
-            ]
-          ],
-          "q": 3
+          "cutoff": [[0, 9000], [0.14, 900]],
+          "q": 2.89828
         }
       },
       "repeat": {
         "count": 3,
         "interval": 0.07,
-        "decay": -9
+        "decay": -13.5
       },
       "fx": [
         {
           "type": "crush",
           "id": "chip",
           "bits": 8,
-          "rate": 15000
+          "rate": 14046.2
         },
         {
           "type": "eq",

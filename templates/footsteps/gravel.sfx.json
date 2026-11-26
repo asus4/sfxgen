@@ -1,95 +1,243 @@
 {
   "format": "sfxgen/1",
-  "name": "Footstep: gravel",
-  "description": "One step of a walking boot on a loose gravel drive, outdoors. 0 ms: the heel digs in and a hundred pea-sized stones grind and click against each other for 90 ms; 80 ms later the ball of the foot rolls forward with a second, longer and finer crunch as stones are pushed away; a soft low thump of the packed ground sits under the heel. No echo: open air. Use the variations for a walk.",
+  "name": "Footsteps: gravel",
+  "description": "A loop of eight steps in boots on a loose, damp gravel path, outdoors, no echo, here at a run. Each step: the heel digs in and a run of small stones grinds and clicks, thick at first and quickly thinning, on a dull, dead thump of the packed ground; the ball of the foot rolls forward with a longer, finer crunch and a little grit is thrown off the toe; under both, the gritty grind of the sole sinking in. Every crunch is a different handful of stones, left and right feet weigh differently, each step is a little bigger or smaller, earlier or later, and twice in the loop a stone is kicked away and hops to rest. At a run, as here, the steps close up, heel and toe land almost together, the crunch is shorter and harder, the ground thumps and gravel sprays behind each landing; Speed takes it back to a slow, careful walk where the toe rolls in well after the heel. The loop is exactly eight step intervals long and wraps, so it repeats without a seam.",
   "tags": [
     "footstep",
-    "step",
+    "footsteps",
+    "steps",
+    "loop",
     "gravel",
     "crunch",
     "walk",
+    "run",
     "outdoor",
     "stones",
     "foley"
   ],
-  "duration": "auto",
+  "duration": 2.51047,
+  "loop": {
+    "mode": "wrap"
+  },
   "seed": 23,
   "tracks": [
     {
       "id": "heel",
-      "note": "Heel crunch: a dense burst of small stones, coarse and loud.",
+      "note": "Heel crunch: a thick run of small stones knocking together, coarse and loud, thinning as the heel beds in. New stones every step.",
+      "gain": -1.92266,
+      "repeat": {
+        "count": 8,
+        "interval": 0.313809,
+        "jitter": 0.00810024,
+        "velJitter": 0.22,
+        "pitchJitter": 1.2,
+        "accents": [1, 0.8, 0.95, 0.72, 1, 0.86, 0.9, 0.68],
+        "group": "step"
+      },
       "source": {
         "type": "particles",
-        "distribution": "burst",
-        "density": 520,
-        "duration": 0.1,
+        "distribution": "random",
+        "density": [[0, 900], [0.05, 600], [0.11, 120]],
+        "duration": 0.11,
         "grain": {
           "kind": "modal",
           "material": "stone",
           "shape": "random",
-          "lo": 1100,
-          "hi": 6200,
+          "lo": 700,
+          "hi": 5000,
           "decayLo": 0.003,
-          "decayHi": 0.014,
-          "levelJitter": 16,
-          "size": 0.6
-        }
+          "decayHi": 0.0202658,
+          "levelJitter": 6.20633,
+          "size": 0.7
+        },
+        "pitch": -0.227951,
+        "gain": 3.91981
       }
     },
     {
       "id": "toe",
-      "note": "Toe roll: a longer, finer, quieter crunch as the foot pushes off.",
-      "start": 0.08,
-      "gain": -5,
+      "note": "Toe roll: a longer, finer, quieter crunch as the foot rolls forward and pushes off, overlapping the heel so the step is one event. Running, it lands with the heel and is cut short.",
+      "start": 0.0229623,
+      "gain": -0.563542,
+      "repeat": {
+        "count": 8,
+        "interval": 0.313809,
+        "jitter": 0.00810024,
+        "velJitter": 0.22,
+        "pitchJitter": 1.2,
+        "accents": [1, 0.8, 0.95, 0.72, 1, 0.86, 0.9, 0.68],
+        "group": "step"
+      },
       "source": {
         "type": "particles",
         "distribution": "random",
-        "density": [
-          [
-            0,
-            380
-          ],
-          [
-            0.09,
-            240
-          ],
-          [
-            0.17,
-            20
-          ]
-        ],
-        "duration": 0.17,
+        "density": [[0, 500], [0.12, 380], [0.2, 160], [0.27, 50]],
+        "duration": 0.27,
         "grain": {
           "kind": "tick",
-          "lo": 1900,
+          "lo": 1700,
           "hi": 8500,
           "decayLo": 0.002,
           "decayHi": 0.009,
-          "levelJitter": 18
+          "levelJitter": 14
         },
         "env": {
-          "attack": 0.012,
-          "hold": 0.07,
-          "decay": 0.12
-        }
+          "points": [
+            [0, 0],
+            [0.012, 1],
+            [0.1, 0.85],
+            [0.18, 0.45],
+            [0.225, 0.15],
+            [0.25, 0.03],
+            [0.262, 0]
+          ],
+          "curve": "linear"
+        },
+        "pitch": -0.195386,
+        "gain": 1.9599
       }
     },
     {
+      "id": "grind",
+      "note": "The boot sinking in: the continuous gritty rub of stones sliding under the sole, flickering at random, which fills the gaps between the separate clicks.",
+      "gain": -7.20443,
+      "repeat": {
+        "count": 8,
+        "interval": 0.313809,
+        "jitter": 0.00810024,
+        "velJitter": 0.22,
+        "pitchJitter": 1.2,
+        "accents": [1, 0.8, 0.95, 0.72, 1, 0.86, 0.9, 0.68],
+        "group": "step"
+      },
+      "source": {
+        "type": "noise",
+        "color": "pink",
+        "env": {
+          "points": [[0, 0], [0.01, 1], [0.09, 0.55], [0.2, 0.3], [0.31, 0]],
+          "curve": "linear"
+        },
+        "filter": {
+          "mode": "bandpass",
+          "cutoff": 1600,
+          "q": 1.1844
+        },
+        "gain": 3.91981
+      },
+      "fx": [
+        {
+          "type": "tremolo",
+          "shape": "random",
+          "rate": 60,
+          "depth": 0.6
+        }
+      ]
+    },
+    {
       "id": "ground",
-      "note": "The packed earth under the stones: a soft thump so the step has a body.",
-      "gain": -15,
+      "note": "The packed earth under the stones: a dull, dead thump (a crowd of low modes, no note) so the step has a body. Harder and louder at a run.",
+      "gain": -1.4862,
+      "repeat": {
+        "count": 8,
+        "interval": 0.313809,
+        "jitter": 0.00810024,
+        "velJitter": 0.22,
+        "pitchJitter": 1.2,
+        "accents": [1, 0.8, 0.95, 0.72, 1, 0.86, 0.9, 0.68],
+        "group": "step"
+      },
       "source": {
         "type": "modal",
         "material": "cardboard",
-        "shape": "membrane",
-        "freq": 104,
-        "decay": 0.07,
-        "modes": 8,
-        "position": 0.2,
+        "shape": "plate",
+        "freq": 45,
+        "decay": 0.08,
+        "modes": 48,
+        "dent": 0.3,
+        "position": 0.3,
         "exciter": {
           "kind": "mallet",
-          "hardness": 0.3
+          "hardness": 0.594988,
+          "spread": 0.008
+        },
+        "gain": 1.46993
+      },
+      "fx": [
+        {
+          "type": "filter",
+          "mode": "highpass",
+          "cutoff": 75,
+          "slope": "24"
         }
+      ]
+    },
+    {
+      "id": "spray",
+      "note": "Grit thrown off the toe: a thin burst of fine stones landing just after push-off, barely there at a walk and uneven from step to step; at a run it is the spray of gravel behind each landing.",
+      "start": 0.0530072,
+      "gain": -2.26063,
+      "repeat": {
+        "count": 8,
+        "interval": 0.313809,
+        "jitter": 0.00810024,
+        "velJitter": 0.22,
+        "pitchJitter": 1.2,
+        "accents": [0.5, 1, 0.3, 0.85, 0.4, 1, 0.65, 0.25],
+        "group": "step"
+      },
+      "source": {
+        "type": "particles",
+        "distribution": "burst",
+        "density": 1477.26,
+        "duration": 0.169429,
+        "grain": {
+          "kind": "modal",
+          "material": "stone",
+          "shape": "random",
+          "lo": 2200,
+          "hi": 9000,
+          "decayLo": 0.002,
+          "decayHi": 0.012,
+          "levelJitter": 18,
+          "size": 0.5
+        },
+        "pitch": -0.162822,
+        "gain": -2.27317
+      }
+    },
+    {
+      "id": "kick",
+      "note": "The odd stone kicked away: twice in the loop a pebble is knocked forward by the toe and hops to rest.",
+      "start": 0.102807,
+      "gain": -11.8711,
+      "repeat": {
+        "count": 8,
+        "interval": 0.313809,
+        "jitter": 0.02,
+        "velJitter": 0.25,
+        "pitchJitter": 4,
+        "accents": [0, 0, 1, 0, 0, 0, 0.6, 0]
+      },
+      "source": {
+        "type": "particles",
+        "distribution": "bounce",
+        "interval": 0.0657472,
+        "ratio": 0.581031,
+        "jitter": 0.35,
+        "duration": 0.24,
+        "grain": {
+          "kind": "modal",
+          "material": "stone",
+          "shape": "random",
+          "lo": 1500,
+          "hi": 2600,
+          "decayLo": 0.012,
+          "decayHi": 0.0168262,
+          "levelJitter": 4,
+          "pitchJitter": 3
+        },
+        "pitch": -0.14654,
+        "gain": 0.359115
       }
     }
   ],
@@ -112,7 +260,7 @@
             "id": "air",
             "mode": "highshelf",
             "freq": 9000,
-            "gain": 0
+            "gain": -12.1398
           }
         ]
       }
@@ -120,16 +268,251 @@
   },
   "controls": [
     {
+      "id": "speed",
+      "label": "Speed",
+      "hint": "A slow walk to a run: the steps close up, heel and toe land together, and gravel sprays.",
+      "value": 0.9859663221571181,
+      "default": 0.3,
+      "targets": [
+        {
+          "path": "duration",
+          "mode": "set",
+          "from": 4.96,
+          "via": 4,
+          "to": 2.48,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.heel.repeat.interval",
+          "mode": "set",
+          "from": 0.62,
+          "via": 0.5,
+          "to": 0.31,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.toe.repeat.interval",
+          "mode": "set",
+          "from": 0.62,
+          "via": 0.5,
+          "to": 0.31,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.grind.repeat.interval",
+          "mode": "set",
+          "from": 0.62,
+          "via": 0.5,
+          "to": 0.31,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.ground.repeat.interval",
+          "mode": "set",
+          "from": 0.62,
+          "via": 0.5,
+          "to": 0.31,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.spray.repeat.interval",
+          "mode": "set",
+          "from": 0.62,
+          "via": 0.5,
+          "to": 0.31,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.kick.repeat.interval",
+          "mode": "set",
+          "from": 0.62,
+          "via": 0.5,
+          "to": 0.31,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.heel.repeat.jitter",
+          "mode": "set",
+          "from": 0.016,
+          "via": 0.013,
+          "to": 0.008,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.toe.repeat.jitter",
+          "mode": "set",
+          "from": 0.016,
+          "via": 0.013,
+          "to": 0.008,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.grind.repeat.jitter",
+          "mode": "set",
+          "from": 0.016,
+          "via": 0.013,
+          "to": 0.008,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.ground.repeat.jitter",
+          "mode": "set",
+          "from": 0.016,
+          "via": 0.013,
+          "to": 0.008,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.spray.repeat.jitter",
+          "mode": "set",
+          "from": 0.016,
+          "via": 0.013,
+          "to": 0.008,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.toe.start",
+          "mode": "set",
+          "from": 0.1,
+          "via": 0.07,
+          "to": 0.022,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.spray.start",
+          "mode": "set",
+          "from": 0.26,
+          "via": 0.2,
+          "to": 0.05,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.kick.start",
+          "mode": "set",
+          "from": 0.3,
+          "via": 0.24,
+          "to": 0.1,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.toe.source.env",
+          "mode": "stretch",
+          "from": 1.25,
+          "via": 1,
+          "to": 0.42
+        },
+        {
+          "path": "tracks.toe.source.density",
+          "mode": "stretch",
+          "from": 1.25,
+          "via": 1,
+          "to": 0.42
+        },
+        {
+          "path": "tracks.toe.source.duration",
+          "mode": "mul",
+          "from": 1.25,
+          "via": 1,
+          "to": 0.42
+        },
+        {
+          "path": "tracks.grind.source.env",
+          "mode": "stretch",
+          "from": 1.25,
+          "via": 1,
+          "to": 0.5
+        },
+        {
+          "path": "tracks.grind.source.gain",
+          "mode": "set",
+          "from": -1,
+          "via": 0,
+          "to": 4,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.heel.source.duration",
+          "mode": "mul",
+          "from": 1.2,
+          "via": 1,
+          "to": 0.6
+        },
+        {
+          "path": "tracks.heel.source.density",
+          "mode": "stretch",
+          "from": 1.2,
+          "via": 1,
+          "to": 0.6
+        },
+        {
+          "path": "tracks.heel.source.density",
+          "mode": "mul",
+          "from": 0.85,
+          "via": 1,
+          "to": 1.7
+        },
+        {
+          "path": "tracks.heel.source.gain",
+          "mode": "set",
+          "from": -2,
+          "via": 0,
+          "to": 4,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.toe.source.gain",
+          "mode": "set",
+          "from": 1,
+          "via": 0,
+          "to": 2,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.ground.source.gain",
+          "mode": "set",
+          "from": -3,
+          "via": 0,
+          "to": 1.5,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.ground.source.exciter.hardness",
+          "mode": "set",
+          "from": 0.28,
+          "via": 0.35,
+          "to": 0.6,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.spray.gain",
+          "mode": "set",
+          "from": -20,
+          "via": -15,
+          "to": -2,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.spray.source.density",
+          "mode": "set",
+          "from": 400,
+          "via": 700,
+          "to": 1500
+        }
+      ]
+    },
+    {
       "id": "stones",
       "label": "Stones",
       "hint": "Fine grit and sand to coarse river pebbles that clack.",
-      "value": 0.45,
+      "value": 0.45895521375868076,
+      "default": 0.45,
       "vary": 0.05,
       "targets": [
         {
           "path": "tracks.heel.source.pitch",
           "mode": "set",
           "from": 12,
+          "via": 0,
           "to": -14,
           "curve": "linear"
         },
@@ -137,20 +520,53 @@
           "path": "tracks.toe.source.pitch",
           "mode": "set",
           "from": 10,
+          "via": 0,
           "to": -12,
           "curve": "linear"
         },
         {
-          "path": "tracks.heel.source.density",
+          "path": "tracks.spray.source.pitch",
           "mode": "set",
-          "from": 1500,
-          "to": 130
+          "from": 8,
+          "via": 0,
+          "to": -10,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.kick.source.pitch",
+          "mode": "set",
+          "from": 10,
+          "via": 0,
+          "to": -9,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.grind.source.filter.cutoff",
+          "mode": "mul",
+          "from": 2,
+          "via": 1,
+          "to": 0.5
+        },
+        {
+          "path": "tracks.heel.source.density",
+          "mode": "mul",
+          "from": 2.4,
+          "via": 1,
+          "to": 0.3
+        },
+        {
+          "path": "tracks.toe.source.density",
+          "mode": "mul",
+          "from": 2,
+          "via": 1,
+          "to": 0.4
         },
         {
           "path": "tracks.heel.source.grain.decayHi",
           "mode": "set",
-          "from": 0.006,
-          "to": 0.035
+          "from": 0.008,
+          "via": 0.02,
+          "to": 0.045
         }
       ]
     },
@@ -158,54 +574,103 @@
       "id": "weight",
       "label": "Weight",
       "hint": "A child tiptoeing to a soldier with a pack.",
-      "value": 0.5,
+      "value": 0.6795572916666667,
+      "default": 0.5,
       "vary": 0.1,
       "targets": [
         {
           "path": "tracks.ground.gain",
           "mode": "set",
-          "from": -28,
-          "to": -6,
-          "curve": -0.133
+          "from": -20,
+          "via": -4,
+          "to": 3,
+          "curve": "linear"
         },
         {
-          "path": "tracks.heel.source.duration",
+          "path": "tracks.heel.gain",
           "mode": "set",
-          "from": 0.05,
-          "to": 0.19
+          "from": -8,
+          "via": -3,
+          "to": 0,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.heel.source.grain.lo",
+          "mode": "mul",
+          "from": 1.5,
+          "via": 1,
+          "to": 0.7
+        },
+        {
+          "path": "tracks.grind.gain",
+          "mode": "set",
+          "from": -18,
+          "via": -9,
+          "to": -4,
+          "curve": "linear"
         },
         {
           "path": "tracks.toe.gain",
           "mode": "set",
-          "from": -10,
-          "to": -1
+          "from": -8,
+          "via": -2,
+          "to": 2,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.kick.source.gain",
+          "mode": "set",
+          "from": -7,
+          "via": 0,
+          "to": 1,
+          "curve": "linear"
         }
       ]
     },
     {
-      "id": "pace",
-      "label": "Pace",
-      "hint": "A slow careful step with a long toe roll, to a run that lands all at once.",
-      "value": 0.4,
-      "vary": 0.1,
+      "id": "loose",
+      "label": "Loose stones",
+      "hint": "A raked, settled path to a deep loose drive where stones are kicked away and scatter.",
+      "value": 0.337630547417535,
+      "default": 0.5,
       "targets": [
         {
-          "path": "tracks.toe.start",
+          "path": "tracks.kick.gain",
           "mode": "set",
-          "from": 0.15,
-          "to": 0.02
+          "from": -22,
+          "via": -7,
+          "to": 0,
+          "curve": "linear"
         },
         {
-          "path": "tracks.toe.source.env.hold",
+          "path": "tracks.kick.source.interval",
+          "mode": "set",
+          "from": 0.05,
+          "via": 0.075,
+          "to": 0.11
+        },
+        {
+          "path": "tracks.kick.source.ratio",
+          "mode": "set",
+          "from": 0.5,
+          "via": 0.62,
+          "to": 0.74,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.spray.source.gain",
+          "mode": "set",
+          "from": -7,
+          "via": 0,
+          "to": 7,
+          "curve": "linear"
+        },
+        {
+          "path": "tracks.spray.source.duration",
           "mode": "set",
           "from": 0.12,
-          "to": 0.02
-        },
-        {
-          "path": "tracks.toe.source.duration",
-          "mode": "set",
-          "from": 0.26,
-          "to": 0.08
+          "via": 0.2,
+          "to": 0.32
         }
       ]
     },
@@ -213,21 +678,38 @@
       "id": "wet",
       "label": "Wet",
       "hint": "Dry dusty gravel, crisp and bright, or rain-soaked and dull.",
-      "value": 0.2,
+      "value": 0.806987847222222,
+      "default": 0.2,
       "targets": [
         {
           "path": "master.fx.0.bands.air.gain",
           "mode": "set",
           "from": 4,
+          "via": 0,
           "to": -16,
           "curve": "linear"
         },
         {
           "path": "tracks.heel.source.grain.levelJitter",
           "mode": "set",
-          "from": 20,
-          "to": 8,
+          "from": 12,
+          "via": 10,
+          "to": 5,
           "curve": "linear"
+        },
+        {
+          "path": "tracks.grind.source.filter.q",
+          "mode": "set",
+          "from": 0.6,
+          "via": 0.7,
+          "to": 1.4
+        },
+        {
+          "path": "tracks.kick.source.grain.decayHi",
+          "mode": "set",
+          "from": 0.035,
+          "via": 0.03,
+          "to": 0.014
         }
       ]
     }

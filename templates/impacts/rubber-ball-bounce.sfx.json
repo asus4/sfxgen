@@ -1,17 +1,8 @@
 {
   "format": "sfxgen/1",
   "name": "Rubber ball bounces to rest",
-  "description": "A solid rubber bouncy ball dropped from waist height onto a wooden gym floor. First bounce at 0 ms, the next about 310 ms later, each gap about four fifths of the last, each hit softer, until the bounces run together into a short buzz and stop near 2 s. Every bounce is the same ball: a round, pitched \"pock\" with the hollow floor answering under it, in a big empty gym.",
-  "tags": [
-    "impact",
-    "ball",
-    "bounce",
-    "rubber",
-    "toy",
-    "gym",
-    "bouncing",
-    "settle"
-  ],
+  "description": "A solid rubber bouncy ball dropped from waist height onto a wooden gym floor. Each gap is shorter than the last by the same fraction and each hit softer, until the bounces run together into a short buzz and stop. Every bounce is the same ball: a round, pitched \"pock\" with the hollow floor answering under it, in a big empty gym.",
+  "tags": ["impact", "ball", "bounce", "rubber", "toy", "gym", "bouncing", "settle"],
   "duration": "auto",
   "seed": 6,
   "master": {
@@ -27,21 +18,22 @@
       "source": {
         "type": "particles",
         "distribution": "bounce",
-        "interval": 0.42,
-        "ratio": 0.8,
+        "interval": 0.309839,
+        "ratio": 0.72,
         "jitter": 0.03,
-        "duration": 2.6,
+        "duration": 2.12132,
         "grain": {
           "kind": "modal",
           "material": "rubber",
           "shape": "membrane",
           "lo": 310,
           "hi": 310,
-          "decayLo": 0.07,
-          "decayHi": 0.07,
+          "decayLo": 0.0665644,
+          "decayHi": 0.0665644,
           "levelJitter": 0,
           "pitchJitter": 0.08
-        }
+        },
+        "pitch": 2
       },
       "fx": [
         {
@@ -55,13 +47,13 @@
           "id": "floor",
           "mode": "tube",
           "freq": 96,
-          "decay": 0.12,
+          "decay": 0.111979,
           "brightness": 0.25,
-          "mix": 0.45
+          "mix": 0.3825
         }
       ],
       "sends": {
-        "gym": -13
+        "gym": -13.0055
       }
     }
   ],
