@@ -214,6 +214,7 @@ a.key {
   color: var(--led-hot);
 }
 
+/* An LED: grey when off; lit, its colour and a glow of that colour (every colour glows alike). */
 .led {
   flex: none;
   width: 7px;
@@ -519,18 +520,22 @@ button.pill:hover {
 
 .key-project .led {
   background: var(--led-play);
+  box-shadow: 0 0 7px var(--led-play);
 }
 
 .key-project.save-saving .led {
   background: var(--led-edit);
+  box-shadow: 0 0 7px var(--led-edit);
 }
 
 .key-project.save-error .led {
   background: var(--led-hot);
+  box-shadow: 0 0 7px var(--led-hot);
 }
 
 .key-project.save-local .led {
   background: var(--line-2);
+  box-shadow: none;
 }
 
 .project-name {
@@ -1011,16 +1016,9 @@ button.pill:hover {
   color: var(--ink-2);
 }
 
-.pad-review-mark {
-  width: 9px;
-  height: 9px;
-}
-
-.pad-review-mark path {
-  fill: var(--led-hot);
-  stroke: var(--led-hot);
-  stroke-width: 2;
-  stroke-linejoin: round;
+.pads-review .led {
+  background: var(--led-hot);
+  box-shadow: 0 0 7px var(--led-hot);
 }
 
 /* ---- The screen --------------------------------------------------------------------------------- */
@@ -1073,22 +1071,6 @@ button.pill:hover {
   box-shadow: 0 0 10px color-mix(in srgb, var(--led-play) 55%, transparent);
 }
 
-.screen-tools {
-  display: flex;
-  gap: 4px;
-}
-
-.screen-tools .screen-key {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  min-height: 26px;
-  padding: 0 8px;
-  border-radius: 6px;
-  font-size: 10px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
 
 .screen-num {
   padding: 2px 6px;
@@ -1268,11 +1250,51 @@ button.pill:hover {
   white-space: nowrap;
 }
 
+/* Wave or spectrum: a two-way switch in the plot's bottom-right corner, both choices in view, the one shown lit. */
+.view-switch {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  z-index: 2;
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--screen-line);
+  border-radius: 7px;
+  background: rgba(11, 12, 14, 0.8);
+  cursor: default;
+}
+
+.view-switch button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 24px;
+  padding: 0 9px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--screen-2);
+  font: 600 10px var(--font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.view-switch button:hover {
+  color: var(--screen-ink);
+}
+
+.view-switch button[aria-pressed='true'] {
+  background: var(--screen-ink);
+  color: var(--screen);
+}
+
 .scope-note {
   position: absolute;
   left: 8px;
   bottom: 6px;
-  max-width: calc(100% - 16px);
+  /* Clear of the wave / spectrum switch beside it. */
+  max-width: calc(100% - 196px);
   margin: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -2068,12 +2090,24 @@ button.pill:hover {
 
 .pad[data-state='edited'] .led {
   background: var(--led-edit);
+  box-shadow: 0 0 8px var(--led-edit);
 }
 
 .pad[data-state='agent'] .led {
   background: var(--led-agent);
   box-shadow: 0 0 8px var(--led-agent);
   animation: blink 1100ms steps(1, end) infinite;
+}
+
+/* The review: red until someone approves the sound, a red ring while it is flagged as needing work. */
+.pad[data-state='unreviewed'] .led {
+  background: var(--led-hot);
+  box-shadow: 0 0 8px var(--led-hot);
+}
+
+.pad[data-state='needs-work'] .led {
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--led-hot), 0 0 8px var(--led-hot);
 }
 
 @keyframes blink {
@@ -2121,26 +2155,6 @@ button.pill:hover {
 .pad.is-skipped .pad-wave,
 .pad.is-skipped .pad-name {
   opacity: 0.4;
-}
-
-/* Not reviewed yet: a red fold in the pad's corner. Flagged as needing work: the fold as an outline. Approved: none. */
-.pad-review {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 15px;
-  height: 15px;
-}
-
-.pad-review path {
-  fill: var(--led-hot);
-  stroke: var(--led-hot);
-  stroke-width: 2;
-  stroke-linejoin: round;
-}
-
-.pad[data-review='needs-work'] .pad-review path {
-  fill: none;
 }
 
 .pad-item {
@@ -2232,6 +2246,7 @@ button.pill:hover {
   width: 7px;
   height: 7px;
   background: var(--led-edit);
+  box-shadow: 0 0 7px var(--led-edit);
 }
 
 /* ---- Mixer -------------------------------------------------------------------------------------- */
@@ -3596,9 +3611,6 @@ textarea.text {
     justify-content: space-between;
   }
 
-  .screen-tools .screen-key > span {
-    display: none;
-  }
 
   .lane {
     grid-template-columns: 128px minmax(0, 1fr);

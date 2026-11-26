@@ -16,6 +16,7 @@ import {
   projectPatch,
   soundExportPath,
   soundName,
+  syncControlBases,
   takeFileName,
   validatePatch,
   validateProject,
@@ -27,6 +28,7 @@ import {
   type ReviewVerdict,
 } from '../core';
 import type { ProjectBuildRow } from '../core/agent/workspace';
+import { formatJson } from '../core/format/json';
 import { getTemplate } from '../core/templates';
 import { player } from './audio';
 import { anotherTake, fileNameFor, surprise } from './lib/patchOps';
@@ -265,8 +267,9 @@ export async function addSoundToProject(patch: Patch, note: string): Promise<voi
     let extra: Partial<ProjectSound> = {};
     if (s.serve.info) {
       const file = uniqueFile(s.project, soundName({ patch }));
-      await serve.writeFile(file, patch, 'human');
-      onDisk.set(file, JSON.stringify(patch));
+      const written = forDisk(patch);
+      await serve.writeFile(file, written, 'human');
+      onDisk.set(file, JSON.stringify(written));
       extra = { file };
     }
     const added = addSound(editor().project, patch, extra);
@@ -384,7 +387,7 @@ export function onPaste(e: ClipboardEvent): void {
 
 export function exportJson(): void {
   const { patch } = editor();
-  downloadBytes(`${JSON.stringify(patch, null, 2)}\n`, `${fileNameFor(patch)}.sfx.json`, 'application/json');
+  downloadBytes(formatJson(forDisk(patch)), `${fileNameFor(patch)}.sfx.json`, 'application/json');
   editor().showStamp('Saved');
 }
 
@@ -392,7 +395,9 @@ export function exportJson(): void {
 export function exportBundle(): void {
   const { project } = editor();
   const stem = project.name.trim().replace(/[^A-Za-z0-9_-]+/g, '-').replace(/^-+|-+$/g, '') || 'project';
-  downloadBytes(`${JSON.stringify(bundleProject(project), null, 2)}\n`, `${stem}.sfxproj.json`, 'application/json');
+  const bundle = bundleProject(project);
+  const synced = { ...bundle, sounds: bundle.sounds.map((s) => (s.patch ? { ...s, patch: forDisk(s.patch) } : s)) };
+  downloadBytes(formatJson(synced), `${stem}.sfxproj.json`, 'application/json');
   editor().showStamp('Saved');
 }
 
@@ -636,6 +641,14 @@ function bootBrowserProject(shared: Patch | null): void {
 
 /** JSON of each patch file as the editor last read or wrote it, so its own saves don't echo back. */
 const onDisk = new Map<string, string>();
+
+/**
+ * A patch as the editor writes it: the values its controls set written into the file (`sfxgen sync`), so a knob
+ * turned in the editor leaves a file that says what renders. The sound is the same, and so is its review version.
+ */
+function forDisk(patch: Patch): Patch {
+  return syncControlBases(patch).patch;
+}
 /** The project file's content (see shellKey) as last read or written. */
 let projectOnDisk = '';
 const fileTimers = new Map<string, ReturnType<typeof setTimeout>>();
@@ -645,16 +658,18 @@ function setServe(change: Partial<ReturnType<typeof editor>['serve']>): void {
   useEditor.setState((s) => ({ serve: { ...s.serve, ...change } }));
 }
 
-async function saveFile(file: string): Promise<void> {
+/** `leaving`: the page is going away (a reload); the request is sent so that it outlives the page. */
+async function saveFile(file: string, leaving = false): Promise<void> {
   fileTimers.delete(file);
   const sound = editor().project.sounds.find((x) => x.file === file);
   if (!sound?.patch) return;
-  const json = JSON.stringify(sound.patch);
+  const patch = forDisk(sound.patch);
+  const json = JSON.stringify(patch);
   if (json === onDisk.get(file)) return;
   setServe({ save: 'saving' });
   try {
     onDisk.set(file, json);
-    await serve.writeFile(file, sound.patch, 'human');
+    await serve.writeFile(file, patch, 'human', { keepalive: leaving });
     setServe({ save: 'saved' });
   } catch (err) {
     onDisk.delete(file);
@@ -663,7 +678,7 @@ async function saveFile(file: string): Promise<void> {
   }
 }
 
-async function saveProjectNow(): Promise<boolean> {
+async function saveProjectNow(leaving = false): Promise<boolean> {
   projectTimer = null;
   const project = editor().project;
   const key = shellKey(project);
@@ -671,7 +686,7 @@ async function saveProjectNow(): Promise<boolean> {
   setServe({ save: 'saving' });
   try {
     projectOnDisk = key;
-    const res = await serve.writeProject(stripProject(project), 'human');
+    const res = await serve.writeProject(stripProject(project), 'human', { keepalive: leaving });
     setServe({ save: 'saved', projectSaved: true, projectPath: res.path ?? editor().serve.projectPath ?? 'sfxgen.project.json' });
     return true;
   } catch (err) {
@@ -688,10 +703,32 @@ export async function saveProjectFile(): Promise<void> {
   if (await saveProjectNow()) editor().log('human', 'saved the project file');
 }
 
+/** The page is going away (a reload, or closing the tab): send the saves still waiting on their timers now. */
+function saveBeforeLeaving(): void {
+  for (const [file, timer] of fileTimers) {
+    clearTimeout(timer);
+    void saveFile(file, true);
+  }
+  if (projectTimer) {
+    clearTimeout(projectTimer);
+    void saveProjectNow(true);
+  }
+}
+
+/** In a served folder the address names the open sound, so a reload reopens it. */
+function rememberOpenSound(): void {
+  const s = editor();
+  const file = s.project.sounds[s.current]?.file;
+  const url = new URL(location.href);
+  if (!file || url.searchParams.get('file') === file) return;
+  url.searchParams.set('file', file);
+  history.replaceState(history.state, '', url);
+}
+
 async function flushSaves(): Promise<void> {
   const files = [...fileTimers.keys()];
   for (const t of fileTimers.values()) clearTimeout(t);
-  await Promise.all(files.map(saveFile));
+  await Promise.all(files.map((f) => saveFile(f)));
   if (projectTimer) {
     clearTimeout(projectTimer);
     await saveProjectNow();
@@ -993,8 +1030,9 @@ export async function pickTake(index: number, path: string): Promise<void> {
   if (!takes.some((t) => versionOf(t.patch) === versionOf(current))) {
     const target = takeInUse(s, sound)?.take.path ?? takeFileFor(sound.file, 'original', takes.map((t) => t.path));
     try {
-      onDisk.set(target, JSON.stringify(current));
-      await serve.writeFile(target, current, 'human');
+      const written = forDisk(current);
+      onDisk.set(target, JSON.stringify(written));
+      await serve.writeFile(target, written, 'human');
     } catch (err) {
       s.toast(err instanceof Error ? err.message : 'Could not keep the current version as a take', 'error');
       return;
@@ -1061,6 +1099,7 @@ export async function start(): Promise<void> {
     onError: (message) => useEditor.setState({ rendering: false, renderError: message }),
   });
   player.subscribe((playing) => useEditor.setState(playing ? { playing } : { playing, playingKey: null }));
+  addEventListener('pagehide', saveBeforeLeaving);
 
   let persistTimer: ReturnType<typeof setTimeout> | null = null;
   let liveKey = '';
@@ -1068,6 +1107,7 @@ export async function start(): Promise<void> {
     if (s.theme !== prev.theme) applyTheme(s.theme);
     if (s.stageView !== prev.stageView && s.stageView === 'spectro') void requestSpectrogram();
     if (s.project === prev.project && s.current === prev.current) return;
+    if (s.serve.info) rememberOpenSound();
     const sound = s.project.sounds[s.current];
     if (sound) {
       // The open sound renders as the project hears it: its output, levelling, shared chain and gain.
@@ -1183,3 +1223,6 @@ export function onGlobalKey(e: KeyboardEvent): void {
     stepTake(e.key === ']' ? 1 : -1);
   }
 }
+
+// See the end of store.ts: a hot update to the controller reloads the page rather than starting a second editor.
+if (import.meta.hot) import.meta.hot.accept(() => location.reload());

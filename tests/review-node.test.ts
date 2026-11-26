@@ -21,7 +21,7 @@ const patch = (name: string, freq = 440): Patch => ({
   name,
   duration: 'auto',
   tracks: [{ id: 'a', source: { type: 'osc', wave: 'sine', freq, env: { decay: 0.1 } } }],
-  controls: [{ id: 'pitch', label: 'Pitch', value: 0.5, targets: [{ path: 'tracks.a.source.freq', mode: 'set', from: 220, to: 880 }] }],
+  controls: [{ id: 'pitch', label: 'Pitch', value: 0.5, targets: [{ path: 'tracks.a.source.freq', mode: 'mul', from: 0.5, to: 2 }] }],
 });
 const json = (p: Patch) => `${JSON.stringify(p, null, 2)}\n`;
 

@@ -63,3 +63,7 @@ export function getTemplate(id: string): Patch | undefined {
 export function allTemplates(): TemplateEntry[] {
   return ENTRIES;
 }
+
+// Under the editor's dev server, rebuilding the library (`npm run templates`) stops here: the running editor keeps
+// its project, and the gallery shows the new list after the next reload. Outside Vite there is no `hot`.
+if (import.meta.hot) import.meta.hot.accept();

@@ -23,13 +23,15 @@ const PARAMS: Record<string, ParamMeta> = {
   vowel: {
     kind: 'signal',
     doc:
-      'The vowel the throat shapes: 0 a (ah), 1 e (eh), 2 i (ee), 3 o (oh), 4 u (oo); fractions blend neighbours. ' +
-      'Moving it makes the creature talk: [[0, 0], [0.5, 3]] is "ah-oh", [[0, 4], [0.3, 0]] a "wah".',
+      'The vowel the throat shapes: 0 a (ah), 1 e (eh), 2 i (ee), 3 o (oh), 4 u (oo), 5 ü (German "über"), 6 ö ' +
+      '(German "schön"); fractions blend neighbours. ü and ö are rounded: covered and darker than i and e, for ' +
+      'ghosts, laments and hollow throats. Moving it makes the creature talk: [[0, 0], [0.5, 3]] is "ah-oh", ' +
+      '[[0, 4], [0.3, 0]] a "wah".',
     default: 0,
     min: 0,
-    max: 4,
+    max: 6,
     hardMin: 0,
-    hardMax: 4,
+    hardMax: 6,
   },
   formants: {
     kind: 'array',

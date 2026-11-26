@@ -422,3 +422,8 @@ export const useEditor = create<EditorState>()((set, get) => {
 });
 
 export const editor = () => useEditor.getState();
+
+// The editor is one store and one controller. A hot update to either (or to the core they import) would start a
+// second, empty editor beside the running one, and the project would seem to vanish: reload the page instead. It
+// reopens the project, and in a served folder the sound that was open.
+if (import.meta.hot) import.meta.hot.accept(() => location.reload());

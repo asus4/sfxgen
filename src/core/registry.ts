@@ -67,6 +67,20 @@ export const REPEAT_FIELDS: ParamMap = {
   pitchJitter: { kind: 'number', doc: 'Random pitch, ± semitones.', default: 0, min: 0, max: 12, unit: 'st' },
   velJitter: { kind: 'number', doc: 'Random velocity, ±.', default: 0, min: 0, max: 1 },
   dur: { kind: 'number', doc: 'Held length of each event, seconds.', min: 0.001, max: 5, unit: 's' },
+  accents: {
+    kind: 'array',
+    doc: 'Loudness of each repeat in turn, multiplying its velocity and cycling when there are more repeats: [0.7, 1, 0.8] is "knock, KNOCK, knock"; [1, 0.5] alternates strong and weak.',
+    item: { kind: 'number', doc: 'Velocity factor for this repeat.', min: 0, max: 2, hardMin: 0, hardMax: 4 },
+  },
+  offsets: {
+    kind: 'array',
+    doc: 'Seconds added to each repeat in turn, cycling like `accents`: a deliberate hesitation, a limp, a swing. [0, 0, 0, 0, 0.35, 0, 0, 0] holds the fifth step back a third of a second, the same on every render. In a loop keep them inside the loop.',
+    item: { kind: 'number', doc: 'Seconds added to this repeat (negative moves it earlier).', min: -0.5, max: 0.5, hardMin: -5, hardMax: 5, unit: 's' },
+  },
+  group: {
+    kind: 'string',
+    doc: 'Tracks whose repeats share a group draw the same random timing, velocity and pitch, so layers of one event (a knuckle, the door, its panel) stay together however much jitter they have. Give their repeats the same count and interval.',
+  },
 };
 
 export const MASTER_FIELDS: ParamMap = {

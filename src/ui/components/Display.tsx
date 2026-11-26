@@ -7,10 +7,10 @@
 import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import { player } from '../audio';
 import { audition, playNow, stop } from '../controller';
-import { fitCanvas, prefersReducedMotion, timeTicks, useSize, useStable } from '../hooks';
+import { fitCanvas, prefersReducedMotion, timeTicks, useAppliedPatch, useSize, useStable } from '../hooks';
 import { controlColor, trackInk } from '../lib/inks';
 import { formatValue } from '../lib/knob';
-import { addTrack, mutate, setAt } from '../lib/patchOps';
+import { addTrack, moveBaseValue, moveSetValue, mutate, setAt, settersOf } from '../lib/patchOps';
 import { controlTracks, describeControl } from '../lib/paths';
 import { computePeaks, lerpPeaks, type Peaks } from '../lib/peaks';
 import { dbText, soundKey } from '../lib/projectOps';
@@ -222,6 +222,7 @@ function Scope() {
   const view = useEditor((s) => s.view);
   const spectro = useEditor((s) => s.spectro);
   const stageView = useEditor((s) => s.stageView);
+  const setSettings = useEditor((s) => s.setSettings);
   const error = useEditor((s) => s.renderError);
   const active = useActiveControl();
   const duration = view?.duration ?? 0;
@@ -239,6 +240,17 @@ function Scope() {
           <span className="midline" />
           {stageView === 'wave' ? <WaveCanvas view={view} width={width} height={height} /> : <SpectroCanvas grid={spectro} width={width} height={height} />}
           <span className="playhead" />
+          {/* Wave or spectrum, where the eye already is: both choices in view, the one shown lit. */}
+          <div className="view-switch" role="group" aria-label="Show the sound as" onPointerDown={(e) => e.stopPropagation()}>
+            <button type="button" aria-pressed={stageView === 'wave'} title="The waveform: level over time" onClick={() => setSettings({ stageView: 'wave' })}>
+              <Icon name="wave" size={13} />
+              <span>Wave</span>
+            </button>
+            <button type="button" aria-pressed={stageView === 'spectro'} title="The spectrum: which frequencies sound when" onClick={() => setSettings({ stageView: 'spectro' })}>
+              <Icon name="spectro" size={13} />
+              <span>Spectrum</span>
+            </button>
+          </div>
           {active && (
             <p className="mapping" style={{ '--c': active.color } as React.CSSProperties}>
               <b>{active.control.label}</b>
@@ -282,7 +294,7 @@ function LaneCanvas({ view, trackId, ink, width, height }: { view: RenderView | 
   return <canvas ref={canvas} className="lane-canvas" style={{ width, height }} />;
 }
 
-function Lane({ index }: { index: number }) {
+function Lane({ index, heard, setBy }: { index: number; heard: number; setBy: string[] }) {
   const track = useEditor((s) => s.patch.tracks[index]);
   const view = useEditor((s) => s.view);
   const selected = useEditor((s) => s.selected === s.patch.tracks[index]?.id);
@@ -297,7 +309,9 @@ function Lane({ index }: { index: number }) {
   const lit = !!active && (active.tracks === 'all' || active.tracks.has(track.id));
   const ink = !active ? own : lit ? active.color : DIM;
   const duration = view?.duration ?? 1;
-  const start = track.start ?? 0;
+  // The start as heard: a control may set it (a "push" knob moving every layer), and then the track's own value is
+  // not what plays. Dragging moves what is heard; with such a control, the control's range moves with it.
+  const start = heard;
   const renderedStart = view?.tracks.find((t) => t.id === track.id)?.start ?? start;
   // Until the new render lands, slide the old picture: the drag is felt at once.
   const shift = width > 0 ? ((start - renderedStart) / duration) * width : 0;
@@ -305,7 +319,7 @@ function Lane({ index }: { index: number }) {
 
   const setStart = (next: number) => {
     const v = Math.max(0, Number(next.toFixed(4)));
-    edit((p) => setAt(p, `${path}.start`, v === 0 ? undefined : v), `start:${track.id}`);
+    edit((p) => moveSetValue(p, `${path}.start`, v) ?? moveBaseValue(p, `${path}.start`, v) ?? setAt(p, `${path}.start`, v === 0 ? undefined : v), `start:${track.id}`);
   };
 
   const onPointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
@@ -359,7 +373,7 @@ function Lane({ index }: { index: number }) {
         aria-valuemax={Number(duration.toFixed(3))}
         aria-valuenow={start}
         aria-valuetext={`starts at ${Math.round(start * 1000)} ms`}
-        title="Drag to move this layer in time"
+        title={setBy.length ? `Drag to move this layer in time (${setBy.join(' and ')} moves it too)` : 'Drag to move this layer in time'}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
@@ -392,12 +406,23 @@ function Lane({ index }: { index: number }) {
 
 /** The layers as lanes, and under the last one the key that adds another. */
 function Lanes() {
-  const count = useEditor((s) => s.patch.tracks.length);
+  const patch = useEditor((s) => s.patch);
   const edit = useEditor((s) => s.edit);
+  const applied = useAppliedPatch();
+  // Each layer's start as heard, and the controls that set it.
+  const starts = useMemo(
+    () =>
+      patch.tracks.map((t, i) => {
+        const heard = applied.tracks[i]?.start;
+        const setBy = settersOf(patch, `tracks.${t.id}.start`).map((c) => c.label);
+        return { heard: typeof heard === 'number' ? heard : (t.start ?? 0), setBy };
+      }),
+    [patch, applied],
+  );
   return (
     <div className="lanes" role="group" aria-label="Layers">
-      {Array.from({ length: count }, (_, i) => (
-        <Lane key={i} index={i} />
+      {starts.map((s, i) => (
+        <Lane key={i} index={i} heard={s.heard} setBy={s.setBy} />
       ))}
       <div className="lane lane-more">
         <button
@@ -538,8 +563,6 @@ export function Display() {
   const view = useEditor((s) => s.view);
   const name = useEditor((s) => s.patch.name);
   const index = useEditor((s) => s.current);
-  const stageView = useEditor((s) => s.stageView);
-  const setSettings = useEditor((s) => s.setSettings);
   const edit = useEditor((s) => s.edit);
   const duration = view?.duration ?? 0;
   const env = useMemo(() => envelope(view), [view]);
@@ -592,17 +615,6 @@ export function Display() {
             onChange={(e) => edit((p) => mutate(p, (d) => void (d.name = e.target.value)), 'name')}
           />
           <Readouts />
-          <div className="screen-tools">
-            <button
-              type="button"
-              className="screen-key"
-              aria-pressed={stageView === 'spectro'}
-              title="Waveform or spectrum"
-              onClick={() => setSettings({ stageView: stageView === 'wave' ? 'spectro' : 'wave' })}
-            >
-              <Icon name={stageView === 'wave' ? 'spectro' : 'wave'} size={15} /> <span>{stageView === 'wave' ? 'spectrum' : 'wave'}</span>
-            </button>
-          </div>
         </header>
         <Scope />
         <Lanes />

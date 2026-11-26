@@ -16,6 +16,15 @@ export interface ServeFile {
 
 const q = (path: string) => encodeURIComponent(path);
 
+/**
+ * A write the server took answers 200 with JSON. An empty 204 is the dev proxy saying nothing is listening behind
+ * it: the write went nowhere, and must not pass for a save.
+ */
+const NOT_SERVED = 'the sfxgen server is not running, so nothing was saved: start it, then make the change again';
+function written(res: Response): boolean {
+  return res.ok && res.status !== 204;
+}
+
 /** The server's info, or null when the editor is on its own (static hosting, `npm run dev` alone). */
 export async function detectServer(timeoutMs = 1500): Promise<ServeInfo | null> {
   try {
@@ -44,22 +53,17 @@ export async function readFile(path: string): Promise<unknown> {
   return res.json();
 }
 
-export async function writeFile(path: string, patch: Patch, origin: 'human' | 'agent' = 'human'): Promise<void> {
+/** `keepalive`: the request outlives the page (a save sent as the page reloads). */
+export async function writeFile(path: string, patch: Patch, origin: 'human' | 'agent' = 'human', opts: { keepalive?: boolean } = {}): Promise<void> {
   const res = await fetch(`api/file?path=${q(path)}&origin=${origin}`, {
     method: 'PUT',
+    keepalive: opts.keepalive,
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(patch, null, 2),
   });
-  if (!res.ok) {
-    let detail = '';
-    try {
-      const body = (await res.json()) as { issues?: { path: string; message: string }[]; error?: string };
-      detail = body.issues?.map((i) => `${i.path}: ${i.message}`).join('; ') ?? body.error ?? '';
-    } catch {
-      // No JSON body.
-    }
-    throw new Error(`could not save ${path} (${res.status})${detail ? `: ${detail}` : ''}`);
-  }
+  // The server lists what is wrong under `errors`: say it, not just that something is.
+  if (res.status === 204) throw new Error(`could not save ${path}: ${NOT_SERVED}`);
+  if (!written(res)) throw await failure(res, `could not save ${path}`);
 }
 
 export async function writeWav(path: string, bytes: Uint8Array): Promise<void> {
@@ -68,7 +72,8 @@ export async function writeWav(path: string, bytes: Uint8Array): Promise<void> {
     headers: { 'content-type': 'audio/wav' },
     body: bytes as Uint8Array<ArrayBuffer>,
   });
-  if (!res.ok) throw new Error(`could not write ${path} (${res.status})`);
+  if (res.status === 204) throw new Error(`could not write ${path}: ${NOT_SERVED}`);
+  if (!written(res)) throw new Error(`could not write ${path} (${res.status})`);
 }
 
 export interface ServedProject {
@@ -101,13 +106,15 @@ async function failure(res: Response, what: string): Promise<Error> {
   return new Error(`${what} (${res.status})${detail ? `: ${detail}` : ''}`);
 }
 
-export async function writeProject(project: Project, origin: 'human' | 'agent' = 'human'): Promise<{ path?: string }> {
+export async function writeProject(project: Project, origin: 'human' | 'agent' = 'human', opts: { keepalive?: boolean } = {}): Promise<{ path?: string }> {
   const res = await fetch(`api/project?origin=${origin}`, {
     method: 'PUT',
+    keepalive: opts.keepalive,
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(project, null, 2),
   });
-  if (!res.ok) throw await failure(res, 'could not save the project');
+  if (res.status === 204) throw new Error(`could not save the project: ${NOT_SERVED}`);
+  if (!written(res)) throw await failure(res, 'could not save the project');
   try {
     return (await res.json()) as { path?: string };
   } catch {
@@ -143,7 +150,8 @@ export async function readReview(): Promise<Review | null> {
 /** Sets one sound's verdict (null clears it) and returns the whole review as now on disk. */
 export async function writeVerdict(sound: string, entry: ReviewEntry | null): Promise<Review> {
   const res = await fetch('api/review?origin=human', { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ sound, entry }) });
-  if (!res.ok) throw await failure(res, 'could not save the verdict');
+  if (res.status === 204) throw new Error(`could not save the verdict: ${NOT_SERVED}`);
+  if (!written(res)) throw await failure(res, 'could not save the verdict');
   return readReviewData(((await res.json()) as { review?: unknown }).review);
 }
 

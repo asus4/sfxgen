@@ -150,6 +150,131 @@ function crossing(env: Float64Array, a: number, level: number): number {
  * too, but slowly, so they don't count. Each onset is then placed on the peak envelope, at the start of its
  * steepest rise. After a hit the energy must fall 4 dB to re-arm.
  */
+/** The 20 ms loudness, dB, per envelope frame. */
+function loudnessCurve(energy: Float64Array, hop: number, sr: number): Float64Array {
+  const nf = energy.length;
+  const half = Math.max(1, Math.round(0.01 / (hop / sr)));
+  const prefix = new Float64Array(nf + 1);
+  for (let f = 0; f < nf; f++) prefix[f + 1] = prefix[f] + energy[f];
+  const loud = new Float64Array(nf);
+  for (let f = 0; f < nf; f++) {
+    const a = Math.max(0, f - half);
+    const b = Math.min(nf, f + half + 1);
+    const e = (prefix[b] - prefix[a]) / (b - a);
+    loud[f] = e > 1e-12 ? 10 * Math.log10(e) : FLOOR_DB;
+  }
+  return loud;
+}
+
+/**
+ * The main repeat period, if the sound has one (steps, a gallop, a ratchet, a loop's beat): the autocorrelation of
+ * its loudness rises, 5 ms at a time, between 50 ms and 2 s. The shortest strong period is taken, so a walk is its
+ * step, not its stride. Zero when nothing repeats at least three times.
+ */
+function findPulse(loud: Float64Array, hop: number, sr: number, seconds: number): { period: number; strength: number } {
+  const step = Math.max(1, Math.round(0.005 / (hop / sr)));
+  const n = Math.floor(loud.length / step);
+  if (n < 30) return { period: 0, strength: 0 };
+  const rise = new Float64Array(n);
+  // How far each moment stands above the lowest of the 30 ms before it: a step's rise, not a texture's flicker.
+  for (let i = 1; i < n; i++) {
+    let lo = Infinity;
+    for (let k = Math.max(0, i - 6); k < i; k++) lo = Math.min(lo, loud[k * step]);
+    rise[i] = Math.max(0, loud[i * step] - lo);
+  }
+  // Something must rise more than 3 dB at least three times for there to be a pulse at all.
+  let rises = 0;
+  for (let i = 1; i < n; i++) if (rise[i] > 3 && rise[i - 1] <= 3) rises++;
+  if (rises < 3) return { period: 0, strength: 0 };
+  let mean = 0;
+  for (let i = 0; i < n; i++) mean += rise[i];
+  mean /= n;
+  for (let i = 0; i < n; i++) rise[i] -= mean;
+  let r0 = 0;
+  for (let i = 0; i < n; i++) r0 += rise[i] * rise[i];
+  if (!(r0 > 1e-12)) return { period: 0, strength: 0 };
+  const minLag = 10;
+  const maxLag = Math.min(400, Math.floor(n / 3));
+  if (maxLag <= minLag + 2) return { period: 0, strength: 0 };
+  const r = new Float64Array(maxLag + 2);
+  for (let lag = minLag - 1; lag <= maxLag + 1; lag++) {
+    let acc = 0;
+    for (let i = lag; i < n; i++) acc += rise[i] * rise[i - lag];
+    // Fewer pairs at long lags: scale back up so they compete fairly.
+    r[lag] = (acc / r0) * (n / (n - lag));
+  }
+  let best = minLag;
+  for (let lag = minLag; lag <= maxLag; lag++) if (r[lag] > r[best]) best = lag;
+  let pick = best;
+  for (let lag = minLag; lag < best; lag++) {
+    if (r[lag] >= 0.6 * r[best] && r[lag] >= r[lag - 1] && r[lag] >= r[lag + 1]) {
+      pick = lag;
+      break;
+    }
+  }
+  const period = (pick * step * hop) / sr;
+  const strength = r[pick];
+  if (strength < 0.25 || period * 3 > seconds) return { period: 0, strength: Math.max(0, strength) };
+  return { period, strength };
+}
+
+/**
+ * The main events (steps, knocks, shots): where the 20 ms loudness jumps at least 9 dB (6 with a pulse) above its
+ * lowest point of the 60 ms before, reaching within 30 dB of the loudest. Where `onsets` lists every sharp rise (a heel and then its toe,
+ * a crackle's grains), this is what a listener would count. Rises closer than 60 % of the sound's pulse (60 ms when
+ * it has none) are one event, the louder kept, so a step's heel, sole and grit count once and a faint scuff just
+ * before a step does not stand in for it. Each event's time is where its rise begins: the first moment after the dip
+ * that the peak envelope comes within 20 dB of the event's own peak.
+ */
+function findEvents(envDb: Float64Array, loud: Float64Array, hop: number, sr: number, pulse: number): number[] {
+  const nf = loud.length;
+  const frameSec = hop / sr;
+  let top = FLOOR_DB;
+  for (let f = 0; f < nf; f++) if (loud[f] > top) top = loud[f];
+  const look = Math.max(1, Math.round(0.06 / frameSec));
+  const ahead = Math.max(1, Math.round(0.1 / frameSec));
+  const merge = Math.round((pulse > 0 ? 0.6 * pulse : 0.06) / frameSec);
+  const found: { at: number; peak: number; from: number }[] = [];
+  let rising = false;
+  for (let f = 0; f < nf; f++) {
+    // The lowest point of the last 60 ms (before the file starts: silence).
+    let lo = f - look < 0 ? FLOOR_DB : Infinity;
+    let loAt = Math.max(0, f - look);
+    for (let k = Math.max(0, f - look); k <= f; k++) {
+      if (loud[k] < lo) {
+        lo = loud[k];
+        loAt = k;
+      }
+    }
+    // With a pulse to group by, a smaller rise is enough (a ratchet's teeth over its own ring).
+    const up = loud[f] - lo >= (pulse > 0 ? 6 : 9);
+    if (up && !rising) {
+      let peak = FLOOR_DB;
+      for (let k = f; k < Math.min(nf, f + ahead); k++) if (loud[k] > peak) peak = loud[k];
+      if (peak >= top - 30) {
+        // Where the rise begins: the first moment out of the dip within 20 dB of this event's own peak (6 dB above
+        // the dip at least), so a faint tail of the last event in the dip doesn't pull it early.
+        let peakEnv = FLOOR_DB;
+        for (let k = f; k < Math.min(nf, f + ahead); k++) if (envDb[k] > peakEnv) peakEnv = envDb[k];
+        const level = Math.max(lo + 6, peakEnv - 20);
+        let at = f;
+        for (let k = loAt; k < Math.min(nf, f + ahead); k++) {
+          if (envDb[k] >= level) {
+            at = k;
+            break;
+          }
+        }
+        const last = found[found.length - 1];
+        if (last && f - last.from < merge) {
+          if (peak > last.peak + 3) found[found.length - 1] = { at: Math.max(at, last.at), peak, from: f };
+        } else found.push({ at: last ? Math.max(at, last.at + 1) : at, peak, from: f });
+      }
+    }
+    rising = up;
+  }
+  return found.slice(0, 256).map((e) => e.at * frameSec);
+}
+
 function findOnsets(envDb: Float64Array, energy: Float64Array, halfCycle: Float64Array, hop: number, sr: number, maxDb: number): number[] {
   const RISE = 8;
   const FALL = 4;
@@ -720,6 +845,9 @@ function silent(sr: number, nCh: number, n: number): Analysis {
     seamDb: FLOOR_DB,
     maxStepDb: FLOOR_DB,
     onsets: [],
+    events: [],
+    pulseSeconds: 0,
+    pulseStrength: 0,
     centroidHz: 0,
     centroidThirds: [0, 0, 0],
     rolloffHz: 0,
@@ -807,6 +935,9 @@ export function analyze(channels: ArrayLike<number>[], sampleRate: number): Anal
   const envDb = new Float64Array(nf);
   for (let f = 0; f < nf; f++) envDb[f] = ampDb(env[f]);
   const onsetTimes = findOnsets(envDb, energy, halfCycle, hop, sr, ampDb(max));
+  const loudCurve = loudnessCurve(energy, hop, sr);
+  const pulse = findPulse(loudCurve, hop, sr, n / sr);
+  const eventTimes = findEvents(envDb, loudCurve, hop, sr, pulse.period);
   const peakFrame = firstAt(max * 10 ** (-0.5 / 20));
   const i90 = firstAt(0.9 * max);
   // The attack is the rise of the hit that gets loudest: it starts no earlier than the last onset before it, so
@@ -869,9 +1000,15 @@ export function analyze(channels: ArrayLike<number>[], sampleRate: number): Anal
     }
   }
   // The last 5% of the sound, 2 to 200 ms: long enough to read a level, short enough not to be the whole sound.
+  // Its level is the quietest point of its first half: what is still sounding as it begins. A sound cut off keeps
+  // going right through it (the final fade comes after); a sparse one whose last grain or tick lands in it, and
+  // dies, does not.
   const tailFrames = Math.max(1, Math.round(clamp(0.05 * (n / sr), 0.002, 0.2) / frameSec));
-  let tail = 0;
-  for (let f = Math.max(0, nf - tailFrames); f < nf; f++) tail = Math.max(tail, env[f]);
+  const tailFrom = Math.max(0, nf - tailFrames);
+  const tailTo = Math.min(nf, tailFrom + Math.max(1, Math.floor(tailFrames / 2)));
+  let tail = Infinity;
+  for (let f = tailFrom; f < tailTo; f++) tail = Math.min(tail, env[f]);
+  if (!Number.isFinite(tail)) tail = 0;
   const onsets = onsetTimes.map((t) => round(t, 4));
   const envelopeDb: number[] = [];
   for (let p = 0; p < 40; p++) {
@@ -945,6 +1082,9 @@ export function analyze(channels: ArrayLike<number>[], sampleRate: number): Anal
     seamDb: round(ampDb(seam), 1),
     maxStepDb: round(ampDb(maxStep), 1),
     onsets,
+    events: eventTimes.map((t) => round(t, 4)),
+    pulseSeconds: round(pulse.period, 4),
+    pulseStrength: round(pulse.strength, 2),
     centroidHz: round(centroidOf(power, binHz), 1),
     centroidThirds: thirds,
     rolloffHz: round(rolloffOf(power, binHz), 1),

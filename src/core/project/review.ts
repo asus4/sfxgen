@@ -6,6 +6,8 @@
  *
  * A verdict is for one version of a sound: the patch and its takes, hashed. When either changes (an agent's edit,
  * a file saved on disk, a person's own knob turn, another take picked, a new take), the sound is not reviewed again.
+ * A value that a control sets is left out of the hash: every render overrides it, so writing the controls' values
+ * into the file (`sync`, or the editor saving a knob turn) changes nothing that was heard and keeps the verdict.
  *
  * Takes are other versions of a sound, kept as patch files in a folder next to it: `door.sfx.json` is the take in
  * use (what builds and exports read) and `door.takes/*.sfx.json` are the takes to choose from. Picking a take copies
@@ -14,6 +16,8 @@
 import type { Patch } from '../format/types';
 import type { ChangeRecord } from '../agent/workspace';
 import { hashString } from '../dsp/rng';
+import { deepClone, setPath } from '../format/paths';
+import { setPaths } from '../format/sync';
 import type { Issue, ValidationResult } from '../format/validate';
 import { soundName, type Project, type ProjectSound } from './project';
 
@@ -71,9 +75,18 @@ function hash64(text: string): string {
   return hashString(text, 0x9e3779b9).toString(16).padStart(8, '0') + hashString(text, 0x85ebca6b).toString(16).padStart(8, '0');
 }
 
-/** A short fingerprint of a patch's content. */
+/** The patch with every value a control sets blanked: what a render can hear, whether or not the file is synced. */
+function heardForm(patch: Patch): unknown {
+  const paths = setPaths(patch);
+  if (paths.length === 0) return patch;
+  const out = deepClone(patch);
+  for (const path of paths) setPath(out, path, null);
+  return out;
+}
+
+/** A short fingerprint of a patch's content, leaving out the values its controls override. */
 export function patchVersion(patch: Patch): string {
-  return hash64(canonicalJson(patch));
+  return hash64(canonicalJson(heardForm(patch)));
 }
 
 /** The version a verdict is for: the sound's patch, and its takes when it has some (in any order). */

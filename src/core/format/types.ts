@@ -169,6 +169,12 @@ export interface Repeat {
   velJitter?: number;
   /** Held length of each event, seconds. */
   dur?: number;
+  /** Velocity factor of each repeat in turn, cycling: [0.7, 1, 0.8] makes the second the firmest. */
+  accents?: number[];
+  /** Seconds added to each repeat in turn, cycling: a deliberate pause or swing, the same on every render. */
+  offsets?: number[];
+  /** Tracks whose repeats share a group draw the same random timing, velocity and pitch: layers of one event. */
+  group?: string;
 }
 
 export interface EffectSpec {

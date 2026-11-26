@@ -338,9 +338,67 @@ describe('modal', () => {
     expect(peakNear(spectrum(env, 4800, 32768), comb.sr, 110, 0.2)).toBeCloseTo(110, 0);
   });
 
+  it('lets its modes fade out, so high-passing away the lows leaves no click in the tail', () => {
+    // The door-panel recipe: a big plate with its lowest modes filtered away. A mode that stopped dead left a
+    // one-sample click 1/w louder than its ring.
+    const { x, sr } = play({
+      type: 'modal',
+      material: 'wood',
+      shape: 'plate',
+      freq: 34,
+      decay: 0.2,
+      modes: 64,
+      brightness: 0.8,
+      dent: 0.4,
+      exciter: { kind: 'mallet', spread: 0.005 },
+      filter: { mode: 'highpass', cutoff: 150, slope: 24 },
+    });
+    let jump = 0;
+    for (let i = Math.round(0.08 * sr); i < x.length - 1; i++) jump = Math.max(jump, Math.abs(x[i + 1] - x[i]));
+    expect(20 * Math.log10(jump / peakOf(x))).toBeLessThan(-70);
+  });
+
+  it('starts a slow scrape or roll at its first contact', () => {
+    for (const kind of ['scrape', 'roll']) {
+      const { x, sr } = play({ type: 'modal', material: 'wood', shape: 'plate', freq: 200, decay: 0.1, exciter: { kind, duration: 1, density: 6, roughness: 0.1 } });
+      // The first ridge or bump is heard at once, not a sixth of a second later.
+      expect(peakOf(x, 0, Math.round(0.02 * sr))).toBeGreaterThan(0.2 * peakOf(x));
+    }
+  });
+
   it('is damped by the end of a held event', () => {
     const { r } = play({ type: 'modal', decay: 3 }, {}, { events: [{ t: 0, dur: 0.2 }] });
     expect(r.duration).toBeLessThan(0.35);
+  });
+
+  it('spreads a blow over its modes with `exciter.spread`: a dense knock instead of a spike, and opt-in', () => {
+    // A door: a big wooden panel, its modes crowding the low mids.
+    const door = (spread?: number) => ({
+      type: 'modal',
+      material: 'wood',
+      shape: 'plate',
+      freq: 32,
+      modes: 96,
+      dent: 0.4,
+      damping: 0.4,
+      decay: 0.2,
+      exciter: { kind: 'mallet', hardness: 0.6, ...(spread === undefined ? {} : { spread }) },
+    });
+    const crest = (x: ArrayLike<number>) => 20 * Math.log10(peakOf(x) / rmsOf(x));
+    const plain = play(door()).x;
+    // No spread is exactly the old strike, so existing patches render as they did.
+    expect(play(door(0)).x).toEqual(plain);
+    const spread = play(door(0.008));
+    expect(spread.r.warnings).toEqual([]);
+    expect(crest(spread.x)).toBeLessThan(crest(plain) - 2);
+    expect(rmsOf(spread.x)).toBeGreaterThan(0.3 * rmsOf(plain));
+    // The same object: its modes, so its spectrum, are where they were.
+    expect(Math.abs(centroid(spread.x, spread.sr) / centroid(plain, spread.sr) - 1)).toBeLessThan(0.35);
+    // At the hard limit a smeared thump, still healthy.
+    const wide = play(door(0.2)).x;
+    expect(wide.every(Number.isFinite)).toBe(true);
+    expect(peakOf(wide)).toBeGreaterThan(0.05);
+    expect(peakOf(wide)).toBeLessThanOrEqual(1.0001);
   });
 });
 
@@ -428,6 +486,38 @@ describe('pluck', () => {
 
 describe('particles', () => {
   const click = { kind: 'click', lo: 4000, hi: 4000, levelJitter: 0 };
+
+  it('throws more particles from a louder event with velDensity, and only louder ones without', () => {
+    const cloud = (velDensity?: number) => ({ type: 'particles', density: 200, duration: 1, grain: click, ...(velDensity === undefined ? {} : { velDensity }) });
+    const count = (velDensity: number | undefined, vel: number) => onsets(play(cloud(velDensity), {}, { events: [{ t: 0, vel }] }).x, 0.05 * vel, 12).length;
+    // Without it a soft event throws as many as a loud one; with it, about half as many at half the velocity.
+    expect(play(cloud(0)).x).toEqual(play(cloud()).x);
+    expect(Math.abs(count(undefined, 0.5) - count(undefined, 1))).toBeLessThan(0.15 * count(undefined, 1));
+    expect(count(1, 0.5)).toBeLessThan(0.65 * count(1, 1));
+    expect(count(1, 0.5)).toBeGreaterThan(0.35 * count(1, 1));
+  });
+
+  it('keeps a regular train in step with `polarity: same`, so it sounds at its rate', () => {
+    const train = (polarity?: string) => ({
+      type: 'particles',
+      distribution: 'regular',
+      jitter: 0,
+      density: 700,
+      duration: 1,
+      grain: { kind: 'click', lo: 3000, hi: 3000, levelJitter: 0, ...(polarity ? { polarity } : {}) },
+    });
+    const plain = play(train()).x;
+    expect(play(train('random')).x).toEqual(plain);
+    const same = play(train('same'));
+    const line = (x: ArrayLike<number>) => {
+      const mag = spectrum(x, 4800, 32768);
+      const bin = Math.round((700 * 32768) / same.sr);
+      return Math.max(mag[bin - 1], mag[bin], mag[bin + 1]);
+    };
+    // Every click the same way: a strong line at 700 Hz. Flipped at random: hardly any.
+    expect(line(same.x)).toBeGreaterThan(10 * line(plain));
+    expect(peakNear(spectrum(same.x, 4800, 32768), same.sr, 700, 0.05)).toBeCloseTo(700, -1);
+  });
 
   it('emits about density times duration particles', () => {
     for (const density of [20, 200]) {

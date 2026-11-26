@@ -8,6 +8,7 @@ import {
   reviewReport,
   reviewStatus,
   soundVersion,
+  syncControlBases,
   takeFileFor,
   takeLabel,
   takeOwner,
@@ -22,7 +23,7 @@ const patch = (name: string, freq = 440): Patch => ({
   name,
   duration: 'auto',
   tracks: [{ id: 'a', source: { type: 'osc', wave: 'sine', freq, env: { decay: 0.1 } } }],
-  controls: [{ id: 'pitch', label: 'Pitch', value: 0.5, targets: [{ path: 'tracks.a.source.freq', mode: 'set', from: 220, to: 880 }] }],
+  controls: [{ id: 'pitch', label: 'Pitch', value: 0.5, targets: [{ path: 'tracks.a.source.freq', mode: 'mul', from: 0.5, to: 2 }] }],
 });
 
 describe('review versions', () => {
@@ -41,6 +42,23 @@ describe('review versions', () => {
     expect(soundVersion(a)).toBe(patchVersion(a));
     expect(soundVersion(a, [t1, t2])).toBe(soundVersion(a, [t2, t1]));
     expect(soundVersion(a, [t1])).not.toBe(soundVersion(a, [t1, t2]));
+  });
+
+  it('leaves out the values a control sets, so syncing a file keeps its verdict', () => {
+    const p: Patch = {
+      ...patch('beep'),
+      tracks: [{ id: 'a', gain: -6, source: { type: 'osc', wave: 'sine', freq: 440, env: { decay: 0.1 } } }],
+      controls: [{ id: 'level', label: 'Level', value: 0.25, targets: [{ path: 'tracks.a.gain', mode: 'set', from: -24, to: 0 }] }],
+    };
+    const synced = syncControlBases(p).patch;
+    expect(synced.tracks[0].gain).toBe(-18);
+    expect(patchVersion(synced)).toBe(patchVersion(p));
+    // The file's own value there is never heard; a missing one is the same sound too.
+    const { gain: _gain, ...bare } = p.tracks[0];
+    expect(patchVersion({ ...p, tracks: [bare] })).toBe(patchVersion(p));
+    // Turning the knob, or a value nothing sets, is a different sound.
+    expect(patchVersion({ ...p, controls: [{ ...p.controls![0], value: 0.5 }] })).not.toBe(patchVersion(p));
+    expect(patchVersion({ ...p, tracks: [{ ...p.tracks[0], pan: 0.3 }] })).not.toBe(patchVersion(p));
   });
 
   it('holds a verdict only for the version it was given for', () => {

@@ -50,7 +50,8 @@ const EXCITER_FIELDS: ParamMap = {
     kind: 'signal',
     doc:
       'Ridges (scrape) or bumps (roll) per second: the speed of the motion. 20 to 80 is a slow ratchet or a heavy ' +
-      'ball, 200 to 2000 a fast drag. Breakpoints speed it up or slow it to a stop.',
+      'ball, 200 to 2000 a fast drag. Breakpoints speed it up or slow it to a stop. The first ridge or bump lands at ' +
+      'the very start.',
     default: 120,
     min: 5,
     max: 3000,
@@ -70,6 +71,21 @@ const EXCITER_FIELDS: ParamMap = {
     hardMin: 0,
     hardMax: 1,
   },
+  spread: {
+    kind: 'number',
+    doc:
+      'Seconds over which the blow reaches the modes. 0: every mode starts at the same instant and in step, one clean ' +
+      'coherent hit (with many modes, a spike on top of a ring). 0.003 to 0.015: a big panel meeting its frame along a ' +
+      'whole edge, a sack or a body landing, a door slammed into its stop: each mode starts at its own moment and ' +
+      'phase, so a crowd of modes becomes a dense, pitchless knock instead of a click on a tone. Above 0.03 the hit ' +
+      'smears into a soft, blurred thump.',
+    default: 0,
+    min: 0,
+    max: 0.03,
+    hardMin: 0,
+    hardMax: 0.2,
+    unit: 's',
+  },
 };
 
 const PARAMS: ParamMap = {
@@ -87,21 +103,24 @@ const PARAMS: ParamMap = {
     doc:
       'What the object is, which sets the spacing of its modes. bar: a free bar or rod, wide inharmonic gaps (1, 2.76, ' +
       '5.4: chimes, xylophone, pipe, wrench). tine: a bar held at one end (1, 6.27, 17.5: a thin ping with a high ' +
-      'clang: fork, tongue, ruler). plate: a sheet, dense clangour (sheet metal, pan lid, sign, glass pane). membrane: a ' +
+      'clang: fork, tongue, ruler). plate: a sheet, dense clangour (sheet metal, pan lid, sign, glass pane), and any big ' +
+      'panel: a door, wall, tabletop or floor, whose modes crowd the low mids. membrane: a ' +
       'stretched skin (drums; struck in the centre it is a pitchless thud). bell: church-bell partials with the minor ' +
       'third; `freq` is the hum, the heard note is an octave above. bowl: rim modes (1, 2.83, 5.4: wine glass, cup, ' +
       'bowl, hoop). tube: the air in a pipe, odd harmonics (hollow: bottle, bamboo, slapped pipe). string: harmonics ' +
-      '(wire, cable, spring; a tonal clang). box: an enclosed cavity, crowded low modes (crate, cabinet, drawer, ' +
-      'body thump). random: an irregular lump with its own modes for each `variant` (rock, junk, debris).',
+      '(wire, cable, spring; a tonal clang). box: the air in an enclosed cavity, few low modes then a crowd (crate, ' +
+      'cabinet, drawer). random: an irregular lump with its own modes for each `variant` (rock, junk, debris).',
     options: MODAL_SHAPES,
     default: 'bar',
   },
   freq: {
     kind: 'signal',
     doc:
-      'Frequency of the lowest mode: the size of the object. 60 to 150 a drum, tank or door; 200 to 600 a pan, ' +
-      'bottle or plank; 800 to 3000 a glass, key or coin; above that tiny things. Breakpoints bend every mode ' +
-      'together (a wobbling sheet, a filling glass).',
+      'Frequency of the lowest mode: the size of the object. 25 to 45 a door, wall or tabletop (a `plate`: the knock ' +
+      'is the crowd of modes at 100 to 400 Hz, with no single pitch; a big panel barely radiates its first modes, so ' +
+      'high-pass the source near 80 Hz); 60 ' +
+      'to 150 a drum or tank; 200 to 600 a pan, bottle or plank; 800 to 3000 a glass, key or coin; above that tiny ' +
+      'things. Breakpoints bend every mode together (a wobbling sheet, a filling glass).',
     default: 440,
     min: 30,
     max: 8000,
@@ -149,7 +168,11 @@ const PARAMS: ParamMap = {
   },
   modes: {
     kind: 'number',
-    doc: 'How many modes ring. 4 to 8 is a simple, pure object; 16 to 32 a realistic one; 48+ dense clangour (plates, crashes).',
+    doc:
+      'How many modes ring. 4 to 8 is a simple, pure object; 16 to 32 a realistic one; 48+ dense clangour (plates, ' +
+      'crashes). Modes above hearing are dropped: a `random` lump spreads its modes fast (each 5 to 50 % above the ' +
+      'last), so past about 25 most are gone, and on bright metal the few left at the top can be the loudest (lower ' +
+      '`brightness` or low-pass it).',
     default: 24,
     min: 1,
     max: 64,
@@ -294,6 +317,8 @@ export function renderExciter(e: ExciterSettings, n: number, sr: number, rng: Rn
   const rough = clamp(e.roughness, 0, 1);
   const dens = e.density;
   const pressure = wander(end, sr, 5, rng.fork('pressure'));
+  // The contacts (ridges, bumps) go in `x`, the grit between them in `grit`.
+  const grit = new Float64Array(end);
   let acc = 0;
   let next = 0; // the first contact is at the very start, so even the shortest scrape touches the object
   let turn = rng.next();
@@ -308,8 +333,10 @@ export function renderExciter(e: ExciterSettings, n: number, sr: number, rng: Rn
         x[i] += rng.next() < 0.5 * rough ? -amp : amp;
         next += 1 - rough + rough * rng.exponential(1);
       }
-      x[i] += rng.gauss() * 0.5 * rough * Math.sqrt(Math.min(perSample, 1));
-      x[i] *= Math.max(0.2, 1 + 0.5 * rough * pressure[i]);
+      grit[i] = rng.gauss() * 0.5 * rough * Math.sqrt(Math.min(perSample, 1));
+      const press = Math.max(0.2, 1 + 0.5 * rough * pressure[i]);
+      x[i] *= press;
+      grit[i] *= press;
     } else {
       // Rolling: random bumps whose strength swells once a turn, over a low rumble of the surface.
       turn += perSample / 8;
@@ -317,13 +344,15 @@ export function renderExciter(e: ExciterSettings, n: number, sr: number, rng: Rn
         x[i] += (1 - 0.8 * rough * rng.next()) * (1 + 0.7 * Math.sin(TAU * turn));
         next += rng.exponential(1);
       }
-      x[i] += rng.gauss() * 0.25 * rough * Math.sqrt(Math.min(perSample, 1));
+      grit[i] = rng.gauss() * 0.25 * rough * Math.sqrt(Math.min(perSample, 1));
     }
   }
-  soften(x, end, e.kind === 'scrape' ? 500 * Math.pow(40, h) : 150 * Math.pow(80, h), sr);
+  // Only the grit fades in, so it doesn't click on: the first contact is heard as it lands, and a slow scrape
+  // starts at its first ridge, not its second.
   const fadeIn = Math.min(Math.round(0.005 * sr), end >> 2);
+  for (let i = 0; i < end; i++) x[i] += i < fadeIn ? grit[i] * ((i + 1) / (fadeIn + 1)) : grit[i];
+  soften(x, end, e.kind === 'scrape' ? 500 * Math.pow(40, h) : 150 * Math.pow(80, h), sr);
   const fadeOut = Math.min(Math.round(0.02 * sr), end >> 2);
-  for (let i = 0; i < fadeIn; i++) x[i] *= (i + 1) / (fadeIn + 1);
   for (let i = 0; i < fadeOut; i++) x[end - 1 - i] *= (i + 1) / (fadeOut + 1);
   return { x, end };
 }
@@ -336,6 +365,10 @@ export interface Mode {
   t60: number;
   /** Hz to move this mode by, whatever the fundamental: one half of a beating pair. */
   split?: number;
+  /** Samples after the excitation before this mode is driven (`exciter.spread`). */
+  delay?: number;
+  /** -1 drives this mode the other way: with `delay`, the modes no longer start in step. */
+  sign?: number;
 }
 
 /**
@@ -343,8 +376,8 @@ export interface Mode {
  * rotating complex number (so bending `freq` mid-ring never changes its amplitude), read as a band-pass with no
  * response at DC. A mode stops being computed once it has rung out after the excitation ends.
  */
-export function resonate(x: Buf, exciteEnd: number, modes: Mode[], freq: Buf, sr: number): Buf {
-  const n = x.length;
+export function resonate(input: Buf, exciteEnd: number, modes: Mode[], freq: Buf, sr: number): Buf {
+  const n = input.length;
   const out = new Float64Array(n);
   if (n === 0) return out;
   let lo = Infinity;
@@ -356,10 +389,27 @@ export function resonate(x: Buf, exciteEnd: number, modes: Mode[], freq: Buf, sr
   const steady = hi - lo <= 1e-9 * hi;
   const top = 0.47 * sr;
   const BLOCK = 16;
+  let shifted: Buf | null = null;
   for (const m of modes) {
     if (!(m.amp !== 0) || lo * m.ratio >= top) continue;
     const r = Math.exp(-LN1000 / (Math.max(m.t60, 1e-4) * sr));
-    const stop = Math.min(n, exciteEnd + Math.ceil(m.t60 * 1.35 * sr) + 2);
+    // A mode struck late or the other way (`exciter.spread`) is driven by its own copy of the excitation.
+    const d = Math.max(0, Math.round(m.delay ?? 0));
+    const sign = m.sign ?? 1;
+    let x = input;
+    if (d > 0 || sign !== 1) {
+      shifted ??= new Float64Array(n);
+      shifted.fill(0);
+      for (let i = 0; i + d < n && i < exciteEnd; i++) shifted[i + d] = sign * input[i];
+      x = shifted;
+    }
+    const stop = Math.min(n, exciteEnd + d + Math.ceil(m.t60 * 1.35 * sr) + 2);
+    // A mode that stops inside the voice fades out over the last couple of radians first. Stopping dead would leave
+    // a step in this sum, which the difference below turns into a click 1/w louder than the ring it ends: for a low
+    // mode, tens of dB above it, and audible once the lows are filtered away.
+    const wLow = (TAU * Math.max(lo * m.ratio, 1)) / sr;
+    const fadeLen = stop < n ? Math.min(stop, Math.ceil(2 / wLow) + 16) : 0;
+    const fadeFrom = stop - fadeLen;
     let re = 0;
     let im = 0;
     if (steady) {
@@ -367,11 +417,17 @@ export function resonate(x: Buf, exciteEnd: number, modes: Mode[], freq: Buf, sr
       const cr = r * Math.cos(w);
       const ci = r * Math.sin(w);
       const g = m.amp / w;
-      for (let i = 0; i < stop; i++) {
+      for (let i = 0; i < fadeFrom; i++) {
         const t = cr * re - ci * im + x[i];
         im = ci * re + cr * im;
         re = t;
         out[i] += g * im;
+      }
+      for (let i = fadeFrom; i < stop; i++) {
+        const t = cr * re - ci * im + x[i];
+        im = ci * re + cr * im;
+        re = t;
+        out[i] += ((g * (stop - i)) / fadeLen) * im;
       }
     } else {
       for (let i0 = 0; i0 < stop; i0 += BLOCK) {
@@ -386,7 +442,7 @@ export function resonate(x: Buf, exciteEnd: number, modes: Mode[], freq: Buf, sr
           const t = cr * re - ci * im + x[i];
           im = ci * re + cr * im;
           re = t;
-          out[i] += g * im;
+          out[i] += (i < fadeFrom ? g : (g * (stop - i)) / fadeLen) * im;
         }
       }
     }
@@ -541,11 +597,21 @@ export const modal: SourceDef = {
       sr,
       ctx.rng.fork('exciter'),
     );
+    // A spread blow reaches each mode at its own moment and phase. (Its own random stream: with no spread, nothing
+    // else changes.)
+    const spread = Math.max(0, ctx.numOf(field(p.exciter, 'spread'), EXCITER_FIELDS.spread)) * sr;
+    if (spread >= 1) {
+      const onsets = ctx.rng.fork('spread');
+      for (const m of modes) {
+        m.delay = Math.round(onsets.next() * spread);
+        m.sign = onsets.next() < 0.5 ? -1 : 1;
+      }
+    }
     const out = resonate(x, end, modes, freq, sr);
     // Level by the ring, not by the instant of contact: a hard blow starts every mode at once, a spike a few
     // samples wide that would otherwise set the level and leave a bright clank far quieter than a soft thud.
     // The spike is kept, rounded off where it passes full scale.
-    const ringFrom = continuous ? 0 : Math.min(n, end + Math.round(0.002 * sr));
+    const ringFrom = continuous ? 0 : Math.min(n, end + Math.round(spread >= 1 ? spread : 0) + Math.round(0.002 * sr));
     const whole = peak(out);
     let ring = 0;
     for (let i = ringFrom; i < n; i++) {

@@ -143,6 +143,16 @@ const GRAIN_FIELDS: ParamMap = {
     hardMin: -8,
     hardMax: 8,
   },
+  polarity: {
+    kind: 'enum',
+    doc:
+      'Which way each particle swings first. random: half are upside down, so a cloud stays even and noisy (gravel, ' +
+      'rain, fire). same: every one the same way, so a regular train of them sounds as one pitched tone at its rate ' +
+      '(a buzz, a stick-slip creak or squeal, a zipper with a note in it). It needs grains that are the same each ' +
+      'time (click, ping, drop, chirp); a tick is a fresh burst of noise every time, so it never makes a pitch.',
+    options: ['random', 'same'],
+    default: 'random',
+  },
 };
 
 const PARAMS: ParamMap = {
@@ -160,6 +170,19 @@ const PARAMS: ParamMap = {
     hardMax: 20000,
     unit: 'Hz',
     scale: 'log',
+  },
+  velDensity: {
+    kind: 'number',
+    doc:
+      'How far an event\'s velocity also sets how many particles it throws: 0 a louder event is only louder, 1 the ' +
+      'count follows velocity too (half the velocity, half the particles; a stamp into a deep puddle throws more ' +
+      'drops, not just louder ones), in between partly. Accents and velocity jitter on a `repeat` then vary the ' +
+      'count step by step. Ignored by bounce.',
+    default: 0,
+    min: 0,
+    max: 1,
+    hardMin: 0,
+    hardMax: 2,
   },
   duration: {
     kind: 'number',
@@ -223,7 +246,7 @@ const PARAMS: ParamMap = {
   },
   grain: {
     kind: 'object',
-    doc: 'One particle: { kind, lo, hi, decayLo, decayHi, levelJitter, pitchJitter, size, material, shape, tone, sweep }.',
+    doc: 'One particle: { kind, lo, hi, decayLo, decayHi, levelJitter, pitchJitter, size, material, shape, tone, sweep, polarity }.',
     fields: GRAIN_FIELDS,
   },
 };
@@ -348,7 +371,11 @@ export const particles: SourceDef = {
 
     const window = Math.min(ctx.num('duration'), Number.isFinite(ctx.gate) ? ctx.gate : Infinity);
     const end = Math.min(n, Math.max(1, Math.round(window * sr)));
-    const { at, level } = emit(dist, ctx.signal('density'), end, sr, ctx.rng.fork('times'), ctx.num('jitter'), ctx.num('interval'), ctx.num('ratio'));
+    const density = ctx.signal('density');
+    // A louder event can throw more particles as well as louder ones.
+    const countScale = Math.pow(Math.max(ctx.vel, 0.01), Math.max(0, ctx.num('velDensity')));
+    if (countScale !== 1) for (let i = 0; i < density.length; i++) density[i] *= countScale;
+    const { at, level } = emit(dist, density, end, sr, ctx.rng.fork('times'), ctx.num('jitter'), ctx.num('interval'), ctx.num('ratio'));
     const count = at.length;
     if (count === 0) return left;
 
@@ -363,6 +390,7 @@ export const particles: SourceDef = {
     const size = ctx.numOf(field(g, 'size'), GRAIN_FIELDS.size);
     const tone = ctx.numOf(field(g, 'tone'), GRAIN_FIELDS.tone);
     const sweep = ctx.numOf(field(g, 'sweep'), GRAIN_FIELDS.sweep);
+    const samePolarity = (field(g, 'polarity') as unknown) === 'same';
     const top = 0.45 * sr;
 
     // A handful of differently struck pieces to draw from, so a thousand shards don't cost a thousand mode tables.
@@ -582,8 +610,9 @@ export const particles: SourceDef = {
         for (let i = 0; i < fade; i++) tmp[len - 1 - i] *= i / fade;
       }
       // Every particle at the same peak before its own level, whatever its kind and pitch. Half are upside down,
-      // so the small offsets of short rings cancel over the cloud.
-      if (flip) amp = -amp;
+      // so the small offsets of short rings cancel over the cloud; with polarity `same` none are, and a regular
+      // train keeps its pitch. (The coin is tossed either way, so the rest of the cloud stays as it was.)
+      if (flip && !samePolarity) amp = -amp;
       let pk = 0;
       for (let i = 0; i < len; i++) {
         const a = tmp[i] < 0 ? -tmp[i] : tmp[i];

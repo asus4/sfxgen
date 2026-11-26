@@ -21,7 +21,10 @@ export interface FormantPattern {
 
 /**
  * Five formants (centre and bandwidth, Hz) of a neutral adult voice for the vowels a (ah), e (eh), i (ee), o (oh)
- * and u (oo), the classic tenor values of formant synthesis.
+ * and u (oo), the classic tenor values of formant synthesis; then the rounded front vowels ü (German "über",
+ * French "tu") and ö (German "schön", French "peu"), whose rounding pulls the third formant down to the second:
+ * a covered, darker colour (male values after German vowel measurements). They come after u, so the positions of
+ * a to u never move.
  */
 export const VOWEL_FORMANTS: readonly { name: string; freq: readonly number[]; bw: readonly number[] }[] = [
   { name: 'a', freq: [650, 1080, 2650, 2900, 3250], bw: [80, 90, 120, 130, 140] },
@@ -29,9 +32,11 @@ export const VOWEL_FORMANTS: readonly { name: string; freq: readonly number[]; b
   { name: 'i', freq: [290, 1870, 2800, 3250, 3540], bw: [40, 90, 100, 120, 120] },
   { name: 'o', freq: [400, 800, 2600, 2800, 3000], bw: [40, 80, 100, 120, 120] },
   { name: 'u', freq: [350, 600, 2700, 2900, 3300], bw: [40, 60, 100, 120, 120] },
+  { name: 'ü', freq: [270, 1650, 2100, 3200, 3550], bw: [40, 80, 90, 120, 120] },
+  { name: 'ö', freq: [370, 1450, 2200, 3100, 3500], bw: [50, 80, 100, 120, 120] },
 ];
 
-/** The formants of a vowel position 0..4 (a, e, i, o, u; fractions blend neighbours), scaled by 1/size. */
+/** The formants of a vowel position 0..6 (a, e, i, o, u, ü, ö; fractions blend neighbours), scaled by 1/size. */
 export function vowelPattern(vowel: number, size: number, resonance: number, out?: FormantPattern): FormantPattern {
   const v = clamp(Number.isFinite(vowel) ? vowel : 0, 0, VOWEL_FORMANTS.length - 1);
   const i0 = Math.min(Math.floor(v), VOWEL_FORMANTS.length - 2);

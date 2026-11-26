@@ -5,7 +5,7 @@
  * `stretch`) are left alone: baking them in would apply them twice.
  */
 import type { Patch } from './types';
-import { applyControl } from './controls';
+import { applyControl, targetValue } from './controls';
 import { deepClone, getPath, setPath } from './paths';
 import { metaAt } from '../registry';
 
@@ -58,4 +58,36 @@ export function syncControlBases(patch: Patch): { patch: Patch; changes: SyncCha
     changes.push({ path, before, after: value });
   }
   return { patch: out, changes };
+}
+
+export interface RelativeOffset {
+  path: string;
+  control: string;
+  mode: 'mul' | 'add' | 'stretch';
+  /** The factor (`mul`, `stretch`) or amount (`add`) the control applies at its current value. */
+  by: number;
+}
+
+/**
+ * The relative targets that, at the controls' current values, move a parameter clearly away from what the file says
+ * (more than 5 %, or for `add` 5 % of the target's range). Sync cannot write these into the file (they would apply
+ * twice), so the file's value there is a base, not what plays; a target meant to leave the base as written at the
+ * control's default needs `via` (1 for mul and stretch, 0 for add).
+ */
+export function relativeOffsets(patch: Patch): RelativeOffset[] {
+  const out: RelativeOffset[] = [];
+  for (const c of patch.controls ?? []) {
+    for (const t of c.targets ?? []) {
+      const mode = t.mode ?? 'set';
+      if (mode === 'set') continue;
+      const by = targetValue(c, t, metaAt(patch, t.path));
+      if (!Number.isFinite(by)) continue;
+      const off =
+        mode === 'add'
+          ? Math.abs(by) > 0.05 * Math.max(Math.abs((t.to ?? 1) - (t.from ?? -1)), 1e-9)
+          : by <= 0 || Math.abs(Math.log(by)) > Math.log(1.05);
+      if (off) out.push({ path: t.path, control: c.id, mode, by: Number(by.toPrecision(4)) });
+    }
+  }
+  return out;
 }

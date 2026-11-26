@@ -2,7 +2,7 @@
 
 An open-source sound-effect generator 🎛️
 
-**[Open the editor: asus4.github.io/sfxgen](https://asus4.github.io/sfxgen/)**
+**[Open the editor 🔗: asus4.github.io/sfxgen](https://asus4.github.io/sfxgen/)**
 
 ## Make a sound
 
@@ -33,7 +33,7 @@ handing it over, and `sfxgen serve` opens the editor on the same files so you ca
 up https://github.com/asus4/sfxgen and make me ...". [AGENTS.md](AGENTS.md) is where it starts, and
 [docs/SOUND-DESIGN.md](docs/SOUND-DESIGN.md) is how to make sounds that don't sound generated.
 
-The command line runs from a clone of this repository, with Node.js installed:
+The command line runs from a clone of this repository:
 
 ```bash
 git clone https://github.com/asus4/sfxgen.git

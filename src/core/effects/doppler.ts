@@ -46,6 +46,15 @@ const PARAMS: Record<string, ParamMeta> = {
     hardMax: 60,
     unit: 's',
   },
+  start: {
+    kind: 'enum',
+    doc:
+      'When the sound starts. travel: as in life, the first of it arrives late by its travel time (tens of ms when it ' +
+      'starts far away), and the pass is heard at `time`. at-once: that first travel time is dropped, so the sound ' +
+      'starts at once, as a game sound should; everything, the pass included, comes that much earlier.',
+    options: ['travel', 'at-once'],
+    default: 'travel',
+  },
   direction: {
     kind: 'enum',
     doc: 'Which way it travels: across in front of the listener, or front-to-back (straight over the head; no panning).',
@@ -236,6 +245,13 @@ export const doppler: EffectDef = {
         out[i] = y;
       }
       outs.push(out);
+    }
+    if (p.start === 'at-once') {
+      // Drop the travel time of the first sound, the same for both ears so the image stays where it was.
+      let lead = Infinity;
+      for (const ear of ears) lead = Math.min(lead, arrivalAt(ear)[first]);
+      const shift = Math.max(0, Math.floor(lead - first));
+      if (shift > 0) for (const out of outs) out.copyWithin(0, shift).fill(0, out.length - shift);
     }
     if (stereo && outs.length === 1) outs.push(outs[0].slice());
     return outs;

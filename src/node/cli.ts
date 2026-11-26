@@ -35,7 +35,7 @@ import { buildSchema } from '../core/agent/schema';
 import { diffValues } from '../core/agent/diff';
 import { getTemplate, listTemplates, templateCategories } from '../core/templates';
 import { callTool, formatTable, measureProject, measureTracks, trackTable, type MeasuredSound, type ToolResult, type TrackLevel } from '../core/agent/tools';
-import { controlsSetting, formatReview, newProject, soundName, syncControlBases } from '../core';
+import { controlsSetting, formatJson, formatReview, newProject, relativeOffsets, soundName, syncControlBases, type RelativeOffset } from '../core';
 import { FileWorkspace, PATCH_EXT, listPatchFiles } from './file-workspace';
 import { PROJECT_FILE } from '../core/project/project';
 import pkg from '../../package.json';
@@ -294,6 +294,7 @@ function analysisText(a: Analysis, loop = false): string[] {
   }
   if (a.peaks.length) lines.push(`peaks     ${a.peaks.map((p) => `${formatHz(p.hz)} ${p.db === 0 ? '0' : f1(p.db)} dB`).join(', ')}`);
   if (a.onsets.length) lines.push(`onsets    ${a.onsets.map((t) => f2(t)).join(', ')} s${a.onsets.length >= 64 ? ' (first 64)' : ''}`);
+  if (a.events?.length) lines.push(`events    ${a.events.map((t) => f2(t)).join(', ')} s${a.pulseSeconds > 0 ? ` | pulse ${f2(a.pulseSeconds)} s (strength ${f2(a.pulseStrength)})` : ''}`);
   lines.push(
     `edges     first sample ${f1(a.firstSampleDb)} dBFS | last ${f1(a.lastSampleDb)} dBFS | seam ${f1(a.seamDb)} dBFS (largest inner step ${f1(a.maxStepDb)}) | DC ${(Math.abs(a.dcOffset) < 0.00005 ? 0 : a.dcOffset).toFixed(4)} | clipped samples ${a.clippedSamples}` +
       (a.stereoCorrelation !== null ? ` | L/R correlation ${f2(a.stereoCorrelation)}` : ''),
@@ -751,7 +752,7 @@ const newCommand: Command = {
     let file = value(args, 'out') ?? `${basename(fullId)}.sfx.json`;
     if (!file.endsWith('.json')) file += '.sfx.json';
     if (existsSync(file) && !args.flags.has('force')) throw new CliError(`${file} exists; use --force to overwrite it or -o for another name`);
-    writeFile(file, JSON.stringify(patch, null, 2) + '\n');
+    writeFile(file, formatJson(patch));
     out(`Wrote ${file} from ${fullId} (${patch.name})${sets.length ? ` with ${sets.join(', ')}` : ''}.`);
     for (const c of patch.controls ?? []) out(`  control ${c.id} = ${c.value}${c.hint ? `: ${c.hint}` : ''}`);
     out(`Next: sfxgen render ${file} --analyze --png`);
@@ -891,7 +892,7 @@ async function projectInit(args: Args, dir: string): Promise<number> {
   if (existsSync(file) && !args.flags.has('force')) throw new CliError(`${join(dir, PROJECT_FILE)} exists; use --force to overwrite it`);
   const files = (await listPatchFiles(root)).map((f) => f.path);
   const project = newProject(value(args, 'name') ?? (basename(root) || 'Project'), files);
-  writeFile(file, `${JSON.stringify(project, null, 2)}\n`);
+  writeFile(file, formatJson(project));
   out(`Wrote ${join(dir, PROJECT_FILE)}: project "${project.name}" with ${files.length} sound${files.length === 1 ? '' : 's'}${files.length ? '' : ` (no *${PATCH_EXT} files found yet)`}.`);
   for (const f of files.slice(0, 12)) out(`  ${f}`);
   if (files.length > 12) out(`  ... and ${files.length - 12} more`);
@@ -955,30 +956,36 @@ const syncCommand: Command = {
   summary: 'Write what the controls apply into the patch, so the file says what renders',
   usage: 'sfxgen sync <patch.sfx.json...> [--check]',
   description:
-    'A control\'s `set` targets and options override the base value at their path every time the patch renders, so a value edited by hand at that path does nothing. sync writes the value each control currently applies into the base at those paths and prints what changed. Relative targets (mul, add, stretch) are left alone: baking them in would apply them twice. With --check nothing is written and the exit code is 1 if any patch would change (for CI).',
+    'A control\'s `set` targets and options override the base value at their path every time the patch renders, so a value edited by hand at that path does nothing. sync writes the value each control currently applies into the base at those paths and prints what changed. Relative targets (mul, add, stretch) are left alone: baking them in would apply them twice. It notes the ones that, at the current knob values, move a parameter more than 5 % from what the file says (give a target `via`: 1 for mul and stretch, 0 for add, to leave the file\'s value as written at the knob\'s default). With --check nothing is written and the exit code is 1 if any patch would change (for CI).',
   options: [{ name: 'check', help: 'Change nothing; exit 1 if any patch is out of sync.' }, JSON_OUT],
   examples: ['sfxgen sync door.sfx.json', 'sfxgen sync sounds/*.sfx.json --check'],
   async run(args) {
     if (args.positional.length === 0) throw new UsageError('which patches? sfxgen sync <patch.sfx.json...> [--check]');
     const check = args.flags.has('check');
-    const report: { file: string; changes: { path: string; before: unknown; after: unknown }[] }[] = [];
+    const report: { file: string; changes: { path: string; before: unknown; after: unknown }[]; relative: RelativeOffset[] }[] = [];
     for (const file of args.positional) {
       const patch = loadPatch(file);
       const { patch: synced, changes } = syncControlBases(patch);
-      report.push({ file, changes });
-      if (changes.length && !check) writeFile(file, JSON.stringify(synced, null, 2) + '\n');
+      report.push({ file, changes, relative: relativeOffsets(synced) });
+      if (changes.length && !check) writeFile(file, formatJson(synced));
     }
     const dirty = report.filter((r) => r.changes.length > 0);
     if (args.flags.has('json')) {
       out(JSON.stringify(report, null, 2));
     } else {
       for (const r of report) {
-        if (r.changes.length === 0) {
-          out(`${r.file}: in sync`);
-          continue;
+        if (r.changes.length === 0) out(`${r.file}: in sync`);
+        else {
+          out(`${r.file}: ${check ? 'out of sync' : 'synced'}, ${r.changes.length} path${r.changes.length === 1 ? '' : 's'}`);
+          for (const c of r.changes) out(`  ${c.path}: ${compact(c.before, 50)} -> ${compact(c.after, 50)}`);
         }
-        out(`${r.file}: ${check ? 'out of sync' : 'synced'}, ${r.changes.length} path${r.changes.length === 1 ? '' : 's'}`);
-        for (const c of r.changes) out(`  ${c.path}: ${compact(c.before, 50)} -> ${compact(c.after, 50)}`);
+        // Not a problem in itself (a knob may well scale a base), but the file's value there is not what plays.
+        if (r.relative.length) {
+          const say = (o: RelativeOffset) => `${o.path} ${o.mode === 'add' ? (o.by >= 0 ? '+' : '') + o.by : '×' + o.by} (${o.control})`;
+          const shown = r.relative.slice(0, 6).map(say);
+          if (r.relative.length > 6) shown.push(`${r.relative.length - 6} more`);
+          out(`  note: knobs move these from the file's value as they stand (add "via" to a target meant to keep it): ${shown.join(', ')}`);
+        }
       }
       if (check && dirty.length) err(`${dirty.length} patch${dirty.length === 1 ? ' is' : 'es are'} out of sync: run sfxgen sync ${dirty.map((r) => r.file).join(' ')}`);
     }

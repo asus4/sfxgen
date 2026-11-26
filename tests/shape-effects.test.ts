@@ -386,6 +386,18 @@ describe('chorus, flanger, phaser and width', () => {
 });
 
 describe('reverse', () => {
+  it('lands the climax at `at` and is silent after it', () => {
+    for (const at of [0.2, 0.4]) {
+      const x = run([{ type: 'reverse', at }], { source: { ...HIT, env: { attack: 0.0005, decay: 0.12 } }, duration: 1, raw: true }).channels[0];
+      const end = Math.round(at * SR);
+      // The loudest moment is the hit's own start, now at `at`; nothing follows.
+      let peakAt = 0;
+      for (let i = 0; i < x.length; i++) if (Math.abs(x[i]) > Math.abs(x[peakAt])) peakAt = i;
+      expect(Math.abs(peakAt - end) / SR).toBeLessThan(0.01);
+      expect(Math.max(...Array.from(x.subarray(end + 2)).map(Math.abs))).toBe(0);
+    }
+  });
+
   it('plays the whole buffer backwards with align end', () => {
     const dry = run([], { source: HIT, raw: true }).channels[0];
     const rev = run([{ type: 'reverse', align: 'end' }], { source: HIT, raw: true }).channels[0];
@@ -419,5 +431,16 @@ describe('formant', () => {
     expect(si(330) - si(660)).toBeGreaterThan(6);
     expect(si(1870) - sa(1870)).toBeGreaterThan(6);
     expect(db(rms(a) / rms(dry))).toBeCloseTo(0, 1);
+  });
+
+  it('speaks the rounded ü and ö darker than e, and stays finite at both ends', () => {
+    const buzz: SourceSpec = { type: 'osc', wave: 'saw', freq: 110, gain: -6, env: { attack: 0.002 } };
+    const e = powerSpectrum(run([{ type: 'formant', vowel: 1 }], { source: buzz, raw: true, duration: 1 }).channels[0]);
+    const oe = run([{ type: 'formant', vowel: 6 }], { source: buzz, raw: true, duration: 1 }).channels[0];
+    const so = powerSpectrum(oe);
+    // e's third formant is at 2600 Hz; ö's sits at 2200 Hz, where e has a valley.
+    expect(so(2200) - e(2200)).toBeGreaterThan(3);
+    expect(e(2600) - so(2600)).toBeGreaterThan(3);
+    for (const v of [0, 5, 6]) expect(Number.isFinite(rms(run([{ type: 'formant', vowel: v }], { source: buzz, raw: true, duration: 0.3 }).channels[0]))).toBe(true);
   });
 });

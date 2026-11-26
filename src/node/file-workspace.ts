@@ -11,6 +11,7 @@ import { render } from '../core/render';
 import { encodeWav } from '../core/wav';
 import type { ChangeRecord, ProjectBuildRow, Workspace } from '../core/agent/workspace';
 import { analyze } from '../core/analysis';
+import { formatJson } from '../core/format/json';
 import { formatIssues, validatePatch } from '../core/format/validate';
 import { PROJECT_FILE, newProject, renderProjectSound, soundExportPath, soundName, validateProject, type Project, type ProjectSound } from '../core/project/project';
 import { diffValues } from '../core/agent/diff';
@@ -170,7 +171,7 @@ export class FileWorkspace implements Workspace {
     const rel = this.pick(opts.ref);
     const abs = this.absolute(rel);
     await mkdir(dirname(abs), { recursive: true });
-    await writeFile(abs, `${JSON.stringify(patch, null, 2)}\n`);
+    await writeFile(abs, formatJson(patch));
     this.current = rel;
     if ((opts.origin ?? 'agent') === 'agent') this.baseline.set(rel, deepClone(patch));
   }
@@ -371,7 +372,7 @@ export class FileWorkspace implements Workspace {
       }
     }
     await mkdir(dirname(this.projectPath), { recursive: true });
-    await writeFile(this.projectPath, `${JSON.stringify(project, null, 2)}\n`);
+    await writeFile(this.projectPath, formatJson(project));
   }
 
   /**

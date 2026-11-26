@@ -298,6 +298,14 @@ describe('voice', () => {
     const big = response(0, 2);
     expect(Math.abs(near(big, 325) - 325)).toBeLessThan(10);
     expect(Math.abs(near(big, 540) - 540)).toBeLessThan(10);
+    // The rounded front vowels after u: ü and ö pull the third formant down near the second.
+    const ue = response(5, 1);
+    expect(Math.abs(near(ue, 270) - 270)).toBeLessThan(10);
+    expect(Math.abs(near(ue, 1650, 0.06) - 1650)).toBeLessThan(25);
+    expect(Math.abs(near(ue, 2100, 0.06) - 2100)).toBeLessThan(30);
+    const oe = response(6, 1);
+    expect(Math.abs(near(oe, 1450, 0.06) - 1450)).toBeLessThan(25);
+    expect(Math.abs(near(oe, 2200, 0.06) - 2200)).toBeLessThan(30);
   });
 
   it('growl adds the subharmonic an octave down', () => {
@@ -311,7 +319,7 @@ describe('voice', () => {
     const soft = at({ tension: 0 });
     const pressed = at({ tension: 1 });
     expect(centroid(spectrum(pressed))).toBeGreaterThan(1.4 * centroid(spectrum(soft)));
-    const levels = [soft, pressed, at({ breath: 1 }), at({ size: 3, freq: 50 }), at({ size: 0.4, freq: 900 }), at({ vowel: 4 })].map(rms);
+    const levels = [soft, pressed, at({ breath: 1 }), at({ size: 3, freq: 50 }), at({ size: 0.4, freq: 900 }), at({ vowel: 4 }), at({ vowel: 6 })].map(rms);
     expect(Math.max(...levels) / Math.min(...levels)).toBeLessThan(2.5);
   });
 

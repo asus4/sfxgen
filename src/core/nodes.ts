@@ -167,7 +167,7 @@ export const COMMON_SOURCE_PARAMS: ParamMap = {
   },
   pitch: {
     kind: 'signal',
-    doc: 'Semitones added to every pitched parameter. Breakpoints make a whole-voice pitch sweep.',
+    doc: 'Semitones added to every pitched parameter. Breakpoints make a whole-voice pitch sweep, and like every voice parameter they start again with each event; to play a melody across events, give each event its own `pitch`.',
     default: 0,
     min: -48,
     max: 48,

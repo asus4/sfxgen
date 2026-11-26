@@ -8,7 +8,7 @@
 import type { Control, Patch, Track } from '../format/types';
 import { validatePatch, formatIssues, suggest, type ValidationResult } from '../format/validate';
 import { deepClone, getPath, setPath, splitPath } from '../format/paths';
-import { controlsSetting, syncControlBases } from '../format/sync';
+import { controlsSetting, relativeOffsets, syncControlBases } from '../format/sync';
 import { takeFileName, variationTakes } from '../format/controls';
 import { metaAt, getSource } from '../registry';
 import { getTemplate, listTemplates, templateCategories } from '../templates';
@@ -512,10 +512,16 @@ const syncControls: ToolDef = {
     const ref = str(args, 'file');
     const patch = await ws.getPatch(ref);
     const { patch: synced, changes } = syncControlBases(patch);
-    if (changes.length === 0) return { text: 'Already in sync: no control sets a value that differs from the patch.', data: { changes } };
+    const relative = relativeOffsets(synced);
+    const note = relative.length
+      ? `\nNote: at the current knob values these relative targets move a parameter from the file's value (give a target \`via\`, 1 for mul and stretch or 0 for add, if the file's value should be what plays at the knob's default): ${relative
+          .map((o) => `${o.path} ${o.mode === 'add' ? `+${o.by}` : `x${o.by}`} (${o.control})`)
+          .join(', ')}`
+      : '';
+    if (changes.length === 0) return { text: `Already in sync: no control sets a value that differs from the patch.${note}`, data: { changes, relative } };
     await save(ws, synced, ref);
     const lines = changes.map((c) => `- ${c.path}: ${formatValue(c.before)} -> ${formatValue(c.after)}`);
-    return { text: `Wrote ${changes.length} base value(s) from the controls:\n${lines.join('\n')}`, data: { changes } };
+    return { text: `Wrote ${changes.length} base value(s) from the controls:\n${lines.join('\n')}${note}`, data: { changes, relative } };
   },
 };
 

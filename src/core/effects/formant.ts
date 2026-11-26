@@ -6,7 +6,8 @@ import { energy } from '../dsp/dynamics';
 
 /**
  * Five formants (centre Hz, level dB, bandwidth Hz) of the vowels a, e, i, o, u: a tenor voice, from the formant
- * table in the Csound manual (after Peterson and Barney's measurements).
+ * table in the Csound manual (after Peterson and Barney's measurements). Then the rounded front vowels ü and ö,
+ * with the voice source's frequencies (src/core/dsp/formants.ts) and levels that fall off like i's and o's.
  */
 const VOWELS: { f: number[]; a: number[]; bw: number[] }[] = [
   { f: [650, 1080, 2650, 2900, 3250], a: [0, -6, -7, -8, -22], bw: [80, 90, 120, 130, 140] },
@@ -14,7 +15,10 @@ const VOWELS: { f: number[]; a: number[]; bw: number[] }[] = [
   { f: [290, 1870, 2800, 3250, 3540], a: [0, -15, -18, -20, -30], bw: [40, 90, 100, 120, 120] },
   { f: [400, 800, 2600, 2800, 3000], a: [0, -10, -12, -12, -26], bw: [40, 80, 100, 120, 120] },
   { f: [350, 600, 2700, 2900, 3300], a: [0, -20, -17, -14, -26], bw: [40, 60, 100, 120, 120] },
+  { f: [270, 1650, 2100, 3200, 3550], a: [0, -15, -20, -24, -32], bw: [40, 80, 90, 120, 120] },
+  { f: [370, 1450, 2200, 3100, 3500], a: [0, -12, -18, -22, -30], bw: [50, 80, 100, 120, 120] },
 ];
+const LAST = VOWELS.length - 1;
 const FORMANTS = 5;
 
 /** The highest value a parameter reaches (for the tail estimate). */
@@ -33,7 +37,7 @@ export const formant: EffectDef = {
   label: 'Formant filter',
   category: 'filter',
   doc:
-    'Makes any sound speak a vowel: five resonances of a voice (a, e, i, o, u) filter the input, so a saw buzz ' +
+    'Makes any sound speak a vowel: five resonances of a voice (a, e, i, o, u, ü, ö) filter the input, so a saw buzz ' +
     'becomes a talkbox, noise a whispered vowel and a growl a creature\'s throat. Sweep `vowel` for talking, wah ' +
     'and yowling mouths ([[0, 4], [0.3, 0]] goes u-o-i-e-a); `size` scales the throat, from a tiny gremlin (0.6) ' +
     'to a giant (2 to 3). Richer inputs (saw, pulse, noise, drive) speak more clearly than sines. The output is ' +
@@ -41,12 +45,12 @@ export const formant: EffectDef = {
   params: {
     vowel: {
       kind: 'signal',
-      doc: 'Vowel, 0 to 4: 0 a (open "ah"), 1 e, 2 i (bright "ee"), 3 o, 4 u (dark "oo"); fractions morph between neighbours.',
+      doc: 'Vowel, 0 to 6: 0 a (open "ah"), 1 e, 2 i (bright "ee"), 3 o, 4 u (dark "oo"), 5 ü (German "über"), 6 ö (German "schön"; ü and ö are covered and darker than i and e); fractions morph between neighbours.',
       default: 0,
       min: 0,
-      max: 4,
+      max: 6,
       hardMin: 0,
-      hardMax: 4,
+      hardMax: 6,
       unit: '',
     },
     size: {
@@ -97,12 +101,12 @@ export const formant: EffectDef = {
     let lastV = NaN;
     let lastS = NaN;
     for (let i = 0; i < n; i++) {
-      const v = clamp(vowel[i], 0, 4);
+      const v = clamp(vowel[i], 0, LAST);
       const s = size[i];
       if (v !== lastV || s !== lastS) {
         lastV = v;
         lastS = s;
-        const lo = Math.min(Math.floor(v), 3);
+        const lo = Math.min(Math.floor(v), LAST - 1);
         const t = v - lo;
         const A = VOWELS[lo];
         const B = VOWELS[lo + 1];

@@ -90,6 +90,23 @@ describe('catalog', () => {
 });
 
 describe('reverb', () => {
+  it('shortens the low ring with `bass`, and leaves the space as it was without it', () => {
+    const low = tone(70, 0.05);
+    const tailLow = (fx: EffectSpec) => {
+      const x = render(patch(low, [fx], { duration: 3 })).channels[0];
+      return energy(x, Math.round(1.2 * SR), Math.round(2.8 * SR));
+    };
+    const plain: EffectSpec = { type: 'reverb', space: 'stairwell', decay: 3, mix: 1 };
+    const own = render(patch(low, [plain], { duration: 3 })).channels[0];
+    // The stairwell's own bass ratio, written out, is the same reverb.
+    const same = render(patch(low, [{ ...plain, bass: 1.1 }], { duration: 3 })).channels[0];
+    expect(Array.from(same)).toEqual(Array.from(own));
+    expect(dB(tailLow({ ...plain, bass: 0.4 }) / tailLow(plain))).toBeLessThan(-10);
+    expect(dB(tailLow({ ...plain, bass: 1.6 }) / tailLow(plain))).toBeGreaterThan(1);
+    expectHealthy(render(patch(low, [{ ...plain, bass: 0.1 }], { duration: 3 })));
+    expectHealthy(render(patch(low, [{ ...plain, bass: 3 }], { duration: 3 })));
+  });
+
   it('adds a decaying tail in every space', () => {
     for (const space of getEffect('reverb')!.params.space.options!) {
       const r = render(patch(burst, [{ type: 'reverb', space, mix: 0.5 }], { duration: 1.2 }));
@@ -306,6 +323,18 @@ describe('pitch', () => {
 });
 
 describe('doppler', () => {
+  it('arrives late by its travel time, or at once with start: at-once', () => {
+    const first = (x: Float32Array) => x.findIndex((v) => Math.abs(v) > 1e-3) / SR;
+    const pass = (start?: string) =>
+      render(patch(burst, [{ type: 'doppler', speed: 134, distance: 3, time: 0.15, ...(start ? { start } : {}) }], { duration: 1 })).channels[0];
+    const travel = pass();
+    const atOnce = pass('at-once');
+    expect(Array.from(pass('travel'))).toEqual(Array.from(travel));
+    expect(first(travel)).toBeGreaterThan(0.03);
+    expect(first(atOnce)).toBeLessThan(0.005);
+    expectHealthy(render(patch(burst, [{ type: 'doppler', speed: 134, distance: 3, time: 0.15, start: 'at-once' }], { duration: 1, output: { sampleRate: SR, channels: 2 } })));
+  });
+
   it('bends the pitch up on the approach and down after, as physics says', () => {
     const r = render(patch(tone(1000, 3.5), [{ type: 'doppler', speed: 30, distance: 2, time: 2, air: 0 }], { duration: 4 }));
     expectHealthy(r);
