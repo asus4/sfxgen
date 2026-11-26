@@ -3,9 +3,10 @@
  * played through the page. An agent's writes show in the activity feed, flash the knobs they touched and light the
  * pads of the sounds they changed.
  */
-import { validatePatch, formatIssues, soundName, type Patch, type Project, type RenderResult } from '../core';
+import { validatePatch, formatIssues, reviewReport, soundName, type Patch, type Project, type RenderResult } from '../core';
 import type { ChangeRecord, Workspace } from '../core/agent/workspace';
 import { diffPatches } from './lib/paths';
+import { takesOf } from './lib/review';
 import { addSound, patchOf, soundKey, stripProject } from './lib/projectOps';
 import { renderClient } from './renderClient';
 import { editor, versionIn } from './store';
@@ -139,6 +140,13 @@ export function createBrowserWorkspace(): Workspace {
 
     async buildProject(opts) {
       return exportAll({ only: opts?.only, origin: 'agent' });
+    },
+
+    async getReview() {
+      const s = editor();
+      const report = reviewReport(s.project, s.review, (sound) => ({ patch: patchOf(sound), takes: takesOf(s, sound).map((t) => ({ label: t.label, patch: t.patch })) }));
+      const byRow = new Map(report.rows.map((row, i) => [row, patchOf(s.project.sounds[i])]));
+      return { report, patchOf: (row) => byRow.get(row) };
     },
   };
 }

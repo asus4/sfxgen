@@ -228,7 +228,7 @@ function overview(): string {
       ['format', 'Always `"sfxgen/1"`.'],
       ['name, description, tags', 'For people and for searching. The description is the story.'],
       ['duration', 'Seconds, or `"auto"`: until every layer has rung out (capped by `maxDuration`, default 10).'],
-      ['seed', 'Every random choice comes from it; change it for another take of the same design.'],
+      ['seed', 'Every random choice comes from it; change it for another variation of the same design.'],
       ['output', '`sampleRate` (default 48000), `channels` 1 or 2 (default 1), `bitDepth` 16, 24 or 32 for WAV export.'],
       ['loop', 'Only for a seamless loop of exactly `duration` seconds: `{ "mode": "wrap" }` (the tail folds onto the start) or `{ "mode": "crossfade", "crossfade": 0.1 }`.'],
       ['tracks', 'The layers, below.'],

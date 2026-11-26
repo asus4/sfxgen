@@ -12,8 +12,24 @@ import { encodeWav } from '../core/wav';
 import type { ChangeRecord, ProjectBuildRow, Workspace } from '../core/agent/workspace';
 import { analyze } from '../core/analysis';
 import { formatIssues, validatePatch } from '../core/format/validate';
-import { PROJECT_FILE, newProject, renderProjectSound, soundExportPath, soundName, validateProject, type Project } from '../core/project/project';
+import { PROJECT_FILE, newProject, renderProjectSound, soundExportPath, soundName, validateProject, type Project, type ProjectSound } from '../core/project/project';
 import { diffValues } from '../core/agent/diff';
+import {
+  REVIEW_FILE,
+  TAKES_SUFFIX,
+  readReview,
+  reviewReport,
+  takeLabel,
+  takeOwner,
+  takesDirOf,
+  validateReviewEntry,
+  withVerdict,
+  type Review,
+  type ReviewEntry,
+  type ReviewReport,
+  type ReviewRow,
+  type ReviewTake,
+} from '../core/project/review';
 
 export const PATCH_EXT = '.sfx.json';
 const SKIP_DIRS = new Set(['node_modules', '.git', 'dist', '.next', '.cache']);
@@ -26,10 +42,9 @@ export interface PatchFileInfo {
   mtime: number;
 }
 
-/** Every `*.sfx.json` under a directory, relative to it, sorted. */
-export async function listPatchFiles(root: string): Promise<PatchFileInfo[]> {
+async function walkPatchFiles(root: string, takes: boolean): Promise<PatchFileInfo[]> {
   const out: PatchFileInfo[] = [];
-  async function walk(dir: string): Promise<void> {
+  async function walk(dir: string, inTakes: boolean): Promise<void> {
     let entries;
     try {
       entries = await readdir(dir, { withFileTypes: true });
@@ -40,15 +55,32 @@ export async function listPatchFiles(root: string): Promise<PatchFileInfo[]> {
       if (e.name.startsWith('.') && e.isDirectory()) continue;
       const full = join(dir, e.name);
       if (e.isDirectory()) {
-        if (!SKIP_DIRS.has(e.name)) await walk(full);
-      } else if (e.isFile() && e.name.endsWith(PATCH_EXT)) {
+        // A sound's takes are a folder next to it: not sounds of their own. Takes don't nest.
+        const isTakes = e.name.endsWith(TAKES_SUFFIX);
+        if (!SKIP_DIRS.has(e.name) && !inTakes && (takes || !isTakes)) await walk(full, isTakes);
+      } else if (e.isFile() && e.name.endsWith(PATCH_EXT) && inTakes === takes) {
         const s = await stat(full);
         out.push({ path: relative(root, full).split(sep).join('/'), name: e.name.slice(0, -PATCH_EXT.length), mtime: Math.round(s.mtimeMs) });
       }
     }
   }
-  await walk(root);
+  await walk(root, false);
   return out.sort((a, b) => a.path.localeCompare(b.path));
+}
+
+/** Every `*.sfx.json` under a directory, relative to it, sorted. Takes (in `*.takes/` folders) are not listed. */
+export async function listPatchFiles(root: string): Promise<PatchFileInfo[]> {
+  return walkPatchFiles(root, false);
+}
+
+/** The takes under a directory, by the sound they belong to (`door.sfx.json` -> the files in `door.takes/`). */
+export async function listTakes(root: string): Promise<Record<string, PatchFileInfo[]>> {
+  const byOwner: Record<string, PatchFileInfo[]> = {};
+  for (const f of await walkPatchFiles(root, true)) {
+    const owner = takeOwner(f.path);
+    if (owner) (byOwner[owner] ??= []).push(f);
+  }
+  return byOwner;
 }
 
 /** Nearest existing ancestor's real path, so a symlink can't smuggle a write out of the root. */
@@ -221,6 +253,95 @@ export class FileWorkspace implements Workspace {
     }
     const files = (await listPatchFiles(this.root)).map((f) => f.path);
     return { project: newProject(basename(this.root) || 'Project', files), path: this.projectFile, saved: false };
+  }
+
+  // ---- Review ----------------------------------------------------------------------------------
+
+  /** The review file, relative to the root: next to the project file. */
+  get reviewFile(): string {
+    const dir = dirname(this.projectFile.split('/').join(sep)).split(sep).join('/');
+    return dir === '.' ? REVIEW_FILE : `${dir}/${REVIEW_FILE}`;
+  }
+
+  get reviewPath(): string {
+    return join(this.root, ...this.reviewFile.split('/'));
+  }
+
+  /** The review on disk (its valid part), or an empty one. */
+  async readReviewFile(): Promise<Review> {
+    try {
+      return readReview(JSON.parse(await readFile(this.reviewPath, 'utf8')));
+    } catch {
+      return readReview(null);
+    }
+  }
+
+  /** Writes the review file and returns the text written. */
+  async writeReviewFile(review: Review): Promise<string> {
+    const text = `${JSON.stringify(review, null, 2)}\n`;
+    await mkdir(dirname(this.reviewPath), { recursive: true });
+    await writeFile(this.reviewPath, text);
+    return text;
+  }
+
+  /** Sets one sound's verdict (by its review key), or clears it with null. */
+  async setVerdict(key: string, entry: ReviewEntry | null): Promise<{ review: Review; text: string }> {
+    if (entry) {
+      const issues = validateReviewEntry(entry);
+      if (issues.length) throw new Error(issues.map((i) => `${i.path || 'entry'}: ${i.message}`).join('; '));
+    }
+    const review = withVerdict(await this.readReviewFile(), key, entry);
+    return { review, text: await this.writeReviewFile(review) };
+  }
+
+  /** A sound's takes (`<name>.takes/*.sfx.json` next to its file, relative to the project), sorted by name. */
+  async takesOf(file: string): Promise<ReviewTake[]> {
+    const dir = resolve(dirname(this.projectPath), takesDirOf(file));
+    let names: string[];
+    try {
+      names = (await readdir(dir)).filter((n) => n.endsWith(PATCH_EXT)).sort();
+    } catch {
+      return [];
+    }
+    const takes: ReviewTake[] = [];
+    for (const n of names) {
+      try {
+        takes.push({ label: takeLabel(n), patch: JSON.parse(await readFile(join(dir, n), 'utf8')) as Patch });
+      } catch {
+        // A take caught mid-write or broken: left out until it reads.
+      }
+    }
+    return takes;
+  }
+
+  /** Every sound's review state: what the person approved or flagged, what they changed, and the takes. */
+  async getReview(): Promise<{ report: ReviewReport; review: Review; patchOf(row: ReviewRow): Patch | undefined }> {
+    const got = await this.getProject();
+    const project = got?.project ?? newProject(basename(this.root) || 'Project', []);
+    const review = await this.readReviewFile();
+    const dir = dirname(this.projectPath);
+    const seen = new Map<ProjectSound, { patch?: Patch; takes: ReviewTake[] }>();
+    for (const sound of project.sounds ?? []) {
+      let patch = sound.patch;
+      if (!patch && sound.file) {
+        try {
+          patch = JSON.parse(await readFile(resolve(dir, sound.file), 'utf8')) as Patch;
+        } catch {
+          patch = undefined;
+        }
+      }
+      seen.set(sound, { patch, takes: sound.file ? await this.takesOf(sound.file) : [] });
+    }
+    const report = reviewReport(project, review, (s) => seen.get(s) ?? {});
+    const byRow = new Map(report.rows.map((r, i) => [r, seen.get(project.sounds[i])?.patch]));
+    return { report, review, patchOf: (row) => byRow.get(row) };
+  }
+
+  /** Records that an agent has read the verdicts up to `at` (ISO), so the next read shows only newer ones. */
+  async markReviewRead(at: string): Promise<string> {
+    const review = await this.readReviewFile();
+    if (review.read && review.read >= at) return '';
+    return this.writeReviewFile({ ...review, read: at });
   }
 
   /** Where each sound's WAV would go, absolute. */

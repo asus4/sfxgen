@@ -1,5 +1,6 @@
 /**
- * The `sfxgen` command line: render, analyze, validate, guide, schema, templates, new, diff, sync, project, build, serve.
+ * The `sfxgen` command line: render, analyze, validate, guide, schema, templates, new, diff, sync, project, build, review,
+ * serve.
  *
  * Every command is written for an agent reading its output: plain lines first, exact numbers after, `--json` where
  * a program wants the data, warnings on stderr, exit code 1 on errors and 2 on a usage mistake.
@@ -34,7 +35,7 @@ import { buildSchema } from '../core/agent/schema';
 import { diffValues } from '../core/agent/diff';
 import { getTemplate, listTemplates, templateCategories } from '../core/templates';
 import { callTool, formatTable, measureProject, measureTracks, trackTable, type MeasuredSound, type ToolResult, type TrackLevel } from '../core/agent/tools';
-import { controlsSetting, newProject, soundName, syncControlBases } from '../core';
+import { controlsSetting, formatReview, newProject, soundName, syncControlBases } from '../core';
 import { FileWorkspace, PATCH_EXT, listPatchFiles } from './file-workspace';
 import { PROJECT_FILE } from '../core/project/project';
 import pkg from '../../package.json';
@@ -321,7 +322,7 @@ const SET: OptionSpec = {
   arg: '<id=value>',
   help: 'Set a control by id (a number, or an option label), or any parameter by path (tracks.body.source.freq=220). Repeatable.',
 };
-const SEED: OptionSpec = { name: 'seed', value: 'required', arg: '<n>', help: 'Use this seed: another take of the same design.' };
+const SEED: OptionSpec = { name: 'seed', value: 'required', arg: '<n>', help: 'Use this seed: another variation of the same design.' };
 const SR: OptionSpec = { name: 'sr', value: 'required', arg: '<Hz>', help: 'Sample rate (default: the patch\'s, else 48000).' };
 const CHANNELS: OptionSpec = { name: 'channels', value: 'required', arg: '<1|2>', help: 'Mono or stereo (default: the patch\'s, else 1).' };
 const JSON_OUT: OptionSpec = { name: 'json', help: 'Print JSON instead of text.' };
@@ -985,6 +986,66 @@ const syncCommand: Command = {
   },
 };
 
+const sleep = (ms: number) => new Promise((ok) => setTimeout(ok, ms));
+
+/**
+ * Waits until the person has given new verdicts and then paused (or reviewed everything), so an agent waiting in
+ * the background is not woken after the first of a run of verdicts. False when the time runs out.
+ */
+async function waitForVerdicts(ws: FileWorkspace, timeoutS: number, quietS: number): Promise<boolean> {
+  const deadline = Date.now() + timeoutS * 1000;
+  let last = '';
+  let changed = Date.now();
+  for (;;) {
+    const { report } = await ws.getReview();
+    const fresh = report.rows.filter((r) => r.isNew && r.verdict);
+    const sig = fresh.map((r) => `${r.n}:${r.verdict!.at}`).join(',');
+    if (sig !== last) {
+      last = sig;
+      changed = Date.now();
+    }
+    if (fresh.length && (report.counts.unreviewed === 0 || Date.now() - changed >= quietS * 1000)) return true;
+    if (Date.now() >= deadline) return false;
+    await sleep(Math.min(1000, Math.max(50, deadline - Date.now())));
+  }
+}
+
+const reviewCommand: Command = {
+  name: 'review',
+  summary: 'What the person approved or flagged as needing work in the editor, and what they changed',
+  usage: 'sfxgen review [dir | project.json] [--all] [--peek] [--json] [--wait [--timeout s] [--quiet s]]',
+  description:
+    'In the editor a person approves each sound or flags it as needing work, after turning knobs or picking a take if they like; what to change they say in the chat. This prints the project\'s counts, the verdicts given since the last `sfxgen review` (each with the take kept and the person\'s changes, which are already in the files), then the sounds nobody has approved yet, numbered as the editor\'s pads. It then marks those verdicts read. Verdicts are kept in sfxgen.review.json next to the project; a verdict holds only while the sound and its takes stay as they were, so changing a sound puts it back to be reviewed. To offer versions of a sound, write takes to <name>.takes/<label>.sfx.json next to it: the person picks one in the editor.',
+  options: [
+    { name: 'all', help: 'Every verdict, not only the new ones.' },
+    { name: 'peek', help: 'Leave the verdicts unread, so the next run shows them again.' },
+    { name: 'wait', help: 'Wait for new verdicts first: returns once the person has given some and paused, or has reviewed everything.' },
+    { name: 'timeout', value: 'required', arg: '<s>', help: '--wait: give up after this many seconds (default 1800), with exit code 1.' },
+    { name: 'quiet', value: 'required', arg: '<s>', help: '--wait: how long a pause ends the wait (default 10).' },
+    JSON_OUT,
+  ],
+  examples: ['sfxgen review', 'sfxgen review sounds/ --all', 'sfxgen review --wait --timeout 3600'],
+  async run(args) {
+    if (args.positional.length > 1) throw new UsageError('one project at a time: sfxgen review [dir | project.json]');
+    const target = args.positional[0] ?? '.';
+    const ws = projectWorkspace(target);
+    const wait = args.flags.has('wait');
+    const timeout = numberOption(args, 'timeout', (n) => n > 0, 'a number of seconds') ?? 1800;
+    const quiet = numberOption(args, 'quiet', (n) => n >= 0, 'a number of seconds') ?? 10;
+    if (!wait && (has(args, 'timeout') || has(args, 'quiet'))) throw new UsageError('--timeout and --quiet go with --wait');
+    if (wait && !(await waitForVerdicts(ws, timeout, quiet))) {
+      err(`No new verdicts in ${timeout} s. The person approves or flags sounds in the editor (sfxgen serve).`);
+      return 1;
+    }
+    const { report, patchOf } = await ws.getReview();
+    if (args.flags.has('json')) out(JSON.stringify(report, null, 2));
+    else for (const l of formatReview(report, { all: args.flags.has('all'), patchOf })) out(l);
+    const newest = report.rows.filter((r) => r.isNew && r.verdict).map((r) => r.verdict!.at).sort().pop();
+    if (newest && !args.flags.has('peek')) await ws.markReviewRead(newest);
+    return 0;
+  },
+};
+
 const serveCommand: Command = {
   name: 'serve',
   summary: 'Open the editor on the patches in a folder (live, both ways)',
@@ -1025,6 +1086,7 @@ const COMMANDS: Command[] = [
   syncCommand,
   buildCommand,
   projectCommand,
+  reviewCommand,
   serveCommand,
 ];
 

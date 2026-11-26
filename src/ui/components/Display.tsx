@@ -2,7 +2,7 @@
  * The display: a dark screen with the open sound's waveform (every audible track in its ink, screened over black,
  * under the outline of the finished mix), the lanes, the readouts and the agent's log. While a control is hovered
  * or turned the screen switches to that control's colour and shows where it acts. Play sits in the screen's head;
- * another take and surprise me sit beside the easy controls they move.
+ * the dice and surprise me sit beside the easy controls they move.
  */
 import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import { player } from '../audio';
@@ -390,13 +390,30 @@ function Lane({ index }: { index: number }) {
   );
 }
 
+/** The layers as lanes, and under the last one the key that adds another. */
 function Lanes() {
   const count = useEditor((s) => s.patch.tracks.length);
+  const edit = useEditor((s) => s.edit);
   return (
     <div className="lanes" role="group" aria-label="Layers">
       {Array.from({ length: count }, (_, i) => (
         <Lane key={i} index={i} />
       ))}
+      <div className="lane lane-more">
+        <button
+          type="button"
+          className="screen-key lane-add"
+          title="Add a layer to this sound"
+          onClick={() => {
+            const { patch, id } = addTrack(useEditor.getState().patch);
+            edit(patch);
+            useEditor.getState().select(id);
+            useEditor.getState().showSurface('sound');
+          }}
+        >
+          <Icon name="plus" size={13} /> <span>Add layer</span>
+        </button>
+      </div>
     </div>
   );
 }
@@ -576,19 +593,6 @@ export function Display() {
           />
           <Readouts />
           <div className="screen-tools">
-            <button
-              type="button"
-              className="screen-key"
-              title="Add a layer to this sound"
-              onClick={() => {
-                const { patch, id } = addTrack(useEditor.getState().patch);
-                edit(patch);
-                useEditor.getState().select(id);
-                useEditor.getState().showSurface('sound');
-              }}
-            >
-              <Icon name="plus" size={15} /> <span>layer</span>
-            </button>
             <button
               type="button"
               className="screen-key"

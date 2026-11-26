@@ -8,8 +8,8 @@ An open-source sound-effect generator 🎛️
 
 1. Press **Gallery** and pick a template: impacts, footsteps, doors, UI clicks, retro blips, sci-fi, creatures,
    magic, nature and more. It plays as soon as you pick it.
-2. Turn the **Easy control** knobs; the sound plays when you let go. **Another take** keeps the sound and rolls new
-   random detail. **Surprise me** throws every knob somewhere new.
+2. Turn the **Easy control** knobs; the sound plays when you let go. The **dice** keep the sound and roll new random
+   detail. **Surprise me** throws every knob somewhere new.
 3. Open **Full control** for every parameter of every layer, the mixer for a whole set of sounds, and the settings
    the set shares.
 4. **Export** a WAV (one sound or the whole set), or **Share** a link with the sound inside it.
@@ -43,6 +43,7 @@ npm run sfxgen -- templates                          # browse the library
 npm run sfxgen -- new impacts/thud -o thud.sfx.json  # start from a template
 npm run sfxgen -- render thud.sfx.json --analyze --png
 npm run sfxgen -- serve .                            # edit the same files in the browser
+npm run sfxgen -- review                             # what the person approved or flagged
 npm run sfxgen -- project init sounds/               # make a folder of patches a project
 npm run sfxgen -- build sounds/                      # render every sound to its export path
 ```

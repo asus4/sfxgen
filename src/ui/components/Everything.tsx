@@ -650,7 +650,11 @@ export function FxChain({ chainPath, title }: { chainPath: string; title: string
   );
 }
 
+/** Whether the source's description is shown. Closed at first; kept while the page is open, across layers. */
+let sourceDocOpen = false;
+
 function TrackSheet({ trackId }: { trackId: string }) {
+  const [docOpen, setDocOpen] = useState(sourceDocOpen);
   const track = useEditor((s) => s.patch.tracks.find((t) => t.id === trackId));
   const index = useEditor((s) => s.patch.tracks.findIndex((t) => t.id === trackId));
   const buses = useEditor((s) => s.patch.buses);
@@ -718,7 +722,27 @@ function TrackSheet({ trackId }: { trackId: string }) {
         {Object.keys(busFields).length > 0 && <Fields base={`${base}.sends`} params={busFields} />}
       </Section>
 
-      <Section title="Source" tag={def?.category ?? 'unknown'}>
+      <Section
+        title="Source"
+        tag={def?.category ?? 'unknown'}
+        tools={
+          def && (
+            <button
+              type="button"
+              className={`key key-sm doc-toggle${docOpen ? ' is-open' : ''}`}
+              aria-expanded={docOpen}
+              aria-controls={`source-doc-${trackId}`}
+              title={docOpen ? 'Hide what this source does' : 'Show what this source does'}
+              onClick={() => {
+                sourceDocOpen = !docOpen;
+                setDocOpen(sourceDocOpen);
+              }}
+            >
+              About <Icon name="down" size={12} />
+            </button>
+          )
+        }
+      >
         <NodeSelect
           label="Source type"
           value={track.source.type}
@@ -728,7 +752,11 @@ function TrackSheet({ trackId }: { trackId: string }) {
             commit();
           }}
         />
-        {def && <p className="section-doc">{def.doc}</p>}
+        {def && docOpen && (
+          <p id={`source-doc-${trackId}`} className="section-doc">
+            {def.doc}
+          </p>
+        )}
         {def ? <Fields base={`${base}.source`} params={{ ...def.params, ...commonKnobs }} /> : <JsonField path={`${base}.source`} label="Unknown source" />}
       </Section>
 
@@ -847,7 +875,7 @@ function MasterSheet() {
             <NormalizeTarget mode={normalize} />
           )}
         </div>
-        {overruled && <p className="section-doc">In this set the project’s levelling replaces this one (see Project, or the sound’s group in the mixer).</p>}
+        {overruled && <p className="section-doc">In this set the project’s levelling replaces this one (see Settings, or the sound’s group in the mixer).</p>}
       </Section>
       <FxChain chainPath="master.fx" title="master" />
 

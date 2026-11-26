@@ -17,6 +17,7 @@ import type { RenderResult } from '../render';
 import { buildGuide, catalogIndex, type GuideSection } from './guide';
 import { PROJECT_FILE, matchLoudness, newProject, projectPatch, soundExportPath, soundName, validateProject, type Project, type ProjectSound, type SoundLevel } from '../project/project';
 import type { ChangeRecord, ProjectBuildRow, Workspace } from './workspace';
+import { formatReview } from '../project/review';
 
 // ---- Types -----------------------------------------------------------------------------------
 
@@ -324,7 +325,7 @@ const newFromTemplate: ToolDef = {
       file: FILE_PROP,
       name: { type: 'string', description: 'A name for the new patch (default: the template\'s).' },
       controls: { type: 'object', description: 'Control values by control id, for example { "weight": 0.8 }.', additionalProperties: { type: 'number' } },
-      seed: { type: 'integer', description: 'Seed for every random choice; a new seed is a new take.' },
+      seed: { type: 'integer', description: 'Seed for every random choice; a new seed is a new variation.' },
       overwrite: { type: 'boolean', description: 'Replace the file if it already exists. Default false.' },
     },
     ['template'],
@@ -703,7 +704,7 @@ const exportWav: ToolDef = {
   name: 'export_wav',
   title: 'Export WAV',
   description:
-    'Writes the sound as a WAV file, next to the patch unless `path` is given. With `variations` above 1 it writes that many takes (the patch itself, then versions where each control with a `vary` range moves a little and the seed changes), named name-01.wav, name-02.wav and so on (the same takes the editor and the CLI write): the usual set for game round-robin.',
+    'Writes the sound as a WAV file, next to the patch unless `path` is given. With `variations` above 1 it writes that many variations (the patch itself, then versions where each control with a `vary` range moves a little and the seed changes), named name-01.wav, name-02.wav and so on (the same variations the editor and the CLI write): the usual set for game round-robin. These are not takes (other versions of a sound for the person to pick from, in <name>.takes/).',
   inputSchema: obj({
     file: FILE_PROP,
     path: { type: 'string', description: 'Where to write the WAV (relative to the workspace). Default: next to the patch, same name.' },
@@ -757,6 +758,20 @@ const getHumanChanges: ToolDef = {
     if (changes.length === 0) return { text: 'No changes by a person since you last wrote this patch.', data: { changes } };
     const lines = changes.map((c) => `- ${c.path}: ${formatValue(c.before)} -> ${formatValue(c.after)}`);
     return { text: `${changes.length} change(s) by a person:\n${lines.join('\n')}`, data: { changes } };
+  },
+};
+
+const getReviewTool: ToolDef = {
+  name: 'get_review',
+  title: 'Get the review',
+  description:
+    'Which sounds the person approved or flagged as needing work in the editor, what they changed before deciding (already saved in the files: build on it), which take they kept, and which sounds nobody has approved yet. Sounds are numbered as the pads are, so "#5" in the chat is sound 5 here. The person says what needs work in the chat; this says which sounds. Takes are other versions of a sound: write them to <name>.takes/<label>.sfx.json next to the sound file.',
+  inputSchema: obj({ all: { type: 'boolean', description: 'Every verdict, not only those since the last read.' } }),
+  annotations: { readOnlyHint: true, idempotentHint: true },
+  async run(ws, args) {
+    if (!ws.getReview) return { text: 'This workspace keeps no review.', data: null };
+    const { report, patchOf } = await ws.getReview();
+    return { text: formatReview(report, { all: args.all === true, patchOf }).join('\n'), data: report };
   },
 };
 
@@ -1099,6 +1114,7 @@ export const TOOLS: ToolDef[] = [
   play,
   exportWav,
   getHumanChanges,
+  getReviewTool,
   listPatches,
   getProjectTool,
   editProject,

@@ -13,6 +13,7 @@ const PATHS: Record<string, string> = {
   moon: 'M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5z',
   pin: 'M9 4h6l-1 6 3 3H7l3-3zM12 13v7',
   close: 'M6 6l12 12M18 6 6 18',
+  check: 'M5 12.5l4.5 4.5L19 7.5',
   plus: 'M12 5v14M5 12h14',
   up: 'M6 14l6-6 6 6',
   down: 'M6 10l6 6 6-6',
@@ -55,7 +56,7 @@ const PIPS: Record<number, [number, number][]> = {
   6: [[8, 7], [16, 7], [8, 12], [16, 12], [8, 17], [16, 17]],
 };
 
-/** A die showing a face that follows the seed, so "another take" visibly lands somewhere new. */
+/** A die showing a face that follows the seed, so a new roll visibly lands somewhere new. */
 export function Die({ seed, size = 20 }: { seed: number; size?: number }) {
   const face = (Math.abs(Math.round(seed)) % 6) + 1;
   return (

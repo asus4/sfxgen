@@ -11,6 +11,7 @@
 import type { Patch } from '../format/types';
 import type { RenderResult } from '../render';
 import type { Project } from '../project/project';
+import type { ReviewReport, ReviewRow } from '../project/review';
 
 /** One row of a project build: what was written and how it measures. */
 export interface ProjectBuildRow {
@@ -68,4 +69,9 @@ export interface Workspace {
   setProject?(project: Project, opts?: { origin?: 'agent' | 'human' }): Promise<void>;
   /** Renders every sound (or `only` those names) in project context to its export path. */
   buildProject?(opts?: { only?: string[] }): Promise<ProjectBuildRow[]>;
+  /**
+   * Which sounds a person approved or flagged as needing work, what they changed before deciding, and each sound's
+   * takes (src/core/project/review.ts). `patchOf` gives a row's patch, to name its controls.
+   */
+  getReview?(): Promise<{ report: ReviewReport; patchOf(row: ReviewRow): Patch | undefined }>;
 }

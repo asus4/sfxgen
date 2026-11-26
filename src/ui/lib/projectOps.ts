@@ -18,6 +18,7 @@ import {
   type ProjectSound,
   type SoundLevel,
 } from '../../core';
+import { getTemplate } from '../../core/templates';
 import { INKS } from './inks';
 import { uniqueId } from './patchOps';
 
@@ -35,6 +36,29 @@ export function patchOf(sound: ProjectSound | undefined): Patch {
 /** A lone patch is a project of one. */
 export function projectOfOne(patch: Patch, name = patch.name): Project {
   return { format: PROJECT_FORMAT_ID, name, sounds: [{ patch }] };
+}
+
+/**
+ * The sounds on the pads the first time someone opens the editor: one from each corner of the library (a creature,
+ * a pass-by, a loop, a footstep, a physical impact, a UI cue), so the first few presses show how far it reaches.
+ */
+export const STARTER_TEMPLATES = [
+  'creatures/bird-tweet',
+  'creatures/insect-flyby',
+  'ambience/machine-room-loop',
+  'footsteps/puddle-splash',
+  'impacts/rubber-ball-bounce',
+  'ui/soft-confirm',
+] as const;
+
+/** The first project a person sees: the starter sounds from the library, ready on the pads. */
+export function starterProject(name = 'First set'): Project {
+  let project: Project = { format: PROJECT_FORMAT_ID, name, sounds: [] };
+  for (const id of STARTER_TEMPLATES) {
+    const patch = getTemplate(id);
+    if (patch) project = addSound(project, patch).project;
+  }
+  return project.sounds.length > 0 ? project : projectOfOne(EMPTY_PATCH, name);
 }
 
 /** The project as it is written to `sfxgen.project.json`: sounds in files lose their in-memory patch. */

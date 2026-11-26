@@ -49,6 +49,16 @@ describe('template library', () => {
     expect(templates.length).toBeGreaterThan(0);
     expect(new Set(templates.map((t) => t.id)).size).toBe(templates.length);
   });
+
+  // Serving templates/ opens the whole library as one project, and a project's sounds are named by file name.
+  it('has unique file names, so the whole library opens as one project', () => {
+    const byName = new Map<string, string[]>();
+    for (const t of templates) {
+      const name = t.id.replace(/^.*\//, '');
+      byName.set(name, [...(byName.get(name) ?? []), t.id]);
+    }
+    expect([...byName.values()].filter((ids) => ids.length > 1)).toEqual([]);
+  });
 });
 
 describe.each(templates.map((t) => [t.id, t] as const))('%s', (_id, entry) => {

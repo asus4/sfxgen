@@ -680,7 +680,7 @@ button.pill:hover {
   margin: 0 6px;
 }
 
-/* Another take and surprise me: the two ways to let chance decide. */
+/* The dice and surprise me: the two ways to let chance decide. */
 .chance {
   flex: none;
   display: flex;
@@ -703,6 +703,13 @@ button.pill:hover {
 
 .key-chance:active:not(:disabled) {
   background: var(--well);
+}
+
+/* The dice: a new seed, with nothing to read. */
+.key-dice {
+  min-width: 0;
+  width: 58px;
+  padding: 8px;
 }
 
 .key-chance small {
@@ -846,15 +853,84 @@ button.pill:hover {
   font-family: var(--font-mono);
 }
 
-.pad-list {
+/* The pads, then the slot that adds one: it follows the last pad and stays in view when the list scrolls. */
+.pads-body {
   flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
+}
+
+.pad-list {
+  flex: 0 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
   gap: 5px;
-  padding: 10px;
+  padding: 10px 10px 5px;
   overflow: auto;
   scrollbar-width: thin;
+}
+
+.pad-add {
+  flex: none;
+  display: grid;
+  grid-template-columns: 26px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  height: 48px;
+  margin: 0 10px 10px;
+  padding: 0 10px 0 9px;
+  border: 1.5px dashed var(--line-2);
+  border-radius: 9px;
+  background: transparent;
+  color: var(--ink-2);
+  text-align: left;
+  transition: background 90ms, border-color 90ms, color 90ms;
+}
+
+.pad-add:hover {
+  border-style: solid;
+  border-color: var(--ink);
+  background: var(--key);
+  color: var(--ink);
+}
+
+.pad-add:active {
+  background: var(--well);
+}
+
+.pad-add-icon {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  background: var(--ink);
+  color: var(--body);
+}
+
+.pad-add-text {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.pad-add-text b {
+  font-size: 12.5px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--ink);
+}
+
+.pad-add-text small {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font: 600 9.5px var(--font-mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .pads-foot {
@@ -864,6 +940,87 @@ button.pill:hover {
 
 .pads-foot .key {
   width: 100%;
+}
+
+/* Approve or Needs work, under the open sound's pad: lit when given; either one moves on to the next to review. */
+.review-keys {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 5px;
+  margin-bottom: 3px;
+}
+
+.review-keys .key {
+  min-width: 0;
+  min-height: 28px;
+  padding: 0 6px;
+  gap: 5px;
+  border-radius: 7px;
+  font-size: 9.5px;
+}
+
+.review-keys .key small {
+  display: inline-grid;
+  place-items: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: var(--led-edit);
+  color: #17181b;
+  font: 700 10px var(--font-mono);
+  letter-spacing: 0;
+}
+
+.key-approve[aria-pressed='true'] {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--body);
+}
+
+.key-needs-work[aria-pressed='true'] {
+  border-color: var(--led-hot);
+  box-shadow: inset 0 0 0 1px var(--led-hot);
+  color: var(--led-hot);
+}
+
+/* How many sounds wait for a verdict, in the head of the sounds. */
+.pads-review,
+.pads-reviewed {
+  margin-left: auto;
+  font: 600 10.5px var(--font-mono);
+  white-space: nowrap;
+}
+
+.pads-review {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 24px;
+  padding: 0 8px;
+  border: 1px solid var(--line-2);
+  border-radius: 6px;
+  background: var(--key);
+}
+
+.pads-review:hover {
+  border-color: var(--ink);
+}
+
+.pads-reviewed {
+  color: var(--ink-2);
+}
+
+.pad-review-mark {
+  width: 9px;
+  height: 9px;
+}
+
+.pad-review-mark path {
+  fill: var(--led-hot);
+  stroke: var(--led-hot);
+  stroke-width: 2;
+  stroke-linejoin: round;
 }
 
 /* ---- The screen --------------------------------------------------------------------------------- */
@@ -1379,13 +1536,29 @@ button.pill:hover {
   pointer-events: none;
 }
 
+/* The row under the last lane: the key that adds a layer, in the column of the lane names. When the lanes scroll
+   (full control open, many layers) it stays in view at their foot. */
+.lane.lane-more {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  height: 28px;
+  background: var(--screen);
+}
+
 .lane-add {
-  flex: none;
-  align-self: flex-start;
-  padding: 2px 9px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 0 8px;
+  border-style: dashed;
+  border-color: color-mix(in srgb, var(--screen-2) 45%, transparent);
+  border-radius: 5px;
   font-size: 10px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 /* ---- Notes (a tab of full control) ---------------------------------------------------------------- */
@@ -1950,6 +2123,117 @@ button.pill:hover {
   opacity: 0.4;
 }
 
+/* Not reviewed yet: a red fold in the pad's corner. Flagged as needing work: the fold as an outline. Approved: none. */
+.pad-review {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 15px;
+  height: 15px;
+}
+
+.pad-review path {
+  fill: var(--led-hot);
+  stroke: var(--led-hot);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+.pad[data-review='needs-work'] .pad-review path {
+  fill: none;
+}
+
+.pad-item {
+  display: grid;
+  gap: 3px;
+}
+
+/* A sound's takes: a folder under its pad. */
+.pad-takes-toggle {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  margin-left: 26px;
+  padding: 1px 6px;
+  border: 0;
+  border-radius: 5px;
+  background: none;
+  color: var(--ink-2);
+  font: 500 10.5px var(--font-mono);
+  text-align: left;
+}
+
+.pad-takes-toggle span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pad-takes-toggle:hover {
+  color: var(--ink);
+}
+
+.pad-takes-toggle[aria-expanded='false'] .icon {
+  transform: rotate(-90deg);
+}
+
+.pad-takes {
+  display: grid;
+  gap: 3px;
+  margin: 0 0 3px 30px;
+  padding-left: 8px;
+  border-left: 1px solid var(--line-2);
+}
+
+.take {
+  display: grid;
+  grid-template-columns: 10px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 7px;
+  height: 28px;
+  padding: 0 9px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--key);
+  font-size: 12px;
+  font-weight: 600;
+  text-align: left;
+}
+
+.take:hover {
+  border-color: var(--ink);
+}
+
+.take[aria-pressed='true'] {
+  border-color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--ink);
+}
+
+.take-radio {
+  width: 10px;
+  height: 10px;
+  border: 1.5px solid var(--ink-2);
+  border-radius: 50%;
+}
+
+.take[aria-pressed='true'] .take-radio {
+  border-color: var(--ink);
+  background: radial-gradient(var(--ink) 0 2px, transparent 2.5px);
+}
+
+.take-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.take .led {
+  width: 7px;
+  height: 7px;
+  background: var(--led-edit);
+}
+
 /* ---- Mixer -------------------------------------------------------------------------------------- */
 
 .mixer {
@@ -2345,6 +2629,20 @@ button.pill:hover {
   display: flex;
   align-items: center;
   gap: 2px;
+}
+
+/* Shows or hides a section's long description; the chevron turns over when it is open. */
+.doc-toggle {
+  gap: 4px;
+  padding: 0 6px 0 8px;
+}
+
+.doc-toggle .icon {
+  transition: transform 120ms;
+}
+
+.doc-toggle.is-open .icon {
+  transform: rotate(180deg);
 }
 
 .section-doc,
@@ -3138,14 +3436,40 @@ textarea.text {
     order: 4;
   }
 
-  /* The sounds become a row of pads that scrolls sideways. */
+  /* The sounds become a row of pads that scrolls sideways, the add slot at its end. */
+  .pads-body {
+    flex-direction: row;
+    align-items: center;
+  }
+
   .pad-list {
     flex-direction: row;
+    min-width: 0;
+    padding: 10px 5px 10px 10px;
     overflow-x: auto;
   }
 
   .pad {
     width: 168px;
+  }
+
+  .pad-add {
+    width: 150px;
+    margin: 10px 10px 10px 0;
+  }
+
+  .pad-item {
+    flex: none;
+    width: 168px;
+  }
+
+  /* The open sound's item is wider, so its review keys keep their words. */
+  .pad-item.is-open {
+    width: 196px;
+  }
+
+  .pad-item.is-open .pad {
+    width: 100%;
   }
 
   .pads-foot {
@@ -3165,6 +3489,10 @@ textarea.text {
     flex: none;
     max-height: none;
     overflow: visible;
+  }
+
+  .lane.lane-more {
+    position: static;
   }
 
   .zone-body {

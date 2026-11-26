@@ -88,7 +88,7 @@ comes from the code: run `sfxgen guide` (or call the `describe_format` tool), so
 | `format` | Always `"sfxgen/1"`. |
 | `name`, `description`, `tags` | For people and for searching the library. |
 | `duration` | Seconds, or `"auto"`: until every layer has rung out (capped by `maxDuration`, default 10). |
-| `seed` | Every random choice comes from it. Change it for a new take of the same design. |
+| `seed` | Every random choice comes from it. Change it for a new variation of the same design. |
 | `output` | `sampleRate` (default 48000), `channels` 1 or 2 (default 1), `bitDepth` 16, 24 or 32 for WAV export. |
 | `loop` | Present only for a seamless loop of exactly `duration` seconds: `{ "mode": "wrap" }` adds whatever rings past the end back onto the start (a sound that never ends is cut exactly at the loop's end instead, since it carries on into the start by itself); `{ "mode": "crossfade", "crossfade": 0.1 }` fades the end into the start. |
 | `tracks` | The layers. |
@@ -252,7 +252,7 @@ full view.
     on a log scale, or for `mul` and `stretch`), `smooth`, or a bend number.
 - `widget: "select"` or `"toggle"` with `options: [{ "label": "Steel", "set": { "tracks.shell.source.material": "metal" } }, ...]`
   picks one of several settings; `value` is the option's index.
-- `vary` is how far variations may move the control (± in its units), for round-robin takes.
+- `vary` is how far variations may move the control (± in its units), for round-robin variations.
 - Controls apply in order, to a copy of the patch, just before rendering. The patch keeps its base values.
 - A `set` target (or a chosen option) overrides the base value at its path on every render, so editing that value
   by hand changes nothing you can hear. Change the control's value instead, or run `sfxgen sync patch.sfx.json` (the
@@ -308,3 +308,43 @@ A sound in its project renders as its patch with the project's output, levelling
 
 `sfxgen build` renders every sound of a project to its export path; `sfxgen serve` opens a folder with a project file
 as a project in the editor, where the sounds sit side by side, play in turn, and are balanced on a mixer.
+
+## Review and takes
+
+A person reviews each sound in the editor: they listen, may turn knobs or pick a take, then **approve** it or flag it
+as **needing work**. What to change they say in the chat with their agent. The verdicts are kept next to the
+project file in `sfxgen.review.json` (`sfxgen-review/1`); the patch and project formats don't change.
+
+```json
+{
+  "format": "sfxgen-review/1",
+  "read": "2026-11-26T10:05:00.000Z",
+  "sounds": {
+    "ambience/engine.sfx.json": {
+      "status": "approved",
+      "at": "2026-11-26T10:02:11.491Z",
+      "version": "11d0fa88c76100a0",
+      "take": "darker throb",
+      "changes": [{ "path": "controls.power.value", "before": 0.7, "after": 0.75 }]
+    },
+    "creatures/moan.sfx.json": { "status": "needs-work", "at": "2026-11-26T10:03:40.022Z", "version": "18047c56060cf144" }
+  }
+}
+```
+
+| Field | Meaning |
+| --- | --- |
+| `sounds` | Verdicts by sound: its `file` as the project lists it (or, for a sound kept inline, its name). |
+| `status` | `approved` or `needs-work`. A sound with no verdict is not reviewed. |
+| `at` | When the verdict was given (ISO 8601). |
+| `version` | What the verdict is for: a hash of the sound's patch and of its takes. When either changes (an agent's edit, a file saved on disk, the person's own knob turn, another take picked, a new take), the verdict no longer holds and the sound is not reviewed again. |
+| `take` | The take in use when the verdict was given, by label. |
+| `changes` | What the person changed before deciding, since the sound was last written by someone else (or since they picked its take): `{ path, before, after }`, the same records as `get_human_changes`. The changes are in the patch file already. |
+| `read` | When an agent last read the verdicts (`sfxgen review`): later verdicts are new to it. |
+
+**Takes** are other versions of one sound for the person to choose between. They are ordinary patch files in a folder
+named after the sound: `engine.takes/darker-throb.sfx.json` beside `engine.sfx.json`. The file name is the take's
+label ("darker throb"). The sound's own file always holds the take in use, and that is what builds, exports and the
+project read; a `.takes` folder is never a sound of its own. Picking a take in the editor copies it into the sound's
+file. Nothing is lost: the version it replaces goes back into the take it came from (with the person's changes), or
+becomes a take named `original`. Takes are not the round-robin variations a WAV export writes (`variations`).

@@ -1,5 +1,5 @@
 /** The local editor server (`sfxgen serve`): files on disk, saved both ways. See docs/DESIGN.md. */
-import type { Patch, Project } from '../core';
+import { readReview as readReviewData, type Patch, type Project, type Review, type ReviewEntry } from '../core';
 import type { ProjectBuildRow } from '../core/agent/workspace';
 
 export interface ServeInfo {
@@ -124,9 +124,33 @@ export async function build(only?: string[]): Promise<ProjectBuildRow[] | null> 
   return Array.isArray(body) ? body : (body.rows ?? body.built ?? []);
 }
 
+/** Each sound's takes (`<name>.takes/*.sfx.json`), by the sound's file. Null when this server has no takes route. */
+export async function listTakes(): Promise<Record<string, ServeFile[]> | null> {
+  const res = await fetch('api/takes', { headers: { accept: 'application/json' } });
+  if (res.status === 404 || !(res.headers.get('content-type') ?? '').includes('json')) return null;
+  if (!res.ok) throw new Error(`could not list takes (${res.status})`);
+  return ((await res.json()) as { takes?: Record<string, ServeFile[]> }).takes ?? {};
+}
+
+/** The folder's sfxgen.review.json (empty when there is none). Null when this server has no review route. */
+export async function readReview(): Promise<Review | null> {
+  const res = await fetch('api/review', { headers: { accept: 'application/json' } });
+  if (res.status === 404 || !(res.headers.get('content-type') ?? '').includes('json')) return null;
+  if (!res.ok) throw new Error(`could not read the review (${res.status})`);
+  return readReviewData(((await res.json()) as { review?: unknown }).review);
+}
+
+/** Sets one sound's verdict (null clears it) and returns the whole review as now on disk. */
+export async function writeVerdict(sound: string, entry: ReviewEntry | null): Promise<Review> {
+  const res = await fetch('api/review?origin=human', { method: 'PUT', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ sound, entry }) });
+  if (!res.ok) throw await failure(res, 'could not save the verdict');
+  return readReviewData(((await res.json()) as { review?: unknown }).review);
+}
+
 export interface ServeEvents {
   project(e: { path?: string; mtime?: number; origin?: string }): void;
   file(e: { path: string; mtime?: number; origin?: string; deleted?: boolean }): void;
+  review(e: { path?: string; origin?: string; sound?: string }): void;
   play(e: { path?: string }): void;
   focus(e: { path?: string; control?: string }): void;
 }
@@ -144,6 +168,7 @@ export function followEvents(handlers: ServeEvents): () => void {
     });
   on('file');
   on('project');
+  on('review');
   on('play');
   on('focus');
   return () => source.close();

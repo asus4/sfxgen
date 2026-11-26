@@ -18,14 +18,18 @@ If you are here to make sound effects rather than to change sfxgen:
 4. Choose 3 to 7 `controls` a person should try, named in a listener's words, each tested at both ends. A control's
    `set` targets override the file's own values at their paths, so after editing run `npm run sfxgen -- sync my.sfx.json`
    to make the file say what renders (`--check` in CI).
-5. Hand it over: `npm run sfxgen -- serve .` opens the editor on the same files.
+5. Hand it over: `npm run sfxgen -- serve .` opens the editor on the same files. When you have more than one idea for
+   a sound, write takes (`<name>.takes/<label>.sfx.json` next to it) rather than separate sounds: the person picks one.
+6. The person approves each sound or flags it as needing work in the editor, and tells you what to change in the
+   chat. Run `npm run sfxgen -- review` before changing anything: it lists their verdicts, the take they kept and the
+   knobs they turned (already in the files, so build on them).
 
 ## Changing sfxgen
 
 | Command | Does |
 | --- | --- |
 | `npm run dev` | The editor with hot reload, at http://localhost:5178 |
-| `npm run sfxgen -- <command>` | The CLI from source (`render`, `analyze`, `validate`, `guide`, `templates`, `new`, `diff`, `sync`, `build`, `project`, `serve`) |
+| `npm run sfxgen -- <command>` | The CLI from source (`render`, `analyze`, `validate`, `guide`, `templates`, `new`, `diff`, `sync`, `build`, `project`, `review`, `serve`) |
 | `npm test` | All tests (vitest) |
 | `npm run typecheck` | TypeScript |
 | `npm run templates` | Rebuild `src/core/templates/library.json` after changing `templates/` |
