@@ -25,7 +25,7 @@ Other designers may be working on other categories at the same time.
    decay, band balance, centroid trend, pitch). Iterate until the measurements and the picture match what you meant.
 4. Controls: 3 to 7, chosen as SOUND-DESIGN.md's "Choosing controls for people" says. Add `vary` to controls where
    round-robin variations make sense (footsteps, impacts, UI clicks).
-5. Validate: `npm run templates` then `npx vitest run tests/templates.test.ts -t "<category>/"` (only your
+5. Validate: `npm run templates` then `npx vitest run tests/templates -t "<category>/"` (only your
    categories: other designers' work in progress may fail, that's theirs).
 
 ## Standards

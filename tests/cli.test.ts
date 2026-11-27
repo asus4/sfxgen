@@ -4,22 +4,25 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { allTemplates } from '../src/core/templates';
 import { buildSchema } from '../src/core/agent/schema';
 import { Ajv2020 } from 'ajv/dist/2020';
 
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
-const TSX = join(ROOT, 'node_modules', '.bin', 'tsx');
+// tsx's loader in node itself, by absolute URL since the commands run in a temporary folder. The `tsx` binary would
+// start a second node process for every command, and this file runs about fifty.
+const TSX = pathToFileURL(createRequire(import.meta.url).resolve('tsx')).href;
 const CLI = join(ROOT, 'src', 'node', 'cli.ts');
 const VERSION = (JSON.parse(readFileSync(join(ROOT, 'package.json'), 'utf8')) as { version: string }).version;
 
 let dir = '';
 
 function sfxgen(...args: string[]): { code: number | null; out: string; err: string } {
-  const r = spawnSync(TSX, [CLI, ...args], { cwd: dir, encoding: 'utf8', timeout: 60000 });
+  const r = spawnSync(process.execPath, ['--import', TSX, CLI, ...args], { cwd: dir, encoding: 'utf8', timeout: 60000 });
   return { code: r.status, out: r.stdout, err: r.stderr };
 }
 
