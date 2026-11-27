@@ -7,19 +7,6 @@ import { AgentStatus } from './WebMcpStatus';
 
 const REPO = 'https://github.com/asus4/sfxgen';
 
-/** The latest thing that happened, in one line; the agent's lines are lit. A click opens the notes. */
-function Ticker() {
-  const last = useEditor((s) => s.activity[0]);
-  if (!last) return null;
-  const who = { agent: 'agent', human: 'you', file: 'file', system: 'sfxgen' }[last.origin];
-  return (
-    <button type="button" key={last.id} className={`ticker from-${last.origin}`} title="Open the notes and the activity log" onClick={() => useEditor.getState().showSurface('notes')}>
-      <b>{who}</b>
-      <span>{last.text}</span>
-    </button>
-  );
-}
-
 /** The project's name, and behind it the list of projects in this browser (or the served folder's state). */
 function ProjectKey() {
   const name = useEditor((s) => s.project.name);
@@ -35,12 +22,16 @@ function ProjectKey() {
   const state = serve.info ? (serve.save === 'saving' ? 'saving' : serve.save === 'error' ? 'not saved' : serve.projectSaved ? 'live' : 'no project file') : 'in this browser';
   return (
     <div className="project-key">
-      <button type="button" className={`key key-project save-${serve.info ? serve.save : 'local'}`} aria-expanded={open} aria-haspopup="dialog" onClick={() => useEditor.setState({ projectsOpen: !open })}>
-        <i className="led" />
+      <button
+        type="button"
+        className={`key key-project save-${serve.info ? serve.save : 'local'}`}
+        aria-expanded={open}
+        aria-haspopup="dialog"
+        title={`${count} sound${count === 1 ? '' : 's'} · ${state}`}
+        onClick={() => useEditor.setState({ projectsOpen: !open })}
+      >
         <span className="project-name">{name || 'Untitled set'}</span>
-        <small>
-          {count} sound{count === 1 ? '' : 's'} · {state}
-        </small>
+        {serve.info && serve.save === 'error' && <small>not saved</small>}
         <Icon name="down" size={14} />
       </button>
       {open && (
@@ -50,16 +41,20 @@ function ProjectKey() {
             {serve.info ? (
               <>
                 <p className="legend">served folder</p>
-                <p className="popover-text mono">{serve.info.root ?? ''}</p>
-                <p className="popover-text">
-                  {serve.projectSaved
-                    ? `Project file: ${serve.projectPath ?? 'sfxgen.project.json'}. Edits here are written to disk; edits on disk show up here.`
-                    : 'This folder has no project file. Its patches are shown as a set; levels, groups and settings are not kept until you save one.'}
+                <p className="popover-text mono" title="Edits here are written to disk; edits on disk show up here">
+                  {serve.info.root ?? ''}
+                  {serve.projectSaved && (
+                    <>
+                      <br />
+                      {serve.projectPath ?? 'sfxgen.project.json'}
+                    </>
+                  )}
                 </p>
                 {!serve.projectSaved && (
                   <button
                     type="button"
                     className="key is-on"
+                    title="This folder has no project file: its patches show as a set, and levels, groups and settings are not kept until you save one"
                     onClick={() => {
                       void saveProjectFile();
                       close();
@@ -109,6 +104,7 @@ function ProjectKey() {
                   <button
                     type="button"
                     className="key"
+                    title="A new, empty project in this browser. Rename it under Full control › Settings"
                     onClick={() => {
                       createProject();
                       close();
@@ -120,7 +116,6 @@ function ProjectKey() {
                     <Icon name="save" size={13} /> Bundle
                   </button>
                 </div>
-                <p className="popover-text">Rename a project under Full control › Settings. Drop a .sfxproj.json anywhere to open a bundle.</p>
               </>
             )}
           </div>
@@ -173,7 +168,6 @@ export function TopStrip() {
           }}
         />
       </nav>
-      <Ticker />
       <div className="strip-end">
         <button type="button" className="key key-icon" onClick={undo} disabled={!canUndo} aria-label="Undo" title="Undo (⌘Z)">
           <Icon name="undo" size={16} />

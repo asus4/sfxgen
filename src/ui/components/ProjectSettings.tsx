@@ -52,14 +52,14 @@ export function ProjectSettings() {
           <span className="param-label">Export folder</span>
           <input className="text mono" value={project.outDir ?? ''} placeholder="out" spellCheck={false} onChange={(e) => set({ outDir: e.target.value || undefined }, 'outDir')} />
         </label>
-        {serve.info && !serve.projectSaved && (
-          <p className="section-doc">
-            This folder has no project file: levels, groups and these settings live only in this tab until you save one.
-          </p>
-        )}
         <div className="row">
           {serve.info && !serve.projectSaved && (
-            <button type="button" className="key is-on" onClick={() => void saveProjectFile()}>
+            <button
+              type="button"
+              className="key is-on"
+              title="This folder has no project file: levels, groups and these settings live only in this tab until you save one"
+              onClick={() => void saveProjectFile()}
+            >
               <Icon name="save" size={14} /> Save project file
             </button>
           )}
@@ -86,7 +86,7 @@ export function ProjectSettings() {
         </div>
       </Section>
 
-      <Section title="Output" tag="every sound renders with these">
+      <Section title="Output" hint="Every sound renders with these">
         <div className="fields">
           <div className="param param-wide param-enum">
             <span className="param-label">Sample rate</span>
@@ -130,7 +130,7 @@ export function ProjectSettings() {
         </div>
       </Section>
 
-      <Section title="Levelling" tag="before each sound’s level in the mixer">
+      <Section title="Levelling" hint="Before each sound’s level in the mixer. A group’s own levelling (in the mixer) replaces this for its sounds">
         <div className="fields">
           <div className="param param-wide param-enum">
             <span className="param-label">Every sound is brought to</span>
@@ -179,7 +179,6 @@ export function ProjectSettings() {
             <span className="param-label">Set gain</span>
           </div>
         </div>
-        <p className="section-doc">A group’s own levelling (in the mixer) replaces this for its sounds.</p>
       </Section>
 
       <ProjectFields>

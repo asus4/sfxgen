@@ -135,11 +135,17 @@ function AgentKey() {
         className={`pill${live ? ' pill-on' : ' pill-off'}`}
         aria-expanded={open}
         aria-haspopup="dialog"
-        title={live ? `WebMCP: ${webmcp.count} tools on ${webmcp.api}` : 'WebMCP: how to let an agent in your browser use this editor'}
+        title={
+          webmcp === 'pending'
+            ? 'WebMCP: checking…'
+            : live
+              ? `WebMCP: ${webmcp.count} tools on ${webmcp.api}`
+              : 'WebMCP: not available in this browser yet. Open to see how to turn it on'
+        }
         onClick={() => useEditor.setState({ webmcpOpen: !open })}
       >
         <i className="led" />
-        {webmcp === 'pending' ? 'WebMCP…' : live ? `WebMCP · ${webmcp.count} tools` : 'WebMCP unavailable'}
+        WebMCP
       </button>
       {open && (
         <>

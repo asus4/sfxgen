@@ -62,17 +62,17 @@ export function ExportDialog() {
             <span>Sample rate</span>
             <Segmented label="Sample rate" size="sm" value={opts.sampleRate} onChange={(v) => set('sampleRate', v)} options={rates.map((r) => ({ value: r, label: `${r / 1000}k` }))} />
           </div>
-          <div className="form-row">
+          <div
+            className="form-row"
+            title={
+              canVary
+                ? 'Each extra take gets a new seed and moves the controls as far as their “vary” amounts allow'
+                : 'Each extra take gets a new seed. Give controls a “vary” amount in the patch to let takes differ more'
+            }
+          >
             <span>Takes</span>
             <Segmented label="Takes" size="sm" value={opts.takes} onChange={(v) => set('takes', v)} options={[1, 3, 5, 8].map((n) => ({ value: n, label: n === 1 ? 'Just this' : `${n}` }))} />
           </div>
-          {opts.takes > 1 && (
-            <p className="form-note">
-              {canVary
-                ? 'Each extra take gets a new seed and moves the controls as far as their “vary” amounts allow.'
-                : 'Each extra take gets a new seed. Give controls a “vary” amount in the patch to let takes differ more.'}
-            </p>
-          )}
           {served && (
             <div className="form-row">
               <span>Where</span>
@@ -91,12 +91,15 @@ export function ExportDialog() {
         </div>
         <p className="legend form-legend">the whole set · {count} sound{count === 1 ? '' : 's'}</p>
         <div className="form">
-          <p className="form-text">
-            Every sound, as the project renders it (its output, levelling, shared chain and mixer level){served ? ', written to its export path.' : ', in one zip.'}
-          </p>
           <div className="row form-actions">
             <span className="spacer" />
-            <button type="button" className="key is-on" disabled={busy} onClick={() => void run(exportSet)}>
+            <button
+              type="button"
+              className="key is-on"
+              disabled={busy}
+              title={`Every sound, as the project renders it (its output, levelling, shared chain and mixer level)${served ? ', written to its export path' : ', in one zip'}`}
+              onClick={() => void run(exportSet)}
+            >
               <Icon name="export" size={14} /> Export the set
             </button>
           </div>

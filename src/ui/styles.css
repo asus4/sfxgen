@@ -22,6 +22,22 @@
   --groove: #17181b;
   --ph: -1;
   --lv: 0;
+  /*
+   * Corners. Pick a step by the element's shortest side: the bigger the shape, the rounder its corner. A box whose
+   * corner sits close around another rounded one takes the inner radius plus the gap (padding and border) between
+   * them, so the two curves run parallel instead of bunching up at the corner.
+   */
+  --radius-xs: 4px; /* under 20 px: tags, meters, fader caps */
+  --radius-sm: 6px; /* 20 to 28 px: tools, pins, small keys, fields, segments, rows; plots inside a panel */
+  --radius-md: 8px; /* 30 to 40 px: keys, search, toasts */
+  --radius-lg: 12px; /* 44 px and up: pads, knob tiles, cards, sections, the screen */
+  --radius-xl: 16px; /* popovers */
+  --radius-pill: 999px; /* tabs, chips, pills and thin bars: always half the height */
+  /* A segmented switch: its small buttons' radius, plus its 2 px padding and 1 px border. */
+  --radius-seg: calc(var(--radius-sm) + 3px);
+  /* The body, and the sheets that open over it (the gallery, dialogs, the drop hint): a key in one of their corners
+     (export set, GitHub, close) sits 10 px of padding and 1 px of border inside it. */
+  --radius-device: calc(var(--radius-md) + 11px);
   /* Light finish. */
   --desk: #c9cbce;
   --body: #e4e5e7;
@@ -163,7 +179,7 @@ button {
   min-height: 32px;
   padding: 0 12px;
   border: 1px solid var(--line-2);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   background: var(--key);
   font-size: 10.5px;
   font-weight: 700;
@@ -171,6 +187,13 @@ button {
   text-transform: uppercase;
   white-space: nowrap;
   transition: background 90ms, border-color 90ms, color 90ms;
+}
+
+/* A label's box is trimmed to its capitals, so centring it centres the letters on the icon beside it rather than the
+   line box, whose room for descenders would lift them about a pixel. */
+.key > :not(.icon),
+.seg button > span {
+  text-box: trim-both cap alphabetic;
 }
 
 .key:hover:not(:disabled) {
@@ -205,7 +228,7 @@ a.key {
 .key-sm {
   min-height: 24px;
   padding: 0 9px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   font-size: 9.5px;
 }
 
@@ -236,7 +259,7 @@ a.key {
   height: 24px;
   padding: 0 3px;
   border: 1px solid transparent;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: transparent;
   color: var(--ink-2);
 }
@@ -284,7 +307,7 @@ a.key {
   height: calc(100dvh - 20px);
   min-height: 620px;
   border: 1px solid var(--line-2);
-  border-radius: 18px;
+  border-radius: var(--radius-device);
   background: var(--body);
   overflow: hidden;
 }
@@ -299,51 +322,10 @@ a.key {
   display: flex;
   align-items: center;
   gap: 6px 12px;
-  padding: 7px 14px;
+  /* The keys at the end line up with the screen's edge under them (the display's padding). */
+  padding: 7px 10px 7px 14px;
   border-bottom: 1px solid var(--line);
   min-width: 0;
-}
-
-/* The last thing that happened, in one line. */
-.ticker {
-  flex: 1 1 0;
-  min-width: 0;
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  padding: 0 4px;
-  border: 0;
-  background: none;
-  font: 500 10.5px var(--font-mono);
-  color: var(--ink-2);
-  text-align: left;
-  white-space: nowrap;
-  overflow: hidden;
-}
-
-.ticker b {
-  font-weight: 700;
-}
-
-.ticker span {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.ticker.from-agent b {
-  color: var(--led-agent);
-}
-
-.ticker.from-agent {
-  animation: ticker 1800ms ease-out;
-}
-
-@keyframes ticker {
-  0%,
-  30% {
-    color: var(--led-agent);
-  }
 }
 
 .logo {
@@ -368,6 +350,7 @@ a.key {
 
 .strip-end {
   flex: none;
+  margin-left: auto;
 }
 
 .pill {
@@ -377,7 +360,7 @@ a.key {
   min-height: 26px;
   padding: 0 10px;
   border: 1px solid var(--line);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   font: 500 10.5px var(--font-mono);
   color: var(--ink-2);
   white-space: nowrap;
@@ -440,7 +423,7 @@ button.pill:hover {
   margin: 0;
   padding: 8px 10px;
   border: 1px dashed var(--line-2);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   font: 500 11px var(--font-mono);
   color: var(--ink-2);
 }
@@ -468,7 +451,7 @@ button.pill:hover {
   gap: 2px;
   padding: 7px 9px;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   font-size: 12px;
   color: var(--ink-2);
 }
@@ -496,7 +479,7 @@ button.pill:hover {
   gap: 2px;
   max-width: 100%;
   padding: 0 0 0 6px;
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
   background: var(--well);
   vertical-align: middle;
 }
@@ -518,24 +501,9 @@ button.pill:hover {
   letter-spacing: 0;
 }
 
-.key-project .led {
-  background: var(--led-play);
-  box-shadow: 0 0 7px var(--led-play);
-}
-
-.key-project.save-saving .led {
-  background: var(--led-edit);
-  box-shadow: 0 0 7px var(--led-edit);
-}
-
-.key-project.save-error .led {
-  background: var(--led-hot);
-  box-shadow: 0 0 7px var(--led-hot);
-}
-
-.key-project.save-local .led {
-  background: var(--line-2);
-  box-shadow: none;
+/* The words after the name say whether edits reach the disk; only trouble is lit. */
+.key-project.save-error small {
+  color: var(--led-hot);
 }
 
 .project-name {
@@ -561,7 +529,7 @@ button.pill:hover {
   width: min(340px, calc(100vw - 32px));
   padding: 14px;
   border: 1px solid var(--line-2);
-  border-radius: 12px;
+  border-radius: var(--radius-xl);
   background: var(--body);
   box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
 }
@@ -597,7 +565,7 @@ button.pill:hover {
   gap: 8px;
   padding: 6px 8px;
   border: 0;
-  border-radius: 7px;
+  border-radius: var(--radius-sm);
   background: transparent;
   font-weight: 650;
   text-align: left;
@@ -645,19 +613,6 @@ button.pill:hover {
   min-width: 0;
 }
 
-.easy-side .zone-note {
-  margin: 2px 0 0;
-  white-space: normal;
-  text-transform: none;
-  letter-spacing: 0;
-  font-size: 11px;
-  font-weight: 500;
-  line-height: 1.3;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-}
-
 .easy-row {
   display: flex;
   align-items: stretch;
@@ -700,7 +655,7 @@ button.pill:hover {
   min-width: 116px;
   padding: 8px 14px;
   border-color: var(--ink);
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   background: var(--cap);
   font-size: 11px;
   font-weight: 800;
@@ -803,7 +758,7 @@ button.pill:hover {
   width: 24px;
   height: 24px;
   border: 1px solid var(--line-2);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: var(--key);
   transition: border-color 90ms;
 }
@@ -824,15 +779,12 @@ button.pill:hover {
   border-bottom: 0;
 }
 
-.zone-head .zone-note {
-  flex: 1;
-}
-
 .zone-body {
+  --pad: 14px;
   flex: 1;
   min-height: 0;
   overflow: auto;
-  padding: 14px;
+  padding: var(--pad);
   scrollbar-width: thin;
 }
 
@@ -875,22 +827,35 @@ button.pill:hover {
   padding: 10px 10px 5px;
   overflow: auto;
   scrollbar-width: thin;
+  /* The scrollbar's lane is kept even while the list fits. */
+  scrollbar-gutter: stable;
+}
+
+/* The add slot and the export key keep a lane as wide as the list's scrollbar (none where scrollbars overlay), so
+   their right edges meet the pads'. The 4 px above the slot is room for its focus ring. */
+.pad-add-row,
+.pads-foot {
+  overflow: hidden;
+  scrollbar-width: thin;
+  scrollbar-gutter: stable;
+}
+
+.pad-add-row {
+  flex: none;
+  margin-top: -4px;
+  padding: 4px 10px 10px;
 }
 
 .pad-add {
-  flex: none;
   display: grid;
-  grid-template-columns: 26px minmax(0, 1fr);
-  align-items: center;
-  gap: 8px;
+  place-items: center;
+  width: 100%;
   height: 48px;
-  margin: 0 10px 10px;
-  padding: 0 10px 0 9px;
+  padding: 0;
   border: 1.5px dashed var(--line-2);
-  border-radius: 9px;
+  border-radius: var(--radius-lg);
   background: transparent;
   color: var(--ink-2);
-  text-align: left;
   transition: background 90ms, border-color 90ms, color 90ms;
 }
 
@@ -903,39 +868,6 @@ button.pill:hover {
 
 .pad-add:active {
   background: var(--well);
-}
-
-.pad-add-icon {
-  display: grid;
-  place-items: center;
-  width: 26px;
-  height: 26px;
-  border-radius: 7px;
-  background: var(--ink);
-  color: var(--body);
-}
-
-.pad-add-text {
-  min-width: 0;
-  display: grid;
-  gap: 2px;
-}
-
-.pad-add-text b {
-  font-size: 12.5px;
-  font-weight: 700;
-  line-height: 1.2;
-  color: var(--ink);
-}
-
-.pad-add-text small {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font: 600 9.5px var(--font-mono);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  white-space: nowrap;
 }
 
 .pads-foot {
@@ -960,21 +892,8 @@ button.pill:hover {
   min-height: 28px;
   padding: 0 6px;
   gap: 5px;
-  border-radius: 7px;
+  border-radius: var(--radius-sm);
   font-size: 9.5px;
-}
-
-.review-keys .key small {
-  display: inline-grid;
-  place-items: center;
-  min-width: 16px;
-  height: 16px;
-  padding: 0 4px;
-  border-radius: 8px;
-  background: var(--led-edit);
-  color: #17181b;
-  font: 700 10px var(--font-mono);
-  letter-spacing: 0;
 }
 
 .key-approve[aria-pressed='true'] {
@@ -1004,7 +923,7 @@ button.pill:hover {
   min-height: 24px;
   padding: 0 8px;
   border: 1px solid var(--line-2);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: var(--key);
 }
 
@@ -1030,7 +949,7 @@ button.pill:hover {
   flex-direction: column;
   padding: 9px 12px 8px;
   border: 1px solid #000;
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   background: var(--screen);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.07);
   color: var(--screen-ink);
@@ -1075,7 +994,7 @@ button.pill:hover {
 .screen-num {
   padding: 2px 6px;
   border: 1px solid var(--screen-line);
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
   font-size: 11px;
   color: var(--screen-2);
 }
@@ -1086,7 +1005,7 @@ button.pill:hover {
   padding: 0 4px;
   margin-left: -4px;
   border: 0;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: transparent;
   color: var(--screen-ink);
   font: 750 20px/1.15 var(--font-ui);
@@ -1139,7 +1058,7 @@ button.pill:hover {
   margin-left: 5px !important;
   padding: 0 3px;
   border: 1px solid currentColor;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
 }
 
 /* The waveform is the small top part of the box; the layers under it get the rest. */
@@ -1162,7 +1081,7 @@ button.pill:hover {
   position: relative;
   min-height: 0;
   border: 1px solid var(--screen-line);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: radial-gradient(rgba(255, 255, 255, 0.075) 1px, transparent 1.2px) 0 0 / 16px 16px;
   overflow: hidden;
   cursor: crosshair;
@@ -1234,7 +1153,7 @@ button.pill:hover {
 
 .mapping b {
   padding: 1px 6px;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   background: var(--c);
   color: #0b0c0e;
   font-weight: 700;
@@ -1260,7 +1179,7 @@ button.pill:hover {
   gap: 2px;
   padding: 2px;
   border: 1px solid var(--screen-line);
-  border-radius: 7px;
+  border-radius: var(--radius-seg);
   background: rgba(11, 12, 14, 0.8);
   cursor: default;
 }
@@ -1272,7 +1191,7 @@ button.pill:hover {
   min-height: 24px;
   padding: 0 9px;
   border: 0;
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
   background: transparent;
   color: var(--screen-2);
   font: 600 10px var(--font-mono);
@@ -1311,7 +1230,7 @@ button.pill:hover {
 /* A level meter that follows the playhead. */
 .meter {
   position: relative;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   background: rgba(255, 255, 255, 0.07);
   overflow: hidden;
 }
@@ -1360,7 +1279,7 @@ button.pill:hover {
   left: 50%;
   padding: 5px 14px;
   border: 1.5px solid var(--led-play);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: rgba(11, 12, 14, 0.82);
   color: var(--led-play);
   font-size: 13px;
@@ -1438,7 +1357,7 @@ button.pill:hover {
   gap: 7px;
   padding: 5px 6px;
   border: 0;
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
   background: none;
   color: var(--screen-ink);
   font-size: 13px;
@@ -1482,7 +1401,7 @@ button.pill:hover {
 .screen-key {
   padding: 0;
   border: 1px solid var(--screen-line);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   background: transparent;
   color: var(--screen-2);
   font-size: 9.5px;
@@ -1496,7 +1415,6 @@ button.pill:hover {
 .ms button {
   width: 24px;
   height: 24px;
-  border-radius: 5px;
   font-size: 10.5px;
 }
 
@@ -1521,7 +1439,7 @@ button.pill:hover {
 .lane-plot {
   position: relative;
   min-height: 0;
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
   background: rgba(255, 255, 255, 0.045);
   overflow: hidden;
   cursor: ew-resize;
@@ -1576,7 +1494,7 @@ button.pill:hover {
   padding: 0 8px;
   border-style: dashed;
   border-color: color-mix(in srgb, var(--screen-2) 45%, transparent);
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
   font-size: 10px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -1763,7 +1681,7 @@ button.pill:hover {
   max-width: 100%;
   padding: 0 5px;
   border: 1px solid transparent;
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
   background: transparent;
   font: 600 12px/1.4 var(--font-mono);
   font-variant-numeric: tabular-nums;
@@ -1805,7 +1723,7 @@ button.pill:hover {
   min-width: 92px;
   padding: 5px 8px 3px;
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   text-align: center;
   overflow: hidden;
   transition: border-color 120ms;
@@ -1874,14 +1792,15 @@ button.pill:hover {
   inset: -3px;
   z-index: 2;
   border: 2px solid var(--c);
-  border-radius: 9px;
+  border-radius: calc(var(--radius-md) + 3px);
   background: color-mix(in srgb, var(--c) 14%, transparent);
   box-shadow: 0 0 12px color-mix(in srgb, var(--c) 45%, transparent);
   pointer-events: none;
 }
 
+/* Clear of the layer tabs above when a control scrolls its parameters into view. */
 .param {
-  scroll-margin: 24px 0;
+  scroll-margin: 72px 0 24px;
 }
 
 /* An agent touched this: its LED colour washes over it and fades. */
@@ -1922,7 +1841,7 @@ button.pill:hover {
   padding: 2px;
   gap: 2px;
   border: 1px solid var(--line-2);
-  border-radius: 9px;
+  border-radius: var(--radius-seg);
   background: var(--well);
 }
 
@@ -1935,7 +1854,7 @@ button.pill:hover {
   min-height: 26px;
   padding: 0 11px;
   border: 0;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: transparent;
   color: var(--ink-2);
   font-size: 10.5px;
@@ -1984,7 +1903,7 @@ button.pill:hover {
   width: 32px;
   height: 18px;
   border: 1px solid var(--line-2);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: var(--well);
   transition: background 120ms;
 }
@@ -2044,7 +1963,7 @@ button.pill:hover {
   height: 48px;
   padding: 0 10px 0 11px;
   border: 1px solid var(--line-2);
-  border-radius: 9px;
+  border-radius: var(--radius-lg);
   background: var(--key);
   text-align: left;
   overflow: hidden;
@@ -2171,7 +2090,7 @@ button.pill:hover {
   margin-left: 26px;
   padding: 1px 6px;
   border: 0;
-  border-radius: 5px;
+  border-radius: var(--radius-xs);
   background: none;
   color: var(--ink-2);
   font: 500 10.5px var(--font-mono);
@@ -2208,7 +2127,7 @@ button.pill:hover {
   height: 28px;
   padding: 0 9px;
   border: 1px solid var(--line);
-  border-radius: 7px;
+  border-radius: var(--radius-sm);
   background: var(--key);
   font-size: 12px;
   font-weight: 600;
@@ -2270,7 +2189,7 @@ button.pill:hover {
   padding: 0 7px;
   min-height: 26px;
   border: 1px solid var(--line-2);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: var(--key);
   font: 500 10px var(--font-mono);
   color: var(--ink-2);
@@ -2295,7 +2214,7 @@ button.pill:hover {
 .mix-group-block {
   border: 1px solid var(--line);
   border-left: 3px solid var(--c, var(--line-2));
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
   overflow: hidden;
 }
 
@@ -2314,7 +2233,7 @@ button.pill:hover {
   max-width: 150px;
   padding: 2px 5px;
   border: 1px solid transparent;
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
   background: transparent;
   font-size: 11.5px;
   font-weight: 800;
@@ -2332,7 +2251,7 @@ button.pill:hover {
   max-width: 130px;
   padding: 0 4px;
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: transparent;
   font-size: 11px;
   color: var(--ink-2);
@@ -2373,7 +2292,7 @@ button.pill:hover {
   height: 40px;
   padding: 0;
   border: 1px solid var(--line-2);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   background: var(--key);
   font: 600 10px var(--font-mono);
 }
@@ -2457,7 +2376,7 @@ button.pill:hover {
 .mix-meter {
   position: relative;
   height: 12px;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   background: var(--groove);
   overflow: hidden;
 }
@@ -2468,7 +2387,7 @@ button.pill:hover {
   bottom: 2px;
   left: 2px;
   max-width: calc(100% - 4px);
-  border-radius: 1.5px;
+  border-radius: calc(var(--radius-xs) - 2px);
   background: var(--led-play);
   transition: width 160ms;
 }
@@ -2495,7 +2414,7 @@ button.pill:hover {
   position: relative;
   height: 26px;
   min-width: 60px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   cursor: ew-resize;
   touch-action: pan-y;
 }
@@ -2507,7 +2426,7 @@ button.pill:hover {
   right: 0;
   height: 6px;
   margin-top: -3px;
-  border-radius: 3px;
+  border-radius: var(--radius-pill);
   background: var(--groove);
 }
 
@@ -2526,7 +2445,7 @@ button.pill:hover {
   left: calc(var(--pos) * (100% - 14px));
   width: 14px;
   border: 1px solid var(--line-2);
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   background: var(--cap);
   box-shadow: inset 0 0 0 1px transparent;
 }
@@ -2539,7 +2458,7 @@ button.pill:hover {
   left: 50%;
   width: 2px;
   margin-left: -1px;
-  border-radius: 1px;
+  border-radius: var(--radius-pill);
   background: var(--c, var(--ink));
 }
 
@@ -2550,8 +2469,16 @@ button.pill:hover {
 
 /* ---- Everything and the project sheets ------------------------------------------------------------ */
 
+/* The layer tabs stay at the top while the sheets scroll under them, so another layer is always one press away. */
 .everything-head {
-  margin-bottom: 12px;
+  position: sticky;
+  /* A sticky box keeps clear of its scroller's padding: undo it, so the tabs meet the zone's head. */
+  top: calc(-1 * var(--pad));
+  z-index: 5;
+  margin: calc(-1 * var(--pad)) calc(-1 * var(--pad)) 12px;
+  padding: 10px var(--pad);
+  border-bottom: 1px solid var(--line);
+  background: var(--body);
 }
 
 .tabs {
@@ -2567,7 +2494,7 @@ button.pill:hover {
   min-height: 26px;
   padding: 0 10px;
   border: 1px solid var(--line-2);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: transparent;
   font-weight: 700;
   font-size: 11.5px;
@@ -2598,13 +2525,13 @@ button.pill:hover {
   padding: 10px 12px 12px;
   border: 1px solid var(--line);
   border-top: 2px solid var(--c, var(--line-2));
-  border-radius: 4px 4px 10px 10px;
+  border-radius: var(--radius-xs) var(--radius-xs) var(--radius-lg) var(--radius-lg);
 }
 
 .section-add {
   padding: 6px;
   border: 1px dashed var(--line-2);
-  border-radius: 10px;
+  border-radius: var(--radius-lg);
 }
 
 .section-add .select,
@@ -2646,22 +2573,7 @@ button.pill:hover {
   gap: 2px;
 }
 
-/* Shows or hides a section's long description; the chevron turns over when it is open. */
-.doc-toggle {
-  gap: 4px;
-  padding: 0 6px 0 8px;
-}
-
-.doc-toggle .icon {
-  transition: transform 120ms;
-}
-
-.doc-toggle.is-open .icon {
-  transform: rotate(180deg);
-}
-
-.section-doc,
-.group-doc {
+.section-doc {
   margin: 8px 0;
   font-size: 11.5px;
   line-height: 1.35;
@@ -2687,7 +2599,7 @@ button.pill:hover {
   gap: 1px;
   min-width: 0;
   padding-top: 2px;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
 }
 
 .param-wide {
@@ -2777,7 +2689,7 @@ button.pill:hover {
   height: 20px;
   padding: 0 3px;
   border: 1px solid transparent;
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
   background: transparent;
   color: var(--ink-2);
   font: 600 10px var(--font-mono);
@@ -2807,7 +2719,7 @@ button.pill:hover {
   max-width: 100%;
   padding: 0 5px;
   border: 1px solid var(--line-2);
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   background: var(--groove);
   color: #f1f2ec;
   font: 600 9.5px/1.6 var(--font-mono);
@@ -2842,7 +2754,7 @@ button.pill:hover {
   min-height: 28px;
   padding: 3px 8px;
   border: 1px solid var(--line-2);
-  border-radius: 7px;
+  border-radius: var(--radius-sm);
   background: var(--key);
   font-size: 12.5px;
   font-weight: 600;
@@ -2907,7 +2819,7 @@ textarea.text {
   display: block;
   width: 100%;
   height: 48px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: var(--screen);
 }
 
@@ -2941,7 +2853,7 @@ textarea.text {
 /* Curves are small screens of their own. */
 .curve-box {
   position: relative;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   background: var(--screen);
   overflow: hidden;
   touch-action: none;
@@ -3051,7 +2963,7 @@ textarea.text {
   display: flex;
   flex-direction: column;
   border: 1px solid var(--line-2);
-  border-radius: 18px;
+  border-radius: var(--radius-device);
   background: var(--body);
   box-shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
   overflow: hidden;
@@ -3068,7 +2980,8 @@ textarea.text {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 14px 8px;
+  /* The close key sits as far inside the corner as the strip's keys do inside the body's, under the same radius. */
+  padding: 10px 10px 8px 14px;
 }
 
 .panel-title {
@@ -3092,7 +3005,7 @@ textarea.text {
   gap: 8px;
   padding: 0 11px;
   border: 1px solid var(--line-2);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   background: var(--key);
 }
 
@@ -3121,7 +3034,7 @@ textarea.text {
   display: inline-block;
   padding: 0 7px;
   border: 1px solid var(--line-2);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   font: 500 10px/1.7 var(--font-mono);
   white-space: nowrap;
 }
@@ -3172,7 +3085,7 @@ textarea.text {
   gap: 5px;
   padding: 0 0 10px;
   border: 1px solid var(--line-2);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   background: var(--key);
   text-align: left;
   overflow: hidden;
@@ -3239,16 +3152,6 @@ textarea.text {
   font-weight: 750;
 }
 
-.card-desc {
-  font-size: 11.5px;
-  line-height: 1.3;
-  color: var(--ink-2);
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
 .card-meta {
   display: flex;
   flex-wrap: wrap;
@@ -3262,7 +3165,7 @@ textarea.text {
   left: 8px;
   padding: 0 6px;
   border: 1px solid var(--led-play);
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   color: var(--led-play);
   font: 600 9.5px/1.6 var(--font-mono);
   letter-spacing: 0.12em;
@@ -3278,7 +3181,7 @@ textarea.text {
 
 .panel {
   border: 1px solid var(--line-2);
-  border-radius: 16px;
+  border-radius: var(--radius-device);
   background: var(--body);
   box-shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
 }
@@ -3303,7 +3206,8 @@ textarea.text {
 .form {
   display: grid;
   gap: 9px;
-  padding: 2px 14px 14px;
+  /* Its keys end where the close key does, so the one in the bottom corner nests under the dialog's radius. */
+  padding: 2px 10px 10px 14px;
 }
 
 .form-row {
@@ -3320,17 +3224,6 @@ textarea.text {
 .form-row .switch {
   text-transform: none;
   letter-spacing: 0;
-}
-
-.form-note,
-.form-text {
-  margin: 0;
-  font-size: 11.5px;
-  color: var(--ink-2);
-}
-
-.form-note {
-  margin-left: 100px;
 }
 
 .form-actions {
@@ -3394,11 +3287,36 @@ textarea.text {
   max-width: 100%;
   padding: 7px 14px;
   border: 1px solid #000;
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   background: var(--screen);
   color: var(--screen-ink);
   font: 500 11.5px var(--font-mono);
   animation: fade 140ms ease-out;
+}
+
+/* The tooltip for every title (see tooltip.ts): a small dark screen, like the toasts, edged so it reads over the
+   display too. */
+.tooltip {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  max-width: min(320px, calc(100vw - 16px));
+  padding: 6px 9px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-sm);
+  background: var(--screen);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+  color: var(--screen-ink);
+  font: 500 11.5px/1.35 var(--font-ui);
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+  pointer-events: none;
+  animation: fade 90ms ease-out;
+}
+
+.tooltip[hidden] {
+  display: none;
 }
 
 .toast-error {
@@ -3413,7 +3331,7 @@ textarea.text {
   display: grid;
   place-items: center;
   border: 2px dashed var(--led-play);
-  border-radius: 18px;
+  border-radius: var(--radius-device);
   background: rgba(11, 12, 14, 0.86);
   color: var(--led-play);
   font: 600 clamp(16px, 3vw, 28px) var(--font-mono);
@@ -3462,15 +3380,22 @@ textarea.text {
     min-width: 0;
     padding: 10px 5px 10px 10px;
     overflow-x: auto;
+    scrollbar-gutter: auto;
   }
 
   .pad {
     width: 168px;
   }
 
+  .pad-add-row {
+    overflow: visible;
+    scrollbar-gutter: auto;
+    margin: 0;
+    padding: 10px 10px 10px 0;
+  }
+
   .pad-add {
-    width: 150px;
-    margin: 10px 10px 10px 0;
+    width: 48px;
   }
 
   .pad-item {
@@ -3518,14 +3443,6 @@ textarea.text {
     flex-wrap: wrap;
   }
 
-  .ticker {
-    order: 9;
-    flex: 1 1 100%;
-  }
-
-  .strip-end {
-    margin-left: auto;
-  }
 }
 
 @media (max-width: 720px) {
@@ -3540,7 +3457,7 @@ textarea.text {
   }
 
   .strip {
-    padding: 8px 10px;
+    padding: 8px 8px 8px 10px;
     gap: 6px;
   }
 
@@ -3673,14 +3590,8 @@ textarea.text {
     padding: 8px 10px;
   }
 
-  .zone-head .zone-note {
-    flex: 1 1 100%;
-    order: 5;
-    white-space: normal;
-  }
-
   .zone-body {
-    padding: 10px;
+    --pad: 10px;
   }
 
   .sheets {
@@ -3707,10 +3618,6 @@ textarea.text {
   .form-row {
     grid-template-columns: minmax(0, 1fr);
     gap: 4px;
-  }
-
-  .form-note {
-    margin-left: 0;
   }
 
   .report-row {

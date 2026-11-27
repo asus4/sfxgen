@@ -139,7 +139,6 @@ function ReviewKeys() {
     const sound = s.project.sounds[s.current];
     return changesOf(s, sound).map((c) => describeChange(c, patchOf(sound)).replace(' -> ', ' → ')).join(', ');
   });
-  const count = changes ? changes.split(', ').length : 0;
   const what = changes ? `, with your changes: ${changes}` : '';
   return (
     <div className="review-keys" role="group" aria-label="Review the open sound">
@@ -153,7 +152,6 @@ function ReviewKeys() {
       >
         <Icon name="check" size={14} />
         <span>{status === 'approved' ? 'Approved' : 'Approve'}</span>
-        {count > 0 && status !== 'approved' && <small>{count}</small>}
       </button>
       <button
         type="button"
@@ -190,18 +188,11 @@ function AddSlot() {
     <button
       type="button"
       className="pad-add"
+      aria-label="Add a sound"
       title="Add a sound: pick one from the gallery, or start blank or from a file"
       onClick={() => useEditor.setState({ gallery: { open: true, mode: 'add' } })}
     >
-      <span className="pad-add-icon">
-        <Icon name="plus" size={14} />
-      </span>
-      <span className="pad-add-text">
-        <b>Add a sound</b>
-        <small>
-          <Icon name="grid" size={11} /> from the gallery
-        </small>
-      </span>
+      <Icon name="plus" size={18} />
     </button>
   );
 }
@@ -223,7 +214,9 @@ export function Pads() {
             <Pad key={i} index={i} />
           ))}
         </div>
-        <AddSlot />
+        <div className="pad-add-row">
+          <AddSlot />
+        </div>
       </div>
       <footer className="pads-foot">
         <button type="button" className="key" title="Export every sound of the set" onClick={() => void exportSet()}>

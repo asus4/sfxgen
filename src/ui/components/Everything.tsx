@@ -393,7 +393,7 @@ function GroupField({ path, name, meta }: { path: string; name: string; meta: Pa
   };
   return (
     <fieldset className="group">
-      <legend>
+      <legend title={meta.doc}>
         <Switch
           label={meta.label ?? humanize(name)}
           checked={present}
@@ -404,7 +404,7 @@ function GroupField({ path, name, meta }: { path: string; name: string; meta: Pa
           }}
         />
       </legend>
-      {present ? <Fields base={path} params={fields} /> : <p className="group-doc">{meta.doc}</p>}
+      {present && <Fields base={path} params={fields} />}
     </fieldset>
   );
 }
@@ -425,11 +425,14 @@ export function Fields({ base, params, skip, fallbacks, materialize }: { base: s
 
 // ---- Sections ---------------------------------------------------------------------------------
 
-export function Section({ title, tag, children, tools }: { title: string; tag?: string; children: ReactNode; tools?: ReactNode }) {
+/** A sheet's section. `hint` says what it is for, in its title's tooltip. */
+export function Section({ title, tag, hint, children, tools }: { title: string; tag?: string; hint?: string; children: ReactNode; tools?: ReactNode }) {
   return (
     <section className="section">
       <header className="section-head">
-        <h3 className="legend-title">{title}</h3>
+        <h3 className="legend-title" title={hint}>
+          {title}
+        </h3>
         {tag && <span className="section-tag">{tag}</span>}
         <span className="section-tools">{tools}</span>
       </header>
@@ -662,11 +665,7 @@ export function FxChain({ chainPath, title }: { chainPath: string; title: string
   );
 }
 
-/** Whether the source's description is shown. Closed at first; kept while the page is open, across layers. */
-let sourceDocOpen = false;
-
 function TrackSheet({ trackId }: { trackId: string }) {
-  const [docOpen, setDocOpen] = useState(sourceDocOpen);
   const track = useEditor((s) => s.patch.tracks.find((t) => t.id === trackId));
   const index = useEditor((s) => s.patch.tracks.findIndex((t) => t.id === trackId));
   const buses = useEditor((s) => s.patch.buses);
@@ -734,27 +733,7 @@ function TrackSheet({ trackId }: { trackId: string }) {
         {Object.keys(busFields).length > 0 && <Fields base={`${base}.sends`} params={busFields} />}
       </Section>
 
-      <Section
-        title="Source"
-        tag={def?.category ?? 'unknown'}
-        tools={
-          def && (
-            <button
-              type="button"
-              className={`key key-sm doc-toggle${docOpen ? ' is-open' : ''}`}
-              aria-expanded={docOpen}
-              aria-controls={`source-doc-${trackId}`}
-              title={docOpen ? 'Hide what this source does' : 'Show what this source does'}
-              onClick={() => {
-                sourceDocOpen = !docOpen;
-                setDocOpen(sourceDocOpen);
-              }}
-            >
-              About <Icon name="down" size={12} />
-            </button>
-          )
-        }
-      >
+      <Section title="Source" tag={def?.category ?? 'unknown'} hint={def?.doc}>
         <NodeSelect
           label="Source type"
           value={track.source.type}
@@ -764,11 +743,6 @@ function TrackSheet({ trackId }: { trackId: string }) {
             commit();
           }}
         />
-        {def && docOpen && (
-          <p id={`source-doc-${trackId}`} className="section-doc">
-            {def.doc}
-          </p>
-        )}
         {def ? <Fields base={`${base}.source`} params={{ ...def.params, ...commonKnobs }} /> : <JsonField path={`${base}.source`} label="Unknown source" />}
       </Section>
 
@@ -887,7 +861,11 @@ function MasterSheet() {
             <NormalizeTarget mode={normalize} />
           )}
         </div>
-        {overruled && <p className="section-doc">In this set the project’s levelling replaces this one (see Settings, or the sound’s group in the mixer).</p>}
+        {overruled && (
+          <p className="section-doc" title="See Settings, or the sound’s group in the mixer">
+            The set’s levelling replaces this one.
+          </p>
+        )}
       </Section>
       <FxChain chainPath="master.fx" title="master" />
 
@@ -945,6 +923,7 @@ function BusSheet({ id, name }: { id: string; name?: string }) {
       <Section
         title={name ?? id}
         tag="bus"
+        hint="Send layers here from their Layer sheet"
         tools={
           <button
             type="button"
@@ -969,7 +948,6 @@ function BusSheet({ id, name }: { id: string; name?: string }) {
         }
       >
         <Fields base={`buses.${id}`} params={BUS_FIELDS} />
-        <p className="section-doc">Send layers here from their Layer sheet.</p>
       </Section>
       <FxChain chainPath={`buses.${id}.fx`} title={name ?? id} />
     </>

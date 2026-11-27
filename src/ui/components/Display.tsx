@@ -518,7 +518,7 @@ export function Notes() {
       <h2 className="log-title">notes</h2>
       <div className="log-notes">
         {soundNote && <p className="log-text is-set">{soundNote}</p>}
-        {description ? <p className="log-text">{description}</p> : !soundNote && <p className="log-text is-empty">No description yet. An agent, or you under Everything, can say what this sound is for.</p>}
+        {description ? <p className="log-text">{description}</p> : !soundNote && <p className="log-text is-empty">No description yet.</p>}
         {notes.map(({ t, i }) => (
           <button key={t.id} type="button" className="log-track" onClick={() => select(t.id)} style={{ '--c': trackInk(t, i) } as React.CSSProperties}>
             <b>{t.name ?? t.id}</b> {t.note}

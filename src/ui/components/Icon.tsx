@@ -2,8 +2,8 @@
 const PATHS: Record<string, string> = {
   play: 'M7 4.5v15l13-7.5z',
   stop: 'M6 6h12v12H6z',
-  undo: 'M9 7 4 12l5 5M4 12h10a6 6 0 0 1 0 12h-2',
-  redo: 'M15 7l5 5-5 5M20 12H10a6 6 0 0 0 0 12h2',
+  undo: 'M9 14 4 9l5-5M4 9h10.5a5.5 5.5 0 0 1 0 11H11',
+  redo: 'M15 14l5-5-5-5M20 9H9.5a5.5 5.5 0 0 0 0 11H13',
   grid: 'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z',
   open: 'M3 7h6l2 2h10v10H3z',
   save: 'M5 4h11l4 4v12H5zM8 4v5h7V4M8 20v-6h8v6',

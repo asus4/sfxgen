@@ -175,7 +175,7 @@ function GroupBlock({ group, indexes, target, ceiling }: { group: ProjectGroup |
       {indexes.map((i) => (
         <Row key={i} index={i} />
       ))}
-      {indexes.length === 0 && <p className="empty">No sounds here yet: pick this group on a sound’s row.</p>}
+      {indexes.length === 0 && <p className="empty" title="Pick this group on a sound’s row">No sounds in this group.</p>}
     </div>
   );
 }

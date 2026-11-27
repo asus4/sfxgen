@@ -135,14 +135,12 @@ function ChanceKeys({ controls }: { controls: Control[] }) {
       >
         <Icon name="spark" size={22} />
         <span>Surprise me</span>
-        {controls.length > 0 ? (
+        {controls.length > 0 && (
           <small className="chance-dots" aria-hidden="true">
             {controls.map((c, i) => (
               <i key={c.id} style={{ '--c': controlColor(i) } as React.CSSProperties} />
             ))}
           </small>
-        ) : (
-          <small>a new seed</small>
         )}
       </button>
     </div>
@@ -152,7 +150,6 @@ function ChanceKeys({ controls }: { controls: Control[] }) {
 /** Easy control: the patch's controls in one row (it scrolls sideways when there are many), then the chance keys. */
 export function EasyStrip() {
   const controls = useEditor((s) => s.patch.controls);
-  const hint = useEditor((s) => s.patch.controls?.find((c) => c.id === s.activeControl)?.hint);
   const groups = useMemo(() => {
     const out: { name: string; items: { control: Control; index: number }[] }[] = [];
     (controls ?? []).forEach((control, index) => {
@@ -165,16 +162,13 @@ export function EasyStrip() {
   }, [controls]);
   return (
     <section className="zone zone-easy" aria-label="Easy control">
-      <div className="easy-side">
+      <div className="easy-side" title="Drag a knob up or down; double-click resets it; the sound plays when you let go">
         <span className="zone-num">04</span>
         <h2 className="zone-title">Easy control</h2>
-        <p className="zone-note" aria-hidden="true">
-          {hint ?? 'drag up or down · double-click resets · plays on release'}
-        </p>
       </div>
       <div className="easy-row">
         <div className="easy-knobs">
-          {groups.length === 0 && <p className="empty">This sound has no easy controls yet: pin the parameters worth playing with from Full control.</p>}
+          {groups.length === 0 && <p className="empty">No easy controls yet: pin a parameter in Full control.</p>}
           {groups.map((g) => (
             <div key={g.name} className="easy-group">
               {g.name && <span className="legend">{g.name}</span>}
@@ -191,18 +185,11 @@ export function EasyStrip() {
 }
 
 const TABS: { id: SurfaceMode; label: string; title: string }[] = [
-  { id: 'sound', label: 'Sound', title: 'Every parameter of the open sound (E)' },
-  { id: 'mixer', label: 'Mix', title: 'Balance the set (M)' },
+  { id: 'sound', label: 'Sound', title: 'Every parameter of the open sound; pin one to make it an easy control (E)' },
+  { id: 'mixer', label: 'Mix', title: 'Balance the set: each sound’s level, after levelling (M)' },
   { id: 'project', label: 'Settings', title: 'What the whole set shares: name, output, levelling, shared effects' },
   { id: 'notes', label: 'Notes', title: 'What the agent wrote, and who changed what' },
 ];
-
-const NOTES = {
-  sound: 'every parameter · pin one to make it an easy control',
-  mixer: 'each sound’s level in the set, after levelling',
-  project: 'what every sound in the set shares',
-  notes: 'what the agent wrote, and who changed what',
-} as const;
 
 /** Full control: everything about the open sound, or the mixer, the settings, the notes. Closed, only its head shows. */
 export function Surface() {
@@ -227,13 +214,12 @@ export function Surface() {
             const on = open && surface === t.id;
             return (
               <button key={t.id} type="button" role="tab" aria-selected={on} aria-controls={open ? 'full-control' : undefined} className={on ? 'is-on' : ''} title={t.title} onClick={() => useEditor.getState().showSurface(t.id)}>
-                {t.label}
+                <span>{t.label}</span>
                 {t.id === 'notes' && fresh > 0 && <i key={fresh} className="led led-agent" />}
               </button>
             );
           })}
         </div>
-        <span className="zone-note">{open ? NOTES[surface] : 'every parameter, the mix, the settings and the notes'}</span>
       </header>
       {open && (
         <div className="zone-body" id="full-control">
