@@ -2,7 +2,6 @@ import type { EffectDef } from '../nodes';
 import { clamp } from '../dsp/math';
 import { FX_LFO_SHAPES, lfoIsSmooth, renderFxLfo, softenLfo, type FxLfoShape } from '../dsp/fxlfo';
 
-/** Tremolo and auto-pan. */
 export const tremolo: EffectDef = {
   kind: 'effect',
   type: 'tremolo',

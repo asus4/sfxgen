@@ -3,7 +3,6 @@ import type { ParamValue } from '../format/types';
 import { constantOf } from '../params';
 import { TAU } from '../dsp/math';
 
-/** Fields of one explicit partial. */
 const ADDITIVE_PARTIAL_FIELDS: Record<string, ParamMeta> = {
   id: { kind: 'string', doc: 'Name for paths and controls: `tracks.glass.source.partials.<id>.amp`.', hint: 'Name to reach this partial from controls' },
   ratio: {
@@ -189,7 +188,6 @@ function planPartials(p: Record<string, unknown>, num: NumOf): { list: Partial[]
   return { list, explicit: false };
 }
 
-/** Sums of sine partials: chimes, glass, organ tones, beeps, UI tones and drones. */
 export const additive: SourceDef = {
   kind: 'source',
   type: 'additive',

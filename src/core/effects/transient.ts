@@ -9,7 +9,6 @@ const SUSTAIN_MEMORY = 1;
 /** Corner smoothing of the gain curve, zero-phase, so no change ever clicks. */
 const GAIN_SMOOTH = 0.0006;
 
-/** Transient shaper: more or less attack and sustain, whatever the level. */
 export const transient: EffectDef = {
   kind: 'effect',
   type: 'transient',

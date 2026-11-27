@@ -1,6 +1,6 @@
 /**
  * Knob math: positions 0..1 against values on a linear or log scale, keyboard steps and value formatting.
- * Pure, so it is tested without a DOM (tests/ui-knob.test.ts).
+ * Pure, so it is tested without a DOM.
  */
 
 export interface KnobRange {

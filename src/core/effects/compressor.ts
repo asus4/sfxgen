@@ -80,7 +80,6 @@ const time = (doc: string, hint: string, def: number, min: number, max: number, 
   scale: 'log',
 });
 
-/** Downward compressor: punch, glue and control. */
 export const compressor: EffectDef = {
   kind: 'effect',
   type: 'compressor',
@@ -207,9 +206,11 @@ export const compressor: EffectDef = {
     }
     const preroll = ctx.loop ? Math.min(n, Math.round(5 * release * sr)) : 0;
     const makeup = ctx.num('makeup');
+    // With autoMakeup, makeup goes on after the loudness match, which would otherwise undo it.
+    const inline = before > 0 ? 0 : makeup;
     const gains = groups.map((level) => {
       const gr = reduction(level, refDb, threshold, ratio, knee, attack, release, lookahead, sr, preroll);
-      for (let i = 0; i < n; i++) gr[i] = dbToGain(makeup - gr[i]);
+      for (let i = 0; i < n; i++) gr[i] = dbToGain(inline - gr[i]);
       return gr;
     });
     input.forEach((ch, c) => {
@@ -219,7 +220,7 @@ export const compressor: EffectDef = {
     if (before > 0) {
       const after = energy(input);
       if (after > 0) {
-        const g = Math.min(Math.sqrt(before / after), 100);
+        const g = Math.min(Math.sqrt(before / after), 100) * dbToGain(makeup);
         for (const ch of input) for (let i = 0; i < n; i++) ch[i] *= g;
       }
     }

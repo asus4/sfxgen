@@ -32,7 +32,6 @@ function numberSchema(m: ParamMeta): Schema {
   return s;
 }
 
-/** A parameter's schema from its metadata. */
 function paramSchema(m: ParamMeta): Schema {
   const base: Schema = { description: describeMeta(m) };
   if (m.default !== undefined) base.default = m.default;
@@ -93,7 +92,6 @@ function nodeSchema(def: NodeDef, common: ParamMap): Schema {
   };
 }
 
-/** The JSON Schema for sfxgen patches. */
 export function buildSchema(): Schema {
   const defs: Record<string, Schema> = {};
 

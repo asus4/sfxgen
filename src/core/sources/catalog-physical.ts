@@ -1,4 +1,4 @@
-/** Physical and texture sources: modal, pluck, particles. Owned by the physical-sources work. */
+/** Physical and texture sources. */
 import type { SourceDef } from '../nodes';
 import { modal } from './modal';
 import { pluck } from './pluck';

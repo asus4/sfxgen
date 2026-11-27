@@ -51,7 +51,6 @@ export const STARTER_TEMPLATES = [
   'ui/soft-confirm',
 ] as const;
 
-/** The first project a person sees: the starter sounds from the library, ready on the pads. */
 export function starterProject(name = 'First set'): Project {
   let project: Project = { format: PROJECT_FORMAT_ID, name, sounds: [] };
   for (const id of STARTER_TEMPLATES) {

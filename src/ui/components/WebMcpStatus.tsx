@@ -11,7 +11,7 @@ type Browser = 'chrome' | 'brave' | 'edge' | 'other';
 /**
  * Phones and tablets. Nothing there calls WebMCP tools yet: Android browsers have no extensions such as the tool
  * inspector, and iOS browsers are all WebKit, which has no WebMCP. The editor still registers its tools when a
- * browser offers the API; it just doesn't advertise them. iPadOS asks for desktop pages as a Mac, hence the touch check.
+ * browser offers the API but doesn't advertise them. iPadOS passes for a Mac, hence the touch check.
  */
 function onMobile(): boolean {
   const data = (navigator as Navigator & { userAgentData?: { mobile?: boolean; platform?: string } }).userAgentData;

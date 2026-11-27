@@ -2,7 +2,6 @@ import type { EffectDef } from '../nodes';
 import type { FilterType } from '../format/types';
 import { filterBuffer } from '../dsp/filters';
 
-/** A resonant filter over the whole track, its cutoff and resonance free to move over the track's time. */
 export const filter: EffectDef = {
   kind: 'effect',
   type: 'filter',

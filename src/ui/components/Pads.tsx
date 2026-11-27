@@ -56,7 +56,7 @@ function Pad({ index }: { index: number }) {
   }, [selected]);
   if (!sound) return null;
   const name = patchOf(sound).name || key;
-  // One LED, the first state that applies; the words name every state, for the tooltip and screen readers.
+  // The LED shows one state; the words name every state, for the tooltip and screen readers.
   const state = playing ? 'playing' : touched ? 'agent' : review === 'approved' ? 'idle' : review === 'needs-work' ? 'needs-work' : edited ? 'edited' : 'unreviewed';
   const says = [playing && 'playing', touched && 'changed by an agent', edited && 'changed by you', REVIEW_SAYS[review]].filter(Boolean).join(', ');
   return (

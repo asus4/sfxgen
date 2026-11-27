@@ -2415,7 +2415,7 @@
           "maximum": 2
         },
         "pops": {
-          "description": "Engine only: afterfire on the overrun. When the throttle shuts (`load` near 0) above about 1800 rpm, unburnt fuel lights in the hot pipe: sharp pops and crackles among the weak, fuel-cut firings. 0 never, 0.2 a stock engine's odd pop, 0.6 a tuned bike crackling, 1 a race car spitting. (0 to 1)",
+          "description": "Engine only: afterfire on the overrun. When the throttle shuts (`load` near 0) above about 1300 rpm, unburnt fuel lights in the hot pipe: sharp pops and crackles among the weak, fuel-cut firings. 0 never, 0.2 a stock engine's odd pop, 0.6 a tuned bike crackling, 1 a race car spitting. (0 to 1)",
           "default": 0.2,
           "type": "number",
           "minimum": 0,

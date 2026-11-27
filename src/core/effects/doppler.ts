@@ -131,7 +131,6 @@ function emissionTimes(arrival: Float64Array, nOut: number): Float64Array {
   return te;
 }
 
-/** A source flying past: propagation delay (the Doppler bend falls out of it), distance level, air and panning. */
 export const doppler: EffectDef = {
   kind: 'effect',
   type: 'doppler',

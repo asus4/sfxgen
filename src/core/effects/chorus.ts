@@ -5,7 +5,6 @@ import { ModDelayLine } from '../dsp/moddelay';
 /** Each further voice runs a little faster, so the voices never line up into one obvious wobble. */
 const VOICE_RATE_STEP = 0.13;
 
-/** Multi-voice stereo chorus. */
 export const chorus: EffectDef = {
   kind: 'effect',
   type: 'chorus',

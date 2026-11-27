@@ -1,4 +1,4 @@
-/** Effects that shape tone, dynamics and movement. Owned by the shape-effects work. */
+/** Effects that shape tone, dynamics and movement. */
 import type { EffectDef } from '../nodes';
 import { eq } from './eq';
 import { compressor } from './compressor';

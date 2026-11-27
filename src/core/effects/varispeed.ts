@@ -32,7 +32,6 @@ function speedLevel(rate: number): number {
 const STALL = 0.25;
 const MAX_SECONDS = 60;
 
-/** Tape-speed change: pitch and length together, from tape stops to spin-ups and slowed-down monsters. */
 export const varispeed: EffectDef = {
   kind: 'effect',
   type: 'varispeed',

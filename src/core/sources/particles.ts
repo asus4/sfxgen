@@ -284,7 +284,6 @@ interface Emission {
   level: number[];
 }
 
-/** When the particles happen. */
 function emit(dist: Distribution, density: Buf, end: number, sr: number, rng: Rng, jitter: number, interval: number, ratio: number): Emission {
   const at: number[] = [];
   const level: number[] = [];
@@ -340,7 +339,6 @@ interface ModePrototype {
   decay: Float64Array;
 }
 
-/** Clouds of small events: debris, rain, fire, sparks, coins, bubbles, clicks, granular textures. */
 export const particles: SourceDef = {
   kind: 'source',
   type: 'particles',

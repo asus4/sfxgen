@@ -113,7 +113,7 @@ A track is one layer: a **source** played by one or more **events**, then the tr
 | `events` | When the source plays, in seconds from the track's start: `[0, 0.12, 0.3]`, or objects `{ "t": 0.12, "pitch": 3, "vel": 0.7, "dur": 0.2 }`. Default: once at 0. |
 | `repeat` | Shorthand for a run of events: `{ "count": 6, "interval": 0.09, "accel": 0.8, "decay": -3, "pitchStep": 1, "jitter": 0.004 }`. `accel` below 1 speeds up like a bouncing ball. `accents` sets each repeat's loudness in turn (`[0.7, 1, 0.8]`: the second the firmest, cycling), and `offsets` shifts each in time, in seconds (`[0, 0, 0, 0, 0.35]`: a hesitation before the fifth, the same every render). Tracks whose repeats have the same `group` name draw the same random timing, velocity and pitch, so the layers of one event (a knuckle, the door, its panel) move together. |
 | `fx` | Effect chain, in order: `[{ "type": "filter", ... }, { "type": "reverb", ... }]`. |
-| `sends` | `{ "busId": -6 }`: send level in dB, after the track's effects. |
+| `sends` | `{ "busId": -6 }`: send level in dB, after the track's effects, gain and pan. |
 
 Each event renders the source on its own, with its own pitch (semitones), velocity (scales the level) and held
 time (`dur`, which is the envelope's gate), and its own randomness.
@@ -248,23 +248,21 @@ full view.
   - `via`: the value at the control's `default` (or its middle): the mapping runs `from` → `via` → `to`, in every
     mode. Use it so a level or tone control rests exactly on the mixed value: `{ "path": "tracks.air.gain", "from": -30, "via": -8, "to": 0 }`.
     A `mul` target whose ends multiply to 1 (1.6 and 0.625) rests on the patch's own value without one.
-  - `curve`: how the position maps: `linear`, `exp` (the default when both ends are positive and the parameter is
-    on a log scale, or for `mul` and `stretch`), `smooth`, or a bend number.
+  - `curve`: how the position maps: `linear`, `exp` (the default for `mul`, `stretch` and log-scale parameters when
+    both ends are positive), `smooth`, or a bend number.
 - `widget: "select"` or `"toggle"` with `options: [{ "label": "Steel", "set": { "tracks.shell.source.material": "metal" } }, ...]`
   picks one of several settings; `value` is the option's index.
 - `vary` is how far variations may move the control (± in its units), for round-robin variations.
-- Controls apply in order, to a copy of the patch, just before rendering. The patch keeps its base values.
+- Controls apply to a copy of the patch just before rendering, so the patch keeps its base values. Every `set` and
+  option applies first, then every `mul`, `add` and `stretch`; when two controls `set` one path, the later wins.
 - A `set` target (or a chosen option) overrides the base value at its path on every render, so editing that value
   by hand changes nothing you can hear. Change the control's value instead, or run `sfxgen sync patch.sfx.json` (the
   `sync_controls` tool): it writes what each control currently applies into the base values at those paths, so the
   file says what renders. `mul`, `add` and `stretch` targets are left alone, since baking them in would apply them
-  twice. `sfxgen sync --check` changes nothing and exits 1 if a patch is out of sync (for CI). The editor syncs every
-  file it saves and every patch it exports, so a knob turned there leaves the file in sync.
+  twice. `sfxgen sync --check` changes nothing and exits 1 if a patch is out of sync. The editor syncs every file it
+  saves and every patch it exports.
 
-**Choosing controls.** Three to seven, each one a perceptual move (Size, Weight, Grit, Distance, Speed, Brightness,
-Wetness), never a raw DSP name. Each should change the sound audibly across its whole range and never break it.
-Prefer one control driving several parameters coherently (Size lowers pitch, lengthens decay and adds room) over one
-control per parameter. Write the `hint` as what the listener hears.
+[SOUND-DESIGN.md](SOUND-DESIGN.md#choosing-controls-for-people) says how to choose them.
 
 ## Validation
 
@@ -338,7 +336,7 @@ project file in `sfxgen.review.json` (`sfxgen-review/1`); the patch and project 
 | `sounds` | Verdicts by sound: its `file` as the project lists it (or, for a sound kept inline, its name). |
 | `status` | `approved` or `needs-work`. A sound with no verdict is not reviewed. |
 | `at` | When the verdict was given (ISO 8601). |
-| `version` | What the verdict is for: a hash of the sound's patch and of its takes. When either changes (an agent's edit, a file saved on disk, the person's own knob turn, another take picked, a new take), the verdict no longer holds and the sound is not reviewed again. Values a control sets are left out of the hash, since every render overrides them: syncing a file keeps its verdict. |
+| `version` | What the verdict is for: a hash of the sound's patch and of its takes. When either changes (an agent's edit, the person's own knob turn, another take picked, a new take), the verdict lapses and the sound is back to not reviewed. Values a control sets are left out of the hash, so syncing a file keeps its verdict. |
 | `take` | The take in use when the verdict was given, by label. |
 | `changes` | What the person changed before deciding, since the sound was last written by someone else (or since they picked its take): `{ path, before, after }`, the same records as `get_human_changes`. The changes are in the patch file already. |
 | `read` | When an agent last read the verdicts (`sfxgen review`): later verdicts are new to it. |

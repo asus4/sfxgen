@@ -7,7 +7,6 @@ const SHAPES = ['triangle', 'sine'] as const;
 /** Hz; keeps the feedback loop from building up DC and sub rumble. */
 const FEEDBACK_HIGHPASS = 20;
 
-/** Flanger with feedback: comb-filter sweeps, from a gentle swirl to a jet. */
 export const flanger: EffectDef = {
   kind: 'effect',
   type: 'flanger',

@@ -286,7 +286,6 @@ function delayed(x: Buf, samples: number): Buf {
   return y;
 }
 
-/** A natural reverb: early reflections and a dense, smooth tail that dies faster in the highs. */
 export const reverb: EffectDef = {
   kind: 'effect',
   type: 'reverb',

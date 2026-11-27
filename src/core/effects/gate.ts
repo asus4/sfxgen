@@ -5,7 +5,6 @@ import { absMax, advance, maxOf, runningMax, withPreroll } from '../dsp/dynamics
 /** The detector holds each peak this long, so the gate does not chatter on the zero crossings of a low note. */
 const DETECT_HOLD = 0.005;
 
-/** Noise gate and expander: chops tails, stutters and tightens. */
 export const gate: EffectDef = {
   kind: 'effect',
   type: 'gate',

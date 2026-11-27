@@ -91,7 +91,7 @@ Real sounds are never exact. Each of these is cheap and makes a patch sound reco
 
 - **Offset the layers.** Real events don't align to the sample: start layers 1 to 15 ms apart (a flam), and let
   the parts of a sequence breathe (the rattle 40 ms after the thud).
-- **Detune.** Use ratios from the models, `dent`, `inharmonicity`, `detune`, `drift`. Avoid round frequencies.
+- **Detune.** Use ratios from the models, `dent`, `stretch`, `detune`, `drift`. Avoid round frequencies.
 - **Wobble.** `wander` modulators on pitch and cutoff (a few cents, a few percent) give life to anything sustained.
 - **Vary repeats.** `repeat` with `jitter`, `velJitter` and `pitchJitter`, `accents` (each repeat's own loudness),
   `offsets` (a deliberate pause or swing) and a shared `group` for the layers of one event; `particles` with level

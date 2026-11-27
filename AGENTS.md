@@ -29,8 +29,8 @@ If you are here to make sound effects rather than to change sfxgen:
 | Command | Does |
 | --- | --- |
 | `npm run dev` | The editor with hot reload, at http://localhost:5178 |
-| `npm run sfxgen -- <command>` | The CLI from source (`render`, `analyze`, `validate`, `guide`, `templates`, `new`, `diff`, `sync`, `build`, `project`, `review`, `serve`) |
-| `npm test` | All tests (vitest) |
+| `npm run sfxgen -- <command>` | The CLI from source (`npm run sfxgen -- --help` lists the commands) |
+| `npm test` | All tests |
 | `npm run typecheck` | TypeScript |
 | `npm run templates` | Rebuild `src/core/templates/library.json` after changing `templates/` |
 | `npm run build` | Templates, the editor (`dist/web`) and the CLI (`dist/node`) |
@@ -48,8 +48,6 @@ Rules:
   schema read it. Never reword a `doc` lightly: it also names random streams, so the sound would change.
 - **Effects use `mode`, not `type`, for their own shape enum**: `type` names the node.
 - **Test every node** with defaults and extreme values: finite, not silent, sane level, and its key behaviour.
-- **Templates** are plain patches under `templates/<category>/`. Each one needs a story in `description`, a `note`
-  on each track and 3 to 7 controls that change the sound audibly across their whole range. Run `npm run templates`
-  and the template test after adding one. [docs/TEMPLATE-BRIEF.md](docs/TEMPLATE-BRIEF.md) is the brief to hand an
-  agent writing templates.
+- **Templates** are plain patches under `templates/<category>/`, held to [docs/TEMPLATE-BRIEF.md](docs/TEMPLATE-BRIEF.md)
+  (the brief to hand an agent writing them). Run `npm run templates` and the template test after adding one.
 - **Format changes** need `docs/FORMAT.md`, `src/core/format/types.ts` and the validator changed together.

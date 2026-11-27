@@ -1,7 +1,7 @@
 {
   "name": "sfxgen",
   "version": "0.1.0",
-  "description": "Sound-effect generator: JSON patch files, deterministic DSP, a playful editor, WebMCP tools for in-browser agents and a CLI for coding agents.",
+  "description": "Sound-effect generator: JSON patch files, a playful editor, WebMCP tools for in-browser and a CLI for coding agents.",
   "license": "MIT",
   "type": "module",
   "bin": {

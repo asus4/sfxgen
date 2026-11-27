@@ -534,7 +534,6 @@ export function objectModes(o: ObjectSettings, objectRng: Rng, strikeRng?: Rng):
   return modes;
 }
 
-/** Struck, scraped and rolled resonant objects. */
 export const modal: SourceDef = {
   kind: 'source',
   type: 'modal',

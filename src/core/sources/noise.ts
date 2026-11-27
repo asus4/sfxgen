@@ -2,7 +2,6 @@ import type { SourceDef } from '../nodes';
 import { noise as makeNoise, type NoiseColor } from '../dsp/noise';
 import type { Buf } from '../dsp/math';
 
-/** Coloured noise, the raw material of air, hiss, impacts' crack, rain and static. */
 export const noise: SourceDef = {
   kind: 'source',
   type: 'noise',

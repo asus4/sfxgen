@@ -180,7 +180,6 @@ const LEVELLING = 0.8;
 /** Aspiration noise level against the pulses. */
 const BREATH_GAIN = 0.55;
 
-/** A vocal source: glottal pulses with jitter, growl and breath through a morphing formant throat. */
 export const voice: SourceDef = {
   kind: 'source',
   type: 'voice',

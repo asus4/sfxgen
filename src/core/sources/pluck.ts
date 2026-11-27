@@ -138,7 +138,6 @@ function allpassDelay(a: number, w: number): number {
   return -(Math.atan2(-s, a + c) - Math.atan2(-a * s, 1 + a * c)) / w;
 }
 
-/** A waveguide string: plucked, struck or bowed, from nylon to piano wire to a coil spring. */
 export const pluck: SourceDef = {
   kind: 'source',
   type: 'pluck',

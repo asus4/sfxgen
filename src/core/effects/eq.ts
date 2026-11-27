@@ -210,7 +210,6 @@ function extreme(v: unknown, fallback: number, pick: (...xs: number[]) => number
 
 type BandSpec = Record<string, unknown>;
 
-/** Parametric equaliser: up to eight bands in series. */
 export const eq: EffectDef = {
   kind: 'effect',
   type: 'eq',

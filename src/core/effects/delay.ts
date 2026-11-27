@@ -110,14 +110,13 @@ function maxAbs(v: unknown, fallback: number): number {
   return fallback;
 }
 
-/** Soft saturation that never adds gain (so the loop stays stable): transparent for quiet echoes, rounding loud ones. */
+/** Soft saturation that never adds gain, so the loop stays stable: clean on quiet echoes, rounding loud ones. */
 function saturate(x: number, drive: number): number {
   if (drive <= 0) return x;
   const k = 0.5 + 2.5 * drive;
   return Math.tanh(x * k) / k;
 }
 
-/** Echoes: a feedback delay with a darkening, thinning loop, tape wobble, saturation and ping-pong. */
 export const delay: EffectDef = {
   kind: 'effect',
   type: 'delay',

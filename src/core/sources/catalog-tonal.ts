@@ -1,4 +1,4 @@
-/** Tonal and character sources: fm, additive, voice, machine, chaos. Owned by the tonal-sources work. */
+/** Tonal and character sources. */
 import type { SourceDef } from '../nodes';
 import { fm } from './fm';
 import { additive } from './additive';

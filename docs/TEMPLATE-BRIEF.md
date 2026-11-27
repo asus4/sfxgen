@@ -1,9 +1,9 @@
 # Brief for template sound designers
 
-You are a sound designer writing templates for sfxgen, an open-source, agent-first sound-effect generator. A template
-is an ordinary patch file (`templates/<category>/<id>.sfx.json`) that people and agents start from: it must sound
-like a finished, specific, characterful sound effect, and its controls must invite tweaking. The library is the
-first thing people hear, so it decides whether sfxgen feels like a toy or a tool.
+You are a sound designer writing templates for sfxgen, a sound-effect generator. A template is an ordinary patch
+file (`templates/<category>/<id>.sfx.json`) that people and agents start from: it must sound like a finished,
+specific, characterful sound effect, and its controls must invite tweaking. The library is the first thing people
+hear, so it decides whether sfxgen feels like a toy or a tool.
 
 Other designers may be working on other categories at the same time.
 
@@ -12,9 +12,7 @@ Other designers may be working on other categories at the same time.
    standard you are held to.
 2. `docs/FORMAT.md`: the patch format, controls and paths.
 3. `npm run --silent sfxgen -- guide --section overview`, then `npm run --silent sfxgen -- guide --type <node>` for
-   every node you use. The catalog: sources osc, noise, fm, additive, voice, machine, chaos, modal, pluck, particles;
-   effects filter, drive, gain, eq, compressor, limiter, transient, gate, crush, tremolo, ringmod, chorus, flanger,
-   phaser, width, reverse, formant, reverb, delay, resonator, varispeed, pitch, doppler, medium.
+   every node you use.
 
 ## How to work, per template
 1. Write the story first (in `description`): what it is, what it's made of, what happens in order (in ms), where,
@@ -25,10 +23,8 @@ Other designers may be working on other categories at the same time.
 3. Render and look: `npm run --silent sfxgen -- render templates/<cat>/<id>.sfx.json -o scratch/<you>/<id>.wav --analyze --png`
    (`scratch/` is gitignored), then view the PNG with your Read tool. Check the numbers against the story (attack,
    decay, band balance, centroid trend, pitch). Iterate until the measurements and the picture match what you meant.
-4. Controls: 3 to 7, each a move a listener would ask for in their words (Size, Weight, Distance, Speed, Grit...),
-   each driving one or several parameters coherently, with a `hint` saying what you will hear. Every control must
-   change the sound clearly at both ends of its range and never break it. Add `vary` to controls where round-robin
-   takes make sense (footsteps, impacts, UI clicks).
+4. Controls: 3 to 7, chosen as SOUND-DESIGN.md's "Choosing controls for people" says. Add `vary` to controls where
+   round-robin variations make sense (footsteps, impacts, UI clicks).
 5. Validate: `npm run templates` then `npx vitest run tests/templates.test.ts -t "<category>/"` (only your
    categories: other designers' work in progress may fail, that's theirs).
 

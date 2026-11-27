@@ -6,7 +6,6 @@ import { absMax, maxOf } from '../dsp/dynamics';
 /** At or above this rate (or the sample rate) there is no rate reduction. */
 const RATE_OFF = 48000;
 
-/** Bit and sample-rate reduction. */
 export const crush: EffectDef = {
   kind: 'effect',
   type: 'crush',

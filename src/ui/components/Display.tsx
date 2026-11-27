@@ -1,8 +1,7 @@
 /**
  * The display: a dark screen with the open sound's waveform (every audible track in its ink, screened over black,
- * under the outline of the finished mix), the lanes, the readouts and the agent's log. While a control is hovered
- * or turned the screen switches to that control's colour and shows where it acts. Play sits in the screen's head;
- * the dice and surprise me sit beside the easy controls they move.
+ * under the outline of the finished mix), the lanes and the readouts, with play in its head. While a control is
+ * hovered or turned the screen switches to that control's colour and shows where it acts.
  */
 import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import { player } from '../audio';

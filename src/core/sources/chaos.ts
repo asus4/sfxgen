@@ -7,7 +7,7 @@ import type { Rng } from '../dsp/rng';
 type Mode = 'logistic' | 'henon' | 'lorenz' | 'feedback' | 'bytebeat';
 const MODES: readonly Mode[] = ['logistic', 'henon', 'lorenz', 'feedback', 'bytebeat'];
 
-/** A small fixed set of bytebeat formulas (8-bit output from an integer counter t). */
+/** Bytebeat formulas: 8-bit output from an integer counter t. */
 const FORMULAS: Record<string, (t: number) => number> = {
   sierpinski: (t) => t & (t >> 8),
   melody: (t) => t * (42 & (t >> 10)),
@@ -167,7 +167,6 @@ function bytebeatStepper(chaos: Buf, idx: () => number, rng: Rng, formula: (t: n
   };
 }
 
-/** Nonlinear and digital generators: logistic and Henon maps, the Lorenz attractor, cross-FM and bytebeat. */
 export const chaos: SourceDef = {
   kind: 'source',
   type: 'chaos',

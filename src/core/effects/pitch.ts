@@ -33,7 +33,6 @@ const PARAMS: Record<string, ParamMeta> = {
   },
 };
 
-/** Pitch shift that keeps the duration: overlapped grains that stay in phase from one to the next. */
 export const pitch: EffectDef = {
   kind: 'effect',
   type: 'pitch',

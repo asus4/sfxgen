@@ -1,12 +1,11 @@
 import type { EffectDef } from '../nodes';
 import { absMax, maxOf } from '../dsp/dynamics';
 
-/** Where 'start' alignment cuts: the part above -80 dB of the peak, as `duration: "auto"` trims. */
+/** Where 'start' alignment cuts: the part above -80 dB of the peak. */
 const SOUNDING_FLOOR = 1e-4;
-/** Fade-in at the start of a 'start'-aligned reversal, seconds. */
+/** Fade-in where a reversal cuts into the sound, seconds. */
 const FADE_IN = 0.002;
 
-/** Plays the buffer backwards. */
 export const reverse: EffectDef = {
   kind: 'effect',
   type: 'reverse',

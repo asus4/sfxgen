@@ -5,7 +5,6 @@ import { oscillator, type Waveform } from '../dsp/oscillators';
 
 const CARRIERS = ['sine', 'triangle', 'square', 'saw'] as const;
 
-/** Ring modulation and amplitude modulation by an audio-rate carrier. */
 export const ringmod: EffectDef = {
   kind: 'effect',
   type: 'ringmod',

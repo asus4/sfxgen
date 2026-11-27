@@ -70,7 +70,6 @@ export class Rng {
     return r * Math.cos(2 * Math.PI * v);
   }
 
-  /** ±1 */
   sign(): number {
     return this.next() < 0.5 ? -1 : 1;
   }

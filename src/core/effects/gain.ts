@@ -1,7 +1,6 @@
 import type { EffectDef } from '../nodes';
 import { dbToGain } from '../dsp/math';
 
-/** Level automation: swells, fades and ducks over the track's time. */
 export const gain: EffectDef = {
   kind: 'effect',
   type: 'gain',

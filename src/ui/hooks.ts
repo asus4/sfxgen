@@ -57,7 +57,7 @@ export function useStable<T>(value: T): T {
   return ref.current;
 }
 
-/** Nice tick spacing for a timeline of this length. */
+/** Tick times at a round spacing for a timeline of this length. */
 export function timeTicks(duration: number, maxTicks = 8): number[] {
   if (!(duration > 0)) return [];
   const steps = [0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.25, 0.5, 1, 2, 5, 10];

@@ -5,7 +5,6 @@ const STAGES = ['2', '4', '6', '8', '10', '12'] as const;
 /** Hz; keeps the feedback loop from building up DC and sub rumble. */
 const FEEDBACK_HIGHPASS = 20;
 
-/** Allpass phaser with feedback. */
 export const phaser: EffectDef = {
   kind: 'effect',
   type: 'phaser',

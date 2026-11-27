@@ -205,6 +205,18 @@ describe('eq', () => {
   });
 });
 
+describe('drive', () => {
+  it('keeps silence silent at any bias, in every mode', () => {
+    for (const mode of ['tanh', 'soft', 'hard', 'fold', 'tube', 'fuzz', 'rectify']) {
+      for (const bias of [-0.5, 0.5]) {
+        const x = run([{ type: 'drive', mode, amount: 18, bias }], { source: HIT, duration: 1, raw: true }).channels[0];
+        expect(peak(x, 0, sec(0.2)), `${mode} at bias ${bias}`).toBeGreaterThan(0.1);
+        expect(peak(x, sec(0.8)), `${mode} at bias ${bias}`).toBeLessThan(1e-3);
+      }
+    }
+  });
+});
+
 describe('compressor', () => {
   it('follows its static curve (dBFS reference)', () => {
     const out = (inDb: number) =>
@@ -228,6 +240,12 @@ describe('compressor', () => {
     expect(crest(wet)).toBeGreaterThan(crest(dry) + 1.5);
     const auto = run([{ type: 'compressor', autoMakeup: true }], { source: HIT, raw: true }).channels[0];
     expect(db(rms(auto) / rms(dry))).toBeCloseTo(0, 1);
+  });
+
+  it('adds makeup on top of autoMakeup', () => {
+    const auto = run([{ type: 'compressor', autoMakeup: true }], { source: HIT, raw: true }).channels[0];
+    const boosted = run([{ type: 'compressor', autoMakeup: true, makeup: 6 }], { source: HIT, raw: true }).channels[0];
+    expect(db(rms(boosted) / rms(auto))).toBeCloseTo(6, 1);
   });
 
   it('links stereo channels', () => {

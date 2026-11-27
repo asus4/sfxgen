@@ -7,10 +7,7 @@ import { isBreakpoints, isSignalObject } from '../params';
 type Mode = 'comb' | 'tube' | 'string' | 'metal';
 const MODES: readonly Mode[] = ['comb', 'tube', 'string', 'metal'];
 
-/**
- * Inharmonic mode ratios for `metal`: zeros of the Bessel functions, the modes of a circular membrane or plate,
- * which is what makes struck metal sound clangorous rather than pitched.
- */
+/** Inharmonic mode ratios for `metal`: the modes of a circular membrane (Bessel zeros), clangorous, not pitched. */
 const METAL_RATIOS = [1, 1.594, 2.136, 2.296, 2.653, 2.918, 3.156, 3.501, 3.6, 4.06, 4.154, 4.601, 4.832, 4.903, 5.131, 5.412];
 
 const PARAMS: Record<string, ParamMeta> = {
@@ -225,7 +222,6 @@ function renderMetal(x: Buf, out: Buf, freq: Buf, decay: Buf, semis: number, bri
   }
 }
 
-/** Tuned resonance on any input: combs, tubes, strings and metal modes that ring at chosen pitches. */
 export const resonator: EffectDef = {
   kind: 'effect',
   type: 'resonator',

@@ -3,7 +3,6 @@ import { oscillator, type Waveform } from '../dsp/oscillators';
 import { wander } from '../dsp/noise';
 import type { Buf } from '../dsp/math';
 
-/** The classic synth oscillator: one waveform, optional unison stack and slow analog drift. */
 export const osc: SourceDef = {
   kind: 'source',
   type: 'osc',

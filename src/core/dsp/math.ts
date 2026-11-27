@@ -69,16 +69,13 @@ export function softClip(x: number, drive: number): number {
   return Math.tanh(x * drive) / Math.tanh(drive);
 }
 
-/**
- * Shapes a 0..1 position along a segment. `bend` from -1 (fast first) to 1 (slow first); 0 is linear.
- */
+/** Shapes a 0..1 position along a segment. `bend` from -1 (fast first) to 1 (slow first); 0 is linear. */
 export function bendPosition(x: number, bend: number): number {
   if (bend === 0) return x;
   const e = Math.pow(2, 3 * clamp(bend, -1, 1));
   return Math.pow(clamp(x, 0, 1), e);
 }
 
-/** Is every sample a finite number? */
 export function allFinite(x: ArrayLike<number>): boolean {
   for (let i = 0; i < x.length; i++) if (!Number.isFinite(x[i])) return false;
   return true;

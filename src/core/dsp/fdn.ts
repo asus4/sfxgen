@@ -7,8 +7,7 @@
  * - The FDN's 16 lines are mutually prime, spread over a 1:3 range around the space's mean free path, mixed by a
  *   16-point Hadamard (every line feeds every other equally, the fastest-building orthogonal mix).
  * - Each line carries a low shelf and a high shelf whose gains are set from the line's length, so the decay time is
- *   exactly `t60` in the mids, `t60 * bassRatio` in the lows and `t60 * highRatio` in the highs.
- * - Each line's gains are scaled so the decay is exact at 700 Hz despite the shelves reaching into the mids.
+ *   `t60` at 700 Hz, `t60 * bassRatio` in the lows and `t60 * highRatio` in the highs.
  * - Half the lines are slowly modulated (a fraction of a millisecond, allpass-interpolated so no highs are lost) so
  *   the modes drift instead of ringing.
  * - An onset tap of the diffuser's own output gives a dense start before the loop's first pass.

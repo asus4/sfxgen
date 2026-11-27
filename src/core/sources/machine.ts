@@ -158,7 +158,7 @@ const PARAMS: Record<string, ParamMeta> = {
   pops: {
     kind: 'number',
     doc:
-      'Engine only: afterfire on the overrun. When the throttle shuts (`load` near 0) above about 1800 rpm, unburnt ' +
+      'Engine only: afterfire on the overrun. When the throttle shuts (`load` near 0) above about 1300 rpm, unburnt ' +
       'fuel lights in the hot pipe: sharp pops and crackles among the weak, fuel-cut firings. 0 never, 0.2 a stock ' +
       'engine\'s odd pop, 0.6 a tuned bike crackling, 1 a race car spitting.',
     hint: 'Engine only: pops and crackles when the throttle shuts',
@@ -280,7 +280,7 @@ function brushNoise(c: Ctx, hum: Buf, centre: number, level: Buf): Buf {
 
 /**
  * Electric hum: a band-limited saw and a square an octave up, darker unless strained. The octave is exact: detuned,
- * it beat slowly against the saw's second harmonic and the hum swelled by 3 dB over a few seconds at constant speed.
+ * it would beat against the saw's second harmonic and swell the hum by 3 dB over a few seconds at constant speed.
  */
 function humOf(c: Ctx, fh: Buf, saw: number, square: number, base: number, open: number): Buf {
   const a = oscillator('saw', fh, c.sr, c.rng.next());
@@ -467,9 +467,9 @@ function chambers(x: Buf, sr: number, size: number, amount: number): Buf {
  * the firing order, and every firing is a little different (more so at idle). Each firing blows a pressure pulse
  * into its exhaust bank with a sharp crack as the valve opens; the pipe rings, the silencer's chambers smear each
  * firing into a dense body, the gas rushing out hisses and rips in time with the pulses, the muffler takes the top
- * off and the narrow tailpipe barely radiates the lowest notes. Tuned against a recording of a motorbike. The intake roars on each intake stroke when the
+ * off and the narrow tailpipe barely radiates the lowest notes. The intake roars on each intake stroke when the
  * throttle is open; shut the throttle at speed and the fuel is cut, the firings go weak and hollow, and unburnt fuel
- * pops in the pipe. Valve ticks and gear whine ride on top.
+ * pops in the pipe. Valve ticks and gear whine ride on top. Tuned against a recording of a motorbike.
  */
 function renderEngine(c: Ctx): Buf {
   const { n, sr } = c;
@@ -744,7 +744,6 @@ function contextOf(p: Record<string, unknown>, ctx: VoiceContext, kind: Kind): C
   };
 }
 
-/** Rotating machinery driven by rpm: motors, servos, drills, engines, turbines and rotors. */
 export const machine: SourceDef = {
   kind: 'source',
   type: 'machine',

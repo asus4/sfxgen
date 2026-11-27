@@ -126,8 +126,7 @@ export function targetValue(c: Control, t: ControlTarget, meta: ParamMeta | unde
 
 /**
  * Applies one control to a patch in place. `phase` limits it to its absolute changes (options and `set` targets) or
- * its relative ones (`mul`, `add`, `stretch`); applyControls runs every control's absolute changes first, so a
- * relative change always lands on top of whatever value the controls set, whatever their order.
+ * its relative ones (`mul`, `add`, `stretch`).
  */
 export function applyControl(
   patch: Patch,
@@ -162,7 +161,7 @@ export function applyControl(
   }
 }
 
-/** A copy of the patch with every control applied, in order. */
+/** A copy of the patch with every control applied. */
 export function applyControls(patch: Patch, metaAt: MetaLookup): { patch: Patch; warnings: string[] } {
   const out = deepClone(patch);
   const warnings: string[] = [];

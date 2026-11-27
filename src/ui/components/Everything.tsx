@@ -409,7 +409,7 @@ function GroupField({ path, name, meta }: { path: string; name: string; meta: Pa
 
 export function Fields({ base, params, skip, fallbacks, materialize }: { base: string; params: ParamMap; skip?: string[]; fallbacks?: Record<string, unknown>; materialize?: FieldProps['materialize'] }) {
   const names = Object.keys(params).filter((n) => !skip?.includes(n));
-  // Knobs first, then the wide things, so the grid packs without holes.
+  // Selectors, then knobs, then the wide fields, so the grid packs without holes.
   const small = names.filter((n) => params[n].kind === 'number' || params[n].kind === 'signal' || params[n].kind === 'bool');
   const rest = names.filter((n) => !small.includes(n));
   return (

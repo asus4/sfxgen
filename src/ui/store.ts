@@ -73,7 +73,7 @@ export interface EditorState extends Settings {
   lastOrigin: Origin;
   /** The versions an agent last wrote (or the ones first opened): what getHumanChanges compares against. */
   baseline: Project;
-  /** The project as loaded, for "reset to the saved value" and the pads' edited LEDs. */
+  /** The project as loaded: a control without a `default` resets to its value here. */
   saved: Project;
   /** A track id, or SELECT_MASTER. */
   selected: string;

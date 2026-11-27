@@ -1,7 +1,6 @@
 import type { EffectDef } from '../nodes';
 import { clamp } from '../dsp/math';
 
-/** Stereo width (mid/side) and a Haas delay. */
 export const width: EffectDef = {
   kind: 'effect',
   type: 'width',

@@ -1,6 +1,5 @@
 /**
- * WebMCP: the agent tools (src/core/agent/tools.ts), registered on the page so an in-browser
- * agent can design sounds in the open editor.
+ * WebMCP: the agent tools, registered on the page so an in-browser agent can design sounds in the open editor.
  *
  * The spec (W3C Web Machine Learning CG, "WebMCP") puts the API on `document.modelContext`; older Chrome builds and
  * the MCP-B polyfill use `navigator.modelContext`, some with `registerTool` returning `{ unregister() }`, some with
@@ -12,7 +11,6 @@ import { TOOLS, callTool, type ToolDef, type ToolResult } from '../core/agent/to
 export interface WebMcpHandle {
   /** Where the tools went: the spec's document.modelContext, the older navigator.modelContext, or nowhere. */
   api: 'document.modelContext' | 'navigator.modelContext' | 'none';
-  /** Tools registered. */
   count: number;
   /** Unregisters every tool. */
   dispose(): void;

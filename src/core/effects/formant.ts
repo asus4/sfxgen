@@ -30,7 +30,6 @@ function highest(v: unknown, fallback: number): number {
   return typeof obj?.value === 'number' ? obj.value : fallback;
 }
 
-/** Vowel (formant) filter for any input. */
 export const formant: EffectDef = {
   kind: 'effect',
   type: 'formant',

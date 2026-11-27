@@ -5,6 +5,12 @@ import { dbToGain, peak } from '../dsp/math';
 
 type DriveMode = 'tanh' | 'soft' | 'hard' | 'fold' | 'tube' | 'fuzz' | 'rectify';
 
+/** Fast, asymmetric saturation: a broken transistor fuzz. */
+function fuzz(v: number): number {
+  return Math.sign(v) * (1 - Math.exp(-Math.abs(v) * 3)) * (v > 0 ? 1 : 0.7);
+}
+
+/** Each mode subtracts its value at `bias`, so silence stays silent (no DC offset). */
 function shape(mode: DriveMode, x: number, bias: number): number {
   switch (mode) {
     case 'tanh':
@@ -31,17 +37,13 @@ function shape(mode: DriveMode, x: number, bias: number): number {
       const yb = b >= 0 ? 1 - Math.exp(-b) : -(1 - Math.exp(b * 0.6)) / 0.6;
       return y - yb;
     }
-    case 'fuzz': {
-      // Hard, gated, asymmetric: a broken transistor fuzz.
-      const v = x + bias;
-      return Math.sign(v) * (1 - Math.exp(-Math.abs(v) * 3)) * (v > 0 ? 1 : 0.7);
-    }
+    case 'fuzz':
+      return fuzz(x + bias) - fuzz(bias);
     case 'rectify':
       return Math.abs(x + bias) - Math.abs(bias);
   }
 }
 
-/** Saturation and distortion: warmth, grit, crunch and wavefolding. */
 export const drive: EffectDef = {
   kind: 'effect',
   type: 'drive',

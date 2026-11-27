@@ -15,7 +15,7 @@ import { listTemplates } from '../templates';
 export type GuideSection = 'overview' | 'index' | 'sources' | 'effects' | 'templates' | 'all';
 
 export interface GuideOptions {
-  /** Which part: the format and an index of nodes (`overview`), the full catalog of sources or effects, or all. */
+  /** Which part, default `all`: `overview` is the format with an index of nodes, `index` the one-line catalog. */
   section?: GuideSection;
   /** One source or effect in detail (with the common parameters it shares). */
   type?: string;
@@ -249,7 +249,7 @@ function overview(): string {
       ['events', 'When the source plays, seconds from the track start: `[0, 0.12]` or `[{ "t": 0.12, "pitch": 3, "vel": 0.7, "dur": 0.2 }]`. Default: once at 0. Each event renders the source on its own (pitch in semitones, velocity scales level, `dur` is the gate).'],
       ['repeat', 'A run of events instead of `events`; fields below.'],
       ['fx', 'Effect chain, in order: `[{ "type": "filter", ... }, { "type": "reverb", ... }]`.'],
-      ['sends', '`{ "busId": -6 }`: send level in dB, after the track\'s effects.'],
+      ['sends', '`{ "busId": -6 }`: send level in dB, after the track\'s effects, gain and pan.'],
     ]),
     '',
     '`repeat` (ratchets, bounces, rolls; `accel` below 1 speeds up like a bouncing ball):',

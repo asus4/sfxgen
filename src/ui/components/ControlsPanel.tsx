@@ -147,7 +147,7 @@ function ChanceKeys({ controls }: { controls: Control[] }) {
   );
 }
 
-/** Easy control: the patch's controls in one row (it scrolls sideways when there are many), then the chance keys. */
+/** Easy control. The row scrolls sideways when there are many controls. */
 export function EasyStrip() {
   const controls = useEditor((s) => s.patch.controls);
   const groups = useMemo(() => {
@@ -191,7 +191,7 @@ const TABS: { id: SurfaceMode; label: string; title: string }[] = [
   { id: 'notes', label: 'Notes', title: 'Notes and history' },
 ];
 
-/** Full control: everything about the open sound, or the mixer, the settings, the notes. Closed, only its head shows. */
+/** Full control. Closed, only its head shows. */
 export function Surface() {
   const surface = useEditor((s) => s.surface);
   const open = useEditor((s) => s.fullOpen);

@@ -72,7 +72,7 @@ export const ICON_BOUNDS: Record<string, [number, number, number, number]> = {
 
 /**
  * Extra room on the left of an icon whose weight sits to one side: a play triangle centred by its box looks pushed
- * left, so it is nudged right by a little (about a twelfth of its width, half of where its centroid would put it).
+ * left, so it moves right by half of what its centroid would ask.
  */
 const OPTICAL_LEFT: Record<string, number> = { play: 2.2 };
 

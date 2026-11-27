@@ -1,9 +1,7 @@
 /**
- * The `sfxgen` command line: render, analyze, validate, guide, schema, templates, new, diff, sync, project, build, review,
- * serve.
- *
- * Every command is written for an agent reading its output: plain lines first, exact numbers after, `--json` where
- * a program wants the data, warnings on stderr, exit code 1 on errors and 2 on a usage mistake.
+ * The `sfxgen` command line. Every command is written for an agent reading its output: plain lines first, exact
+ * numbers after, `--json` where a program wants the data, warnings on stderr, exit code 1 on errors and 2 on a usage
+ * mistake.
  */
 import { existsSync, mkdirSync, readFileSync, realpathSync, statSync, writeFileSync } from 'node:fs';
 import { basename, dirname, extname, join, resolve } from 'node:path';
@@ -334,7 +332,7 @@ function renderOptions(args: Args): { sampleRate?: number; channels?: 1 | 2 } {
   return { sampleRate, channels };
 }
 
-/** Loads a patch, applies --seed and --set, validates it; exits on errors. */
+/** Loads a patch, applies --seed and --set, validates it; throws on errors. */
 function preparePatch(file: string, args: Args, json: boolean): { patch: Patch; validation: ValidationResult; sets: string[] } {
   const patch = loadPatch(file);
   const seed = numberOption(args, 'seed', (n) => Number.isFinite(n), 'a number');
@@ -437,7 +435,6 @@ async function renderOne(file: string, args: Args, ctx: RenderContext): Promise<
   const { json, project } = ctx;
   const { patch, validation, sets } = preparePatch(file, args, json);
   const opts = renderOptions(args);
-  // In a project the sound is rendered as the project hears it; a patch the project doesn't list still gets its settings.
   let sound: ProjectSound | undefined;
   if (project) {
     sound = soundInProject(project, file);

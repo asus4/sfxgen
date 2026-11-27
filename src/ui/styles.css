@@ -1,5 +1,5 @@
 /*
- * sfxgen is one instrument: a body with a display, a control surface and a row of pads.
+ * sfxgen is one instrument: a body with pads down its side, a display and a control surface.
  * The body is monochrome, in a light or a dark finish; colour appears only where it means something (a control's
  * colour, a track's or a group's ink, an LED's state). The display is a dark screen in both finishes.
  * Legends are small and uppercase, dividers are hairlines, and nothing moves or casts a shadow when pressed:
@@ -1063,7 +1063,7 @@ button.pill:hover {
   border-radius: var(--radius-xs);
 }
 
-/* The waveform is the small top part of the box; the layers under it get the rest. */
+/* The waveform fills the room the lanes under it leave. */
 .scope {
   flex: 1 1 0;
   min-height: 84px;
@@ -1805,7 +1805,7 @@ button.pill:hover {
   scroll-margin: 72px 0 24px;
 }
 
-/* An agent touched this: its LED colour washes over it and fades. */
+/* Changed from outside (an agent, surprise me) or shown on request: a wash of the agent LED's colour that fades. */
 .flash {
   position: absolute;
   inset: 0;
@@ -2730,7 +2730,7 @@ button.pill:hover {
   max-width: 100%;
 }
 
-/* This parameter is driven by a control. */
+/* A tag for a control that drives this parameter; a click leads to the control. */
 .driver {
   max-width: 100%;
   padding: 0 5px;

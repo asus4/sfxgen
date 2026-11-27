@@ -24,7 +24,7 @@ interface Medium {
   /** Saturation (gain into tanh at the nominal level) and its asymmetry. */
   drive: number;
   bias: number;
-  /** Broadcast compression: threshold (dBFS at the nominal level) and ratio. */
+  /** Broadcast compression: threshold (dBFS at the nominal level), ratio, attack and release (seconds). */
   comp?: [number, number, number, number];
   /** Bits of μ-law telephone companding. */
   mu?: number;
@@ -191,7 +191,6 @@ function rmsOf(x: Buf): number {
   return Math.sqrt(s / Math.max(x.length, 1));
 }
 
-/** Old and small media: TV speakers, AM radio, telephones, walkie-talkies, megaphones, vinyl, tape, intercoms. */
 export const medium: EffectDef = {
   kind: 'effect',
   type: 'medium',

@@ -1,7 +1,6 @@
 /**
- * The editor's render worker. Renders are synchronous inside the worker, so the client sends one live request at a
- * time and keeps only the newest patch waiting (latest wins). A TrackCache lives here: turning one track's knob
- * re-renders that track alone.
+ * The editor's render worker. A render blocks it, so the client keeps one live request in flight and only the newest
+ * patch waiting. The TrackCache here lets a knob on one track re-render that track alone.
  */
 import { TrackCache, encodeWav, loudness, render, type Patch, type RenderResult } from '../core';
 import { magnitudeSpectrum } from '../core/dsp/fft';

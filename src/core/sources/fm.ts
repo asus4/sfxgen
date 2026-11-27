@@ -9,7 +9,6 @@ type Algorithm = 'stack' | 'parallel' | 'pairs';
 
 const MAX_OPS = 4;
 
-/** Fields of one operator. */
 const FM_OP_FIELDS: Record<string, ParamMeta> = {
   id: { kind: 'string', doc: 'Name for paths and controls: `tracks.bell.source.ops.<id>.index`.', hint: 'Name to reach this operator from controls' },
   ratio: {
@@ -270,7 +269,6 @@ function synth(v: OpCurves, n: number, sr: number, g: Guard, block: number): Buf
   return out;
 }
 
-/** 2 to 4 operator phase-modulation synthesis: bells, gongs, zaps, metal, FM brass and alien tones. */
 export const fm: SourceDef = {
   kind: 'source',
   type: 'fm',

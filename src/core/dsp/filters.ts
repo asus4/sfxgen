@@ -9,8 +9,6 @@ import { clamp, type Buf } from './math';
 export class Svf {
   private ic1 = 0;
   private ic2 = 0;
-  private g = 0;
-  private k = 0;
   private a1 = 0;
   private a2 = 0;
   private a3 = 0;
@@ -25,11 +23,6 @@ export class Svf {
     private readonly sr: number,
     private readonly gainDb = 0,
   ) {}
-
-  reset(): void {
-    this.ic1 = 0;
-    this.ic2 = 0;
-  }
 
   private setup(cutoff: number, q: number): void {
     if (cutoff === this.lastCutoff && q === this.lastQ) return;
@@ -81,8 +74,6 @@ export class Svf {
         m2 = 1 - A * A;
         break;
     }
-    this.g = g;
-    this.k = k;
     this.a1 = 1 / (1 + g * (g + k));
     this.a2 = g * this.a1;
     this.a3 = g * this.a2;
@@ -91,7 +82,6 @@ export class Svf {
     this.m2 = m2;
   }
 
-  /** Filters one sample. */
   tick(x: number, cutoff: number, q: number): number {
     this.setup(cutoff, q);
     const v3 = x - this.ic2;
@@ -113,16 +103,9 @@ export class Svf {
     }
     return x;
   }
-
-  /** Is the internal state still finite? A blown-up filter is reset rather than left screaming. */
-  healthy(): boolean {
-    return Number.isFinite(this.ic1) && Number.isFinite(this.ic2) && Number.isFinite(this.g + this.k);
-  }
 }
 
-/**
- * Filters a buffer in place with one SVF, or two in series for a 24 dB slope (Butterworth when q is 0.707).
- */
+/** Filters a buffer in place with one SVF, or two in series for a 24 dB slope (Butterworth when q is 0.707). */
 export function filterBuffer(
   x: Buf,
   type: FilterType,

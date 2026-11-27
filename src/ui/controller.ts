@@ -103,16 +103,12 @@ export function togglePlay(): void {
   else void playNow();
 }
 
-/**
- * A knob was released: hear what it did. Always. A loop that is already playing is not restarted: the change is
- * swapped into it as it plays.
- */
+/** A knob was released: hear what it did. A loop already playing is not restarted; the change is swapped into it. */
 export function audition(): void {
   if (player.playing && player.looping && voice === 'live' && editor().playingKey === currentKey()) return;
   void playNow();
 }
 
-/** A pad was pressed: open that sound and play it. */
 export function pressPad(index: number): void {
   editor().openSound(index);
   void playNow();
@@ -815,7 +811,7 @@ function indexOfFile(path: string | undefined): number {
   return path ? editor().project.sounds.findIndex((x) => x.file === path) : -1;
 }
 
-/** Opens a sound of the served project by its file. */
+/** Opens a sound of the served project by its file, re-reading the project when the file is new to it. */
 export async function openServeFile(path: string): Promise<boolean> {
   let at = indexOfFile(path);
   if (at < 0) {
@@ -971,7 +967,6 @@ export function giveVerdict(kind: ReviewVerdict): void {
   else s.toast('Every sound has a verdict');
 }
 
-/** Opens the next sound nobody has reviewed, and plays it. */
 export function openNextUnreviewed(): void {
   const s = editor();
   const next = nextUnreviewed(s, s.current);
@@ -1044,7 +1039,6 @@ export async function pickTake(index: number, path: string): Promise<void> {
   await refreshTakes();
 }
 
-/** The open sound's previous or next take. */
 export function stepTake(dir: 1 | -1): void {
   const s = editor();
   const sound = s.project.sounds[s.current];
@@ -1151,9 +1145,10 @@ export async function start(): Promise<void> {
   const served = await startServeMode(params.get('file') ?? undefined);
   if (served && shared) void addSoundToProject(shared, `opened a shared link: “${shared.name}”`);
   if (!served) {
+    // With a server but an empty folder the starter set is only a place to begin: nothing is written until a sound
+    // is added.
     if (editor().serve.info) editor().toast('This folder has no sounds yet: add one from the gallery');
     bootBrowserProject(shared);
-    // With a server but an empty folder the starter set is only a place to begin; nothing is written until a sound is added.
   }
 
   // The agent tools (with the guide and analysis they carry) load after the first paint, in their own chunk.

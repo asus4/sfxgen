@@ -2,7 +2,6 @@ import type { EffectDef } from '../nodes';
 import { dbToGain } from '../dsp/math';
 import { absMax, boxAverage, maxOf, minAhead, onePoleCoef } from '../dsp/dynamics';
 
-/** Brickwall lookahead peak limiter. */
 export const limiter: EffectDef = {
   kind: 'effect',
   type: 'limiter',

@@ -44,7 +44,7 @@ export function cubicAtWrapped(x: Buf, pos: number): number {
 
 /**
  * A ring-buffer delay line. Read before writing each sample: `read(1)` is the sample written last.
- * Fractional delays below 3 samples are read linearly (the cubic needs a sample on each side).
+ * Delays below 2 samples are read linearly (the cubic needs a sample on each side).
  */
 export class DelayLine {
   readonly buf: Float64Array;

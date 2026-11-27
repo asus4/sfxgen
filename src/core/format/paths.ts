@@ -17,7 +17,6 @@ function pickInArray(arr: unknown[], seg: string): number {
   return -1;
 }
 
-/** Reads the value at a path, or undefined. */
 export function getPath(root: unknown, path: string): unknown {
   let node: unknown = root;
   for (const seg of splitPath(path)) {

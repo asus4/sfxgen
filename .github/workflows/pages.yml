@@ -1,6 +1,5 @@
 # Publishes the editor (dist/web) to GitHub Pages on every push to main.
 # The editor is a static site with relative paths, so it runs as-is under https://<owner>.github.io/sfxgen/.
-# Without `sfxgen serve` behind it, it works on its own: templates, browser storage, share links and WAV export.
 name: Pages
 
 on:

@@ -1,6 +1,6 @@
 /**
- * What a source or effect type declares about itself. The metadata is the single source of truth for
- * validation, the editor's controls, the agent guide (`sfxgen guide`) and the JSON Schema.
+ * What a source or effect type declares about itself: the single source of truth for validation, the editor, the
+ * agent guide and the JSON Schema.
  */
 import type { Envelope, ParamValue } from './format/types';
 import type { Rng } from './dsp/rng';
@@ -29,8 +29,7 @@ export interface ParamMeta {
   label?: string;
   /** One or two sentences on what it does to the sound. Agents read these. */
   doc: string;
-  /** A few plain words for people, about what they will hear: the editor's tooltip. `doc` stays the agents' (and seeds
-   * nested random streams, so it must not change for this). */
+  /** A few plain words on what people hear: the editor's tooltip. Reword this, not `doc`: it names random streams. */
   hint?: string;
   default?: unknown;
   /** Soft range: the editor's knob range and the default mapping for controls. */
@@ -43,12 +42,12 @@ export interface ParamMeta {
   unit?: Unit;
   /** `log` for frequencies and times: knobs spread evenly by ratio and breakpoints glide exponentially. */
   scale?: 'linear' | 'log';
-  /** Multiplied by the voice's pitch (transposition, `pitch` param, event pitch). */
+  /** Multiplied by the voice's pitch ratio (its `pitch` parameter and the event's transposition). */
   pitch?: boolean;
   options?: readonly string[];
   fields?: Record<string, ParamMeta>;
   item?: ParamMeta;
-  /** Hidden from the editor's default views. */
+  /** A rarely needed parameter; the guide marks it "(advanced)". */
   advanced?: boolean;
 }
 
