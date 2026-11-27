@@ -20,10 +20,12 @@ export const transient: EffectDef = {
     'envelope followers. The key tool for punch: `attack` +6 to +12 makes a hit snap and cut through, -6 to -12 ' +
     'softens a click into a thud; `sustain` +6 rings out longer and brings up the room, -6 to -18 tightens a boomy ' +
     'hit until it is dry and short. Works on single hits, rolls and whole buses alike.',
+  hint: 'Shapes the attack and the tail separately',
   params: {
     attack: {
       kind: 'signal',
       doc: 'dB added at each onset, fading over `window`. +6 snappier, +12 a hard crack; negative softens the hit.',
+      hint: 'More snap, or a softer hit',
       default: 6,
       min: -24,
       max: 24,
@@ -34,6 +36,7 @@ export const transient: EffectDef = {
     sustain: {
       kind: 'signal',
       doc: 'dB added to the body: what follows each onset, more as it decays. + rings longer and fuller, - tighter and drier.',
+      hint: 'A longer, fuller ring, or tighter and drier',
       default: 0,
       min: -24,
       max: 24,
@@ -44,6 +47,7 @@ export const transient: EffectDef = {
     window: {
       kind: 'number',
       doc: 'Seconds the onset emphasis lasts: 0.003 to 0.008 just the click, 0.015 to 0.03 a drum hit (default 0.02), 0.05+ a slow boom.',
+      hint: 'How long the attack boost lasts',
       default: 0.02,
       min: 0.002,
       max: 0.1,

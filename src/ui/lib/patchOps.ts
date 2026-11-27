@@ -101,13 +101,13 @@ export function pinControl(patch: Patch, path: string): { patch: Patch; id: stri
   if (kind === 'options') {
     const options = meta.options!.map((o) => ({ label: o, set: { [path]: o } }));
     const now = meta.options!.indexOf(String(current ?? meta.default));
-    control = { id, label, hint: meta.doc, value: Math.max(0, now), widget: 'select', options };
+    control = { id, label, hint: meta.hint ?? meta.doc, value: Math.max(0, now), widget: 'select', options };
   } else if (kind === 'toggle') {
     const on = Boolean(current ?? meta.default);
     control = {
       id,
       label,
-      hint: meta.doc,
+      hint: meta.hint ?? meta.doc,
       value: on ? 1 : 0,
       widget: 'toggle',
       options: [
@@ -119,7 +119,7 @@ export function pinControl(patch: Patch, path: string): { patch: Patch; id: stri
     control = {
       id,
       label,
-      hint: `Scales the whole curve. ${meta.doc}`,
+      hint: `Scales the whole curve. ${meta.hint ?? meta.doc}`,
       value: 1,
       min: 0.5,
       max: 2,
@@ -139,7 +139,7 @@ export function pinControl(patch: Patch, path: string): { patch: Patch; id: stri
     control = {
       id,
       label,
-      hint: meta.doc,
+      hint: meta.hint ?? meta.doc,
       value,
       min,
       max,

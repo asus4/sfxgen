@@ -11,12 +11,13 @@ const MAX_OPS = 4;
 
 /** Fields of one operator. */
 const FM_OP_FIELDS: Record<string, ParamMeta> = {
-  id: { kind: 'string', doc: 'Name for paths and controls: `tracks.bell.source.ops.<id>.index`.' },
+  id: { kind: 'string', doc: 'Name for paths and controls: `tracks.bell.source.ops.<id>.index`.', hint: 'Name to reach this operator from controls' },
   ratio: {
     kind: 'signal',
     doc:
       'Frequency as a multiple of `freq`. Whole numbers (1, 2, 3) give harmonic, musical tones; others (1.41, ' +
       '2.76, 3.5) give inharmonic bells, gongs and clangs. Breakpoints sweep the sidebands: a sci-fi "bwow".',
+    hint: 'Pitch as a multiple of the base: whole numbers are musical, others clang',
     default: 1,
     min: 0.25,
     max: 16,
@@ -30,6 +31,7 @@ const FM_OP_FIELDS: Record<string, ParamMeta> = {
     doc:
       'A fixed frequency instead of `ratio`; the operator then ignores the note and `pitch` (DX7 fixed mode). A slow ' +
       'fixed modulator (5 to 40 Hz) with a high index warbles or growls; a high one keeps the same clang under any note.',
+    hint: 'A fixed pitch that ignores the note',
     min: 1,
     max: 8000,
     hardMin: 0,
@@ -40,6 +42,7 @@ const FM_OP_FIELDS: Record<string, ParamMeta> = {
   detune: {
     kind: 'number',
     doc: 'Fine offset in cents. 2 to 8 cents on a second carrier makes slow beating; on a modulator the timbre shimmers.',
+    hint: 'A small offset for slow beating',
     default: 0,
     min: -50,
     max: 50,
@@ -53,6 +56,7 @@ const FM_OP_FIELDS: Record<string, ParamMeta> = {
       'How hard this operator modulates its target, as peak phase deviation in radians (ignored on carriers). 0 is ' +
       'a pure sine, 1 to 2 warm, 3 to 6 bright and brassy, 8 to 15 metallic, 20+ noisy. Make it fall over time ' +
       '(breakpoints or `env`) for a struck sound that mellows.',
+    hint: 'Brightness: pure to metallic',
     default: 1,
     min: 0,
     max: 15,
@@ -65,12 +69,14 @@ const FM_OP_FIELDS: Record<string, ParamMeta> = {
       'Envelope on this operator. On a modulator it scales `index`: `{ "decay": 0.6, "sustain": 0.1 }` starts bright ' +
       'and mellows like a bell, `{ "attack": 0.08, "sustain": 1 }` swells like brass. On a carrier it scales `level`. ' +
       'Default: constant.',
+    hint: 'How this operator rises and fades',
   },
   feedback: {
     kind: 'signal',
     doc:
       'The operator modulates itself: 0 is a sine, 0.5 adds harmonics, 1 is close to a sawtooth (buzzy, brassy), ' +
       '1.5 and up breaks into noise. Lowered automatically at high pitch so it never aliases.',
+    hint: 'Sine to buzzy to noise',
     default: 0,
     min: 0,
     max: 1.5,
@@ -80,6 +86,7 @@ const FM_OP_FIELDS: Record<string, ParamMeta> = {
   level: {
     kind: 'number',
     doc: 'Output level of a carrier, 0 to 1 (with two carriers, their balance); ignored on modulators.',
+    hint: 'Level of this carrier',
     default: 1,
     min: 0,
     max: 1,
@@ -276,11 +283,13 @@ export const fm: SourceDef = {
     'index makes a strike that mellows; a rising one, a swell. Softer events (vel < 1) are darker as well as quieter. ' +
     'High notes with big indices render at twice the rate, and the index only gives way where its sidebands would ' +
     'still alias, so nothing folds back.',
+  hint: 'Bells, gongs, zaps and metallic tones',
   defaultEnv: { attack: 0.001, decay: 2 },
   params: {
     freq: {
       kind: 'signal',
       doc: 'Base frequency; each operator runs at `freq` times its `ratio`. Breakpoints glide exponentially.',
+      hint: 'Base pitch',
       default: 440,
       min: 20,
       max: 8000,
@@ -297,6 +306,7 @@ export const fm: SourceDef = {
         '(ops[3] > ops[2] > ops[1] > ops[0]), the brightest and most complex. parallel: all the others modulate ops[0], ' +
         'a rich single tone. pairs: ops[1] modulates ops[0] and ops[3] modulates ops[2], two tones heard together ' +
         '(a bell\'s strike and hum, layered brass); with 3 operators ops[2] is a plain second carrier.',
+      hint: 'How the operators connect',
       options: ['stack', 'parallel', 'pairs'],
       default: 'stack',
     },
@@ -305,8 +315,9 @@ export const fm: SourceDef = {
       doc:
         'The operators, 1 to 4 sine oscillators: `[{ "ratio": 1 }, { "ratio": 3.5, "index": 4, "env": { "decay": 0.8 } }]`. ' +
         'A modulator\'s `index` and `env` shape the brightness; a carrier\'s `level` and `env` its loudness.',
+      hint: 'The operators',
       default: DEFAULT_OPS,
-      item: { kind: 'object', doc: 'One operator: { ratio or fixed, detune, index, env, feedback, level, id }.', fields: FM_OP_FIELDS },
+      item: { kind: 'object', doc: 'One operator: { ratio or fixed, detune, index, env, feedback, level, id }.', hint: 'One operator', fields: FM_OP_FIELDS },
     },
   },
   example: {

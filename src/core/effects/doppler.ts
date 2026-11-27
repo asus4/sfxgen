@@ -16,6 +16,7 @@ const PARAMS: Record<string, ParamMeta> = {
     doc:
       'Speed of the source along its straight path, metres per second: 1.5 a walker, 5 a bee, 15 a car in town, ' +
       '30 on a highway, 70 a race car, 250 a jet or a bullet. It may move (a car accelerating past).',
+    hint: 'How fast it passes: a walker to a jet',
     default: 30,
     min: 1,
     max: 150,
@@ -29,6 +30,7 @@ const PARAMS: Record<string, ParamMeta> = {
     doc:
       'How close the path passes the listener, metres. 0.5 skims the ear (a sharp, sudden swoosh), 5 a passing car ' +
       'on a sidewalk, 50 a distant plane (a slow, gentle swell).',
+    hint: 'How close it passes: near is a sudden swoosh',
     default: 5,
     min: 0.5,
     max: 100,
@@ -40,6 +42,7 @@ const PARAMS: Record<string, ParamMeta> = {
   time: {
     kind: 'number',
     doc: 'When the listener hears the source at its closest, seconds from the start of the buffer. Default: the middle of the sound.',
+    hint: 'When it is closest to you',
     min: 0,
     max: 10,
     hardMin: -60,
@@ -52,18 +55,21 @@ const PARAMS: Record<string, ParamMeta> = {
       'When the sound starts. travel: as in life, the first of it arrives late by its travel time (tens of ms when it ' +
       'starts far away), and the pass is heard at `time`. at-once: that first travel time is dropped, so the sound ' +
       'starts at once, as a game sound should; everything, the pass included, comes that much earlier.',
+    hint: 'Travel: arrives late, as in life. At once: starts right away',
     options: ['travel', 'at-once'],
     default: 'travel',
   },
   direction: {
     kind: 'enum',
     doc: 'Which way it travels: across in front of the listener, or front-to-back (straight over the head; no panning).',
+    hint: 'Passes in front of you, or over your head',
     options: DIRECTIONS,
     default: 'left-to-right',
   },
   amount: {
     kind: 'number',
     doc: 'How much of the Doppler pitch bend to keep: 1 physical, 0 none (level and panning only), 2 exaggerated for cartoon fly-bys.',
+    hint: 'How much the pitch bends as it passes',
     default: 1,
     min: 0,
     max: 2,
@@ -73,6 +79,7 @@ const PARAMS: Record<string, ParamMeta> = {
   air: {
     kind: 'number',
     doc: 'Air absorption: highs fade with distance. 1 is physical, 3 to 6 makes distant parts much duller (haze, rain), 0 off.',
+    hint: 'Far-away parts sound duller',
     default: 1,
     min: 0,
     max: 4,
@@ -82,6 +89,7 @@ const PARAMS: Record<string, ParamMeta> = {
   rolloff: {
     kind: 'number',
     doc: 'How fast the level falls with distance: 1 physical (-6 dB per doubling), 0.5 gentler, 2 dramatic.',
+    hint: 'How fast it gets quieter with distance',
     default: 1,
     min: 0,
     max: 2,
@@ -135,6 +143,7 @@ export const doppler: EffectDef = {
     'the approach and down on the way out, the level follows the distance, the air dulls it far away, and in ' +
     'stereo it pans across with the delay between the ears. Feed it a steady sound (an engine tone, noise for a ' +
     'whoosh, buzzing for a bee) that lasts the whole pass. The sound arrives late by its travel time, as it does.',
+  hint: 'Moves the sound past you, its pitch bending like a passing car',
   params: PARAMS,
   example: { type: 'doppler', speed: 40, distance: 4, time: 1.2 },
   length(params, seconds) {

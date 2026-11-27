@@ -14,10 +14,12 @@ export const limiter: EffectDef = {
     'from the input\'s own peak (`reference: "peak"`), so `{ "gain": 6 }` always takes 6 dB off the peaks and ' +
     'raises everything else by 6 dB, whatever the layer\'s level. Use `reference: "dbfs"` for an absolute safety ' +
     'ceiling, with the master\'s `normalize` set to none.',
+  hint: 'Keeps peaks under a ceiling; push it for a louder, denser sound',
   params: {
     gain: {
       kind: 'signal',
       doc: 'Input gain into the limiter, dB: the dB the peaks are pushed past the ceiling. 3 to 6 firm, 9 to 12 loud and dense, 18+ crushed. Breakpoints push harder over time.',
+      hint: 'Push harder for a louder, denser sound',
       default: 0,
       min: 0,
       max: 24,
@@ -28,6 +30,7 @@ export const limiter: EffectDef = {
     ceiling: {
       kind: 'number',
       doc: 'Highest level the output may reach, dB relative to the input\'s peak (or dBFS with `reference: "dbfs"`, where -1 leaves room for export).',
+      hint: 'The loudest it may get',
       default: 0,
       min: -24,
       max: 0,
@@ -38,6 +41,7 @@ export const limiter: EffectDef = {
     release: {
       kind: 'number',
       doc: 'Time constant for the gain to recover after a peak. 0.01 to 0.03 loud but gritty on low notes, 0.05 to 0.1 clean, 0.3+ smooth and slow.',
+      hint: 'How fast it recovers: fast is loud, slow is smooth',
       default: 0.06,
       min: 0.005,
       max: 1,
@@ -49,6 +53,7 @@ export const limiter: EffectDef = {
     lookahead: {
       kind: 'number',
       doc: 'Seconds the gain starts coming down before a peak (no latency offline): the length of the gain ramp. 0.001 snappy, 0.003 clean, 0.01 smoothest.',
+      hint: 'How early it reacts to a peak',
       default: 0.003,
       min: 0.0005,
       max: 0.01,
@@ -60,6 +65,7 @@ export const limiter: EffectDef = {
     reference: {
       kind: 'enum',
       doc: 'What `ceiling` is measured from: peak (the input\'s own loudest sample) or dbfs (absolute full scale).',
+      hint: 'Measure from this sound’s own peak, or from full scale',
       options: ['peak', 'dbfs'],
       default: 'peak',
     },

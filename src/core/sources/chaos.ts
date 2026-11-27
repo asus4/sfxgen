@@ -32,6 +32,7 @@ const PARAMS: Record<string, ParamMeta> = {
       'tone that wanders and flips between two lobes (alien, unstable electronics). feedback: two sines modulating ' +
       'each other (cross-FM), from a warm buzz to screaming noise. bytebeat: integer formulas on a counter, the sound ' +
       'of old computers and broken game consoles, with `chaos` corrupting them.',
+    hint: 'Which generator',
     options: MODES,
     default: 'logistic',
   },
@@ -41,6 +42,7 @@ const PARAMS: Record<string, ParamMeta> = {
       'Speed of the generator, Hz: map iterations per second (logistic, henon; a repeating orbit of k values sounds ' +
       'at rate/k), the attractor\'s rough pitch (lorenz), the first oscillator\'s frequency (feedback) or counter steps ' +
       'per second (bytebeat, 8000 classic). Default per mode: 3000, 3000, 220, 220, 8000.',
+    hint: 'Speed, roughly the pitch',
     default: 3000,
     min: 20,
     max: 20000,
@@ -56,6 +58,7 @@ const PARAMS: Record<string, ParamMeta> = {
       'How unstable, 0 to 1. 0 settles into a repeating pattern (a tone), 0.4 to 0.7 the edge of chaos where ' +
       'patterns appear and break, 1 fully chaotic noise. For bytebeat it is the corruption: skips, stutters and ' +
       'flipped bits. It can move (a machine losing control).',
+    hint: 'Steady tone to pure noise',
     default: 0.5,
     min: 0,
     max: 1,
@@ -67,6 +70,7 @@ const PARAMS: Record<string, ParamMeta> = {
     doc:
       'Output smoothing, 0 to 1: 0 raw stepped digital grit, 0.5 softened, 1 smooth and dark (maps and bytebeat: ' +
       'interpolated and low-passed at half the rate; lorenz and feedback: only the lowest harmonics left).',
+    hint: 'Raw digital grit to smooth and dark',
     default: 0.2,
     min: 0,
     max: 1,
@@ -76,6 +80,7 @@ const PARAMS: Record<string, ParamMeta> = {
   ratio: {
     kind: 'number',
     doc: 'feedback only: frequency of the second oscillator as a multiple of `rate`. 1 or 2 locks into buzzy tones, 1.41 or 2.76 grinds.',
+    hint: 'Feedback only: a tuned buzz or a grind',
     default: 1.41,
     min: 0.25,
     max: 8,
@@ -90,6 +95,7 @@ const PARAMS: Record<string, ParamMeta> = {
       'bytebeat only: the formula. sierpinski: a fractal arpeggio. melody: a chiptune tune. glitch: busy, broken ' +
       'rhythms. techno: a sequenced loop. harmony: chords that shift. bitshift: data noise and squeals. crush: ' +
       'collapsing, grinding bits.',
+    hint: 'Bytebeat only: which formula',
     options: FORMULA_NAMES,
     default: 'melody',
   },
@@ -173,6 +179,7 @@ export const chaos: SourceDef = {
     'computers and creature textures: sounds that are structured but never quite repeat. `chaos` moves it from a ' +
     'stable tone into noise; `rate` is its speed or pitch; `smooth` takes the digital edge off. The seed sets the ' +
     'starting point, so every take differs.',
+  hint: 'Glitches, data noise and broken electronics',
   defaultEnv: { attack: 0.005, hold: 0.25, decay: 0.3 },
   params: PARAMS,
   example: {

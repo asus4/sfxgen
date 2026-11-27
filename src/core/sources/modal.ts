@@ -20,6 +20,7 @@ const EXCITER_FIELDS: ParamMap = {
       'over `duration`. scrape: dragged across ridges or grit for `duration` (`density` ridges per second, ' +
       '`roughness` regular comb to random grit). roll: rolling or rattling for `duration` (`density` bumps per second, ' +
       'with the wobble of a turning object).',
+    hint: 'How it is set ringing: a click, a mallet, a scrape or a roll',
     options: EXCITER_KINDS,
     default: 'mallet',
   },
@@ -29,6 +30,7 @@ const EXCITER_FIELDS: ParamMap = {
       'How hard the contact is: 0 a soft felt or rubber beater (long contact, only the lowest modes: a thud or a ' +
       'pure boom), 0.5 wood or a knuckle, 1 steel on steel (every mode: a bright clank). For noise, scrape and roll it is the brightness ' +
       'of the friction. Louder events (`vel`) hit a little harder.',
+    hint: 'Soft felt to steel',
     default: 0.6,
     min: 0,
     max: 1,
@@ -38,6 +40,7 @@ const EXCITER_FIELDS: ParamMap = {
   duration: {
     kind: 'number',
     doc: 'Seconds the noise fades over, or the scrape or roll lasts. The ring follows it. Ignored by impulse and mallet.',
+    hint: 'How long the scrape or roll lasts',
     default: 0.4,
     min: 0.01,
     max: 4,
@@ -52,6 +55,7 @@ const EXCITER_FIELDS: ParamMap = {
       'Ridges (scrape) or bumps (roll) per second: the speed of the motion. 20 to 80 is a slow ratchet or a heavy ' +
       'ball, 200 to 2000 a fast drag. Breakpoints speed it up or slow it to a stop. The first ridge or bump lands at ' +
       'the very start.',
+    hint: 'How fast the scrape or roll moves',
     default: 120,
     min: 5,
     max: 3000,
@@ -65,6 +69,7 @@ const EXCITER_FIELDS: ParamMap = {
     doc:
       'Scrape: 0 evenly spaced ridges (a comb, a zip, a guiro: a buzzing pitch at `density`), 1 random grit with ' +
       'hiss. Roll: how uneven the bumps are and how much surface rumble there is.',
+    hint: 'Even ridges to random grit',
     default: 0.5,
     min: 0,
     max: 1,
@@ -79,6 +84,7 @@ const EXCITER_FIELDS: ParamMap = {
       'whole edge, a sack or a body landing, a door slammed into its stop: each mode starts at its own moment and ' +
       'phase, so a crowd of modes becomes a dense, pitchless knock instead of a click on a tone. Above 0.03 the hit ' +
       'smears into a soft, blurred thump.',
+    hint: 'A clean hit, or a big panel’s smeared knock',
     default: 0,
     min: 0,
     max: 0.03,
@@ -95,6 +101,7 @@ const PARAMS: ParamMap = {
       'What it is made of: sets how fast high modes die and the default `decay`. metal rings long and bright (2.5 s), ' +
       'glass clear (1.2 s), ceramic a shorter clink (0.6 s), stone a hard click (0.14 s), wood a warm knock (0.25 s), ' +
       'plastic a dull tap (0.12 s), skin a drum head (0.5 s), rubber and cardboard dead thumps (0.08 s).',
+    hint: 'What it is made of',
     options: MODAL_MATERIALS,
     default: 'metal',
   },
@@ -110,6 +117,7 @@ const PARAMS: ParamMap = {
       'bowl, hoop). tube: the air in a pipe, odd harmonics (hollow: bottle, bamboo, slapped pipe). string: harmonics ' +
       '(wire, cable, spring; a tonal clang). box: the air in an enclosed cavity, few low modes then a crowd (crate, ' +
       'cabinet, drawer). random: an irregular lump with its own modes for each `variant` (rock, junk, debris).',
+    hint: 'What shape it is',
     options: MODAL_SHAPES,
     default: 'bar',
   },
@@ -121,6 +129,7 @@ const PARAMS: ParamMap = {
       'high-pass the source near 80 Hz); 60 ' +
       'to 150 a drum or tank; 200 to 600 a pan, bottle or plank; 800 to 3000 a glass, key or coin; above that tiny ' +
       'things. Breakpoints bend every mode together (a wobbling sheet, a filling glass).',
+    hint: 'Its size: low is big, high is small',
     default: 440,
     min: 30,
     max: 8000,
@@ -135,6 +144,7 @@ const PARAMS: ParamMap = {
     doc:
       'Seconds for the lowest mode to fall 60 dB. Left out, the material chooses (see `material`). Shorter is a ' +
       'damped, held or lying object; longer one hanging free.',
+    hint: 'How long it rings',
     min: 0.02,
     max: 8,
     hardMin: 0.001,
@@ -148,6 +158,7 @@ const PARAMS: ParamMap = {
       'How much faster high modes die than the lowest, times the material\'s own loss: 0 all ring equally long ' +
       '(unnaturally pure), 1 the material itself, 2 to 4 a damp, cracked, wet or hand-held object whose ring dulls ' +
       'at once.',
+    hint: 'Pure and ringing to dull and damp',
     default: 1,
     min: 0,
     max: 4,
@@ -160,6 +171,7 @@ const PARAMS: ParamMap = {
     doc:
       'Tilt of the mode levels: 0.5 is the material\'s own balance, 0 leaves little but the lowest mode (dark, ' +
       'heavy, thick), 1 makes high modes as loud as low ones (thin, splashy, brittle).',
+    hint: 'Dark and heavy to thin and splashy',
     default: 0.5,
     min: 0,
     max: 1,
@@ -173,6 +185,7 @@ const PARAMS: ParamMap = {
       'crashes). Modes above hearing are dropped: a `random` lump spreads its modes fast (each 5 to 50 % above the ' +
       'last), so past about 25 most are gone, and on bright metal the few left at the top can be the loudest (lower ' +
       '`brightness` or low-pass it).',
+    hint: 'Simple and pure to dense and clangy',
     default: 24,
     min: 1,
     max: 64,
@@ -186,6 +199,7 @@ const PARAMS: ParamMap = {
       'Bends the spacing of the modes: each ratio is raised to this power. 1 is the shape\'s physics; below 1 crowds ' +
       'the modes together (thicker, heavier, more clustered); above 1 spreads them (thinner, glassier). On `string` ' +
       '1.02 to 1.1 is a stiff wire, like a piano\'s.',
+    hint: 'Thicker and heavier, or thinner and glassier',
     default: 1,
     min: 0.6,
     max: 1.5,
@@ -197,6 +211,7 @@ const PARAMS: ParamMap = {
     doc:
       'Damage: detunes each mode at random and unevens their levels and decays. 0 a perfect object, 0.1 to 0.3 ' +
       'hand-made or worn, 0.5 to 1 dented, cracked, bent junk. `variant` picks the pattern.',
+    hint: 'Perfect to dented, cracked junk',
     default: 0,
     min: 0,
     max: 1,
@@ -208,6 +223,7 @@ const PARAMS: ParamMap = {
     doc:
       'Where it is struck: 0 the centre (few modes, round and hollow), 1 the edge or end (every mode, bright and ' +
       'clangy). For `tine` 0 is the held end and 1 the tip; for `box` 0 is the middle and 1 a corner.',
+    hint: 'Where it is hit: the centre is round, the edge clangy',
     default: 0.4,
     min: 0,
     max: 1,
@@ -219,6 +235,7 @@ const PARAMS: ParamMap = {
     doc:
       'Splits every mode into a detuned pair that beats, as in bells, gongs, bowls and anything not quite round. ' +
       'Hz of the slowest wobble: 0 off, 0.5 to 3 a slow shimmer, 5 to 15 a fast flutter, 30+ rough.',
+    hint: 'A bell-like wobble',
     default: 0,
     min: 0,
     max: 20,
@@ -231,6 +248,7 @@ const PARAMS: ParamMap = {
     doc:
       'Which object: picks the `dent` pattern and the modes of the `random` shape. The same number is the same ' +
       'object in every event and every take, so repeats sound like one thing being hit again.',
+    hint: 'Pick another object of the same kind',
     default: 1,
     min: 1,
     max: 99,
@@ -242,6 +260,7 @@ const PARAMS: ParamMap = {
   exciter: {
     kind: 'object',
     doc: 'What sets it ringing: { kind, hardness, duration, density, roughness }.',
+    hint: 'What sets it ringing',
     fields: EXCITER_FIELDS,
   },
 };
@@ -530,6 +549,7 @@ export const modal: SourceDef = {
     'Make it broken with `dent`, shimmering with `beat`, held or wet with `damping`; change `position` and ' +
     '`exciter.hardness` for a different hit on the same thing. The ring is the envelope: leave `env` alone and set ' +
     '`decay`. An event\'s `dur` damps it like a hand.',
+  hint: 'A struck, scraped or rolled solid object',
   defaultEnv: { attack: 0, sustain: 1, release: 0.04 },
   params: PARAMS,
   example: {

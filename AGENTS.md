@@ -42,8 +42,10 @@ Rules:
 - **The core stays DOM-free.** `src/core/` runs in a worker and in Node. Browser-only code is in `src/ui/`,
   `src/worker/` and `src/web/`; Node-only code in `src/node/`.
 - **Metadata is the source of truth.** A source or effect declares every parameter in `ParamMeta` with a `doc` an
-  agent can act on, a unit, a soft range, hard limits that keep it stable, `scale: 'log'` for frequencies and times
-  and `pitch: true` on frequency-like parameters. Validation, the editor, the guide and the schema read it.
+  agent can act on, a `hint` for people (a few plain words on what they hear: the editor's tooltip), a unit, a soft
+  range, hard limits that keep it stable, `scale: 'log'` for frequencies and times and `pitch: true` on
+  frequency-like parameters; the node itself has a `doc` and a `hint` too. Validation, the editor, the guide and the
+  schema read it. Never reword a `doc` lightly: it also names random streams, so the sound would change.
 - **Effects use `mode`, not `type`, for their own shape enum**: `type` names the node.
 - **Test every node** with defaults and extreme values: finite, not silent, sane level, and its key behaviour.
 - **Templates** are plain patches under `templates/<category>/`. Each one needs a story in `description`, a `note`

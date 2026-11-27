@@ -110,7 +110,7 @@ function ControlCard({ control, index, size }: { control: Control; index: number
           {control.hint}
         </p>
       )}
-      <button type="button" className="control-remove" aria-label={`Remove the ${control.label} control`} title="Remove this control" onClick={() => edit((p) => removeControl(p, control.id))}>
+      <button type="button" className="control-remove" aria-label={`Remove the ${control.label} control`} title="Remove from Easy control" onClick={() => edit((p) => removeControl(p, control.id))}>
         <Icon name="close" size={12} />
       </button>
     </div>
@@ -124,14 +124,14 @@ function ChanceKeys({ controls }: { controls: Control[] }) {
   const seed = useEditor((s) => s.patch.seed ?? 1);
   return (
     <div className="chance" role="group" aria-label="Let chance decide">
-      <button type="button" className="key key-chance key-dice" onClick={rollTake} aria-label="Roll a new seed" title="Roll the dice: the same sound with a new random seed, then play it">
+      <button type="button" className="key key-chance key-dice" onClick={rollTake} aria-label="Roll a new seed" title="Try a new random variation">
         <Die seed={seed} size={26} />
       </button>
       <button
         type="button"
         className="key key-chance"
         onClick={surpriseMe}
-        title={controls.length ? 'Surprise me: every easy control somewhere new, then play it' : 'Surprise me: this sound has no easy controls, so only the seed changes'}
+        title={controls.length ? 'Turn every knob somewhere new' : 'Try a new random variation'}
       >
         <Icon name="spark" size={22} />
         <span>Surprise me</span>
@@ -162,7 +162,7 @@ export function EasyStrip() {
   }, [controls]);
   return (
     <section className="zone zone-easy" aria-label="Easy control">
-      <div className="easy-side" title="Drag a knob up or down; double-click resets it; the sound plays when you let go">
+      <div className="easy-side" title="Drag a knob up or down. Double-click to reset it">
         <span className="zone-num">04</span>
         <h2 className="zone-title">Easy control</h2>
       </div>
@@ -185,10 +185,10 @@ export function EasyStrip() {
 }
 
 const TABS: { id: SurfaceMode; label: string; title: string }[] = [
-  { id: 'sound', label: 'Sound', title: 'Every parameter of the open sound; pin one to make it an easy control (E)' },
-  { id: 'mixer', label: 'Mix', title: 'Balance the set: each sound’s level, after levelling (M)' },
-  { id: 'project', label: 'Settings', title: 'What the whole set shares: name, output, levelling, shared effects' },
-  { id: 'notes', label: 'Notes', title: 'What the agent wrote, and who changed what' },
+  { id: 'sound', label: 'Sound', title: 'Every setting of this sound (E)' },
+  { id: 'mixer', label: 'Mix', title: 'Balance the levels of all sounds (M)' },
+  { id: 'project', label: 'Settings', title: 'Settings for the whole project' },
+  { id: 'notes', label: 'Notes', title: 'Notes and history' },
 ];
 
 /** Full control: everything about the open sound, or the mixer, the settings, the notes. Closed, only its head shows. */

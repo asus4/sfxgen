@@ -13,17 +13,20 @@ export const noise: SourceDef = {
     'violet are thin fizz, velvet is smooth sparse clicks, crackle is random pops (fire, vinyl, static), digital is ' +
     'stepped random values (computer babble). Shape it with the voice `filter` (sweep its cutoff for whooshes) ' +
     'and the envelope.',
+  hint: 'Noise: hiss, wind, rumble or crackle',
   defaultEnv: { attack: 0.002, decay: 0.3 },
   params: {
     color: {
       kind: 'enum',
       doc: 'Noise colour.',
+      hint: 'Bright hiss to dark rumble',
       options: ['white', 'pink', 'brown', 'blue', 'violet', 'velvet', 'crackle', 'digital'],
       default: 'white',
     },
     density: {
       kind: 'signal',
       doc: 'Events per second for velvet, crackle and digital: from a few sparse pops to a dense fizz.',
+      hint: 'Sparse pops to dense fizz',
       default: 1500,
       min: 5,
       max: 20000,
@@ -32,7 +35,7 @@ export const noise: SourceDef = {
       unit: 'Hz',
       scale: 'log',
     },
-    width: { kind: 'number', doc: 'Stereo width, 0 (mono) to 1 (independent left and right).', default: 0, min: 0, max: 1 },
+    width: { kind: 'number', doc: 'Stereo width, 0 (mono) to 1 (independent left and right).', hint: 'The same in both ears, or different', default: 0, min: 0, max: 1 },
   },
   example: { type: 'noise', color: 'pink', filter: { mode: 'bandpass', cutoff: [[0, 300], [0.2, 3000], [0.5, 400]], q: 1.2 } },
   render(p, ctx) {

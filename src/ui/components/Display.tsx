@@ -242,11 +242,11 @@ function Scope() {
           <span className="playhead" />
           {/* Wave or spectrum, where the eye already is: both choices in view, the one shown lit. */}
           <div className="view-switch" role="group" aria-label="Show the sound as" onPointerDown={(e) => e.stopPropagation()}>
-            <button type="button" aria-pressed={stageView === 'wave'} title="The waveform: level over time" onClick={() => setSettings({ stageView: 'wave' })}>
+            <button type="button" aria-pressed={stageView === 'wave'} title="Show the waveform" onClick={() => setSettings({ stageView: 'wave' })}>
               <Icon name="wave" size={13} />
               <span>Wave</span>
             </button>
-            <button type="button" aria-pressed={stageView === 'spectro'} title="The spectrum: which frequencies sound when" onClick={() => setSettings({ stageView: 'spectro' })}>
+            <button type="button" aria-pressed={stageView === 'spectro'} title="Show the frequencies" onClick={() => setSettings({ stageView: 'spectro' })}>
               <Icon name="spectro" size={13} />
               <span>Spectrum</span>
             </button>
@@ -373,7 +373,7 @@ function Lane({ index, heard, setBy }: { index: number; heard: number; setBy: st
         aria-valuemax={Number(duration.toFixed(3))}
         aria-valuenow={start}
         aria-valuetext={`starts at ${Math.round(start * 1000)} ms`}
-        title={setBy.length ? `Drag to move this layer in time (${setBy.join(' and ')} moves it too)` : 'Drag to move this layer in time'}
+        title={setBy.length ? `Drag to move it in time (${setBy.join(' and ')} also moves it)` : 'Drag to move it in time'}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
@@ -428,7 +428,7 @@ function Lanes() {
         <button
           type="button"
           className="screen-key lane-add"
-          title="Add a layer to this sound"
+          title="Add a layer"
           onClick={() => {
             const { patch, id } = addTrack(useEditor.getState().patch);
             edit(patch);
@@ -601,7 +601,7 @@ export function Display() {
             className={`screen-play${playing ? ' is-on' : ''}`}
             aria-label={playing ? 'Stop' : 'Play'}
             aria-keyshortcuts="Space"
-            title="Play (Space)"
+            title={playing ? 'Stop (Space)' : 'Play (Space)'}
             onClick={() => (playing ? stop() : void playNow())}
           >
             <Icon name={playing ? 'stop' : 'play'} size={18} fill />

@@ -12,6 +12,7 @@ const PARAMS: Record<string, ParamMeta> = {
       'Playback speed, measured over the output time: 1 normal, 0.5 an octave down and twice as long, 2 an octave ' +
       'up and half as long. A ramp to 0 is a tape stop ([[0, 1], [0.6, 1], [1.4, 0]]); a ramp up from 0 a ' +
       'spin-up. Below a quarter speed the level falls with the speed, as a real tape or turntable does, so a stop ends in silence.',
+    hint: 'Playback speed: slower is lower and longer',
     default: 1,
     min: 0.25,
     max: 2,
@@ -42,6 +43,7 @@ export const varispeed: EffectDef = {
     '`pitch` to keep the length). Slow it for huge, heavy versions of a sound; speed it up for small, frantic ones; ' +
     'ramp `rate` to 0 for a tape stop, up from 0 for a spin-up. The output is longer or shorter than the input; the ' +
     'silence after the sound is kept for later effects. Cubic interpolation, anti-aliased when faster than 1.',
+  hint: 'Plays at another speed, like tape: pitch and length change together',
   params: PARAMS,
   example: { type: 'varispeed', rate: [[0, 1], [0.5, 1], [1.3, 0]] },
   length(params, seconds) {

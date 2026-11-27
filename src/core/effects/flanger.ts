@@ -19,11 +19,13 @@ export const flanger: EffectDef = {
     'plane (feedback 0.7 to 0.9, rate 0.1 to 0.3 on noise or a rumble), metallic robots and sci-fi doors ' +
     '(negative feedback is hollower). For one sweep instead of a cycle, set `depth: 0` and draw `delay` with ' +
     'breakpoints: [[0, 0.008], [2, 0.0003]] is a jet passing. The output already contains the original.',
+  hint: 'A swirling, jet-like sweep',
   widens: true,
   params: {
     delay: {
       kind: 'signal',
       doc: 'Centre of the sweep, seconds: 0.001 bright and zingy, 0.003 classic, 0.008 lower and chorus-like. Breakpoints draw the sweep by hand.',
+      hint: 'Pitch of the sweep: short is bright and zingy',
       default: 0.003,
       min: 0.0003,
       max: 0.012,
@@ -35,6 +37,7 @@ export const flanger: EffectDef = {
     depth: {
       kind: 'signal',
       doc: 'How far the LFO sweeps the delay either side of its centre, 0 to 1: 0.3 a gentle swirl, 0.7 classic, 0.95 near zero and back (the full jet).',
+      hint: 'How wide the sweep is',
       default: 0.7,
       min: 0,
       max: 1,
@@ -45,6 +48,7 @@ export const flanger: EffectDef = {
     rate: {
       kind: 'signal',
       doc: 'Sweep speed, Hz: 0.05 to 0.3 slow jet, 0.5 to 2 swirling, 3+ wobbly.',
+      hint: 'How fast it sweeps',
       default: 0.25,
       min: 0.02,
       max: 5,
@@ -56,6 +60,7 @@ export const flanger: EffectDef = {
     feedback: {
       kind: 'number',
       doc: 'How much of the delayed sound goes round again, -0.95 to 0.95: 0 soft notches, 0.5 pronounced, 0.8+ resonant and metallic; negative is hollower.',
+      hint: 'Sharper, more metallic sweep',
       default: 0.5,
       min: -0.95,
       max: 0.95,
@@ -63,10 +68,11 @@ export const flanger: EffectDef = {
       hardMax: 0.98,
       unit: '',
     },
-    shape: { kind: 'enum', doc: 'Sweep shape: triangle (even, classic) or sine (lingers at the ends).', options: SHAPES, default: 'triangle' },
+    shape: { kind: 'enum', doc: 'Sweep shape: triangle (even, classic) or sine (lingers at the ends).', hint: 'An even sweep, or one that lingers at the ends', options: SHAPES, default: 'triangle' },
     stereo: {
       kind: 'number',
       doc: 'Phase offset of the right channel\'s sweep in cycles (stereo output only): 0 the same, 0.25 swirling width, 0.5 opposite.',
+      hint: 'Offsets left and right for width',
       default: 0.25,
       min: 0,
       max: 1,

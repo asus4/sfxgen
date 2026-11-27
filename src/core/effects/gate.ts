@@ -17,10 +17,12 @@ export const gate: EffectDef = {
     'rolling sound. By default the threshold is measured from the input\'s loudest moment (`reference: "peak"`): ' +
     '-20 keeps only the loud part of a hit, -40 trims the very end of a tail. A shallow `range` (-6 to -12) is a ' +
     'gentle expander that just pushes tails down.',
+  hint: 'Cuts the sound when it gets quiet: chops tails',
   params: {
     threshold: {
       kind: 'signal',
       doc: 'Level at which the gate opens, dB below the input\'s loudest moment (or dBFS with `reference: "dbfs"`). -10 to -20 chops hard, -30 to -50 trims tails.',
+      hint: 'Below this level the sound is cut',
       default: -40,
       min: -80,
       max: 0,
@@ -31,6 +33,7 @@ export const gate: EffectDef = {
     range: {
       kind: 'number',
       doc: 'How far the closed gate turns the sound down, dB: -80 silence, -20 a clear dip, -6 a gentle expander.',
+      hint: 'How much quieter it gets when closed',
       default: -80,
       min: -90,
       max: 0,
@@ -41,6 +44,7 @@ export const gate: EffectDef = {
     attack: {
       kind: 'number',
       doc: 'Seconds to open fully. 0.0002 to 0.001 keeps the crack of a hit; 0.005 to 0.02 fades notes in softly.',
+      hint: 'How fast it opens: fast keeps the crack of a hit',
       default: 0.0005,
       min: 0.0001,
       max: 0.05,
@@ -52,6 +56,7 @@ export const gate: EffectDef = {
     hold: {
       kind: 'number',
       doc: 'Seconds the gate stays open after the sound drops below the threshold: stops it fluttering on a decaying note. 0.01 to 0.05.',
+      hint: 'How long it stays open, so it doesn’t flutter',
       default: 0.02,
       min: 0,
       max: 0.5,
@@ -63,6 +68,7 @@ export const gate: EffectDef = {
     release: {
       kind: 'number',
       doc: 'Seconds to close (to fall 60 dB, or to `range` if that is shallower). 0.01 to 0.03 a hard chop, 0.1 to 0.3 a natural fade.',
+      hint: 'How fast it closes: a hard chop or a fade',
       default: 0.08,
       min: 0.005,
       max: 1,
@@ -74,6 +80,7 @@ export const gate: EffectDef = {
     lookahead: {
       kind: 'number',
       doc: 'Seconds the gate sees ahead, so it is already open when a hit arrives and the attack is never clipped (no latency offline).',
+      hint: 'Opens just before a hit',
       default: 0.002,
       min: 0,
       max: 0.01,
@@ -85,6 +92,7 @@ export const gate: EffectDef = {
     hysteresis: {
       kind: 'number',
       doc: 'dB below the threshold the level must fall before the gate closes again: stops chatter around the threshold.',
+      hint: 'Stops it chattering around the threshold',
       default: 4,
       min: 0,
       max: 12,
@@ -96,6 +104,7 @@ export const gate: EffectDef = {
     reference: {
       kind: 'enum',
       doc: 'What `threshold` is measured from: peak (the input\'s loudest moment) or dbfs (absolute).',
+      hint: 'Measure from this sound’s own peak, or from full scale',
       options: ['peak', 'dbfs'],
       default: 'peak',
     },

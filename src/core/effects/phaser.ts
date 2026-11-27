@@ -16,11 +16,13 @@ export const phaser: EffectDef = {
     'smooth, vocal swirl, gentler and more liquid than a flanger. Reach for it on synth tones, engines, sci-fi ' +
     'hums, force fields and tired machinery. More `stages` make more notches; `feedback` makes them sing. For a ' +
     'single sweep set `depth: 0` and draw `freq` with breakpoints. The output already contains the original.',
+  hint: 'A smooth, vocal swirl',
   widens: true,
   params: {
     freq: {
       kind: 'signal',
       doc: 'Centre of the sweep, Hz: 300 to 600 dark and throaty, 800 to 1500 classic, 2000+ airy.',
+      hint: 'Pitch of the sweep: dark to airy',
       default: 800,
       min: 100,
       max: 5000,
@@ -32,6 +34,7 @@ export const phaser: EffectDef = {
     depth: {
       kind: 'signal',
       doc: 'How far the sweep goes either side of `freq`, octaves: 0.5 subtle, 1.5 classic, 3+ dramatic.',
+      hint: 'How wide the sweep is',
       default: 1.5,
       min: 0,
       max: 4,
@@ -42,6 +45,7 @@ export const phaser: EffectDef = {
     rate: {
       kind: 'signal',
       doc: 'Sweep speed, Hz: 0.05 to 0.3 slow and hypnotic, 0.5 to 1 classic, 2 to 6 bubbling.',
+      hint: 'How fast it sweeps',
       default: 0.4,
       min: 0.02,
       max: 8,
@@ -53,12 +57,14 @@ export const phaser: EffectDef = {
     stages: {
       kind: 'enum',
       doc: 'Allpass stages; half as many notches: 2 a single gentle notch, 4 classic, 8 to 12 deep and dense.',
+      hint: 'More stages, deeper swirl',
       options: STAGES,
       default: '4',
     },
     feedback: {
       kind: 'number',
       doc: 'Resonance, -0.95 to 0.95: 0 soft and subtle, 0.5 vocal, 0.8+ a singing whistle; negative moves the peaks between the notches.',
+      hint: 'Makes the swirl sing',
       default: 0.5,
       min: -0.95,
       max: 0.95,
@@ -69,6 +75,7 @@ export const phaser: EffectDef = {
     stereo: {
       kind: 'number',
       doc: 'Phase offset of the right channel\'s sweep in cycles (stereo output only): 0 the same, 0.25 swirling width, 0.5 opposite.',
+      hint: 'Offsets left and right for width',
       default: 0.25,
       min: 0,
       max: 1,

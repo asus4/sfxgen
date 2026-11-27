@@ -19,7 +19,7 @@ function ProjectKey() {
     setConfirm(null);
     useEditor.setState({ projectsOpen: false });
   };
-  const state = serve.info ? (serve.save === 'saving' ? 'saving' : serve.save === 'error' ? 'not saved' : serve.projectSaved ? 'live' : 'no project file') : 'in this browser';
+  const state = serve.info ? (serve.save === 'saving' ? 'saving…' : serve.save === 'error' ? 'not saved' : serve.projectSaved ? 'saved to disk' : 'no project file yet') : 'saved in this browser';
   return (
     <div className="project-key">
       <button
@@ -41,7 +41,7 @@ function ProjectKey() {
             {serve.info ? (
               <>
                 <p className="legend">served folder</p>
-                <p className="popover-text mono" title="Edits here are written to disk; edits on disk show up here">
+                <p className="popover-text mono" title="Changes here and on disk stay in sync">
                   {serve.info.root ?? ''}
                   {serve.projectSaved && (
                     <>
@@ -54,7 +54,7 @@ function ProjectKey() {
                   <button
                     type="button"
                     className="key is-on"
-                    title="This folder has no project file: its patches show as a set, and levels, groups and settings are not kept until you save one"
+                    title="Keep levels, groups and settings for this folder"
                     onClick={() => {
                       void saveProjectFile();
                       close();
@@ -104,7 +104,7 @@ function ProjectKey() {
                   <button
                     type="button"
                     className="key"
-                    title="A new, empty project in this browser. Rename it under Full control › Settings"
+                    title="Start an empty project"
                     onClick={() => {
                       createProject();
                       close();
@@ -112,7 +112,7 @@ function ProjectKey() {
                   >
                     <Icon name="plus" size={13} /> New project
                   </button>
-                  <button type="button" className="key" onClick={exportBundle} title="This project as one .sfxproj.json file">
+                  <button type="button" className="key" onClick={exportBundle} title="Download the whole project as one file">
                     <Icon name="save" size={13} /> Bundle
                   </button>
                 </div>
@@ -141,19 +141,19 @@ export function TopStrip() {
       <span className="zone-num">01</span>
       <ProjectKey />
       <nav className="strip-keys" aria-label="File">
-        <button type="button" className="key" onClick={() => useEditor.setState({ gallery: { open: true, mode: 'replace' } })} aria-keyshortcuts="G" title="Template gallery (G)">
+        <button type="button" className="key" onClick={() => useEditor.setState({ gallery: { open: true, mode: 'replace' } })} aria-keyshortcuts="G" title="Browse sounds (G)">
           <Icon name="grid" size={16} /> <span>Gallery</span>
         </button>
-        <button type="button" className="key" onClick={() => file.current?.click()} title="Add a .sfx.json to the set, or open a .sfxproj.json bundle. You can also drop one anywhere, or paste a patch (Ctrl+V or ⌘V)">
+        <button type="button" className="key" onClick={() => file.current?.click()} title="Open a sound or project file. You can also drop or paste one">
           <Icon name="open" size={16} /> <span>Open</span>
         </button>
-        <button type="button" className="key" onClick={exportJson} title="Download the open sound as .sfx.json">
+        <button type="button" className="key" onClick={exportJson} title="Download this sound as a file">
           <Icon name="save" size={16} /> <span>Save</span>
         </button>
-        <button type="button" className="key" onClick={() => useEditor.setState({ exportOpen: true })} title="Export WAV: this sound or the whole set">
+        <button type="button" className="key" onClick={() => useEditor.setState({ exportOpen: true })} title="Export audio">
           <Icon name="export" size={16} /> <span>Export</span>
         </button>
-        <button type="button" className="key" onClick={() => void copyShareLink()} title="Copy a link with the open sound inside it">
+        <button type="button" className="key" onClick={() => void copyShareLink()} title="Copy a link to this sound">
           <Icon name="link" size={16} /> <span>Share</span>
         </button>
         <input
@@ -176,10 +176,10 @@ export function TopStrip() {
           <Icon name="redo" size={16} />
         </button>
         <AgentStatus />
-        <button type="button" className="key key-icon" onClick={() => setSettings({ theme: theme === 'dark' ? 'light' : 'dark' })} aria-label={theme === 'dark' ? 'Switch to the light finish' : 'Switch to the dark finish'} title="Light or dark finish">
+        <button type="button" className="key key-icon" onClick={() => setSettings({ theme: theme === 'dark' ? 'light' : 'dark' })} aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'} title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}>
           <Icon name={theme === 'dark' ? 'sun' : 'moon'} size={16} />
         </button>
-        <a className="key key-icon" href={REPO} target="_blank" rel="noopener" aria-label="sfxgen on GitHub" title="sfxgen on GitHub: the source, the docs and the issues">
+        <a className="key key-icon" href={REPO} target="_blank" rel="noopener" aria-label="sfxgen on GitHub" title="Open the GitHub repository">
           <GitHubMark size={16} />
         </a>
       </div>

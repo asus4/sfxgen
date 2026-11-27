@@ -4,7 +4,25 @@
  */
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { listEffects, listSources, render, syncControlBases, validatePatch, formatIssues, type Patch } from '../src/core';
+import {
+  BUS_FIELDS,
+  COMMON_EFFECT_PARAMS,
+  COMMON_SOURCE_PARAMS,
+  ENVELOPE_FIELDS,
+  MASTER_FIELDS,
+  PATCH_FIELDS,
+  REPEAT_FIELDS,
+  TRACK_FIELDS,
+  formatIssues,
+  listEffects,
+  listSources,
+  render,
+  syncControlBases,
+  validatePatch,
+  type ParamMap,
+  type ParamMeta,
+  type Patch,
+} from '../src/core';
 import { buildGuide } from '../src/core/agent/guide';
 import { buildSchema } from '../src/core/agent/schema';
 
@@ -20,6 +38,41 @@ function patchWithEffect(effect: Record<string, unknown>): Patch {
     tracks: [{ id: 'a', source: { type: 'noise', color: 'pink', env: { attack: 0.002, decay: 0.6 } }, fx: [effect as never] }],
   };
 }
+
+/** Every parameter in a map, nested fields and array items included, by path. */
+function* allParams(params: ParamMap, at: string): Generator<[string, ParamMeta]> {
+  for (const [name, meta] of Object.entries(params)) {
+    yield [`${at}.${name}`, meta];
+    if (meta.fields) yield* allParams(meta.fields, `${at}.${name}`);
+    if (meta.item) yield* allParams({ item: meta.item }, `${at}.${name}`);
+  }
+}
+
+describe('hints for people', () => {
+  // The editor shows `hint` as the tooltip; `doc` is the agents'. A hint is a few plain words, not a second doc.
+  const maps: [string, ParamMap][] = [
+    ['source', COMMON_SOURCE_PARAMS],
+    ['effect', COMMON_EFFECT_PARAMS],
+    ['env', ENVELOPE_FIELDS],
+    ['track', TRACK_FIELDS],
+    ['repeat', REPEAT_FIELDS],
+    ['master', MASTER_FIELDS],
+    ['bus', BUS_FIELDS],
+    ['patch', PATCH_FIELDS],
+    ...[...listSources(), ...listEffects()].map((def) => [def.type, def.params] as [string, ParamMap]),
+  ];
+  const short = (hint: string | undefined) => !!hint && hint.length <= 80 && !/[`.]$/.test(hint) && !hint.includes('`');
+
+  it('every source and effect has one', () => {
+    const missing = [...listSources(), ...listEffects()].filter((def) => !short(def.hint)).map((def) => def.type);
+    expect(missing).toEqual([]);
+  });
+
+  it('every parameter has one', () => {
+    const missing = maps.flatMap(([at, params]) => [...allParams(params, at)].filter(([, meta]) => !short(meta.hint)).map(([path]) => path));
+    expect(missing).toEqual([]);
+  });
+});
 
 describe('node examples', () => {
   for (const def of listSources()) {

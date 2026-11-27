@@ -40,15 +40,15 @@ export function ProjectSettings() {
   return (
     <div className="sheets">
       <Section title="Set" tag={serve.info ? (serve.projectPath ?? 'no project file yet') : 'kept in this browser'}>
-        <label className="param param-text param-wide">
+        <label className="param param-text param-wide" title="Name of this project">
           <span className="param-label">Name</span>
           <input className="text" value={project.name} onChange={(e) => set({ name: e.target.value }, 'name')} />
         </label>
-        <label className="param param-text param-wide">
+        <label className="param param-text param-wide" title="What these sounds are for">
           <span className="param-label">Description</span>
           <textarea className="text" rows={2} value={project.description ?? ''} placeholder="What these sounds are for" onChange={(e) => set({ description: e.target.value || undefined }, 'description')} />
         </label>
-        <label className="param param-text param-wide">
+        <label className="param param-text param-wide" title="Where exported files go">
           <span className="param-label">Export folder</span>
           <input className="text mono" value={project.outDir ?? ''} placeholder="out" spellCheck={false} onChange={(e) => set({ outDir: e.target.value || undefined }, 'outDir')} />
         </label>
@@ -57,7 +57,7 @@ export function ProjectSettings() {
             <button
               type="button"
               className="key is-on"
-              title="This folder has no project file: levels, groups and these settings live only in this tab until you save one"
+              title="Keep levels, groups and settings for this folder"
               onClick={() => void saveProjectFile()}
             >
               <Icon name="save" size={14} /> Save project file
@@ -66,10 +66,10 @@ export function ProjectSettings() {
           <button type="button" className="key" onClick={() => void exportSet()}>
             <Icon name="export" size={14} /> Export set
           </button>
-          <button type="button" className="key" onClick={exportBundle} title="One file with every sound inside: .sfxproj.json">
+          <button type="button" className="key" onClick={exportBundle} title="Download the whole project as one file">
             <Icon name="save" size={14} /> Bundle
           </button>
-          <button type="button" className="key" onClick={() => file.current?.click()} title="Add a .sfx.json, or open a .sfxproj.json bundle">
+          <button type="button" className="key" onClick={() => file.current?.click()} title="Open a sound or project file">
             <Icon name="open" size={14} /> Import
           </button>
           <input
@@ -86,9 +86,9 @@ export function ProjectSettings() {
         </div>
       </Section>
 
-      <Section title="Output" hint="Every sound renders with these">
+      <Section title="Output" hint="Applies to every sound">
         <div className="fields">
-          <div className="param param-wide param-enum">
+          <div className="param param-wide param-enum" title="One sample rate for every sound, or each its own">
             <span className="param-label">Sample rate</span>
             <Segmented
               label="Sample rate"
@@ -98,7 +98,7 @@ export function ProjectSettings() {
               onChange={(v) => setOutput('sampleRate', v || undefined)}
             />
           </div>
-          <div className="param param-wide param-enum">
+          <div className="param param-wide param-enum" title="Mono or stereo for every sound, or each its own">
             <span className="param-label">Channels</span>
             <Segmented
               label="Channels"
@@ -112,7 +112,7 @@ export function ProjectSettings() {
               onChange={(v) => setOutput('channels', (v || undefined) as 1 | 2 | undefined)}
             />
           </div>
-          <div className="param param-wide param-enum">
+          <div className="param param-wide param-enum" title="One bit depth for every sound, or each its own">
             <span className="param-label">Bit depth</span>
             <Segmented
               label="Bit depth"
@@ -130,16 +130,16 @@ export function ProjectSettings() {
         </div>
       </Section>
 
-      <Section title="Levelling" hint="Before each sound’s level in the mixer. A group’s own levelling (in the mixer) replaces this for its sounds">
+      <Section title="Levelling" hint="Brings every sound to the same level before the mixer. A group’s own setting wins">
         <div className="fields">
-          <div className="param param-wide param-enum">
+          <div className="param param-wide param-enum" title="How every sound is levelled">
             <span className="param-label">Every sound is brought to</span>
             <Segmented
               label="Levelling"
               size="sm"
               value={mode}
               options={[
-                { value: '', label: 'its own', title: 'Each patch keeps its own normalisation' },
+                { value: '', label: 'its own', title: 'Each sound keeps its own setting' },
                 { value: 'peak', label: 'a peak' },
                 { value: 'loudness', label: 'a loudness' },
                 { value: 'none', label: 'nothing' },
@@ -151,7 +151,7 @@ export function ProjectSettings() {
             />
           </div>
           {(mode === 'peak' || mode === 'loudness') && (
-            <div className="param">
+            <div className="param" title="The level to bring every sound to">
               <Knob
                 label="Levelling target"
                 value={project.normalize?.target ?? targetDefault}
@@ -165,7 +165,7 @@ export function ProjectSettings() {
               <span className="param-label">Target</span>
             </div>
           )}
-          <div className="param">
+          <div className="param" title="Level of the whole set">
             <Knob
               label="Shared master gain"
               value={project.master?.gain ?? 0}

@@ -26,7 +26,8 @@ layer them the same way. sfxgen tries to break that in three ways:
 - **Deterministic.** Same patch, seed and sample rate, same samples, in the browser and in Node. All randomness comes
   from named streams (`Rng.fork`).
 - **One source of truth for nodes.** Each source and effect declares its parameters (`ParamMeta`: kind, unit, range,
-  scale, doc). Validation, the editor's controls, the agent guide and the JSON Schema all read it.
+  scale, a `doc` for agents and a `hint` for people). Validation, the editor's controls and tooltips, the agent guide
+  and the JSON Schema all read it.
 - **Offline rendering.** Sounds are short, so the engine renders whole buffers (like numpy) rather than running a
   real-time graph. The editor re-renders in a worker on every change and caches unchanged tracks.
 - **Agent-first, person-final.** Every action in the editor is also a tool; every tool result is readable by a
@@ -58,7 +59,8 @@ docs/                FORMAT.md, SOUND-DESIGN.md, TEMPLATE-BRIEF.md, this file
 ### Adding a source or an effect
 
 Write a `SourceDef` or `EffectDef` (see `src/core/nodes.ts`) in its own file and add it to the catalog. Declare every
-parameter with a `doc` an agent can act on, a unit, a soft range and hard limits that keep the DSP stable. Mark
+parameter with a `doc` an agent can act on, a `hint` a person can read at a glance (the editor's tooltip; the catalog
+test checks there is one), a unit, a soft range and hard limits that keep the DSP stable. Mark
 frequency-like parameters `pitch: true` and `scale: 'log'`. Use `ctx.signal(name)` for anything that may move,
 `ctx.num(name)` for things fixed per event, and `ctx.rng.fork('purpose')` for randomness. Add a test that renders
 it with defaults and with extreme values and checks for finite, non-silent, non-clipping output.

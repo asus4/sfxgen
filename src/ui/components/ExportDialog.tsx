@@ -66,8 +66,8 @@ export function ExportDialog() {
             className="form-row"
             title={
               canVary
-                ? 'Each extra take gets a new seed and moves the controls as far as their “vary” amounts allow'
-                : 'Each extra take gets a new seed. Give controls a “vary” amount in the patch to let takes differ more'
+                ? 'Export more versions, each a little different'
+                : 'Export more versions, each with a new random seed'
             }
           >
             <span>Takes</span>
@@ -97,7 +97,7 @@ export function ExportDialog() {
               type="button"
               className="key is-on"
               disabled={busy}
-              title={`Every sound, as the project renders it (its output, levelling, shared chain and mixer level)${served ? ', written to its export path' : ', in one zip'}`}
+              title={served ? 'Write every sound to the export folder' : 'Download every sound in one zip'}
               onClick={() => void run(exportSet)}
             >
               <Icon name="export" size={14} /> Export the set

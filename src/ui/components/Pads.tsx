@@ -6,10 +6,9 @@
  * pad, two keys approve it or flag it, then open the next one to review.
  */
 import { useEffect, useMemo, useRef } from 'react';
-import { describeChange } from '../../core';
 import { exportSet, giveVerdict, openNextUnreviewed, pickTake, pressPad, toggleTakes } from '../controller';
 import { groupInk, patchOf, soundKey } from '../lib/projectOps';
-import { changesOf, reviewCounts, statusOf, takeInUse } from '../lib/review';
+import { reviewCounts, statusOf, takeInUse } from '../lib/review';
 import { useEditor, versionIn, type Take } from '../store';
 import { Icon } from './Icon';
 
@@ -70,7 +69,7 @@ function Pad({ index }: { index: number }) {
         aria-pressed={selected}
         aria-label={`Pad ${index + 1}: ${name}, ${says}`}
         aria-keyshortcuts={index < 10 ? String((index + 1) % 10) : undefined}
-        title={`${name}${sound.file ? ` · ${sound.file}` : ''} · ${says}`}
+        title={`${name} · ${says}`}
         style={{ '--c': ink } as React.CSSProperties}
         onClick={() => pressPad(index)}
       >
@@ -100,7 +99,7 @@ function Takes({ index, name, soundKey: key, takes }: { index: number; name: str
   const label = takes.find((t) => t.path === inUsePath)?.label;
   return (
     <>
-      <button type="button" className="pad-takes-toggle" aria-expanded={open} title={open ? 'Hide the takes' : 'Show the takes: other versions of this sound'} onClick={() => toggleTakes(index)}>
+      <button type="button" className="pad-takes-toggle" aria-expanded={open} title={open ? 'Hide the takes' : 'Show other takes of this sound'} onClick={() => toggleTakes(index)}>
         <Icon name="down" size={11} />
         <span>
           {takes.length} take{takes.length === 1 ? '' : 's'}
@@ -117,7 +116,7 @@ function Takes({ index, name, soundKey: key, takes }: { index: number; name: str
                 type="button"
                 className="take"
                 aria-pressed={on}
-                title={on ? `In use${changed ? ', with your changes' : ''}` : `Use “${t.label}” for ${name} and play it ( [ and ] step through the takes)`}
+                title={on ? `In use${changed ? ', with your changes' : ''}` : 'Use this take ([ and ] step through them)'}
                 onClick={() => void pickTake(index, t.path)}
               >
                 <i className="take-radio" aria-hidden="true" />
@@ -135,11 +134,6 @@ function Takes({ index, name, soundKey: key, takes }: { index: number; name: str
 /** Approve the open sound or flag it as needing work; either one opens the next sound to review. */
 function ReviewKeys() {
   const status = useEditor((s) => statusOf(s, s.project.sounds[s.current]));
-  const changes = useEditor((s) => {
-    const sound = s.project.sounds[s.current];
-    return changesOf(s, sound).map((c) => describeChange(c, patchOf(sound)).replace(' -> ', ' → ')).join(', ');
-  });
-  const what = changes ? `, with your changes: ${changes}` : '';
   return (
     <div className="review-keys" role="group" aria-label="Review the open sound">
       <button
@@ -147,7 +141,7 @@ function ReviewKeys() {
         className="key key-approve"
         aria-pressed={status === 'approved'}
         aria-keyshortcuts="A"
-        title={status === 'approved' ? 'Approved. Press again to take it back.' : `Approve this version (A)${what}. Then the next sound to review opens.`}
+        title={status === 'approved' ? 'Approved. Click to undo' : 'Approve and open the next sound (A)'}
         onClick={() => giveVerdict('approved')}
       >
         <Icon name="check" size={14} />
@@ -158,7 +152,7 @@ function ReviewKeys() {
         className="key key-needs-work"
         aria-pressed={status === 'needs-work'}
         aria-keyshortcuts="N"
-        title={status === 'needs-work' ? 'Flagged. Press again to take it back.' : `Needs work (N)${what}: say what in the chat with your agent. Then the next sound to review opens.`}
+        title={status === 'needs-work' ? 'Flagged. Click to undo' : 'Flag it, then tell your agent what to change (N)'}
         onClick={() => giveVerdict('needs-work')}
       >
         <span>Needs work</span>
@@ -172,7 +166,7 @@ function ReviewCount() {
   const left = useEditor((s) => reviewCounts(s).unreviewed);
   if (left === 0) return <span className="pads-reviewed">all reviewed</span>;
   return (
-    <button type="button" className="pads-review" title="Open the next sound nobody has reviewed, and play it" onClick={openNextUnreviewed}>
+    <button type="button" className="pads-review" title="Play the next sound to review" onClick={openNextUnreviewed}>
       <i className="led" aria-hidden="true" />
       {left} to review
     </button>
@@ -189,7 +183,7 @@ function AddSlot() {
       type="button"
       className="pad-add"
       aria-label="Add a sound"
-      title="Add a sound: pick one from the gallery, or start blank or from a file"
+      title="Add a sound"
       onClick={() => useEditor.setState({ gallery: { open: true, mode: 'add' } })}
     >
       <Icon name="plus" size={18} />
@@ -219,7 +213,7 @@ export function Pads() {
         </div>
       </div>
       <footer className="pads-foot">
-        <button type="button" className="key" title="Export every sound of the set" onClick={() => void exportSet()}>
+        <button type="button" className="key" title="Export all sounds" onClick={() => void exportSet()}>
           <Icon name="export" size={15} /> <span>Export set</span>
         </button>
       </footer>

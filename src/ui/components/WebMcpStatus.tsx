@@ -58,7 +58,7 @@ function FlagAddress({ address }: { address: string }) {
   return (
     <span className="flag">
       <code>{address}</code>
-      <button type="button" className="tool" aria-label={`Copy ${address}`} title="Copy: browsers don't let a page open their settings" onClick={copy}>
+      <button type="button" className="tool" aria-label={`Copy ${address}`} title="Copy the address" onClick={copy}>
         <Icon name="copy" size={13} />
       </button>
     </span>
@@ -137,10 +137,10 @@ function AgentKey() {
         aria-haspopup="dialog"
         title={
           webmcp === 'pending'
-            ? 'WebMCP: checking…'
+            ? 'Checking for WebMCP…'
             : live
-              ? `WebMCP: ${webmcp.count} tools on ${webmcp.api}`
-              : 'WebMCP: not available in this browser yet. Open to see how to turn it on'
+              ? 'Agents in this browser can use the editor'
+              : 'Let an agent in this browser use the editor'
         }
         onClick={() => useEditor.setState({ webmcpOpen: !open })}
       >

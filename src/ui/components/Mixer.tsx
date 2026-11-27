@@ -66,6 +66,7 @@ function Row({ index }: { index: number }) {
       <select
         className="mix-group"
         aria-label={`Group of ${key}`}
+        title="Which group this sound is in"
         value={sound.group ?? ''}
         onChange={(e) => editProject((p) => updateSound(p, index, { group: e.target.value || undefined }))}
       >
@@ -78,6 +79,7 @@ function Row({ index }: { index: number }) {
       </select>
       <Fader
         label={`Level of ${key}`}
+        title="Level of this sound in the set"
         value={gain}
         range={GAIN}
         defaultValue={0}
@@ -90,23 +92,23 @@ function Row({ index }: { index: number }) {
         }}
       />
       <output className="mix-gain">{dbText(gain)}</output>
-      <div className={`mix-meter${hot ? ' is-hot' : ''}${stale ? ' is-stale' : ''}`} title={level ? `peak ${dbText(level.peakDb)} dBFS · ${dbText(level.lufs)} LUFS` : 'measuring…'}>
+      <div className={`mix-meter${hot ? ' is-hot' : ''}${stale ? ' is-stale' : ''}`} title={level ? `Peak ${dbText(level.peakDb)} dB · loudness ${dbText(level.lufs)} LUFS` : 'Measuring…'}>
         <span className="mix-peak" style={{ width: `${meterPos(level?.peakDb ?? -Infinity) * 100}%` }} />
         {level && Number.isFinite(level.lufs) && <span className="mix-lufs" style={{ left: `${meterPos(level.lufs) * 100}%` }} />}
       </div>
-      <output className="mix-num" title="Loudness, LUFS">{dbText(level?.lufs)}</output>
-      <output className={`mix-num${hot ? ' is-hot' : ''}`} title="Peak, dBFS">{dbText(level?.peakDb)}</output>
+      <output className="mix-num" title="Loudness (LUFS)">{dbText(level?.lufs)}</output>
+      <output className={`mix-num${hot ? ' is-hot' : ''}`} title="Peak level (dB)">{dbText(level?.peakDb)}</output>
       <button
         type="button"
         className={`tool${sound.skip ? ' is-on' : ''}`}
         aria-pressed={!!sound.skip}
         aria-label={`Leave ${key} out of exports`}
-        title="Leave out of exports"
+        title="Skip when exporting"
         onClick={() => editProject((p) => updateSound(p, index, { skip: sound.skip ? undefined : true }))}
       >
         <Icon name="power" size={13} />
       </button>
-      <button type="button" className="tool" aria-label={`Remove ${key} from the project`} title="Remove from the project" disabled={only} onClick={() => deleteSound(index)}>
+      <button type="button" className="tool" aria-label={`Remove ${key} from the project`} title="Remove from project" disabled={only} onClick={() => deleteSound(index)}>
         <Icon name="trash" size={13} />
       </button>
     </div>
@@ -138,14 +140,14 @@ function GroupBlock({ group, indexes, target, ceiling }: { group: ProjectGroup |
               type="button"
               className="swatch"
               aria-label="Change this group’s ink"
-              title="Change ink"
+              title="Change colour"
               onClick={() => {
                 const at = INKS.findIndex((k) => k.hex.toLowerCase() === (ink ?? '').toLowerCase());
                 editProject((p) => updateGroup(p, group.id, { color: INKS[(at + 1) % INKS.length].hex }));
               }}
             />
-            <input className="mix-group-name" aria-label="Group name" value={group.label ?? group.id} onChange={(e) => editProject((p) => updateGroup(p, group.id, { label: e.target.value }), `group:${group.id}`)} />
-            <select className="mix-levelling" aria-label="How this group is levelled" value={mode} onChange={(e) => setNormalize(e.target.value)}>
+            <input className="mix-group-name" aria-label="Group name" title="Rename the group" value={group.label ?? group.id} onChange={(e) => editProject((p) => updateGroup(p, group.id, { label: e.target.value }), `group:${group.id}`)} />
+            <select className="mix-levelling" aria-label="How this group is levelled" title="How this group is levelled" value={mode} onChange={(e) => setNormalize(e.target.value)}>
               {LEVELLING.map((o) => (
                 <option key={o.value} value={o.value}>
                   {o.label}
@@ -160,14 +162,14 @@ function GroupBlock({ group, indexes, target, ceiling }: { group: ProjectGroup |
           <span className="legend">No group</span>
         )}
         <span className="spacer" />
-        <button type="button" className="key key-sm" title="Play these in turn" disabled={indexes.length === 0} onClick={() => void playSet(group?.id ?? null)}>
+        <button type="button" className="key key-sm" title="Play this group" disabled={indexes.length === 0} onClick={() => void playSet(group?.id ?? null)}>
           <Icon name="play" size={11} fill /> Play
         </button>
-        <button type="button" className="key key-sm" title={`Set gains so these all measure ${target} LUFS, peaks under ${ceiling} dB`} disabled={indexes.length === 0} onClick={() => void matchLoudnessOf(group?.id ?? null, target, ceiling)}>
+        <button type="button" className="key key-sm" title={`Make these equally loud (${target} LUFS)`} disabled={indexes.length === 0} onClick={() => void matchLoudnessOf(group?.id ?? null, target, ceiling)}>
           Match
         </button>
         {group && (
-          <button type="button" className="tool" aria-label={`Delete group ${group.label ?? group.id}`} title="Delete this group (its sounds stay)" onClick={() => editProject((p) => removeGroup(p, group.id))}>
+          <button type="button" className="tool" aria-label={`Delete group ${group.label ?? group.id}`} title="Delete the group, keep its sounds" onClick={() => editProject((p) => removeGroup(p, group.id))}>
             <Icon name="close" size={13} />
           </button>
         )}
@@ -175,7 +177,7 @@ function GroupBlock({ group, indexes, target, ceiling }: { group: ProjectGroup |
       {indexes.map((i) => (
         <Row key={i} index={i} />
       ))}
-      {indexes.length === 0 && <p className="empty" title="Pick this group on a sound’s row">No sounds in this group.</p>}
+      {indexes.length === 0 && <p className="empty" title="Choose this group on a sound’s row to add it">No sounds in this group.</p>}
     </div>
   );
 }
@@ -194,7 +196,7 @@ export function Mixer() {
   return (
     <div className="mixer">
       <div className="mix-bar">
-        <button type="button" className={`key${setPlaying ? ' is-on' : ''}`} onClick={() => (setPlaying ? stop() : void playSet())} title="Play every sound in turn">
+        <button type="button" className={`key${setPlaying ? ' is-on' : ''}`} onClick={() => (setPlaying ? stop() : void playSet())} title="Play all sounds">
           <Icon name={setPlaying ? 'stop' : 'play'} size={14} fill /> <span>{setPlaying ? 'Stop' : 'Play the set'}</span>
         </button>
         <span className="spacer" />
@@ -202,7 +204,7 @@ export function Mixer() {
         <NumBox label="Loudness to match to" unit="LUFS" value={goal} onChange={setTarget} />
         <span className="legend">ceiling</span>
         <NumBox label="Highest peak allowed" unit="dB" value={ceiling} onChange={(v) => setCeiling(Math.min(0, v))} />
-        <button type="button" className="key" onClick={() => void matchLoudnessOf('*', goal, ceiling)} title="Set every gain so the whole set measures the same loudness">
+        <button type="button" className="key" onClick={() => void matchLoudnessOf('*', goal, ceiling)} title="Make all sounds equally loud">
           Match all
         </button>
         <button type="button" className="key" onClick={() => editProject((p) => addGroup(p, `Group ${(p.groups?.length ?? 0) + 1}`).project)}>

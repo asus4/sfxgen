@@ -22,10 +22,12 @@ export const reverse: EffectDef = {
     'climax at a time of your choosing, seconds from the track\'s start (from the patch start on a bus or the ' +
     'master): a swell timed into a hit. Pre-verb, a ' +
     'swell of reverb into the hit: `reverse`, `reverb`, `reverse` in one chain.',
+  hint: 'Plays the sound backwards: a swell that stops dead',
   params: {
     align: {
       kind: 'enum',
       doc: 'start: reverse only the part that sounds, so it begins at the track\'s start. end: reverse the whole buffer, so the sound finishes at the end of the patch.',
+      hint: 'Begin where the layer starts, or finish where the sound ends',
       options: ['start', 'end'],
       default: 'start',
     },
@@ -35,6 +37,7 @@ export const reverse: EffectDef = {
         'Seconds from the start of the buffer at which the climax lands (the moment the original began), overriding ' +
         '`align`. The first `at` seconds of the sound are reversed into place; a longer sound loses its far tail (its ' +
         'swell then starts with a short fade), a shorter one starts after a silence. After the climax: silence.',
+      hint: 'When the reversed sound peaks',
       min: 0.01,
       max: 10,
       hardMin: 0.001,

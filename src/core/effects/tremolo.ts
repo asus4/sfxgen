@@ -13,11 +13,13 @@ export const tremolo: EffectDef = {
     'rotor chop (square, 10 to 25 Hz), stutter and glitch (square or random, depth 1), alarm pulses. In stereo, ' +
     '`stereo: 0.5` swings the sound between left and right (auto-pan). Above about 30 Hz it turns into a rough, ' +
     'buzzing amplitude modulation. `rate` can move: a rotor spinning up is [[0, 4], [1.5, 22]].',
+  hint: 'Pulses the volume: shimmer, throb or chop',
   widens: true,
   params: {
     rate: {
       kind: 'signal',
       doc: 'LFO speed, Hz. 0.5 to 3 slow throb, 4 to 8 classic tremolo, 10 to 25 chop and flutter, 30+ buzzing.',
+      hint: 'How fast it pulses',
       default: 6,
       min: 0.1,
       max: 40,
@@ -29,6 +31,7 @@ export const tremolo: EffectDef = {
     depth: {
       kind: 'signal',
       doc: 'How deep the dips go, 0 to 1: 0.2 a subtle shimmer, 0.5 clear, 1 down to silence (a chop with square).',
+      hint: 'How deep the dips go',
       default: 0.5,
       min: 0,
       max: 1,
@@ -39,6 +42,7 @@ export const tremolo: EffectDef = {
     shape: {
       kind: 'enum',
       doc: 'LFO shape: sine smooth, triangle even, square on-off chop, saw a pulse that fades, ramp one that swells, random a new level each cycle (flicker).',
+      hint: 'Smooth, choppy or random pulses',
       options: FX_LFO_SHAPES,
       default: 'sine',
     },
@@ -47,6 +51,7 @@ export const tremolo: EffectDef = {
       doc:
         'Where in the cycle it starts, 0 to 1. Sine and triangle: 0 halfway and rising, 0.25 full level, 0.75 the ' +
         'deepest dip. Square and saw start at full level, ramp at the dip; 0.5 flips them.',
+      hint: 'Where in the pulse it starts',
       default: 0,
       min: 0,
       max: 1,
@@ -57,6 +62,7 @@ export const tremolo: EffectDef = {
     stereo: {
       kind: 'number',
       doc: 'Phase offset of the right channel in cycles (stereo output only): 0 both pulse together, 0.5 they alternate (auto-pan), 0.25 a circling motion.',
+      hint: 'Alternate left and right',
       default: 0,
       min: 0,
       max: 1,

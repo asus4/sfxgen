@@ -80,7 +80,7 @@ const PRESETS: Record<Space, Preset> = {
 };
 
 const PARAMS: Record<string, ParamMeta> = {
-  mix: { kind: 'number', doc: 'Wet amount, 0 to 1. Default 0.3 on a track or the master, where the dry sound passes too; on a bus (sends) every effect defaults to fully wet.', default: 0.3, min: 0, max: 1, hardMin: 0, hardMax: 1 },
+  mix: { kind: 'number', doc: 'Wet amount, 0 to 1. Default 0.3 on a track or the master, where the dry sound passes too; on a bus (sends) every effect defaults to fully wet.', hint: 'How much room you hear against the dry sound', default: 0.3, min: 0, max: 1, hardMin: 0, hardMax: 1 },
   space: {
     kind: 'enum',
     doc:
@@ -91,6 +91,7 @@ const PARAMS: Record<string, ParamMeta> = {
       'short and boxy. stairwell: tall concrete, ringing flutter. tunnel: long concrete tube, flutter between the ' +
       'walls. tank: inside a metal tank, metallic and ringing. spring: a spring reverb, the boingy chirp of guitar ' +
       'amps. forest: scattered reflections off trees, soft and short.',
+    hint: 'The kind of space: room, hall, cave, car…',
     options: SPACES,
     default: 'room',
   },
@@ -100,6 +101,7 @@ const PARAMS: Record<string, ParamMeta> = {
       'Size of the space in metres (roughly its longest dimension): spaces the echoes and the early reflections. ' +
       'Closet 1.4, car 2, bathroom 3, room 6, chamber 9, hall 30, cathedral 50. For spring it is the spring length ' +
       '(0.2 tight to 1 loose). Default: from `space`.',
+    hint: 'How big the space is',
     min: 1,
     max: 60,
     hardMin: 0.2,
@@ -112,6 +114,7 @@ const PARAMS: Record<string, ParamMeta> = {
     doc:
       'Reverb time (RT60): seconds for the tail to fall 60 dB in the mids. Car 0.15, room 0.7, hall 2.4, ' +
       'cathedral 6; above 10 is an endless wash. Default: from `space`.',
+    hint: 'How long the tail lasts',
     min: 0.1,
     max: 10,
     hardMin: 0.05,
@@ -124,6 +127,7 @@ const PARAMS: Record<string, ParamMeta> = {
     doc:
       'How much faster the highs die than the mids, 0 to 1: 0 bright (tile, metal, plate), 0.5 a furnished room, ' +
       '0.8 dark (curtains, carpet, forest). Default: from `space`.',
+    hint: 'Bright and hard, or dark and soft',
     min: 0,
     max: 1,
     hardMin: 0,
@@ -134,6 +138,7 @@ const PARAMS: Record<string, ParamMeta> = {
     doc:
       'Milliseconds between the dry sound and the reverb: 0 to 5 is close to a wall, 20 to 40 separates the dry ' +
       'sound from a big space so it stays clear. Default: from `space`.',
+    hint: 'A gap before the reverb, to keep the sound clear',
     min: 0,
     max: 100,
     hardMin: 0,
@@ -145,6 +150,7 @@ const PARAMS: Record<string, ParamMeta> = {
     doc:
       'Level of the early reflections, the first echoes off the nearest walls that tell the ear the shape and ' +
       'size of the space: 0 none (a pure tail), 0.5 typical, 1 strong (small hard rooms, cars). Default: from `space`.',
+    hint: 'The first echoes, which tell the shape of the room',
     min: 0,
     max: 1,
     hardMin: 0,
@@ -155,6 +161,7 @@ const PARAMS: Record<string, ParamMeta> = {
     doc:
       'How smeared the echoes are, 0 to 1: low lets discrete echoes and flutter through (stairwells, tunnels), ' +
       'high is a smooth wash (plates, halls). Default: from `space`.',
+    hint: 'Separate echoes or a smooth wash',
     min: 0,
     max: 1,
     hardMin: 0,
@@ -163,6 +170,7 @@ const PARAMS: Record<string, ParamMeta> = {
   width: {
     kind: 'number',
     doc: 'Stereo width of the reverb: 0 mono, 1 natural, up to 1.5 wider than life (stereo output only). Default: from `space`.',
+    hint: 'How wide the reverb sounds',
     min: 0,
     max: 1.5,
     hardMin: 0,
@@ -171,6 +179,7 @@ const PARAMS: Record<string, ParamMeta> = {
   lowcut: {
     kind: 'number',
     doc: 'High-pass on what enters the reverb, Hz: 150 to 300 keeps big spaces from booming and muddying. Default: from `space`.',
+    hint: 'Keeps the reverb from booming',
     min: 20,
     max: 1000,
     hardMin: 10,
@@ -181,6 +190,7 @@ const PARAMS: Record<string, ParamMeta> = {
   highcut: {
     kind: 'number',
     doc: 'Low-pass on what enters the reverb, Hz: 3000 to 6000 for a dark, distant space. Default: from `space`.',
+    hint: 'Darker, more distant reverb',
     min: 1000,
     max: 20000,
     hardMin: 200,
@@ -194,6 +204,7 @@ const PARAMS: Record<string, ParamMeta> = {
       'How long the lows (below about 250 Hz) ring, times `decay`: 1 as long as the mids, 0.3 to 0.6 a space whose ' +
       'walls soak up the boom (a heavy hit blooms, then the tail stays clear instead of humming one low note), 1.2 to ' +
       '1.5 a boomy hall or cave. `lowcut` only thins what goes in; this shortens what rings. Default: from `space`.',
+    hint: 'How long the lows ring',
     min: 0.2,
     max: 2,
     hardMin: 0.1,
@@ -287,6 +298,7 @@ export const reverb: EffectDef = {
     'frequency-dependent decay). Pick a `space`, then override what you need: `decay` for length, `size` for scale, ' +
     '`damping` for darkness, `predelay` to keep the dry sound clear. It returns only the reverb, so on a track ' +
     'set `mix` to 0.15 to 0.4 (more is farther away); on a bus that several tracks send to, leave `mix` at 1.',
+  hint: 'Puts the sound in a space',
   params: PARAMS,
   example: { type: 'reverb', space: 'hall', decay: 3, mix: 0.3 },
   tail(params) {

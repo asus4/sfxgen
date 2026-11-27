@@ -122,12 +122,14 @@ const PARAMS: Record<string, ParamMeta> = {
       'megaphone: a horn and an overdriven amp. vinyl: a record, crackle, warp wow and warmth. tape: reel-to-reel, ' +
       'saturation, head bump, gentle wow and hiss. cassette: like tape but duller, hissier and wobblier. intercom: a ' +
       'door or PA intercom, a cheap speaker in a metal box, with mains buzz.',
+    hint: 'What it plays through: TV, radio, phone, tape…',
     options: MODES,
     default: 'tv',
   },
   amount: {
     kind: 'number',
     doc: 'How strongly the medium colours the sound (band, resonances, distortion), 0 to 1: 1 the full character, 0.5 a cleaner set.',
+    hint: 'How strongly the device colours the sound',
     default: 1,
     min: 0,
     max: 1,
@@ -137,6 +139,7 @@ const PARAMS: Record<string, ParamMeta> = {
   noise: {
     kind: 'number',
     doc: 'The medium\'s own noise (hiss, hum, crackle, static, squelch): 0.5 typical for the mode, 0 none, 1 heavy.',
+    hint: 'The device’s own hiss, hum and crackle',
     default: 0.5,
     min: 0,
     max: 1,
@@ -146,6 +149,7 @@ const PARAMS: Record<string, ParamMeta> = {
   wow: {
     kind: 'number',
     doc: 'Speed wobble of media with moving parts (tv, vinyl, tape, cassette): 0.5 typical, 0 steady, 1 badly worn or warped.',
+    hint: 'Speed wobble of tape and records',
     default: 0.5,
     min: 0,
     max: 1,
@@ -155,6 +159,7 @@ const PARAMS: Record<string, ParamMeta> = {
   age: {
     kind: 'number',
     doc: 'Wear, 0 to 1: 0 new and clean, 0.5 typical, 1 old (duller, more distorted, more crackle and dropouts).',
+    hint: 'New and clean to old and worn',
     default: 0.5,
     min: 0,
     max: 1,
@@ -198,6 +203,7 @@ export const medium: EffectDef = {
     'The loudness of the sound is kept; `noise` adds the medium\'s own hiss, hum, crackle and static around it ' +
     '(the walkie\'s only while it transmits, ending in a squelch burst). Put it last in a chain, after reverb, for ' +
     'a sound heard through the device.',
+  hint: 'Hear it through a TV, radio, phone, tape or record',
   params: PARAMS,
   example: { type: 'medium', mode: 'radio', amount: 1, noise: 0.6, age: 0.7 },
   tail(params) {
