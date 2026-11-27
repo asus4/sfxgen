@@ -163,10 +163,10 @@ function GroupBlock({ group, indexes, target, ceiling }: { group: ProjectGroup |
         )}
         <span className="spacer" />
         <button type="button" className="key key-sm" title="Play this group" disabled={indexes.length === 0} onClick={() => void playSet(group?.id ?? null)}>
-          <Icon name="play" size={11} fill /> Play
+          <Icon name="play" size={11} fill /> <span>Play</span>
         </button>
         <button type="button" className="key key-sm" title={`Make these equally loud (${target} LUFS)`} disabled={indexes.length === 0} onClick={() => void matchLoudnessOf(group?.id ?? null, target, ceiling)}>
-          Match
+          <span>Match</span>
         </button>
         {group && (
           <button type="button" className="tool" aria-label={`Delete group ${group.label ?? group.id}`} title="Delete the group, keep its sounds" onClick={() => editProject((p) => removeGroup(p, group.id))}>
@@ -205,10 +205,10 @@ export function Mixer() {
         <span className="legend">ceiling</span>
         <NumBox label="Highest peak allowed" unit="dB" value={ceiling} onChange={(v) => setCeiling(Math.min(0, v))} />
         <button type="button" className="key" onClick={() => void matchLoudnessOf('*', goal, ceiling)} title="Make all sounds equally loud">
-          Match all
+          <span>Match all</span>
         </button>
         <button type="button" className="key" onClick={() => editProject((p) => addGroup(p, `Group ${(p.groups?.length ?? 0) + 1}`).project)}>
-          <Icon name="plus" size={13} /> Group
+          <Icon name="plus" size={13} /> <span>Group</span>
         </button>
       </div>
       {(loose.length > 0 || !project.groups?.length) && <GroupBlock group={null} indexes={loose} target={goal} ceiling={ceiling} />}

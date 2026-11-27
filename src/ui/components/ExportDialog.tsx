@@ -81,11 +81,11 @@ export function ExportDialog() {
           )}
           <div className="row form-actions">
             <button type="button" className="key" onClick={exportJson}>
-              <Icon name="save" size={14} /> .sfx.json
+              <Icon name="save" size={14} /> <span>.sfx.json</span>
             </button>
             <span className="spacer" />
             <button type="button" className="key is-on" disabled={busy} onClick={() => void run(() => exportWav(opts))}>
-              <Icon name="export" size={14} /> {busy ? 'Rendering…' : opts.takes > 1 ? `Export ${opts.takes} WAVs` : 'Export WAV'}
+              <Icon name="export" size={14} /> <span>{busy ? 'Rendering…' : opts.takes > 1 ? `Export ${opts.takes} WAVs` : 'Export WAV'}</span>
             </button>
           </div>
         </div>
@@ -100,7 +100,7 @@ export function ExportDialog() {
               title={served ? 'Write every sound to the export folder' : 'Download every sound in one zip'}
               onClick={() => void run(exportSet)}
             >
-              <Icon name="export" size={14} /> Export the set
+              <Icon name="export" size={14} /> <span>Export the set</span>
             </button>
           </div>
         </div>

@@ -60,17 +60,17 @@ export function ProjectSettings() {
               title="Keep levels, groups and settings for this folder"
               onClick={() => void saveProjectFile()}
             >
-              <Icon name="save" size={14} /> Save project file
+              <Icon name="save" size={14} /> <span>Save project file</span>
             </button>
           )}
           <button type="button" className="key" onClick={() => void exportSet()}>
-            <Icon name="export" size={14} /> Export set
+            <Icon name="export" size={14} /> <span>Export set</span>
           </button>
           <button type="button" className="key" onClick={exportBundle} title="Download the whole project as one file">
-            <Icon name="save" size={14} /> Bundle
+            <Icon name="save" size={14} /> <span>Bundle</span>
           </button>
           <button type="button" className="key" onClick={() => file.current?.click()} title="Open a sound or project file">
-            <Icon name="open" size={14} /> Import
+            <Icon name="open" size={14} /> <span>Import</span>
           </button>
           <input
             ref={file}

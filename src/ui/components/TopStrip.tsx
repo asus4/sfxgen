@@ -60,7 +60,7 @@ function ProjectKey() {
                       close();
                     }}
                   >
-                    <Icon name="save" size={14} /> Save project file
+                    <Icon name="save" size={14} /> <span>Save project file</span>
                   </button>
                 )}
               </>
@@ -110,10 +110,10 @@ function ProjectKey() {
                       close();
                     }}
                   >
-                    <Icon name="plus" size={13} /> New project
+                    <Icon name="plus" size={13} /> <span>New project</span>
                   </button>
                   <button type="button" className="key" onClick={exportBundle} title="Download the whole project as one file">
-                    <Icon name="save" size={13} /> Bundle
+                    <Icon name="save" size={13} /> <span>Bundle</span>
                   </button>
                 </div>
               </>

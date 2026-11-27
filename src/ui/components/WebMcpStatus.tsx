@@ -145,7 +145,7 @@ function AgentKey() {
         onClick={() => useEditor.setState({ webmcpOpen: !open })}
       >
         <i className="led" />
-        WebMCP
+        <span>WebMCP</span>
       </button>
       {open && (
         <>

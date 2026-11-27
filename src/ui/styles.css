@@ -192,7 +192,8 @@ button {
 /* A label's box is trimmed to its capitals, so centring it centres the letters on the icon beside it rather than the
    line box, whose room for descenders would lift them about a pixel. */
 .key > :not(.icon),
-.seg button > span {
+.seg button > span,
+.pill > span {
   text-box: trim-both cap alphabetic;
 }
 
@@ -228,6 +229,7 @@ a.key {
 .key-sm {
   min-height: 24px;
   padding: 0 9px;
+  gap: 5px;
   border-radius: var(--radius-sm);
   font-size: 9.5px;
 }
@@ -684,7 +686,7 @@ button.pill:hover {
 .chance-dots {
   display: flex;
   gap: 4px;
-  min-height: 15px;
+  min-height: 13px;
   align-items: center;
 }
 
@@ -975,7 +977,7 @@ button.pill:hover {
   place-items: center;
   width: 34px;
   height: 34px;
-  padding: 0 0 0 2px;
+  padding: 0;
   border: 1.5px solid var(--screen-ink);
   border-radius: 50%;
   background: var(--screen-ink);
@@ -1987,7 +1989,8 @@ button.pill:hover {
 .pad-num {
   font: 600 11px var(--font-mono);
   opacity: 0.7;
-  text-align: right;
+  /* Centred in its column, so a single digit has as much room on the stripe's side as on the title's. */
+  text-align: center;
 }
 
 .pad-body {
@@ -2184,9 +2187,14 @@ button.pill:hover {
 
 .numbox {
   display: inline-flex;
+  /* The number and its unit share a baseline, and that line sits in the middle of the box (a single wrapping line can
+     be centred; a non-wrapping one would stick to the top). */
+  flex-wrap: wrap;
   align-items: baseline;
+  align-content: center;
   gap: 3px;
-  padding: 0 7px;
+  /* The digits ride high in their line box; a pixel on top centres the figures themselves. */
+  padding: 1px 7px 0;
   min-height: 26px;
   border: 1px solid var(--line-2);
   border-radius: var(--radius-sm);
@@ -2262,6 +2270,7 @@ button.pill:hover {
   font-size: 12px;
 }
 
+
 .mix-row {
   display: grid;
   grid-template-columns: 36px minmax(0, 1.2fr) 46px minmax(0, 1fr) 46px 46px 24px 24px;
@@ -2286,8 +2295,11 @@ button.pill:hover {
 .mix-play {
   grid-area: play;
   display: grid;
-  place-items: center;
-  gap: 2px;
+  /* The number and the play mark sit together in the middle (not each in half of the key), the same room above as
+     below. */
+  place-content: center;
+  justify-items: center;
+  gap: 5px;
   width: 36px;
   height: 40px;
   padding: 0;
@@ -2295,6 +2307,10 @@ button.pill:hover {
   border-radius: var(--radius-md);
   background: var(--key);
   font: 600 10px var(--font-mono);
+}
+
+.mix-play > span {
+  text-box: trim-both cap alphabetic;
 }
 
 .mix-play:hover {
@@ -2538,7 +2554,7 @@ button.pill:hover {
 .section-add .key {
   width: 100%;
   border-color: transparent;
-  background: transparent;
+  background-color: transparent;
 }
 
 .section-head {
@@ -2778,6 +2794,26 @@ textarea.text {
 
 .text.is-bad {
   border-color: var(--led-hot);
+}
+
+/* Every dropdown draws its own chevron instead of the browser's, which brings its own spacing: the chevron sits as far
+   from the right edge as the text does from the left, with the same room between them, in every browser. */
+.select,
+.mix-levelling,
+.mix-group {
+  --sel-in: 8px;
+  appearance: none;
+  padding-left: var(--sel-in);
+  padding-right: calc(var(--sel-in) + 14px);
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position: calc(100% - var(--sel-in) - 8px) 55%, calc(100% - var(--sel-in) - 4px) 55%;
+  background-size: 4px 4px;
+  background-repeat: no-repeat;
+}
+
+.mix-levelling,
+.mix-group {
+  --sel-in: 7px;
 }
 
 .param-text {

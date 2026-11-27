@@ -502,7 +502,7 @@ function EnvelopeSection({ trackId, defaultEnv }: { trackId: string; defaultEnv:
       tag={points ? 'points' : 'ADSR'}
       tools={
         <button type="button" className="key key-sm" onClick={() => (points ? edit((p) => setAt(p, path, undefined)) : toPoints())}>
-          {points ? 'Back to ADSR' : 'Draw it'}
+          <span>{points ? 'Back to ADSR' : 'Draw it'}</span>
         </button>
       }
     >
@@ -604,7 +604,7 @@ function EventsSection({ trackId }: { trackId: string }) {
             );
           })}
           <button type="button" className="key key-sm" onClick={() => setEvents([...list, { t: Number(((list[list.length - 1]?.t ?? 0) + 0.1).toFixed(3)) }])}>
-            <Icon name="plus" size={13} /> Event
+            <Icon name="plus" size={13} /> <span>Event</span>
           </button>
         </div>
       )}
@@ -883,7 +883,7 @@ function MasterSheet() {
             )
           }
         >
-          <Icon name="plus" size={15} /> Bus (a shared effect send)
+          <Icon name="plus" size={15} /> <span>Bus (a shared effect send)</span>
         </button>
       </div>
     </div>

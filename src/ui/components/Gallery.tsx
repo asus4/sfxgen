@@ -139,10 +139,10 @@ export function Gallery() {
             />
             <span className="spacer" />
             <button type="button" className="key key-sm" onClick={addBlankSound}>
-              <Icon name="plus" size={12} /> Blank
+              <Icon name="plus" size={12} /> <span>Blank</span>
             </button>
             <button type="button" className="key key-sm" onClick={() => file.current?.click()} title="Add a sound from a file">
-              <Icon name="open" size={12} /> File
+              <Icon name="open" size={12} /> <span>File</span>
             </button>
             <input
               ref={file}
