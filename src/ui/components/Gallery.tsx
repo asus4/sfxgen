@@ -69,7 +69,13 @@ function categoryInk(category: string): string {
 function Card({ t, loaded }: { t: TemplateSummary; loaded: boolean }) {
   const ink = categoryInk(t.category);
   return (
-    <button type="button" className={`card${loaded ? ' is-loaded' : ''}`} style={{ '--c': ink, '--on-ink': textOn(ink) } as React.CSSProperties} onClick={() => pickTemplate(t.id)}>
+    <button
+      type="button"
+      className={`card${loaded ? ' is-loaded' : ''}`}
+      style={{ '--c': ink, '--on-ink': textOn(ink) } as React.CSSProperties}
+      title={t.description}
+      onClick={() => pickTemplate(t.id)}
+    >
       <span className="card-wave">
         <MiniWave id={t.id} />
         <span className="card-play">
@@ -77,7 +83,6 @@ function Card({ t, loaded }: { t: TemplateSummary; loaded: boolean }) {
         </span>
       </span>
       <span className="card-name">{t.name}</span>
-      <span className="card-desc">{t.description}</span>
       <span className="card-meta">
         <span className="chip chip-ink">{t.category}</span>
         {t.controls.slice(0, 3).map((c) => (
@@ -134,10 +139,10 @@ export function Gallery() {
             />
             <span className="spacer" />
             <button type="button" className="key key-sm" onClick={addBlankSound}>
-              <Icon name="plus" size={12} /> Blank
+              <Icon name="plus" size={12} /> <span>Blank</span>
             </button>
-            <button type="button" className="key key-sm" onClick={() => file.current?.click()} title="Add a .sfx.json file. You can also drop one anywhere, or paste a patch (Ctrl+V or ⌘V)">
-              <Icon name="open" size={12} /> File
+            <button type="button" className="key key-sm" onClick={() => file.current?.click()} title="Add a sound from a file">
+              <Icon name="open" size={12} /> <span>File</span>
             </button>
             <input
               ref={file}
@@ -181,7 +186,7 @@ export function Gallery() {
           {items.length === 0 && <p className="empty">Nothing matches “{query}”. Try fewer words.</p>}
         </div>
         <footer className="drawer-foot">
-          {items.length} of {listTemplates().length} sounds · a click {mode === 'add' ? 'adds a pad' : 'loads it into the open pad'} and plays it
+          {items.length} of {listTemplates().length} sounds
         </footer>
       </aside>
     </div>

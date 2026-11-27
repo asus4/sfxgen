@@ -5,7 +5,7 @@
  * only says which sounds, and what the person changed before deciding.
  *
  * A verdict is for one version of a sound: the patch and its takes, hashed. When either changes (an agent's edit,
- * a file saved on disk, a person's own knob turn, another take picked, a new take), the sound is not reviewed again.
+ * a file saved on disk, a person's own knob turn, another take picked, a new take), the sound is unreviewed again.
  * A value that a control sets is left out of the hash: every render overrides it, so writing the controls' values
  * into the file (`sync`, or the editor saving a knob turn) changes nothing that was heard and keeps the verdict.
  *
@@ -254,7 +254,7 @@ const VERDICT_TEXT: Record<ReviewStatus, string> = { approved: 'approved', 'need
 
 /**
  * The report as text for an agent: the counts, then the verdicts new since its last read (all of them with `all`),
- * then the sounds nobody has approved yet.
+ * then the sounds not reviewed yet.
  */
 export function formatReview(report: ReviewReport, opts: { all?: boolean; patchOf?: (row: ReviewRow) => Patch | undefined } = {}): string[] {
   const c = report.counts;

@@ -386,7 +386,7 @@ describe('modal', () => {
     });
     const crest = (x: ArrayLike<number>) => 20 * Math.log10(peakOf(x) / rmsOf(x));
     const plain = play(door()).x;
-    // No spread is exactly the old strike, so existing patches render as they did.
+    // A spread of 0 is the same strike as none, so existing patches render as they did.
     expect(play(door(0)).x).toEqual(plain);
     const spread = play(door(0.008));
     expect(spread.r.warnings).toEqual([]);

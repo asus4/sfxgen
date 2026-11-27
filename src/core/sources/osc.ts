@@ -3,7 +3,6 @@ import { oscillator, type Waveform } from '../dsp/oscillators';
 import { wander } from '../dsp/noise';
 import type { Buf } from '../dsp/math';
 
-/** The classic synth oscillator: one waveform, optional unison stack and slow analog drift. */
 export const osc: SourceDef = {
   kind: 'source',
   type: 'osc',
@@ -13,17 +12,20 @@ export const osc: SourceDef = {
     'A band-limited waveform: sine for pure tones and sub thumps, triangle for soft chip tones, saw for buzzy ' +
     'and brassy sounds, square/pulse for hollow 8-bit tones. Sweep `freq` with breakpoints for lasers, risers ' +
     'and drops; stack `unison` voices with `detune` for width; `drift` adds slow analog pitch wander.',
+  hint: 'A basic waveform: pure, soft, buzzy or hollow',
   defaultEnv: { attack: 0.002, decay: 0.4 },
   params: {
     wave: {
       kind: 'enum',
       doc: 'Waveform.',
+      hint: 'Waveform',
       options: ['sine', 'triangle', 'saw', 'square', 'pulse'],
       default: 'sine',
     },
     freq: {
       kind: 'signal',
       doc: 'Frequency. Breakpoints glide exponentially by default.',
+      hint: 'Pitch',
       default: 440,
       min: 20,
       max: 12000,
@@ -33,12 +35,12 @@ export const osc: SourceDef = {
       scale: 'log',
       pitch: true,
     },
-    pw: { kind: 'signal', doc: 'Pulse width for `pulse`, 0.05 (thin, nasal) to 0.5 (square).', default: 0.25, min: 0.02, max: 0.98, hardMin: 0.01, hardMax: 0.99 },
-    unison: { kind: 'number', doc: 'Voices stacked, 1 to 9.', default: 1, min: 1, max: 9, step: 1, hardMin: 1, hardMax: 16 },
-    detune: { kind: 'number', doc: 'Spread of the unison voices, cents.', default: 12, min: 0, max: 100, unit: 'cents' },
-    width: { kind: 'number', doc: 'Stereo spread of unison voices, 0 to 1 (stereo output only).', default: 0.6, min: 0, max: 1 },
-    drift: { kind: 'number', doc: 'Slow random pitch wander, cents. 3 to 10 sounds alive; 50+ sounds broken.', default: 0, min: 0, max: 100, unit: 'cents' },
-    phase: { kind: 'number', doc: 'Start phase 0 to 1. Unison voices other than the first start at random phases.', default: 0, min: 0, max: 1 },
+    pw: { kind: 'signal', doc: 'Pulse width for `pulse`, 0.05 (thin, nasal) to 0.5 (square).', hint: 'Thin and nasal to square', default: 0.25, min: 0.02, max: 0.98, hardMin: 0.01, hardMax: 0.99 },
+    unison: { kind: 'number', doc: 'Voices stacked, 1 to 9.', hint: 'Stacked voices for a thicker tone', default: 1, min: 1, max: 9, step: 1, hardMin: 1, hardMax: 16 },
+    detune: { kind: 'number', doc: 'Spread of the unison voices, cents.', hint: 'How far the stacked voices spread', default: 12, min: 0, max: 100, unit: 'cents' },
+    width: { kind: 'number', doc: 'Stereo spread of unison voices, 0 to 1 (stereo output only).', hint: 'Spreads the stacked voices left and right', default: 0.6, min: 0, max: 1 },
+    drift: { kind: 'number', doc: 'Slow random pitch wander, cents. 3 to 10 sounds alive; 50+ sounds broken.', hint: 'Slow pitch wander: alive to broken', default: 0, min: 0, max: 100, unit: 'cents' },
+    phase: { kind: 'number', doc: 'Start phase 0 to 1. Unison voices other than the first start at random phases.', hint: 'Where the wave starts', default: 0, min: 0, max: 1 },
   },
   example: { type: 'osc', wave: 'saw', freq: [[0, 880], [0.25, 110]], env: { attack: 0.002, decay: 0.3 } },
   render(p, ctx) {

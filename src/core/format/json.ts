@@ -1,8 +1,7 @@
 /**
- * How sfxgen writes patches and projects: two-space JSON, with objects one key per line, and short arrays of plain
- * values on one line. A breakpoint curve `[[0, 150], [0.09, 96]]` or a tag list stays readable on one line instead
- * of one number per line, so a file stays short and a change to one value is a one-line diff. Every writer (the
- * editor's saves, `sync`, the agent tools) uses this, so a file keeps the same shape whoever touched it last.
+ * How sfxgen writes patches and projects: two-space JSON, one key per line, and short arrays of plain values on one
+ * line, so a breakpoint list like `[[0, 150], [0.09, 96]]` stays readable and a one-value change is a one-line diff.
+ * Every writer uses this, so a file keeps its shape whoever touched it last.
  */
 
 /** Columns an inline array may reach, indentation and key included. */

@@ -3,8 +3,8 @@
  * person edits the same files an agent writes. Node `http` only; bound to 127.0.0.1.
  *
  * API (docs/DESIGN.md): GET /api/info, /api/files, /api/file?path=, PUT /api/file?path=&origin=, PUT /api/wav?path=,
- * GET /api/takes, GET|PUT /api/review, POST /api/play?path=, POST /api/focus?path=&control=, GET /api/events
- * (server-sent events).
+ * GET|PUT /api/project, POST /api/build, GET /api/takes, GET|PUT /api/review, POST /api/play?path=,
+ * POST /api/focus?path=&control=, GET /api/events (server-sent events).
  */
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
 import { watch, existsSync, type FSWatcher } from 'node:fs';

@@ -192,7 +192,7 @@ class Checker {
   }
 }
 
-/** Validates a patch. `ok` is true when there are no errors (warnings are advice). */
+/** `ok` is true when there are no errors; warnings are advice. */
 export function validatePatch(input: unknown): ValidationResult {
   const c = new Checker();
   if (!isObj(input)) {

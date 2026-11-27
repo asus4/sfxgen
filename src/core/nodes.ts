@@ -1,6 +1,6 @@
 /**
- * What a source or effect type declares about itself. The metadata is the single source of truth for
- * validation, the editor's controls, the agent guide (`sfxgen guide`) and the JSON Schema.
+ * What a source or effect type declares about itself: the single source of truth for validation, the editor, the
+ * agent guide and the JSON Schema.
  */
 import type { Envelope, ParamValue } from './format/types';
 import type { Rng } from './dsp/rng';
@@ -29,6 +29,8 @@ export interface ParamMeta {
   label?: string;
   /** One or two sentences on what it does to the sound. Agents read these. */
   doc: string;
+  /** A few plain words on what people hear: the editor's tooltip. Reword this, not `doc`: it names random streams. */
+  hint?: string;
   default?: unknown;
   /** Soft range: the editor's knob range and the default mapping for controls. */
   min?: number;
@@ -40,12 +42,12 @@ export interface ParamMeta {
   unit?: Unit;
   /** `log` for frequencies and times: knobs spread evenly by ratio and breakpoints glide exponentially. */
   scale?: 'linear' | 'log';
-  /** Multiplied by the voice's pitch (transposition, `pitch` param, event pitch). */
+  /** Multiplied by the voice's pitch ratio (its `pitch` parameter and the event's transposition). */
   pitch?: boolean;
   options?: readonly string[];
   fields?: Record<string, ParamMeta>;
   item?: ParamMeta;
-  /** Hidden from the editor's default views. */
+  /** A rarely needed parameter; the guide marks it "(advanced)". */
   advanced?: boolean;
 }
 
@@ -71,8 +73,10 @@ interface NodeDefBase {
   type: string;
   label: string;
   category: NodeCategory;
-  /** What it is and when to reach for it, for agents and the editor's help. */
+  /** What it is and when to reach for it, for agents. */
   doc: string;
+  /** What it is, in a few plain words for people: the editor's tooltip. */
+  hint?: string;
   params: ParamMap;
   /** A minimal working example of this node's spec, shown in the guide. */
   example?: Record<string, unknown>;
@@ -160,14 +164,16 @@ export type NodeDef = SourceDef | EffectDef;
 
 /** Common parameters every source has, besides its own. */
 export const COMMON_SOURCE_PARAMS: ParamMap = {
-  gain: { kind: 'number', doc: 'Level of this source in dB.', default: 0, min: -48, max: 12, unit: 'dB' },
+  gain: { kind: 'number', doc: 'Level of this source in dB.', hint: 'Level of this source', default: 0, min: -48, max: 12, unit: 'dB' },
   env: {
     kind: 'envelope',
     doc: 'Amplitude envelope: { attack, hold, decay, sustain, release, gate } in seconds, or { points: [[t, level], ...] }.',
+    hint: 'How the level rises and falls',
   },
   pitch: {
     kind: 'signal',
     doc: 'Semitones added to every pitched parameter. Breakpoints make a whole-voice pitch sweep, and like every voice parameter they start again with each event; to play a melody across events, give each event its own `pitch`.',
+    hint: 'Shift every pitch up or down',
     default: 0,
     min: -48,
     max: 48,
@@ -176,16 +182,19 @@ export const COMMON_SOURCE_PARAMS: ParamMap = {
   filter: {
     kind: 'object',
     doc: 'Per-voice filter, applied before the envelope, so every event gets its own sweep.',
+    hint: 'A filter on each event, so every hit gets its own sweep',
     fields: {
       mode: {
         kind: 'enum',
         doc: 'Filter shape.',
+        hint: 'Filter type',
         options: ['lowpass', 'highpass', 'bandpass', 'notch', 'peak', 'allpass', 'lowshelf', 'highshelf'],
         default: 'lowpass',
       },
       cutoff: {
         kind: 'signal',
         doc: 'Cutoff or centre frequency.',
+        hint: 'Where the filter starts working',
         default: 2000,
         min: 20,
         max: 20000,
@@ -197,6 +206,7 @@ export const COMMON_SOURCE_PARAMS: ParamMap = {
       q: {
         kind: 'signal',
         doc: 'Resonance: 0.707 is flat, 2 to 10 rings.',
+        hint: 'Resonance: higher rings',
         default: 0.707,
         min: 0.3,
         max: 20,
@@ -204,16 +214,16 @@ export const COMMON_SOURCE_PARAMS: ParamMap = {
         hardMax: 200,
         scale: 'log',
       },
-      gain: { kind: 'number', doc: 'dB, for peak and shelf types.', default: 0, min: -24, max: 24, unit: 'dB' },
-      slope: { kind: 'enum', doc: '12 or 24 dB per octave.', options: ['12', '24'], default: '12' },
-      keytrack: { kind: 'number', doc: 'How much the cutoff follows pitch, 0 to 1.', default: 0, min: 0, max: 1 },
+      gain: { kind: 'number', doc: 'dB, for peak and shelf types.', hint: 'Boost or cut, for peak and shelf types', default: 0, min: -24, max: 24, unit: 'dB' },
+      slope: { kind: 'enum', doc: '12 or 24 dB per octave.', hint: 'How steep the filter is', options: ['12', '24'], default: '12' },
+      keytrack: { kind: 'number', doc: 'How much the cutoff follows pitch, 0 to 1.', hint: 'Higher notes open the filter more', default: 0, min: 0, max: 1 },
     },
   },
 };
 
 /** Common parameters every effect has. */
 export const COMMON_EFFECT_PARAMS: ParamMap = {
-  id: { kind: 'string', doc: 'Name for paths and controls: `tracks.x.fx.<id>.<param>`.' },
-  bypass: { kind: 'bool', doc: 'Skip this effect.', default: false },
-  mix: { kind: 'number', doc: 'Wet amount, 0 (dry) to 1 (fully processed).', default: 1, min: 0, max: 1 },
+  id: { kind: 'string', doc: 'Name for paths and controls: `tracks.x.fx.<id>.<param>`.', hint: 'Name to reach this effect from controls' },
+  bypass: { kind: 'bool', doc: 'Skip this effect.', hint: 'Turn this effect off', default: false },
+  mix: { kind: 'number', doc: 'Wet amount, 0 (dry) to 1 (fully processed).', hint: 'How much of the effect you hear', default: 1, min: 0, max: 1 },
 };

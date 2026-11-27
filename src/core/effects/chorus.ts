@@ -5,7 +5,6 @@ import { ModDelayLine } from '../dsp/moddelay';
 /** Each further voice runs a little faster, so the voices never line up into one obvious wobble. */
 const VOICE_RATE_STEP = 0.13;
 
-/** Multi-voice stereo chorus. */
 export const chorus: EffectDef = {
   kind: 'effect',
   type: 'chorus',
@@ -17,11 +16,13 @@ export const chorus: EffectDef = {
     'Reach for it on pads, drones, magic shimmers, choirs and synth tones; with high `depth` and `rate` it turns ' +
     'seasick and warbly (a broken tape, an underwater feel). The output already contains the original; lower `mix` ' +
     'for a subtler effect.',
+  hint: 'Thickens the sound with slowly wobbling, detuned copies',
   widens: true,
   params: {
     rate: {
       kind: 'signal',
       doc: 'Wobble speed, Hz. 0.2 to 0.6 slow and lush, 0.8 to 1.5 classic, 3 to 8 a fast warble.',
+      hint: 'How fast the copies wobble',
       default: 0.8,
       min: 0.05,
       max: 8,
@@ -33,6 +34,7 @@ export const chorus: EffectDef = {
     depth: {
       kind: 'signal',
       doc: 'How far the delay swings, as a fraction of `delay`: 0.1 subtle, 0.25 rich (default), 0.5+ seasick detuning.',
+      hint: 'How far they detune: subtle to seasick',
       default: 0.25,
       min: 0,
       max: 0.9,
@@ -43,6 +45,7 @@ export const chorus: EffectDef = {
     delay: {
       kind: 'number',
       doc: 'Average delay of the copies, seconds: 0.006 to 0.01 tight and bright, 0.012 to 0.02 classic, 0.03 doubling.',
+      hint: 'Short is tight and bright, long sounds doubled',
       default: 0.012,
       min: 0.004,
       max: 0.04,
@@ -51,10 +54,11 @@ export const chorus: EffectDef = {
       unit: 's',
       scale: 'log',
     },
-    voices: { kind: 'number', doc: 'Delayed copies, 1 to 4: 1 is a simple chorus, 3 to 4 a dense ensemble.', default: 2, min: 1, max: 4, step: 1, hardMin: 1, hardMax: 6, unit: '' },
+    voices: { kind: 'number', doc: 'Delayed copies, 1 to 4: 1 is a simple chorus, 3 to 4 a dense ensemble.', hint: 'More copies make a denser ensemble', default: 2, min: 1, max: 4, step: 1, hardMin: 1, hardMax: 6, unit: '' },
     spread: {
       kind: 'number',
       doc: 'Stereo spread of the copies, 0 to 1 (stereo output only): 0 the same in both ears, 1 opposite wobbles left and right (widest).',
+      hint: 'Spreads the copies left and right',
       default: 1,
       min: 0,
       max: 1,

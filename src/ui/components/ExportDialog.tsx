@@ -62,17 +62,17 @@ export function ExportDialog() {
             <span>Sample rate</span>
             <Segmented label="Sample rate" size="sm" value={opts.sampleRate} onChange={(v) => set('sampleRate', v)} options={rates.map((r) => ({ value: r, label: `${r / 1000}k` }))} />
           </div>
-          <div className="form-row">
+          <div
+            className="form-row"
+            title={
+              canVary
+                ? 'Export more versions, each a little different'
+                : 'Export more versions, each with a new random seed'
+            }
+          >
             <span>Takes</span>
             <Segmented label="Takes" size="sm" value={opts.takes} onChange={(v) => set('takes', v)} options={[1, 3, 5, 8].map((n) => ({ value: n, label: n === 1 ? 'Just this' : `${n}` }))} />
           </div>
-          {opts.takes > 1 && (
-            <p className="form-note">
-              {canVary
-                ? 'Each extra take gets a new seed and moves the controls as far as their “vary” amounts allow.'
-                : 'Each extra take gets a new seed. Give controls a “vary” amount in the patch to let takes differ more.'}
-            </p>
-          )}
           {served && (
             <div className="form-row">
               <span>Where</span>
@@ -81,23 +81,26 @@ export function ExportDialog() {
           )}
           <div className="row form-actions">
             <button type="button" className="key" onClick={exportJson}>
-              <Icon name="save" size={14} /> .sfx.json
+              <Icon name="save" size={14} /> <span>.sfx.json</span>
             </button>
             <span className="spacer" />
             <button type="button" className="key is-on" disabled={busy} onClick={() => void run(() => exportWav(opts))}>
-              <Icon name="export" size={14} /> {busy ? 'Rendering…' : opts.takes > 1 ? `Export ${opts.takes} WAVs` : 'Export WAV'}
+              <Icon name="export" size={14} /> <span>{busy ? 'Rendering…' : opts.takes > 1 ? `Export ${opts.takes} WAVs` : 'Export WAV'}</span>
             </button>
           </div>
         </div>
         <p className="legend form-legend">the whole set · {count} sound{count === 1 ? '' : 's'}</p>
         <div className="form">
-          <p className="form-text">
-            Every sound, as the project renders it (its output, levelling, shared chain and mixer level){served ? ', written to its export path.' : ', in one zip.'}
-          </p>
           <div className="row form-actions">
             <span className="spacer" />
-            <button type="button" className="key is-on" disabled={busy} onClick={() => void run(exportSet)}>
-              <Icon name="export" size={14} /> Export the set
+            <button
+              type="button"
+              className="key is-on"
+              disabled={busy}
+              title={served ? 'Write every sound to the export folder' : 'Download every sound in one zip'}
+              onClick={() => void run(exportSet)}
+            >
+              <Icon name="export" size={14} /> <span>Export the set</span>
             </button>
           </div>
         </div>

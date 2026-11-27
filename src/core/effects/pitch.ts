@@ -9,6 +9,7 @@ const PARAMS: Record<string, ParamMeta> = {
       'Pitch shift in semitones; the length stays the same. -12 an octave down (bigger, heavier), +12 an octave up ' +
       '(smaller, cartoonish), 0.1 to 0.3 a subtle thickening. Breakpoints glide the pitch: [[0, 0], [1, -12]] ' +
       'sinks an octave over a second.',
+    hint: 'Shift the pitch; the length stays the same',
     default: 0,
     min: -24,
     max: 24,
@@ -21,6 +22,7 @@ const PARAMS: Record<string, ParamMeta> = {
     doc:
       'Grain length in ms. 30 to 60 suits most sounds; shorter keeps hits and clicks tight but roughens low tones, ' +
       'longer smooths sustained tones but smears attacks into short echoes.',
+    hint: 'Short keeps hits tight, long smooths tones',
     default: 50,
     min: 15,
     max: 150,
@@ -31,7 +33,6 @@ const PARAMS: Record<string, ParamMeta> = {
   },
 };
 
-/** Pitch shift that keeps the duration: overlapped grains that stay in phase from one to the next. */
 export const pitch: EffectDef = {
   kind: 'effect',
   type: 'pitch',
@@ -42,6 +43,7 @@ export const pitch: EffectDef = {
     'Down for heavier, bigger versions of a sound; up for smaller, lighter ones; a moving `semitones` for sinking ' +
     'or rising pitch over a fixed sound. Granular: four overlapping grains, each aligned to the previous one so ' +
     'tones do not flutter; very large shifts of percussive sounds smear attacks a little.',
+  hint: 'Changes the pitch, not the length',
   params: PARAMS,
   example: { type: 'pitch', semitones: -7, grain: 45 },
   tail(params) {

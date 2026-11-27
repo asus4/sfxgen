@@ -11,7 +11,7 @@ const SQRT1_2 = Math.SQRT1_2;
 const COEF_STRIDE = 4;
 
 const BAND_FIELDS: ParamMap = {
-  id: { kind: 'string', doc: 'Name for paths and controls, e.g. `tracks.x.fx.eq.bands.air.gain` for the band `"id": "air"`.' },
+  id: { kind: 'string', doc: 'Name for paths and controls, e.g. `tracks.x.fx.eq.bands.air.gain` for the band `"id": "air"`.', hint: 'Name to reach this band from controls' },
   mode: {
     kind: 'enum',
     doc:
@@ -19,6 +19,7 @@ const BAND_FIELDS: ParamMap = {
       'everything above (fizz, hiss: a darker, farther sound). lowshelf and highshelf tilt everything below or ' +
       'above `freq` by `gain` (weight, air). peak boosts or cuts a bell around `freq` (presence at 2 to 5 kHz, ' +
       'boxiness at 300 to 600 Hz). notch removes a narrow band (a whistle, a hum).',
+    hint: 'Cut the lows or highs, tilt, boost or cut, or notch',
     options: BAND_MODES,
     default: 'peak',
   },
@@ -27,6 +28,7 @@ const BAND_FIELDS: ParamMap = {
     doc:
       'Corner or centre frequency. 30 to 80 Hz sub and rumble, 100 to 250 body, 300 to 600 box and mud, 1 to 4 kHz ' +
       'presence and bite, 5 to 10 kHz sizzle, 10 to 16 kHz air. Breakpoints sweep it from the start of the buffer.',
+    hint: 'Which frequency the band works on',
     default: 1000,
     min: 20,
     max: 20000,
@@ -38,6 +40,7 @@ const BAND_FIELDS: ParamMap = {
   gain: {
     kind: 'signal',
     doc: 'Boost (+) or cut (-) for peak and shelf bands, dB. ±3 is a nudge, ±6 clear, ±12 drastic. Cuts and notches ignore it.',
+    hint: 'Boost or cut',
     default: 0,
     min: -24,
     max: 24,
@@ -51,6 +54,7 @@ const BAND_FIELDS: ParamMap = {
       'Width or resonance. peak: 0.5 broad and gentle, 0.7 musical (default), 2 to 5 narrow, 10+ surgical. notch: 2 ' +
       'to 10 (higher is narrower). Cuts and shelves: 0.707 is flat; 1.5 to 4 adds a resonant bump at the corner (a ' +
       'cut that rings like an analog synth filter). Ignored by 6 dB cuts.',
+    hint: 'Narrow or wide; on a cut, adds a resonant bump',
     default: 0.707,
     min: 0.3,
     max: 20,
@@ -62,10 +66,11 @@ const BAND_FIELDS: ParamMap = {
   slope: {
     kind: 'enum',
     doc: 'Steepness of lowcut and highcut, dB per octave: 6 gentle, 12 (default) and 24 clean, 36 and 48 a brick wall.',
+    hint: 'How steep the cut is',
     options: SLOPES,
     default: '12',
   },
-  bypass: { kind: 'bool', doc: 'Skip this band (for comparing with and without).', default: false },
+  bypass: { kind: 'bool', doc: 'Skip this band (for comparing with and without).', hint: 'Turn this band off to compare', default: false },
 };
 
 /** Q of each second-order section of an order-n Butterworth filter, the most resonant first. */
@@ -205,7 +210,6 @@ function extreme(v: unknown, fallback: number, pick: (...xs: number[]) => number
 
 type BandSpec = Record<string, unknown>;
 
-/** Parametric equaliser: up to eight bands in series. */
 export const eq: EffectDef = {
   kind: 'effect',
   type: 'eq',
@@ -216,6 +220,7 @@ export const eq: EffectDef = {
     'for it to fit a layer into the mix (cut the lows a layer does not need so the layers stop muddying each ' +
     'other), to shape tone (a presence peak for bite, a high shelf for air, a highcut for distance) or to remove a ' +
     'whistle with a notch. Every band\'s freq, gain and q can move over time. For one resonant sweep use `filter`.',
+  hint: 'Shape the tone: cut, boost or remove frequencies',
   params: {
     bands: {
       kind: 'array',
@@ -223,10 +228,11 @@ export const eq: EffectDef = {
         'The bands, applied in order (8 at most; more are ignored): [{ "mode": "lowcut", "freq": 120, "slope": "24" }, ' +
         '{ "mode": "peak", "freq": 3000, "gain": 4, "q": 1.2 }, { "mode": "highshelf", "freq": 9000, "gain": -6 }]. ' +
         'Give a band an `id` to reach it by name from controls.',
+      hint: 'The bands, applied in order',
       default: [],
-      item: { kind: 'object', doc: 'One band: { mode, freq, gain, q, slope }.', fields: BAND_FIELDS },
+      item: { kind: 'object', doc: 'One band: { mode, freq, gain, q, slope }.', hint: 'One band', fields: BAND_FIELDS },
     },
-    output: { kind: 'number', doc: 'Level after the EQ, dB: make up for big cuts or boosts.', default: 0, min: -24, max: 24, hardMin: -60, hardMax: 36, unit: 'dB' },
+    output: { kind: 'number', doc: 'Level after the EQ, dB: make up for big cuts or boosts.', hint: 'Level after the EQ', default: 0, min: -24, max: 24, hardMin: -60, hardMax: 36, unit: 'dB' },
   },
   example: {
     type: 'eq',

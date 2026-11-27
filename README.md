@@ -1,6 +1,6 @@
 # sfxgen
 
-An open-source sound-effect generator 🎛️
+An in-browser SFX generator 🎛️
 
 **[Open the editor 🔗: asus4.github.io/sfxgen](https://asus4.github.io/sfxgen/)**
 
@@ -19,19 +19,17 @@ page to bring it back.
 
 ## Make a sound with an AI agent
 
-There are two ways to bring in an agent, depending on how much it should do.
+There are two ways to bring in an agent.
 
-**In the browser, with nothing to install (WebMCP).** The editor offers its tools to an AI agent running in your
-browser: it finds a template, edits the sound, renders and measures it, and plays it for you in the open page.
-Chrome 149 to 162 turns WebMCP on for the hosted editor by itself (an origin trial, until 30 March 2027). In Brave,
-and in Chrome elsewhere, set `chrome://flags/#enable-webmcp-testing` to Enabled. The editor's **WebMCP** key shows
-how. It is hidden on phones and tablets, where nothing can call the tools yet.
+**WebMCP in the browser**: the editor offers its tools to an AI agent running in your browser: it finds a template,
+edits the sound, renders and measures it, and plays it for you in the open page. Chrome turns WebMCP on for the
+hosted editor by itself; elsewhere, set `chrome://flags/#enable-webmcp-testing` to Enabled. The editor's **WebMCP**
+key shows how.
 
-**On your computer, for heavy use (Node.js).** A coding agent (Claude Code, Codex, ...) writes `.sfx.json` files and
-runs the sfxgen command line. It renders every sound, reads the measurements and looks at the spectrogram before
-handing it over, and `sfxgen serve` opens the editor on the same files so you can hear and tune them. Ask it to "set
-up https://github.com/asus4/sfxgen and make me ...". [AGENTS.md](AGENTS.md) is where it starts, and
-[docs/SOUND-DESIGN.md](docs/SOUND-DESIGN.md) is how to make sounds that don't sound generated.
+**CLI on your computer**: ask your coding agent to "set up https://github.com/asus4/sfxgen and make me ...".
+[AGENTS.md](AGENTS.md) is where it starts, and [docs/SOUND-DESIGN.md](docs/SOUND-DESIGN.md) is how to make sounds.
+It renders every sound, reads the measurements and looks at the spectrogram before handing it over, and
+`sfxgen serve` opens the editor on the same files so you can hear and tune them.
 
 The command line runs from a clone of this repository:
 
@@ -48,53 +46,7 @@ npm run sfxgen -- project init sounds/               # make a folder of patches 
 npm run sfxgen -- build sounds/                      # render every sound to its export path
 ```
 
-## A patch
-
-Every sound is a JSON patch like this one: it is what **Save** downloads and what an agent writes.
-
-```json
-{
-  "format": "sfxgen/1",
-  "name": "Steel hatch slam",
-  "description": "A heavy steel hatch dropped shut in a small concrete room: a dull, dented boom, then the latch.",
-  "duration": "auto",
-  "tracks": [
-    {
-      "id": "door",
-      "note": "A thick steel box hit along its edge; the dent stops it ringing like a bell.",
-      "source": { "type": "modal", "material": "metal", "shape": "box", "freq": 82, "decay": 0.9, "dent": 0.35,
-                  "exciter": { "kind": "mallet", "hardness": 0.8 } },
-      "sends": { "room": -8 }
-    },
-    {
-      "id": "latch",
-      "note": "The latch snapping home 90 ms later: a small, damped steel bar.",
-      "gain": -10,
-      "events": [0.09],
-      "source": { "type": "modal", "material": "metal", "shape": "bar", "freq": 1400, "decay": 0.08, "damping": 2.5 }
-    }
-  ],
-  "buses": [{ "id": "room", "fx": [{ "type": "reverb", "space": "room", "size": 4, "decay": 0.6 }] }],
-  "controls": [
-    {
-      "id": "weight", "label": "Weight", "hint": "A light locker door to a ship's bulkhead hatch.", "value": 0.5,
-      "targets": [
-        { "path": "tracks.door.source.freq", "mode": "mul", "from": 1.6, "to": 0.625 },
-        { "path": "tracks.door.source.decay", "mode": "mul", "from": 0.625, "to": 1.6 }
-      ]
-    }
-  ]
-}
-```
-
-## Development
-
-```bash
-npm run dev # http://localhost:5178
-npm test
-npm run build
-```
-
 ## License
 
-MIT
+- Source code: [MIT](LICENSE)
+- SFX you make: no license, you own them.

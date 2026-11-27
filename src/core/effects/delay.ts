@@ -6,12 +6,13 @@ import { isBreakpoints, isSignalObject } from '../params';
 import type { Buf } from '../dsp/math';
 
 const PARAMS: Record<string, ParamMeta> = {
-  mix: { kind: 'number', doc: 'Wet amount, 0 to 1. Default 0.35 on a track or the master, where the dry sound passes too; on a bus (sends) every effect defaults to fully wet.', default: 0.35, min: 0, max: 1, hardMin: 0, hardMax: 1 },
+  mix: { kind: 'number', doc: 'Wet amount, 0 to 1. Default 0.35 on a track or the master, where the dry sound passes too; on a bus (sends) every effect defaults to fully wet.', hint: 'How loud the echoes are against the dry sound', default: 0.35, min: 0, max: 1, hardMin: 0, hardMax: 1 },
   time: {
     kind: 'signal',
     doc:
       'Milliseconds between echoes. 30 to 90 is slapback (a hard wall nearby), 150 to 400 a clear echo, 500+ a ' +
       'canyon. It may move: the echoes bend in pitch like a tape echo whose speed changes.',
+    hint: 'Time between echoes: short is slapback, long a canyon',
     default: 250,
     min: 20,
     max: 1000,
@@ -25,6 +26,7 @@ const PARAMS: Record<string, ParamMeta> = {
     doc:
       'How much of each echo comes back as the next one: 0 a single echo, 0.35 a few, 0.7 a long trail, 0.9 ' +
       'almost endless. Negative flips the polarity on every repeat (hollower).',
+    hint: 'How many echoes: one to almost endless',
     default: 0.35,
     min: 0,
     max: 0.95,
@@ -34,6 +36,7 @@ const PARAMS: Record<string, ParamMeta> = {
   tone: {
     kind: 'number',
     doc: 'Low-pass in the loop, Hz: every repeat gets darker. 2000 to 4000 for a tape echo, 20000 for a clean digital one.',
+    hint: 'Each echo gets darker',
     default: 6000,
     min: 500,
     max: 20000,
@@ -45,6 +48,7 @@ const PARAMS: Record<string, ParamMeta> = {
   highpass: {
     kind: 'number',
     doc: 'High-pass in the loop, Hz: every repeat gets thinner. 300 to 800 keeps a long trail from muddying the lows.',
+    hint: 'Each echo gets thinner',
     default: 60,
     min: 20,
     max: 2000,
@@ -56,11 +60,13 @@ const PARAMS: Record<string, ParamMeta> = {
   pingpong: {
     kind: 'bool',
     doc: 'Echoes bounce between left and right (stereo output only).',
+    hint: 'Echoes bounce between left and right',
     default: false,
   },
   modulation: {
     kind: 'number',
     doc: 'Wobble of the echoes, cents of pitch: 5 is analog warmth, 15 to 30 a worn tape echo, 60 seasick.',
+    hint: 'Wobbles the echoes like worn tape',
     default: 0,
     min: 0,
     max: 30,
@@ -71,6 +77,7 @@ const PARAMS: Record<string, ParamMeta> = {
   rate: {
     kind: 'number',
     doc: 'Speed of the wobble, Hz.',
+    hint: 'How fast the echoes wobble',
     default: 0.8,
     min: 0.1,
     max: 8,
@@ -82,6 +89,7 @@ const PARAMS: Record<string, ParamMeta> = {
   drive: {
     kind: 'number',
     doc: 'Saturation inside the loop, 0 to 1: each repeat comes back a little grittier and rounder, like tape.',
+    hint: 'Each echo comes back grittier',
     default: 0,
     min: 0,
     max: 1,
@@ -102,14 +110,13 @@ function maxAbs(v: unknown, fallback: number): number {
   return fallback;
 }
 
-/** Soft saturation that never adds gain (so the loop stays stable): transparent for quiet echoes, rounding loud ones. */
+/** Soft saturation that never adds gain, so the loop stays stable: clean on quiet echoes, rounding loud ones. */
 function saturate(x: number, drive: number): number {
   if (drive <= 0) return x;
   const k = 0.5 + 2.5 * drive;
   return Math.tanh(x * k) / k;
 }
 
-/** Echoes: a feedback delay with a darkening, thinning loop, tape wobble, saturation and ping-pong. */
 export const delay: EffectDef = {
   kind: 'effect',
   type: 'delay',
@@ -120,6 +127,7 @@ export const delay: EffectDef = {
     'Discrete echoes: slapback off a wall, a canyon call, a dub trail. `time` (ms) sets the gap, `feedback` how ' +
     'many repeats, `tone` and `highpass` how each repeat darkens and thins. It returns only the echoes: set ' +
     '`mix` to 0.3 to 0.5 to keep the dry sound in front, or use it on a bus.',
+  hint: 'Echoes, from a slapback to a canyon',
   params: PARAMS,
   example: { type: 'delay', time: 320, feedback: 0.45, tone: 3500, mix: 0.4 },
   tail(params) {

@@ -23,7 +23,7 @@ export function Segmented<T extends string | number>(props: {
           disabled={props.disabled}
           onClick={() => props.onChange(o.value)}
         >
-          {o.label}
+          <span>{o.label}</span>
         </button>
       ))}
     </div>

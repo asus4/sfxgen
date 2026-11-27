@@ -11,9 +11,11 @@ export interface FaderProps {
   ink?: string;
   onChange: (value: number) => void;
   onCommit?: () => void;
+  /** The tooltip: what turning it does. */
+  title?: string;
 }
 
-export function Fader({ label, value, range, defaultValue, valueText, ink, onChange, onCommit }: FaderProps) {
+export function Fader({ label, value, range, defaultValue, valueText, ink, onChange, onCommit, title }: FaderProps) {
   const track = useRef<HTMLDivElement>(null);
   const drag = useRef<{ x: number; position: number } | null>(null);
   const [active, setActive] = useState(false);
@@ -60,6 +62,7 @@ export function Fader({ label, value, range, defaultValue, valueText, ink, onCha
     <div
       ref={track}
       className={`fader${active ? ' is-active' : ''}`}
+      title={title}
       role="slider"
       tabIndex={0}
       aria-label={label}

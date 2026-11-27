@@ -110,7 +110,7 @@ function ControlCard({ control, index, size }: { control: Control; index: number
           {control.hint}
         </p>
       )}
-      <button type="button" className="control-remove" aria-label={`Remove the ${control.label} control`} title="Remove this control" onClick={() => edit((p) => removeControl(p, control.id))}>
+      <button type="button" className="control-remove" aria-label={`Remove the ${control.label} control`} title="Remove from Easy control" onClick={() => edit((p) => removeControl(p, control.id))}>
         <Icon name="close" size={12} />
       </button>
     </div>
@@ -124,35 +124,32 @@ function ChanceKeys({ controls }: { controls: Control[] }) {
   const seed = useEditor((s) => s.patch.seed ?? 1);
   return (
     <div className="chance" role="group" aria-label="Let chance decide">
-      <button type="button" className="key key-chance key-dice" onClick={rollTake} aria-label="Roll a new seed" title="Roll the dice: the same sound with a new random seed, then play it">
+      <button type="button" className="key key-chance key-dice" onClick={rollTake} aria-label="Roll a new seed" title="Try a new random variation">
         <Die seed={seed} size={26} />
       </button>
       <button
         type="button"
         className="key key-chance"
         onClick={surpriseMe}
-        title={controls.length ? 'Surprise me: every easy control somewhere new, then play it' : 'Surprise me: this sound has no easy controls, so only the seed changes'}
+        title={controls.length ? 'Turn every knob somewhere new' : 'Try a new random variation'}
       >
         <Icon name="spark" size={22} />
         <span>Surprise me</span>
-        {controls.length > 0 ? (
+        {controls.length > 0 && (
           <small className="chance-dots" aria-hidden="true">
             {controls.map((c, i) => (
               <i key={c.id} style={{ '--c': controlColor(i) } as React.CSSProperties} />
             ))}
           </small>
-        ) : (
-          <small>a new seed</small>
         )}
       </button>
     </div>
   );
 }
 
-/** Easy control: the patch's controls in one row (it scrolls sideways when there are many), then the chance keys. */
+/** Easy control. The row scrolls sideways when there are many controls. */
 export function EasyStrip() {
   const controls = useEditor((s) => s.patch.controls);
-  const hint = useEditor((s) => s.patch.controls?.find((c) => c.id === s.activeControl)?.hint);
   const groups = useMemo(() => {
     const out: { name: string; items: { control: Control; index: number }[] }[] = [];
     (controls ?? []).forEach((control, index) => {
@@ -165,16 +162,13 @@ export function EasyStrip() {
   }, [controls]);
   return (
     <section className="zone zone-easy" aria-label="Easy control">
-      <div className="easy-side">
+      <div className="easy-side" title="Drag a knob up or down. Double-click to reset it">
         <span className="zone-num">04</span>
         <h2 className="zone-title">Easy control</h2>
-        <p className="zone-note" aria-hidden="true">
-          {hint ?? 'drag up or down · double-click resets · plays on release'}
-        </p>
       </div>
       <div className="easy-row">
         <div className="easy-knobs">
-          {groups.length === 0 && <p className="empty">This sound has no easy controls yet: pin the parameters worth playing with from Full control.</p>}
+          {groups.length === 0 && <p className="empty">No easy controls yet: pin a parameter in Full control.</p>}
           {groups.map((g) => (
             <div key={g.name} className="easy-group">
               {g.name && <span className="legend">{g.name}</span>}
@@ -191,20 +185,13 @@ export function EasyStrip() {
 }
 
 const TABS: { id: SurfaceMode; label: string; title: string }[] = [
-  { id: 'sound', label: 'Sound', title: 'Every parameter of the open sound (E)' },
-  { id: 'mixer', label: 'Mix', title: 'Balance the set (M)' },
-  { id: 'project', label: 'Settings', title: 'What the whole set shares: name, output, levelling, shared effects' },
-  { id: 'notes', label: 'Notes', title: 'What the agent wrote, and who changed what' },
+  { id: 'sound', label: 'Sound', title: 'Every setting of this sound (E)' },
+  { id: 'mixer', label: 'Mix', title: 'Balance the levels of all sounds (M)' },
+  { id: 'project', label: 'Settings', title: 'Settings for the whole project' },
+  { id: 'notes', label: 'Notes', title: 'Notes and history' },
 ];
 
-const NOTES = {
-  sound: 'every parameter · pin one to make it an easy control',
-  mixer: 'each sound’s level in the set, after levelling',
-  project: 'what every sound in the set shares',
-  notes: 'what the agent wrote, and who changed what',
-} as const;
-
-/** Full control: everything about the open sound, or the mixer, the settings, the notes. Closed, only its head shows. */
+/** Full control. Closed, only its head shows. */
 export function Surface() {
   const surface = useEditor((s) => s.surface);
   const open = useEditor((s) => s.fullOpen);
@@ -227,13 +214,12 @@ export function Surface() {
             const on = open && surface === t.id;
             return (
               <button key={t.id} type="button" role="tab" aria-selected={on} aria-controls={open ? 'full-control' : undefined} className={on ? 'is-on' : ''} title={t.title} onClick={() => useEditor.getState().showSurface(t.id)}>
-                {t.label}
+                <span>{t.label}</span>
                 {t.id === 'notes' && fresh > 0 && <i key={fresh} className="led led-agent" />}
               </button>
             );
           })}
         </div>
-        <span className="zone-note">{open ? NOTES[surface] : 'every parameter, the mix, the settings and the notes'}</span>
       </header>
       {open && (
         <div className="zone-body" id="full-control">

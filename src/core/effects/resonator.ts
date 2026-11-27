@@ -7,10 +7,7 @@ import { isBreakpoints, isSignalObject } from '../params';
 type Mode = 'comb' | 'tube' | 'string' | 'metal';
 const MODES: readonly Mode[] = ['comb', 'tube', 'string', 'metal'];
 
-/**
- * Inharmonic mode ratios for `metal`: zeros of the Bessel functions, the modes of a circular membrane or plate,
- * which is what makes struck metal sound clangorous rather than pitched.
- */
+/** Inharmonic mode ratios for `metal`: the modes of a circular membrane (Bessel zeros), clangorous, not pitched. */
 const METAL_RATIOS = [1, 1.594, 2.136, 2.296, 2.653, 2.918, 3.156, 3.501, 3.6, 4.06, 4.154, 4.601, 4.832, 4.903, 5.131, 5.412];
 
 const PARAMS: Record<string, ParamMeta> = {
@@ -20,6 +17,7 @@ const PARAMS: Record<string, ParamMeta> = {
       'What resonates. comb: every harmonic, buzzy and metallic-flanged. tube: odd harmonics only, hollow like a ' +
       'pipe, bottle or wind through a hole. string: a ringing string, warm, highs fading first. metal: inharmonic ' +
       'modes of a struck plate or bell, clangorous shimmer.',
+    hint: 'What rings: comb, tube, string or metal',
     options: MODES,
     default: 'comb',
   },
@@ -28,6 +26,7 @@ const PARAMS: Record<string, ParamMeta> = {
     doc:
       'Fundamental (lowest mode) in Hz. Sweep it for wind through a moving hole or a resonant whoosh; a chord adds ' +
       'more notes above it.',
+    hint: 'Pitch of the ringing',
     default: 220,
     min: 40,
     max: 4000,
@@ -39,6 +38,7 @@ const PARAMS: Record<string, ParamMeta> = {
   decay: {
     kind: 'signal',
     doc: 'Seconds the resonance rings after the input stops (60 dB): 0.05 a short box tone, 1 a pipe, 4+ a bell or a long metal shimmer.',
+    hint: 'How long it rings',
     default: 1,
     min: 0.05,
     max: 10,
@@ -50,6 +50,7 @@ const PARAMS: Record<string, ParamMeta> = {
   brightness: {
     kind: 'number',
     doc: 'How long the upper harmonics or modes ring compared with the lowest, 0 to 1: 0 mellow and pure, 0.5 natural, 1 bright and buzzy.',
+    hint: 'Mellow to bright and buzzy',
     default: 0.5,
     min: 0,
     max: 1,
@@ -59,7 +60,8 @@ const PARAMS: Record<string, ParamMeta> = {
   chord: {
     kind: 'array',
     doc: 'More resonances, in semitones above `freq` (up to 8): [0, 7, 12] a power chord, [0, 3.86, 7.02] a just major triad, [0, 0.3] a slow beating pair.',
-    item: { kind: 'number', doc: 'Semitones above `freq`.', min: -24, max: 36, hardMin: -48, hardMax: 48, unit: 'st' },
+    hint: 'Extra pitches that ring along',
+    item: { kind: 'number', doc: 'Semitones above `freq`.', hint: 'Semitones above the base pitch', min: -24, max: 36, hardMin: -48, hardMax: 48, unit: 'st' },
   },
 };
 
@@ -220,7 +222,6 @@ function renderMetal(x: Buf, out: Buf, freq: Buf, decay: Buf, semis: number, bri
   }
 }
 
-/** Tuned resonance on any input: combs, tubes, strings and metal modes that ring at chosen pitches. */
 export const resonator: EffectDef = {
   kind: 'effect',
   type: 'resonator',
@@ -231,6 +232,7 @@ export const resonator: EffectDef = {
     'a hole (tube with a moving freq), a sympathetic string, or a metallic shimmer (metal); a click becomes a ' +
     'struck object. White noise comes out at about its own level; a tone at the resonance is boosted. Use `chord` ' +
     'for several pitches at once, and `mix` to keep some of the dry sound.',
+  hint: 'Makes the sound ring at chosen pitches: a pipe, string or bell',
   params: PARAMS,
   example: { type: 'resonator', mode: 'tube', freq: [[0, 300], [1.5, 520]], decay: 0.8, brightness: 0.3 },
   tail(params) {

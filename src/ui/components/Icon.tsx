@@ -1,9 +1,9 @@
-/** A small set of line icons, drawn to match the 2 px ink outlines. */
-const PATHS: Record<string, string> = {
+/** A small set of line icons, drawn to match the 2 px ink outlines. Add an icon's ink box to ICON_BOUNDS too. */
+export const ICON_PATHS: Record<string, string> = {
   play: 'M7 4.5v15l13-7.5z',
   stop: 'M6 6h12v12H6z',
-  undo: 'M9 7 4 12l5 5M4 12h10a6 6 0 0 1 0 12h-2',
-  redo: 'M15 7l5 5-5 5M20 12H10a6 6 0 0 0 0 12h2',
+  undo: 'M9 14 4 9l5-5M4 9h10.5a5.5 5.5 0 0 1 0 11H11',
+  redo: 'M15 14l5-5-5-5M20 9H9.5a5.5 5.5 0 0 0 0 11H13',
   grid: 'M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z',
   open: 'M3 7h6l2 2h10v10H3z',
   save: 'M5 4h11l4 4v12H5zM8 4v5h7V4M8 20v-6h8v6',
@@ -32,14 +32,74 @@ const PATHS: Record<string, string> = {
   search: 'M10.5 4a6.5 6.5 0 1 0 0 13 6.5 6.5 0 0 0 0-13zM15.5 15.5 20 20',
 };
 
+/**
+ * Where each icon's ink lies in its 24-unit grid: [left, top, right, bottom] of the path, without the stroke. The
+ * icons are drawn with different margins (a grid fills 4 to 20, a chevron 6 to 18), so an icon is laid out by its ink,
+ * not its grid: next to a label the gap is the gap you see, and alone in a button it sits in the middle.
+ */
+export const ICON_BOUNDS: Record<string, [number, number, number, number]> = {
+  play: [7, 4.5, 20, 19.5],
+  stop: [6, 6, 18, 18],
+  undo: [4, 4, 20, 20],
+  redo: [4, 4, 20, 20],
+  grid: [4, 4, 20, 20],
+  open: [3, 7, 21, 19],
+  save: [5, 4, 20, 20],
+  export: [4, 3, 20, 20],
+  link: [4.12, 4.12, 19.88, 19.88],
+  sun: [2, 2, 22, 22],
+  moon: [4.64, 4, 20, 19.36],
+  pin: [7, 4, 17, 20],
+  close: [6, 6, 18, 18],
+  check: [5, 7.5, 19, 17],
+  plus: [5, 5, 19, 19],
+  up: [6, 8, 18, 14],
+  down: [6, 10, 18, 16],
+  power: [4, 3, 20, 20.24],
+  wave: [2, 2, 22, 18],
+  spectro: [4, 5, 20, 20],
+  spark: [4, 3, 20, 19],
+  ear: [7, 6, 17, 19.77],
+  curve: [3, 5, 21, 19],
+  flat: [3, 12, 21, 12],
+  copy: [5, 4, 19, 20],
+  trash: [5, 4, 19, 20],
+  sliders: [3, 4, 21, 20],
+  agent: [4, 3, 20, 19],
+  file: [6, 3, 18, 21],
+  search: [4, 4, 20, 20],
+};
+
+/**
+ * Extra room on the left of an icon whose weight sits to one side: a play triangle centred by its box looks pushed
+ * left, so it moves right by half of what its centroid would ask.
+ */
+const OPTICAL_LEFT: Record<string, number> = { play: 2.2 };
+
+/** The icon's box in grid units, hugging its ink and the stroke round it. */
+function iconBox(name: string, stroke: number): [number, number, number, number] {
+  const b = ICON_BOUNDS[name];
+  if (!b) return [0, 0, 24, 24];
+  const s = stroke / 2;
+  const left = b[0] - s - (OPTICAL_LEFT[name] ?? 0);
+  return [left, b[1] - s, b[2] + s - left, b[3] - b[1] + 2 * s];
+}
+
+/**
+ * A line icon. `size` is the scale (pixels per 24 grid units), the same for every icon so strokes match; the box hugs
+ * the ink, so a small icon takes less room than a big one.
+ */
 export function Icon({ name, size = 18, fill = false }: { name: string; size?: number; fill?: boolean }) {
+  const stroke = fill ? 1.5 : 2;
+  const [x, y, w, h] = iconBox(name, stroke);
+  const k = size / 24;
   return (
-    <svg className="icon" width={size} height={size} viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+    <svg className="icon" width={+(w * k).toFixed(2)} height={+(h * k).toFixed(2)} viewBox={`${x} ${y} ${w} ${h}`} aria-hidden="true" focusable="false">
       <path
-        d={PATHS[name] ?? ''}
+        d={ICON_PATHS[name] ?? ''}
         fill={fill ? 'currentColor' : 'none'}
         stroke="currentColor"
-        strokeWidth={fill ? 1.5 : 2}
+        strokeWidth={stroke}
         strokeLinejoin="round"
         strokeLinecap="round"
       />

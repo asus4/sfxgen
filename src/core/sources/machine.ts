@@ -30,6 +30,7 @@ const PARAMS: Record<string, ParamMeta> = {
       'gearbox and a spinning bit that chops and grinds. engine: combustion firing pulses through an exhaust pipe ' +
       '(cars, motorbikes, generators, lawnmowers). turbine: jet whine and roar. rotor: blade slaps and downwash ' +
       '(helicopters, big fans, propellers).',
+    hint: 'What turns: motor, servo, drill, engine, turbine or rotor',
     options: KINDS,
     default: 'motor',
   },
@@ -40,6 +41,7 @@ const PARAMS: Record<string, ParamMeta> = {
       '1000 to 6000 (hum at rpm/30 Hz), servo 4000 to 15000, drill 8000 to 30000, engine 700 idle to 7000 redline, ' +
       'turbine 2000 to 15000, rotor 250 to 400 (helicopter) or 600 to 2000 (fan). Default per kind: motor 3000, ' +
       'servo 9000, drill 18000, engine 900, turbine 9000, rotor 330.',
+    hint: 'How fast it spins',
     default: 3000,
     min: 60,
     max: 30000,
@@ -55,6 +57,7 @@ const PARAMS: Record<string, ParamMeta> = {
       'Strain, 0 to 1: rougher, brighter, louder firing and more grinding, brush noise and buzz. 0 coasting, 0.3 ' +
       'normal work, 0.8 straining, 1 about to stall. Move it with breakpoints together with `rpm` (load up while rpm ' +
       'sags is a machine biting into something).',
+    hint: 'How hard it is working',
     default: 0.3,
     min: 0,
     max: 1,
@@ -66,6 +69,7 @@ const PARAMS: Record<string, ParamMeta> = {
     doc:
       'Cycle-to-cycle variation, 0 to 1: 0 a perfectly even machine, 0.3 a healthy real one, 0.6 worn and uneven ' +
       '(an old engine\'s lope), 1 broken (misfires, wobbling speed).',
+    hint: 'Smooth and even to worn and misfiring',
     default: 0.25,
     min: 0,
     max: 1,
@@ -77,6 +81,7 @@ const PARAMS: Record<string, ParamMeta> = {
     doc:
       'Level of the gear-mesh whine (on a turbine, the blade whine; on an engine, a supercharger or alternator), 0 ' +
       'to 1. Default per kind: motor 0.3, servo 0.5, drill 0.4, engine 0.05, turbine 0.6, rotor 0.1.',
+    hint: 'Gear whine',
     default: 0.3,
     min: 0,
     max: 1,
@@ -88,6 +93,7 @@ const PARAMS: Record<string, ParamMeta> = {
     doc:
       'Gear teeth per revolution: the whine sits at rpm/60 * teeth Hz. Default per kind: motor 12, servo 10, drill ' +
       '14, engine 6, rotor 520 (the gearbox up to its drive turbine, about 2.9 kHz at 330 rpm). Unused by turbine.',
+    hint: 'Pitch of the gear whine',
     default: 12,
     min: 3,
     max: 600,
@@ -102,6 +108,7 @@ const PARAMS: Record<string, ParamMeta> = {
       'Engine only, with `firing` even: 1 thumps like a dirt bike or lawnmower, 2 a parallel twin, 3 a triple, 4 a ' +
       'car or a sports bike, 5 an Audi five, 6 smooth. Fires cylinders * rpm / 120 times a second, evenly spaced ' +
       'over two turns of the crank, each cylinder a little different. The other `firing` layouts set their own count.',
+    hint: 'Engine only: how many cylinders',
     default: 4,
     min: 1,
     max: 12,
@@ -119,6 +126,7 @@ const PARAMS: Record<string, ParamMeta> = {
       'off-beat thrum. crossplane: a crossplane inline four (270, 180, 90, 180): a superbike\'s growl. v8: a ' +
       'crossplane V8, two banks of four each firing unevenly into its own pipe: the American burble. boxer: a flat ' +
       'four with unequal-length headers, the two banks out of step: the Subaru rumble.',
+    hint: 'Engine only: the engine’s rhythm',
     options: ['even', 'v-twin', 'twin-270', 'crossplane', 'v8', 'boxer'],
     default: 'even',
   },
@@ -127,6 +135,7 @@ const PARAMS: Record<string, ParamMeta> = {
     doc:
       'Engine only: the exhaust. 0 straight pipes (loud, raw and raspy, every crack of the valves heard), 0.3 a ' +
       'loud aftermarket can, 0.5 a sports exhaust, 1 a quiet stock silencer (a soft, deep, booming thrum).',
+    hint: 'Engine only: raw pipes to a quiet silencer',
     default: 0.5,
     min: 0,
     max: 1,
@@ -139,6 +148,7 @@ const PARAMS: Record<string, ParamMeta> = {
       'Engine only: induction roar, the air rushing in through the throttle on every intake stroke. It follows ' +
       '`load` (only an open throttle sucks hard) and rpm. 0 none, 0.3 a car heard from outside, 0.6 a bike or a ' +
       'car with a big open intake, 1 a carburettor howling.',
+    hint: 'Engine only: the roar of air rushing in',
     default: 0.3,
     min: 0,
     max: 1,
@@ -148,9 +158,10 @@ const PARAMS: Record<string, ParamMeta> = {
   pops: {
     kind: 'number',
     doc:
-      'Engine only: afterfire on the overrun. When the throttle shuts (`load` near 0) above about 1800 rpm, unburnt ' +
+      'Engine only: afterfire on the overrun. When the throttle shuts (`load` near 0) above about 1300 rpm, unburnt ' +
       'fuel lights in the hot pipe: sharp pops and crackles among the weak, fuel-cut firings. 0 never, 0.2 a stock ' +
       'engine\'s odd pop, 0.6 a tuned bike crackling, 1 a race car spitting.',
+    hint: 'Engine only: pops and crackles when the throttle shuts',
     default: 0.2,
     min: 0,
     max: 1,
@@ -162,6 +173,7 @@ const PARAMS: Record<string, ParamMeta> = {
     doc:
       'Rotor: blades per revolution, slapping blades * rpm / 60 times a second (2 a helicopter, 4 to 7 a fan). ' +
       'Turbine: fan blades, setting the whine at blades * rpm / 60 Hz (default 22).',
+    hint: 'How many blades',
     default: 2,
     min: 2,
     max: 40,
@@ -174,6 +186,7 @@ const PARAMS: Record<string, ParamMeta> = {
     doc:
       'Size of the machine: lowers its body, pipe and air resonances. 0.4 a toy or a model, 1 normal, 2 a truck, a ' +
       'ship\'s engine or a heavy-lift helicopter.',
+    hint: 'Toy to truck',
     default: 1,
     min: 0.3,
     max: 3,
@@ -267,7 +280,7 @@ function brushNoise(c: Ctx, hum: Buf, centre: number, level: Buf): Buf {
 
 /**
  * Electric hum: a band-limited saw and a square an octave up, darker unless strained. The octave is exact: detuned,
- * it beat slowly against the saw's second harmonic and the hum swelled by 3 dB over a few seconds at constant speed.
+ * it would beat against the saw's second harmonic and swell the hum by 3 dB over a few seconds at constant speed.
  */
 function humOf(c: Ctx, fh: Buf, saw: number, square: number, base: number, open: number): Buf {
   const a = oscillator('saw', fh, c.sr, c.rng.next());
@@ -454,9 +467,9 @@ function chambers(x: Buf, sr: number, size: number, amount: number): Buf {
  * the firing order, and every firing is a little different (more so at idle). Each firing blows a pressure pulse
  * into its exhaust bank with a sharp crack as the valve opens; the pipe rings, the silencer's chambers smear each
  * firing into a dense body, the gas rushing out hisses and rips in time with the pulses, the muffler takes the top
- * off and the narrow tailpipe barely radiates the lowest notes. Tuned against a recording of a motorbike. The intake roars on each intake stroke when the
+ * off and the narrow tailpipe barely radiates the lowest notes. The intake roars on each intake stroke when the
  * throttle is open; shut the throttle at speed and the fuel is cut, the firings go weak and hollow, and unburnt fuel
- * pops in the pipe. Valve ticks and gear whine ride on top.
+ * pops in the pipe. Valve ticks and gear whine ride on top. Tuned against a recording of a motorbike.
  */
 function renderEngine(c: Ctx): Buf {
   const { n, sr } = c;
@@ -731,7 +744,6 @@ function contextOf(p: Record<string, unknown>, ctx: VoiceContext, kind: Kind): C
   };
 }
 
-/** Rotating machinery driven by rpm: motors, servos, drills, engines, turbines and rotors. */
 export const machine: SourceDef = {
   kind: 'source',
   type: 'machine',
@@ -745,6 +757,7 @@ export const machine: SourceDef = {
     'as the throttle and shut it to 0 when the revs should fall with a burble. For a ' +
     'helicopter, layer the main rotor with a second, small, fast rotor for the tail (4 blades, about 1000 rpm, size ' +
     '0.4) and a quiet turbine; for a car pass-by, put an engine through doppler.',
+  hint: 'Motors, engines, drills and rotors',
   defaultEnv: { attack: 0.05, hold: 1, decay: 0.6 },
   params: PARAMS,
   example: {

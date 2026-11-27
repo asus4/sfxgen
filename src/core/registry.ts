@@ -32,81 +32,86 @@ export function listEffects(): EffectDef[] {
 }
 
 export const ENVELOPE_FIELDS: ParamMap = {
-  attack: { kind: 'number', doc: 'Seconds from silence to full level.', default: 0.002, min: 0, max: 2, unit: 's', scale: 'log' },
-  hold: { kind: 'number', doc: 'Seconds held at full level.', default: 0, min: 0, max: 2, unit: 's' },
+  attack: { kind: 'number', doc: 'Seconds from silence to full level.', hint: 'Time to reach full level', default: 0.002, min: 0, max: 2, unit: 's', scale: 'log' },
+  hold: { kind: 'number', doc: 'Seconds held at full level.', hint: 'Time held at full level', default: 0, min: 0, max: 2, unit: 's' },
   decay: {
     kind: 'number',
     doc: 'Seconds to fall 60 dB toward the sustain level.',
+    hint: 'Time to fall to the sustain level',
     min: 0.005,
     max: 10,
     unit: 's',
     scale: 'log',
   },
-  sustain: { kind: 'number', doc: 'Level after the decay, 0 to 1.', min: 0, max: 1 },
-  release: { kind: 'number', doc: 'Seconds to fade out after the gate.', default: 0.01, min: 0.001, max: 10, unit: 's', scale: 'log' },
-  gate: { kind: 'number', doc: 'Seconds after the start when the release begins.', min: 0, max: 10, unit: 's' },
-  curve: { kind: 'enum', doc: 'Decay and release shape.', options: ['exp', 'linear'], default: 'exp' },
+  sustain: { kind: 'number', doc: 'Level after the decay, 0 to 1.', hint: 'Level while held', min: 0, max: 1 },
+  release: { kind: 'number', doc: 'Seconds to fade out after the gate.', hint: 'Time to fade out at the end', default: 0.01, min: 0.001, max: 10, unit: 's', scale: 'log' },
+  gate: { kind: 'number', doc: 'Seconds after the start when the release begins.', hint: 'When the fade-out starts', min: 0, max: 10, unit: 's' },
+  curve: { kind: 'enum', doc: 'Decay and release shape.', hint: 'Shape of the fade', options: ['exp', 'linear'], default: 'exp' },
 };
 
 export const TRACK_FIELDS: ParamMap = {
-  start: { kind: 'number', doc: 'Seconds from the start of the patch.', default: 0, min: 0, max: 5, unit: 's' },
-  length: { kind: 'number', doc: 'Cut the track after this many seconds.', min: 0.01, max: 10, unit: 's' },
-  gain: { kind: 'number', doc: 'Track level in dB.', default: 0, min: -48, max: 12, unit: 'dB' },
-  pan: { kind: 'number', doc: 'Left -1 to right 1 (stereo output only).', default: 0, min: -1, max: 1 },
-  mute: { kind: 'bool', doc: 'Silence this track.', default: false },
-  solo: { kind: 'bool', doc: 'Hear only soloed tracks.', default: false },
+  start: { kind: 'number', doc: 'Seconds from the start of the patch.', hint: 'When this layer starts', default: 0, min: 0, max: 5, unit: 's' },
+  length: { kind: 'number', doc: 'Cut the track after this many seconds.', hint: 'Cut the layer after this long', min: 0.01, max: 10, unit: 's' },
+  gain: { kind: 'number', doc: 'Track level in dB.', hint: 'Level of this layer', default: 0, min: -48, max: 12, unit: 'dB' },
+  pan: { kind: 'number', doc: 'Left -1 to right 1 (stereo output only).', hint: 'Left or right', default: 0, min: -1, max: 1 },
+  mute: { kind: 'bool', doc: 'Silence this track.', hint: 'Silence this layer', default: false },
+  solo: { kind: 'bool', doc: 'Hear only soloed tracks.', hint: 'Hear only this layer', default: false },
 };
 
 export const REPEAT_FIELDS: ParamMap = {
-  count: { kind: 'number', doc: 'How many events.', default: 1, min: 1, max: 64, step: 1 },
-  interval: { kind: 'number', doc: 'Seconds between the first two events.', default: 0.1, min: 0.005, max: 2, unit: 's', scale: 'log' },
-  accel: { kind: 'number', doc: 'Each gap is the last times this: below 1 speeds up.', default: 1, min: 0.5, max: 1.5 },
-  jitter: { kind: 'number', doc: 'Random timing, ± seconds.', default: 0, min: 0, max: 0.1, unit: 's' },
-  decay: { kind: 'number', doc: 'dB added per repeat.', default: 0, min: -24, max: 6, unit: 'dB' },
-  pitchStep: { kind: 'number', doc: 'Semitones added per repeat.', default: 0, min: -12, max: 12, unit: 'st' },
-  pitchJitter: { kind: 'number', doc: 'Random pitch, ± semitones.', default: 0, min: 0, max: 12, unit: 'st' },
-  velJitter: { kind: 'number', doc: 'Random velocity, ±.', default: 0, min: 0, max: 1 },
-  dur: { kind: 'number', doc: 'Held length of each event, seconds.', min: 0.001, max: 5, unit: 's' },
+  count: { kind: 'number', doc: 'How many events.', hint: 'How many times it plays', default: 1, min: 1, max: 64, step: 1 },
+  interval: { kind: 'number', doc: 'Seconds between the first two events.', hint: 'Time between repeats', default: 0.1, min: 0.005, max: 2, unit: 's', scale: 'log' },
+  accel: { kind: 'number', doc: 'Each gap is the last times this: below 1 speeds up.', hint: 'Below 1 speeds up, above 1 slows down', default: 1, min: 0.5, max: 1.5 },
+  jitter: { kind: 'number', doc: 'Random timing, ± seconds.', hint: 'Random timing', default: 0, min: 0, max: 0.1, unit: 's' },
+  decay: { kind: 'number', doc: 'dB added per repeat.', hint: 'Each repeat gets quieter or louder', default: 0, min: -24, max: 6, unit: 'dB' },
+  pitchStep: { kind: 'number', doc: 'Semitones added per repeat.', hint: 'Each repeat goes up or down in pitch', default: 0, min: -12, max: 12, unit: 'st' },
+  pitchJitter: { kind: 'number', doc: 'Random pitch, ± semitones.', hint: 'Random pitch', default: 0, min: 0, max: 12, unit: 'st' },
+  velJitter: { kind: 'number', doc: 'Random velocity, ±.', hint: 'Random loudness', default: 0, min: 0, max: 1 },
+  dur: { kind: 'number', doc: 'Held length of each event, seconds.', hint: 'How long each event is held', min: 0.001, max: 5, unit: 's' },
   accents: {
     kind: 'array',
     doc: 'Loudness of each repeat in turn, multiplying its velocity and cycling when there are more repeats: [0.7, 1, 0.8] is "knock, KNOCK, knock"; [1, 0.5] alternates strong and weak.',
-    item: { kind: 'number', doc: 'Velocity factor for this repeat.', min: 0, max: 2, hardMin: 0, hardMax: 4 },
+    hint: 'Loudness pattern of the repeats',
+    item: { kind: 'number', doc: 'Velocity factor for this repeat.', hint: 'Loudness of this repeat', min: 0, max: 2, hardMin: 0, hardMax: 4 },
   },
   offsets: {
     kind: 'array',
     doc: 'Seconds added to each repeat in turn, cycling like `accents`: a deliberate hesitation, a limp, a swing. [0, 0, 0, 0, 0.35, 0, 0, 0] holds the fifth step back a third of a second, the same on every render. In a loop keep them inside the loop.',
-    item: { kind: 'number', doc: 'Seconds added to this repeat (negative moves it earlier).', min: -0.5, max: 0.5, hardMin: -5, hardMax: 5, unit: 's' },
+    hint: 'Timing pattern of the repeats, like a swing or a limp',
+    item: { kind: 'number', doc: 'Seconds added to this repeat (negative moves it earlier).', hint: 'Time added to this repeat', min: -0.5, max: 0.5, hardMin: -5, hardMax: 5, unit: 's' },
   },
   group: {
     kind: 'string',
     doc: 'Tracks whose repeats share a group draw the same random timing, velocity and pitch, so layers of one event (a knuckle, the door, its panel) stay together however much jitter they have. Give their repeats the same count and interval.',
+    hint: 'Layers in the same group share their random timing',
   },
 };
 
 export const MASTER_FIELDS: ParamMap = {
-  gain: { kind: 'number', doc: 'Master level in dB, after the effects.', default: 0, min: -24, max: 24, unit: 'dB' },
-  fadeIn: { kind: 'number', doc: 'Fade-in seconds.', default: 0.0005, min: 0, max: 1, unit: 's' },
-  fadeOut: { kind: 'number', doc: 'Fade-out seconds.', min: 0, max: 2, unit: 's' },
+  gain: { kind: 'number', doc: 'Master level in dB, after the effects.', hint: 'Overall level', default: 0, min: -24, max: 24, unit: 'dB' },
+  fadeIn: { kind: 'number', doc: 'Fade-in seconds.', hint: 'Fade in at the start', default: 0.0005, min: 0, max: 1, unit: 's' },
+  fadeOut: { kind: 'number', doc: 'Fade-out seconds.', hint: 'Fade out at the end', min: 0, max: 2, unit: 's' },
 };
 
 /** `master.normalize` fields. Only path lookups (`--set`, controls) use these; the schema and guide describe it by hand. */
 const MASTER_NORMALIZE: ParamMeta = {
   kind: 'object',
   doc: 'How the finished sound is levelled.',
+  hint: 'Bring the finished sound to a set level',
   fields: {
-    mode: { kind: 'enum', doc: 'peak sets the highest sample, loudness the integrated loudness, none leaves the level alone.', options: ['peak', 'loudness', 'none'], default: 'peak' },
-    target: { kind: 'number', doc: 'dBFS for peak (default -1), LUFS for loudness (default -16).', min: -60, max: 0, unit: 'dB' },
-    ceiling: { kind: 'number', doc: 'For loudness: the highest peak allowed, dBFS (default -0.3).', min: -20, max: 0, unit: 'dBFS' },
+    mode: { kind: 'enum', doc: 'peak sets the highest sample, loudness the integrated loudness, none leaves the level alone.', hint: 'Level by peak, by loudness, or not at all', options: ['peak', 'loudness', 'none'], default: 'peak' },
+    target: { kind: 'number', doc: 'dBFS for peak (default -1), LUFS for loudness (default -16).', hint: 'The level to bring it to', min: -60, max: 0, unit: 'dB' },
+    ceiling: { kind: 'number', doc: 'For loudness: the highest peak allowed, dBFS (default -0.3).', hint: 'The loudest peak allowed', min: -20, max: 0, unit: 'dBFS' },
   },
 };
 
 export const BUS_FIELDS: ParamMap = {
-  gain: { kind: 'number', doc: 'Bus level in dB.', default: 0, min: -48, max: 12, unit: 'dB' },
+  gain: { kind: 'number', doc: 'Bus level in dB.', hint: 'Level of this bus', default: 0, min: -48, max: 12, unit: 'dB' },
 };
 
 export const PATCH_FIELDS: ParamMap = {
-  duration: { kind: 'number', doc: 'Seconds, or "auto".', min: 0.01, max: 30, unit: 's' },
-  seed: { kind: 'number', doc: 'Random seed.', default: 1, min: 0, max: 99999, step: 1 },
+  duration: { kind: 'number', doc: 'Seconds, or "auto".', hint: 'Length of the sound, or auto', min: 0.01, max: 30, unit: 's' },
+  seed: { kind: 'number', doc: 'Random seed.', hint: 'Change it for a new random variation', default: 1, min: 0, max: 99999, step: 1 },
 };
 
 /** Metadata of a source parameter, including the common ones. */

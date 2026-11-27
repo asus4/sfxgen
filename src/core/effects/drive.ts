@@ -5,6 +5,12 @@ import { dbToGain, peak } from '../dsp/math';
 
 type DriveMode = 'tanh' | 'soft' | 'hard' | 'fold' | 'tube' | 'fuzz' | 'rectify';
 
+/** Fast, asymmetric saturation: a broken transistor fuzz. */
+function fuzz(v: number): number {
+  return Math.sign(v) * (1 - Math.exp(-Math.abs(v) * 3)) * (v > 0 ? 1 : 0.7);
+}
+
+/** Each mode subtracts its value at `bias`, so silence stays silent (no DC offset). */
 function shape(mode: DriveMode, x: number, bias: number): number {
   switch (mode) {
     case 'tanh':
@@ -31,17 +37,13 @@ function shape(mode: DriveMode, x: number, bias: number): number {
       const yb = b >= 0 ? 1 - Math.exp(-b) : -(1 - Math.exp(b * 0.6)) / 0.6;
       return y - yb;
     }
-    case 'fuzz': {
-      // Hard, gated, asymmetric: a broken transistor fuzz.
-      const v = x + bias;
-      return Math.sign(v) * (1 - Math.exp(-Math.abs(v) * 3)) * (v > 0 ? 1 : 0.7);
-    }
+    case 'fuzz':
+      return fuzz(x + bias) - fuzz(bias);
     case 'rectify':
       return Math.abs(x + bias) - Math.abs(bias);
   }
 }
 
-/** Saturation and distortion: warmth, grit, crunch and wavefolding. */
 export const drive: EffectDef = {
   kind: 'effect',
   type: 'drive',
@@ -52,14 +54,15 @@ export const drive: EffectDef = {
     'clipping, fold is a wavefolder (bright and metallic), tube adds even harmonics, fuzz is broken-transistor grit, ' +
     'rectify jumps the pitch up an octave and sounds ring-modulated. `amount` is the gain into the shaper; the ' +
     'output is matched to the input peak unless `compensate` is off.',
+  hint: 'Saturation and distortion, from warm to destroyed',
   params: {
-    mode: { kind: 'enum', doc: 'Shaper.', options: ['tanh', 'soft', 'hard', 'fold', 'tube', 'fuzz', 'rectify'], default: 'tanh' },
-    amount: { kind: 'signal', doc: 'Gain into the shaper, dB. 6 is warm, 18 is crunchy, 30+ is destroyed.', default: 12, min: 0, max: 48, hardMin: -24, hardMax: 72, unit: 'dB' },
-    bias: { kind: 'number', doc: 'Asymmetry, -1 to 1: adds even harmonics and a sputtering edge.', default: 0, min: -1, max: 1 },
-    tone: { kind: 'number', doc: 'Low-pass after the shaper, Hz: tames fizz.', default: 18000, min: 500, max: 20000, unit: 'Hz', scale: 'log' },
-    output: { kind: 'number', doc: 'Level after the shaper, dB.', default: 0, min: -24, max: 12, unit: 'dB' },
-    compensate: { kind: 'bool', doc: 'Match the output peak to the input peak.', default: true },
-    oversample: { kind: 'enum', doc: 'Oversampling: more is cleaner and slower.', options: ['1', '2', '4'], default: '2', advanced: true },
+    mode: { kind: 'enum', doc: 'Shaper.', hint: 'Kind of distortion', options: ['tanh', 'soft', 'hard', 'fold', 'tube', 'fuzz', 'rectify'], default: 'tanh' },
+    amount: { kind: 'signal', doc: 'Gain into the shaper, dB. 6 is warm, 18 is crunchy, 30+ is destroyed.', hint: 'How hard it is driven: warm to destroyed', default: 12, min: 0, max: 48, hardMin: -24, hardMax: 72, unit: 'dB' },
+    bias: { kind: 'number', doc: 'Asymmetry, -1 to 1: adds even harmonics and a sputtering edge.', hint: 'Uneven distortion with a sputtering edge', default: 0, min: -1, max: 1 },
+    tone: { kind: 'number', doc: 'Low-pass after the shaper, Hz: tames fizz.', hint: 'Tames the fizz', default: 18000, min: 500, max: 20000, unit: 'Hz', scale: 'log' },
+    output: { kind: 'number', doc: 'Level after the shaper, dB.', hint: 'Level after the distortion', default: 0, min: -24, max: 12, unit: 'dB' },
+    compensate: { kind: 'bool', doc: 'Match the output peak to the input peak.', hint: 'Keep the level the same as the input', default: true },
+    oversample: { kind: 'enum', doc: 'Oversampling: more is cleaner and slower.', hint: 'Higher is cleaner but slower', options: ['1', '2', '4'], default: '2', advanced: true },
   },
   example: { type: 'drive', mode: 'tube', amount: 14, tone: 6000 },
   process(input, p, ctx) {

@@ -6,7 +6,6 @@ import { absMax, maxOf } from '../dsp/dynamics';
 /** At or above this rate (or the sample rate) there is no rate reduction. */
 const RATE_OFF = 48000;
 
-/** Bit and sample-rate reduction. */
 export const crush: EffectDef = {
   kind: 'effect',
   type: 'crush',
@@ -17,10 +16,12 @@ export const crush: EffectDef = {
     'sound the same at any level) and a lower sample rate (sample and hold: metallic aliasing). Chiptune: bits 4, ' +
     'rate 8000. Old sampler: bits 12, rate 22050, antialias. Broken radio or a dying robot: bits 3, rate 3000, ' +
     'jitter 0.5. Sweep `bits` or `rate` with breakpoints for a sound that degrades or powers down.',
+  hint: 'Lo-fi grit: fewer bits and a lower sample rate',
   params: {
     bits: {
       kind: 'signal',
       doc: 'Bit depth, fractions allowed. 12 to 16 subtle hiss on quiet parts, 8 gritty, 4 to 6 chiptune crunch, 1 to 3 a buzzing, broken square.',
+      hint: 'Fewer bits, more crunch',
       default: 8,
       min: 1,
       max: 16,
@@ -33,6 +34,7 @@ export const crush: EffectDef = {
       doc:
         'Sample rate the sound is held at, Hz: 22050 dull and a little crunchy, 8000 to 11025 chiptune and old games, ' +
         '2000 to 4000 a buzzing wreck. 48000 or more (or the output rate) leaves the rate alone.',
+      hint: 'Lower is grittier and more metallic',
       default: 48000,
       min: 500,
       max: 48000,
@@ -44,6 +46,7 @@ export const crush: EffectDef = {
     jitter: {
       kind: 'number',
       doc: 'Randomness of the sample clock, 0 to 1: a cheap, unstable converter. 0.1 grainy, 0.5 noisy and broken.',
+      hint: 'Makes the grit unstable and noisy',
       default: 0,
       min: 0,
       max: 1,
@@ -54,6 +57,7 @@ export const crush: EffectDef = {
     antialias: {
       kind: 'bool',
       doc: 'Low-pass before and after the rate reduction, like a real sampler: darker and cleaner, without the metallic aliasing.',
+      hint: 'Smoother and darker, like a real old sampler',
       default: false,
     },
   },

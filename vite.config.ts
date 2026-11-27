@@ -8,16 +8,15 @@ export default defineConfig({
   base: './',
   worker: { format: 'es' },
   build: { outDir: 'dist/web', emptyOutDir: true, target: 'es2022' },
-  // `sfxgen serve --port 5179` provides /api during development; without it the editor works on its own.
+  // `sfxgen serve --port 5179` provides /api during development.
   server: {
     port: 5178,
     proxy: {
       '/api': {
         target: 'http://localhost:5179',
         changeOrigin: true,
-        // Without `sfxgen serve` running, a read is answered quietly (204, no JSON): the editor then works on its own,
-        // and the console stays free of proxy errors. A write must fail out loud instead: a 204 would look like a
-        // save, and the change would be lost.
+        // Without `sfxgen serve`, a read gets a quiet 204 so the editor works on its own without proxy errors. A
+        // write fails out loud: a 204 would look like a save, and the change would be lost.
         configure(proxy) {
           proxy.on('error', (_err, req, res) => {
             if (!('writeHead' in res) || res.headersSent) return;

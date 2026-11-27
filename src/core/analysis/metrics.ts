@@ -143,13 +143,6 @@ function crossing(env: Float64Array, a: number, level: number): number {
   return a + clamp((level - y0) / (y1 - y0), 0, 1);
 }
 
-/**
- * Onsets, the starts of hits. Detected on the energy envelope averaged over at least 3 ms (and a whole period of a
- * low tone, so its ripple doesn't count): it rises 8 dB or more within 30 ms, and the rise from its floor to within
- * 1 dB of its top takes no longer than the averaging window plus 3 ms. Beating partials and tremolo dip and rise
- * too, but slowly, so they don't count. Each onset is then placed on the peak envelope, at the start of its
- * steepest rise. After a hit the energy must fall 4 dB to re-arm.
- */
 /** The 20 ms loudness, dB, per envelope frame. */
 function loudnessCurve(energy: Float64Array, hop: number, sr: number): Float64Array {
   const nf = energy.length;
@@ -220,11 +213,11 @@ function findPulse(loud: Float64Array, hop: number, sr: number, seconds: number)
 
 /**
  * The main events (steps, knocks, shots): where the 20 ms loudness jumps at least 9 dB (6 with a pulse) above its
- * lowest point of the 60 ms before, reaching within 30 dB of the loudest. Where `onsets` lists every sharp rise (a heel and then its toe,
- * a crackle's grains), this is what a listener would count. Rises closer than 60 % of the sound's pulse (60 ms when
- * it has none) are one event, the louder kept, so a step's heel, sole and grit count once and a faint scuff just
- * before a step does not stand in for it. Each event's time is where its rise begins: the first moment after the dip
- * that the peak envelope comes within 20 dB of the event's own peak.
+ * lowest point of the 60 ms before, reaching within 30 dB of the loudest. Where `onsets` lists every sharp rise (a
+ * heel and then its toe, a crackle's grains), this is what a listener would count. Rises closer than 60 % of the
+ * sound's pulse (60 ms when it has none) are one event, the louder kept, so a step's heel, sole and grit count once
+ * and a faint scuff just before a step does not stand in for it. Each event's time is where its rise begins: the
+ * first moment after the dip that the peak envelope comes within 20 dB of the event's own peak.
  */
 function findEvents(envDb: Float64Array, loud: Float64Array, hop: number, sr: number, pulse: number): number[] {
   const nf = loud.length;
@@ -275,6 +268,13 @@ function findEvents(envDb: Float64Array, loud: Float64Array, hop: number, sr: nu
   return found.slice(0, 256).map((e) => e.at * frameSec);
 }
 
+/**
+ * Onsets, the starts of hits. Detected on the energy envelope averaged over at least 3 ms (and a whole period of a
+ * low tone, so its ripple doesn't count): it rises 8 dB or more within 30 ms, and the rise from its floor to within
+ * 1 dB of its top takes no longer than the averaging window plus 3 ms. Beating partials and tremolo dip and rise
+ * too, but slowly, so they don't count. Each onset is then placed on the peak envelope, at the start of its
+ * steepest rise. After a hit the energy must fall 4 dB to re-arm.
+ */
 function findOnsets(envDb: Float64Array, energy: Float64Array, halfCycle: Float64Array, hop: number, sr: number, maxDb: number): number[] {
   const RISE = 8;
   const FALL = 4;

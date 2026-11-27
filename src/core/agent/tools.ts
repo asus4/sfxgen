@@ -1,9 +1,7 @@
 /**
  * The agent tools, defined once. The editor's WebMCP registration (src/web/webmcp.ts) exposes exactly these on the
- * editor's Workspace (src/core/agent/workspace.ts); the CLI runs some of them on a FileWorkspace.
- *
- * Hosts call `callTool(ws, name, args)`: it checks the arguments against the tool's JSON Schema, runs the tool and
- * turns a failure into an `isError` result, so every host reports mistakes the same way.
+ * editor's Workspace; the CLI runs some of them on a FileWorkspace. Hosts call `callTool`, so every host checks
+ * arguments and reports mistakes the same way.
  */
 import type { Control, Patch, Track } from '../format/types';
 import { validatePatch, formatIssues, suggest, type ValidationResult } from '../format/validate';
@@ -190,7 +188,6 @@ function slug(s: string): string {
   return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'sound';
 }
 
-/** Validates, and describes the problems when there are errors. */
 function validationText(result: ValidationResult): string {
   return formatIssues(result);
 }

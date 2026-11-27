@@ -1,8 +1,7 @@
 /**
  * The display: a dark screen with the open sound's waveform (every audible track in its ink, screened over black,
- * under the outline of the finished mix), the lanes, the readouts and the agent's log. While a control is hovered
- * or turned the screen switches to that control's colour and shows where it acts. Play sits in the screen's head;
- * the dice and surprise me sit beside the easy controls they move.
+ * under the outline of the finished mix), the lanes and the readouts, with play in its head. While a control is
+ * hovered or turned the screen switches to that control's colour and shows where it acts.
  */
 import { useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import { player } from '../audio';
@@ -242,11 +241,11 @@ function Scope() {
           <span className="playhead" />
           {/* Wave or spectrum, where the eye already is: both choices in view, the one shown lit. */}
           <div className="view-switch" role="group" aria-label="Show the sound as" onPointerDown={(e) => e.stopPropagation()}>
-            <button type="button" aria-pressed={stageView === 'wave'} title="The waveform: level over time" onClick={() => setSettings({ stageView: 'wave' })}>
+            <button type="button" aria-pressed={stageView === 'wave'} title="Show the waveform" onClick={() => setSettings({ stageView: 'wave' })}>
               <Icon name="wave" size={13} />
               <span>Wave</span>
             </button>
-            <button type="button" aria-pressed={stageView === 'spectro'} title="The spectrum: which frequencies sound when" onClick={() => setSettings({ stageView: 'spectro' })}>
+            <button type="button" aria-pressed={stageView === 'spectro'} title="Show the frequencies" onClick={() => setSettings({ stageView: 'spectro' })}>
               <Icon name="spectro" size={13} />
               <span>Spectrum</span>
             </button>
@@ -373,7 +372,7 @@ function Lane({ index, heard, setBy }: { index: number; heard: number; setBy: st
         aria-valuemax={Number(duration.toFixed(3))}
         aria-valuenow={start}
         aria-valuetext={`starts at ${Math.round(start * 1000)} ms`}
-        title={setBy.length ? `Drag to move this layer in time (${setBy.join(' and ')} moves it too)` : 'Drag to move this layer in time'}
+        title={setBy.length ? `Drag to move it in time (${setBy.join(' and ')} also moves it)` : 'Drag to move it in time'}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
@@ -428,7 +427,7 @@ function Lanes() {
         <button
           type="button"
           className="screen-key lane-add"
-          title="Add a layer to this sound"
+          title="Add a layer"
           onClick={() => {
             const { patch, id } = addTrack(useEditor.getState().patch);
             edit(patch);
@@ -518,7 +517,7 @@ export function Notes() {
       <h2 className="log-title">notes</h2>
       <div className="log-notes">
         {soundNote && <p className="log-text is-set">{soundNote}</p>}
-        {description ? <p className="log-text">{description}</p> : !soundNote && <p className="log-text is-empty">No description yet. An agent, or you under Everything, can say what this sound is for.</p>}
+        {description ? <p className="log-text">{description}</p> : !soundNote && <p className="log-text is-empty">No description yet.</p>}
         {notes.map(({ t, i }) => (
           <button key={t.id} type="button" className="log-track" onClick={() => select(t.id)} style={{ '--c': trackInk(t, i) } as React.CSSProperties}>
             <b>{t.name ?? t.id}</b> {t.note}
@@ -601,7 +600,7 @@ export function Display() {
             className={`screen-play${playing ? ' is-on' : ''}`}
             aria-label={playing ? 'Stop' : 'Play'}
             aria-keyshortcuts="Space"
-            title="Play (Space)"
+            title={playing ? 'Stop (Space)' : 'Play (Space)'}
             onClick={() => (playing ? stop() : void playNow())}
           >
             <Icon name={playing ? 'stop' : 'play'} size={18} fill />

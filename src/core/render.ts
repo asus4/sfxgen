@@ -195,7 +195,6 @@ export function renderVoice(
     const mode = (f.mode ?? 'lowpass') as FilterType;
     out = out.map((ch) => filterBuffer(ch, mode, cutoff, q, sr, { gainDb: f.gain ?? 0, slope: Number(f.slope ?? 12) === 24 ? 24 : 12 }));
   }
-  // Envelope, gain and velocity.
   const env = renderEnvelope(source.env ?? def.defaultEnv, n, sr, ev.dur);
   const level = dbToGain(typeof source.gain === 'number' ? source.gain : 0) * ev.vel;
   // A voice cut short by the end of its track gets a 3 ms fade instead of a click.
@@ -301,10 +300,6 @@ export function runChain(
   return buf;
 }
 
-/**
- * Seconds of buffer a chain needs for `seconds` of input: tails add, time effects stretch or shrink (`length`), and
- * the buffer must hold the longest stage (a sped-up sound still needs room for its source before the speed-up).
- */
 /** Time of a parameter's first breakpoint, if it has breakpoints. */
 function firstBreakpointTime(v: ParamValue | undefined): number | undefined {
   const pts = Array.isArray(v) ? v : v && typeof v === 'object' && Array.isArray(v.env) ? v.env : undefined;
@@ -312,6 +307,10 @@ function firstBreakpointTime(v: ParamValue | undefined): number | undefined {
   return Math.min(...pts.map((p) => (Array.isArray(p) ? p[0] : Infinity)));
 }
 
+/**
+ * Seconds of buffer a chain needs for `seconds` of input: tails add, time effects stretch or shrink (`length`), and
+ * the buffer must hold the longest stage (a sped-up sound still needs room for its source before the speed-up).
+ */
 function chainEnd(chain: EffectSpec[] | undefined, seconds: number): number {
   let t = seconds;
   let longest = seconds;
@@ -444,8 +443,8 @@ export function estimateDuration(patch: Patch, warnings: string[] = []): number 
 }
 
 /**
- * A fixed-length patch (a loop above all) whose track plays one voice with no `env` gets that source's default
- * envelope, a one-shot: noise fades in 0.3 s, so a 4 s hum layer is silent after its first moment. Say so.
+ * Warns when a fixed-length patch (a loop above all) has a one-voice track with no `env`: the source's default
+ * envelope is a one-shot (noise dies away in 0.3 s), so a 4 s hum layer goes silent after its first moment.
  */
 function warnEarlyEnds(patch: Patch, duration: number, loop: boolean, warnings: string[]): void {
   for (const track of patch.tracks ?? []) {

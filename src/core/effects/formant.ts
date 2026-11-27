@@ -30,7 +30,6 @@ function highest(v: unknown, fallback: number): number {
   return typeof obj?.value === 'number' ? obj.value : fallback;
 }
 
-/** Vowel (formant) filter for any input. */
 export const formant: EffectDef = {
   kind: 'effect',
   type: 'formant',
@@ -42,10 +41,12 @@ export const formant: EffectDef = {
     'and yowling mouths ([[0, 4], [0.3, 0]] goes u-o-i-e-a); `size` scales the throat, from a tiny gremlin (0.6) ' +
     'to a giant (2 to 3). Richer inputs (saw, pulse, noise, drive) speak more clearly than sines. The output is ' +
     'matched to the input\'s loudness.',
+  hint: 'Makes any sound speak a vowel',
   params: {
     vowel: {
       kind: 'signal',
       doc: 'Vowel, 0 to 6: 0 a (open "ah"), 1 e, 2 i (bright "ee"), 3 o, 4 u (dark "oo"), 5 ü (German "über"), 6 ö (German "schön"; ü and ö are covered and darker than i and e); fractions morph between neighbours.',
+      hint: 'Which vowel: a, e, i, o, u, ü, ö',
       default: 0,
       min: 0,
       max: 6,
@@ -56,6 +57,7 @@ export const formant: EffectDef = {
     size: {
       kind: 'signal',
       doc: 'Size of the vocal tract: 1 an adult voice, 0.5 to 0.7 a child or gremlin, 1.5 a big brute, 2 to 4 a giant or monster (formants an octave or two down).',
+      hint: 'Size of the throat: gremlin to giant',
       default: 1,
       min: 0.4,
       max: 3,
@@ -67,6 +69,7 @@ export const formant: EffectDef = {
     resonance: {
       kind: 'number',
       doc: 'Sharpness of the formants: 1 natural, 0.5 soft and breathy, 2 to 4 ringing and whistling (synthetic, alien).',
+      hint: 'Soft and breathy to whistling',
       default: 1,
       min: 0.3,
       max: 4,

@@ -130,7 +130,7 @@ function Drivers({ drivers }: { drivers?: Driver[] }) {
           key={`${d.control.id}:${d.mode}`}
           type="button"
           className="driver"
-          title={`Driven by the “${d.control.label}” control${d.mode === 'set' || d.mode === 'option' ? ': turning this knob moves that control\'s range for it, so the control keeps driving it' : ''}. Click to find the control.`}
+          title={`Set by the “${d.control.label}” control. Click to show it`}
           onClick={() => focusControl(d.control.id)}
         >
           {SIGN[d.mode]} {d.control.label}
@@ -148,8 +148,8 @@ function PinButton({ path, meta, value, drivers }: { path: string; meta: ParamMe
     <button
       type="button"
       className="pin"
-      aria-label="Pin to the controls"
-      title="Pin to the controls"
+      aria-label="Add to Easy control"
+      title="Add to Easy control"
       onClick={() => {
         const pinned = pinControl(useEditor.getState().patch, path);
         if (!pinned) return;
@@ -183,6 +183,8 @@ function ParamField({ path, name, meta, fallback, materialize }: FieldProps) {
   // knob lands where it was put and the control keeps working around it.
   const moveDriven = (v: number) => scope.write((p: unknown) => moveSetValue(p as Patch, path, v) ?? p, `p:${path}`);
   const label = meta.label ?? humanize(name);
+  // What it does, in plain words: the tooltip of the whole field, so it shows over the knob or switch itself.
+  const hint = meta.hint ?? meta.doc;
   const dflt = meta.default ?? fallback;
   const pin = scope.pins ? <PinButton path={path} meta={meta} value={raw} drivers={driving} /> : null;
   const tags = <Drivers drivers={driving} />;
@@ -203,10 +205,10 @@ function ParamField({ path, name, meta, fallback, materialize }: FieldProps) {
     const range = { min: meta.min ?? 0, max: meta.max ?? 1, scale: meta.scale, step: meta.step };
     if (meta.kind === 'signal' && signal.points) {
       return (
-        <div className="param param-wide">
+        <div className="param param-wide" title={hint}>
           {flash}
           <div className="param-head">
-            <span className="param-label" title={meta.doc}>
+            <span className="param-label">
               {label}
               {signal.mods > 0 && <em className="mods">+{signal.mods} mod</em>}
             </span>
@@ -215,7 +217,7 @@ function ParamField({ path, name, meta, fallback, materialize }: FieldProps) {
               <button
                 type="button"
                 className="pin"
-                title="Flatten to one value"
+                title="Use one fixed value"
                 aria-label={`Flatten ${label} to one value`}
                 onClick={() => {
                   write(writeSignal(raw, { constant: signal.points![0][1] }));
@@ -236,7 +238,7 @@ function ParamField({ path, name, meta, fallback, materialize }: FieldProps) {
     // Only a patch's parameters have controls; a project's settings never do.
     const movable = overridden && !!scope.pins;
     return (
-      <div className={`param${isDefault && !overridden ? ' is-default' : ''}${overridden ? (movable ? ' is-bound' : ' is-driven') : ''}`}>
+      <div className={`param${isDefault && !overridden ? ' is-default' : ''}${overridden ? (movable ? ' is-bound' : ' is-driven') : ''}`} title={hint}>
         {flash}
         <Knob
           label={label}
@@ -253,7 +255,7 @@ function ParamField({ path, name, meta, fallback, materialize }: FieldProps) {
           onChange={(v) => (overridden ? moveDriven(v) : write(meta.kind === 'signal' ? writeSignal(raw, { constant: v }) : v))}
           onCommit={commit}
         />
-        <span className="param-label" title={meta.doc}>
+        <span className="param-label">
           {label}
           {signal.mods > 0 && <em className="mods">+{signal.mods} mod</em>}
         </span>
@@ -263,7 +265,7 @@ function ParamField({ path, name, meta, fallback, materialize }: FieldProps) {
             <button
               type="button"
               className="pin"
-              title="Make it move: draw a curve"
+              title="Change it over time"
               aria-label={`Draw a curve for ${label}`}
               onClick={() => {
                 const v = number ?? range.min;
@@ -287,10 +289,10 @@ function ParamField({ path, name, meta, fallback, materialize }: FieldProps) {
       commit();
     };
     return (
-      <div className={`param param-enum${meta.options.length > 4 ? '' : ' param-wide'}${overridden ? ' is-driven' : ''}`}>
+      <div className={`param param-enum${meta.options.length > 4 ? '' : ' param-wide'}${overridden ? ' is-driven' : ''}`} title={hint}>
         {flash}
         <div className="param-head">
-          <span className="param-label" title={meta.doc}>
+          <span className="param-label">
             {label}
           </span>
           {tags}
@@ -313,7 +315,7 @@ function ParamField({ path, name, meta, fallback, materialize }: FieldProps) {
 
   if (meta.kind === 'bool') {
     return (
-      <div className={`param param-bool${overridden ? ' is-driven' : ''}`}>
+      <div className={`param param-bool${overridden ? ' is-driven' : ''}`} title={hint}>
         {flash}
         <Switch
           label={label}
@@ -332,16 +334,14 @@ function ParamField({ path, name, meta, fallback, materialize }: FieldProps) {
 
   if (meta.kind === 'string') {
     return (
-      <label className="param param-text param-wide">
-        <span className="param-label" title={meta.doc}>
-          {label}
-        </span>
+      <label className="param param-text param-wide" title={hint}>
+        <span className="param-label">{label}</span>
         <input className="text" value={typeof value === 'string' ? value : ''} spellCheck={false} onChange={(e) => write(e.target.value || undefined)} />
       </label>
     );
   }
 
-  return <JsonField path={path} label={label} doc={meta.doc} />;
+  return <JsonField path={path} label={label} doc={hint} />;
 }
 
 /** Anything the metadata describes only loosely (lists, future kinds): edit it as JSON. */
@@ -353,10 +353,8 @@ function JsonField({ path, label, doc }: { path: string; label: string; doc?: st
   const [bad, setBad] = useState(false);
   const text = draft ?? (raw === undefined ? '' : JSON.stringify(raw));
   return (
-    <label className="param param-text param-wide">
-      <span className="param-label" title={doc}>
-        {label}
-      </span>
+    <label className="param param-text param-wide" title={doc}>
+      <span className="param-label">{label}</span>
       <textarea
         className={`text mono${bad ? ' is-bad' : ''}`}
         rows={2}
@@ -393,7 +391,7 @@ function GroupField({ path, name, meta }: { path: string; name: string; meta: Pa
   };
   return (
     <fieldset className="group">
-      <legend>
+      <legend title={meta.hint ?? meta.doc}>
         <Switch
           label={meta.label ?? humanize(name)}
           checked={present}
@@ -404,14 +402,14 @@ function GroupField({ path, name, meta }: { path: string; name: string; meta: Pa
           }}
         />
       </legend>
-      {present ? <Fields base={path} params={fields} /> : <p className="group-doc">{meta.doc}</p>}
+      {present && <Fields base={path} params={fields} />}
     </fieldset>
   );
 }
 
 export function Fields({ base, params, skip, fallbacks, materialize }: { base: string; params: ParamMap; skip?: string[]; fallbacks?: Record<string, unknown>; materialize?: FieldProps['materialize'] }) {
   const names = Object.keys(params).filter((n) => !skip?.includes(n));
-  // Knobs first, then the wide things, so the grid packs without holes.
+  // Selectors, then knobs, then the wide fields, so the grid packs without holes.
   const small = names.filter((n) => params[n].kind === 'number' || params[n].kind === 'signal' || params[n].kind === 'bool');
   const rest = names.filter((n) => !small.includes(n));
   return (
@@ -425,11 +423,14 @@ export function Fields({ base, params, skip, fallbacks, materialize }: { base: s
 
 // ---- Sections ---------------------------------------------------------------------------------
 
-export function Section({ title, tag, children, tools }: { title: string; tag?: string; children: ReactNode; tools?: ReactNode }) {
+/** A sheet's section. `hint` says what it is for, in its title's tooltip. */
+export function Section({ title, tag, hint, children, tools }: { title: string; tag?: string; hint?: string; children: ReactNode; tools?: ReactNode }) {
   return (
     <section className="section">
       <header className="section-head">
-        <h3 className="legend-title">{title}</h3>
+        <h3 className="legend-title" title={hint}>
+          {title}
+        </h3>
         {tag && <span className="section-tag">{tag}</span>}
         <span className="section-tools">{tools}</span>
       </header>
@@ -501,7 +502,7 @@ function EnvelopeSection({ trackId, defaultEnv }: { trackId: string; defaultEnv:
       tag={points ? 'points' : 'ADSR'}
       tools={
         <button type="button" className="key key-sm" onClick={() => (points ? edit((p) => setAt(p, path, undefined)) : toPoints())}>
-          {points ? 'Back to ADSR' : 'Draw it'}
+          <span>{points ? 'Back to ADSR' : 'Draw it'}</span>
         </button>
       }
     >
@@ -603,7 +604,7 @@ function EventsSection({ trackId }: { trackId: string }) {
             );
           })}
           <button type="button" className="key key-sm" onClick={() => setEvents([...list, { t: Number(((list[list.length - 1]?.t ?? 0) + 0.1).toFixed(3)) }])}>
-            <Icon name="plus" size={13} /> Event
+            <Icon name="plus" size={13} /> <span>Event</span>
           </button>
         </div>
       )}
@@ -630,6 +631,7 @@ export function FxChain({ chainPath, title }: { chainPath: string; title: string
             key={`${i}:${fx.type}`}
             title={def?.label ?? fx.type}
             tag={`${title} · ${i + 1}/${chain.length}`}
+            hint={def?.hint ?? def?.doc}
             tools={
               <>
                 <Switch label={`${def?.label ?? fx.type} on`} hideLabel checked={!fx.bypass} onChange={(on) => act((p) => setAt(p, `${base}.bypass`, on ? undefined : true))} />
@@ -639,7 +641,7 @@ export function FxChain({ chainPath, title }: { chainPath: string; title: string
                 <button type="button" className="pin" aria-label="Move later" title="Move later" disabled={i === chain.length - 1} onClick={() => act((p) => moveEffect(p, chainPath, i, 1))}>
                   <Icon name="down" size={13} />
                 </button>
-                <button type="button" className="pin" aria-label={`Remove ${def?.label ?? fx.type}`} title="Remove" onClick={() => act((p) => removeEffect(p, chainPath, i))}>
+                <button type="button" className="pin" aria-label={`Remove ${def?.label ?? fx.type}`} title="Remove this effect" onClick={() => act((p) => removeEffect(p, chainPath, i))}>
                   <Icon name="trash" size={13} />
                 </button>
               </>
@@ -662,11 +664,7 @@ export function FxChain({ chainPath, title }: { chainPath: string; title: string
   );
 }
 
-/** Whether the source's description is shown. Closed at first; kept while the page is open, across layers. */
-let sourceDocOpen = false;
-
 function TrackSheet({ trackId }: { trackId: string }) {
-  const [docOpen, setDocOpen] = useState(sourceDocOpen);
   const track = useEditor((s) => s.patch.tracks.find((t) => t.id === trackId));
   const index = useEditor((s) => s.patch.tracks.findIndex((t) => t.id === trackId));
   const buses = useEditor((s) => s.patch.buses);
@@ -679,7 +677,7 @@ function TrackSheet({ trackId }: { trackId: string }) {
   const def = getSource(track.source.type);
   const ink = trackInk(track, index);
   const { env: _env, filter, ...commonKnobs } = COMMON_SOURCE_PARAMS;
-  const busFields: ParamMap = Object.fromEntries((buses ?? []).map((b) => [b.id, { ...BUS_FIELDS.gain, label: `Send to ${b.name ?? b.id}`, doc: 'Level sent to this bus, dB.', default: undefined }]));
+  const busFields: ParamMap = Object.fromEntries((buses ?? []).map((b) => [b.id, { ...BUS_FIELDS.gain, label: `Send to ${b.name ?? b.id}`, doc: 'Level sent to this bus, dB.', hint: 'How much of this layer goes to the bus', default: undefined }]));
 
   return (
     <div className="sheets">
@@ -708,11 +706,11 @@ function TrackSheet({ trackId }: { trackId: string }) {
           </>
         }
       >
-        <label className="param param-text param-wide">
+        <label className="param param-text param-wide" title="Name of this layer">
           <span className="param-label">Name</span>
           <input className="text" value={track.name ?? ''} placeholder={trackId} onChange={(e) => edit((p) => setAt(p, `${base}.name`, e.target.value || undefined), `p:${base}.name`)} />
         </label>
-        <label className="param param-text param-wide">
+        <label className="param param-text param-wide" title="Why this layer is here">
           <span className="param-label">Note</span>
           <textarea className="text" rows={2} value={track.note ?? ''} placeholder="Why this layer exists" onChange={(e) => edit((p) => setAt(p, `${base}.note`, e.target.value || undefined), `p:${base}.note`)} />
         </label>
@@ -734,27 +732,7 @@ function TrackSheet({ trackId }: { trackId: string }) {
         {Object.keys(busFields).length > 0 && <Fields base={`${base}.sends`} params={busFields} />}
       </Section>
 
-      <Section
-        title="Source"
-        tag={def?.category ?? 'unknown'}
-        tools={
-          def && (
-            <button
-              type="button"
-              className={`key key-sm doc-toggle${docOpen ? ' is-open' : ''}`}
-              aria-expanded={docOpen}
-              aria-controls={`source-doc-${trackId}`}
-              title={docOpen ? 'Hide what this source does' : 'Show what this source does'}
-              onClick={() => {
-                sourceDocOpen = !docOpen;
-                setDocOpen(sourceDocOpen);
-              }}
-            >
-              About <Icon name="down" size={12} />
-            </button>
-          )
-        }
-      >
+      <Section title="Source" tag={def?.category ?? 'unknown'} hint={def?.hint ?? def?.doc}>
         <NodeSelect
           label="Source type"
           value={track.source.type}
@@ -764,11 +742,6 @@ function TrackSheet({ trackId }: { trackId: string }) {
             commit();
           }}
         />
-        {def && docOpen && (
-          <p id={`source-doc-${trackId}`} className="section-doc">
-            {def.doc}
-          </p>
-        )}
         {def ? <Fields base={`${base}.source`} params={{ ...def.params, ...commonKnobs }} /> : <JsonField path={`${base}.source`} label="Unknown source" />}
       </Section>
 
@@ -798,19 +771,19 @@ function MasterSheet() {
   return (
     <div className="sheets">
       <Section title="Patch" tag={patch.format}>
-        <label className="param param-text param-wide">
+        <label className="param param-text param-wide" title="What this sound is for">
           <span className="param-label">Description</span>
           <textarea className="text" rows={3} value={patch.description ?? ''} placeholder="What this sound is, for whoever opens it next" onChange={(e) => act((p) => setAt(p, 'description', e.target.value || undefined), 'p:description')} />
         </label>
         <div className="fields">
-          <div className="param param-wide param-enum">
+          <div className="param param-wide param-enum" title="Let it end when it fades out, or give it a fixed length">
             <span className="param-label">Length</span>
             <Segmented
               label="Length"
               size="sm"
               value={auto ? 'auto' : 'fixed'}
               options={[
-                { value: 'auto', label: 'Auto', title: 'Until the last layer has rung out' },
+                { value: 'auto', label: 'Auto', title: 'Ends when the sound fades out' },
                 { value: 'fixed', label: 'Fixed' },
               ]}
               onChange={(v) => {
@@ -822,7 +795,7 @@ function MasterSheet() {
           </div>
           {!auto && <ParamField path="duration" name="duration" meta={PATCH_FIELDS.duration} />}
           <ParamField path="seed" name="seed" meta={PATCH_FIELDS.seed} />
-          <div className="param param-wide param-enum">
+          <div className="param param-wide param-enum" title="Mono or stereo">
             <span className="param-label">Output</span>
             <Segmented
               label="Channels"
@@ -838,7 +811,7 @@ function MasterSheet() {
               }}
             />
           </div>
-          <div className="param param-wide param-enum">
+          <div className="param param-wide param-enum" title="Make it loop seamlessly">
             <span className="param-label">Loop</span>
             <Segmented
               label="Loop"
@@ -846,7 +819,7 @@ function MasterSheet() {
               value={patch.loop?.mode ?? 'off'}
               options={[
                 { value: 'off', label: 'Off' },
-                { value: 'wrap', label: 'Wrap', title: 'Tails fold back onto the start' },
+                { value: 'wrap', label: 'Wrap', title: 'The tail wraps round to the start, for a seamless loop' },
                 { value: 'crossfade', label: 'Crossfade' },
               ]}
               onChange={(v) => {
@@ -866,7 +839,7 @@ function MasterSheet() {
       <Section title="Master" tag="after every layer">
         <Fields base="master" params={MASTER_FIELDS} />
         <div className="fields">
-          <div className="param param-wide param-enum">
+          <div className="param param-wide param-enum" title="Bring the finished sound to a set level">
             <span className="param-label">Normalise</span>
             <Segmented
               label="Normalise"
@@ -887,7 +860,11 @@ function MasterSheet() {
             <NormalizeTarget mode={normalize} />
           )}
         </div>
-        {overruled && <p className="section-doc">In this set the project’s levelling replaces this one (see Settings, or the sound’s group in the mixer).</p>}
+        {overruled && (
+          <p className="section-doc" title="Change it in Settings or in the mixer">
+            The set’s levelling replaces this one.
+          </p>
+        )}
       </Section>
       <FxChain chainPath="master.fx" title="master" />
 
@@ -906,7 +883,7 @@ function MasterSheet() {
             )
           }
         >
-          <Icon name="plus" size={15} /> Bus (a shared effect send)
+          <Icon name="plus" size={15} /> <span>Bus (a shared effect send)</span>
         </button>
       </div>
     </div>
@@ -920,7 +897,7 @@ function NormalizeTarget({ mode }: { mode: 'peak' | 'loudness' }) {
   const dflt = mode === 'peak' ? -1 : -16;
   const set = (v: number | undefined) => edit((p) => mutate(p, (d) => void (d.master = { ...d.master, normalize: { mode, ...(v === undefined ? {} : { target: v }) } })), 'p:master.normalize.target');
   return (
-    <div className="param">
+    <div className="param" title="The level to bring it to">
       <Knob
         label="Normalise target"
         value={target ?? dflt}
@@ -945,6 +922,7 @@ function BusSheet({ id, name }: { id: string; name?: string }) {
       <Section
         title={name ?? id}
         tag="bus"
+        hint="Send layers here from each layer’s settings"
         tools={
           <button
             type="button"
@@ -969,7 +947,6 @@ function BusSheet({ id, name }: { id: string; name?: string }) {
         }
       >
         <Fields base={`buses.${id}`} params={BUS_FIELDS} />
-        <p className="section-doc">Send layers here from their Layer sheet.</p>
       </Section>
       <FxChain chainPath={`buses.${id}.fx`} title={name ?? id} />
     </>

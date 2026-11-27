@@ -31,7 +31,6 @@ export class MemoryWorkspace implements Workspace {
   readonly exports = new Map<string, Uint8Array>();
   /** Calls to play(), for tests. */
   readonly played: string[] = [];
-  /** The saved project, if there is one. */
   project: Project | null = null;
   private current: string | undefined;
 

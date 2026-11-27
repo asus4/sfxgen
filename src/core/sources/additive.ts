@@ -3,12 +3,12 @@ import type { ParamValue } from '../format/types';
 import { constantOf } from '../params';
 import { TAU } from '../dsp/math';
 
-/** Fields of one explicit partial. */
 const ADDITIVE_PARTIAL_FIELDS: Record<string, ParamMeta> = {
-  id: { kind: 'string', doc: 'Name for paths and controls: `tracks.glass.source.partials.<id>.amp`.' },
+  id: { kind: 'string', doc: 'Name for paths and controls: `tracks.glass.source.partials.<id>.amp`.', hint: 'Name to reach this partial from controls' },
   ratio: {
     kind: 'number',
     doc: 'Frequency as a multiple of `freq`. Measured bars and bells: 1, 2.76, 5.40, 8.93 (a free bar), 1, 2.32, 4.25, 6.63 (a glass).',
+    hint: 'Pitch as a multiple of the base',
     default: 1,
     min: 0.25,
     max: 32,
@@ -17,10 +17,11 @@ const ADDITIVE_PARTIAL_FIELDS: Record<string, ParamMeta> = {
     unit: 'x',
     scale: 'log',
   },
-  amp: { kind: 'number', doc: 'Level of this partial, linear: 1 full, 0.5 is -6 dB.', default: 1, min: 0, max: 1, hardMin: 0, hardMax: 16 },
+  amp: { kind: 'number', doc: 'Level of this partial, linear: 1 full, 0.5 is -6 dB.', hint: 'Level of this partial', default: 1, min: 0, max: 1, hardMin: 0, hardMax: 16 },
   decay: {
     kind: 'number',
     doc: 'Seconds for this partial to fall 60 dB; 0 sustains. Default: the source `decay` scaled by `damping`.',
+    hint: 'How long this partial rings',
     min: 0,
     max: 10,
     hardMin: 0,
@@ -34,6 +35,7 @@ const PARAMS: Record<string, ParamMeta> = {
   freq: {
     kind: 'signal',
     doc: 'Fundamental frequency: every partial is a multiple of it. Breakpoints glide exponentially.',
+    hint: 'Base pitch',
     default: 440,
     min: 20,
     max: 8000,
@@ -46,6 +48,7 @@ const PARAMS: Record<string, ParamMeta> = {
   harmonics: {
     kind: 'number',
     doc: 'How many harmonics, when `partials` is not given. 1 is a sine, 3 to 6 a soft beep or flute, 12 to 30 a full organ or brass-like tone.',
+    hint: 'How many harmonics: a sine to a full organ',
     default: 8,
     min: 1,
     max: 32,
@@ -58,6 +61,7 @@ const PARAMS: Record<string, ParamMeta> = {
     doc:
       'Spectral slope in dB per octave above `freq`: -3 bright and buzzy, -6 like a saw, -12 soft like a flute, ' +
       '-18 nearly a sine. It can move (a tone that opens up). Default -6; with explicit `partials`, 0 (their amps as written).',
+    hint: 'Bright and buzzy to soft and pure',
     default: -6,
     min: -24,
     max: 6,
@@ -68,6 +72,7 @@ const PARAMS: Record<string, ParamMeta> = {
   odd: {
     kind: 'number',
     doc: 'Odd/even balance of the harmonic series: 0.5 all harmonics, 1 odd only (hollow, clarinet or square-like), 0 the fundamental and even ones only (open, octave-like).',
+    hint: 'Hollow like a clarinet, or open',
     default: 0.5,
     min: 0,
     max: 1,
@@ -79,6 +84,7 @@ const PARAMS: Record<string, ParamMeta> = {
     doc:
       'Inharmonicity of the series, as in a stiff string: harmonic k sits at k * sqrt(1 + stretch k^2). 0 is exact, ' +
       '0.0005 a piano string, 0.005 a stiff wire, 0.05 a metal rod.',
+    hint: 'Bends the harmonics out of tune, like a stiff wire',
     default: 0,
     min: 0,
     max: 0.02,
@@ -89,13 +95,15 @@ const PARAMS: Record<string, ParamMeta> = {
     kind: 'array',
     doc:
       'Explicit partials instead of the harmonic series: `[{ "ratio": 1 }, { "ratio": 2.76, "amp": 0.6 }, { "ratio": 5.4, "amp": 0.3, "decay": 0.4 }]`.',
-    item: { kind: 'object', doc: 'One partial: { ratio, amp, decay, id }.', fields: ADDITIVE_PARTIAL_FIELDS },
+    hint: 'Pick each partial by hand, for bells and glass',
+    item: { kind: 'object', doc: 'One partial: { ratio, amp, decay, id }.', hint: 'One partial', fields: ADDITIVE_PARTIAL_FIELDS },
   },
   decay: {
     kind: 'number',
     doc:
       'Seconds for the fundamental to fall 60 dB on its own; higher partials die sooner by `damping`. 0 makes every ' +
       'partial sustain, so the envelope alone shapes the sound (then give `env` a decay or the event a `dur`).',
+    hint: 'How long it rings',
     default: 1.5,
     min: 0,
     max: 10,
@@ -109,6 +117,7 @@ const PARAMS: Record<string, ParamMeta> = {
     doc:
       'How much faster higher partials die: a partial\'s decay is `decay` / ratio^damping. 0 all ring equally (glass, ' +
       'an organ), 1 natural for struck wood and metal, 2 dull and woody.',
+    hint: 'How much sooner the high partials fade',
     default: 1,
     min: 0,
     max: 3,
@@ -118,6 +127,7 @@ const PARAMS: Record<string, ParamMeta> = {
   beat: {
     kind: 'number',
     doc: 'Doubles each partial a few cents apart so it beats slowly like a real bell or glass: 2 to 6 cents shimmer, 15+ a chorus. 0 is off.',
+    hint: 'A slow shimmer, like a real bell',
     default: 0,
     min: 0,
     max: 20,
@@ -128,6 +138,7 @@ const PARAMS: Record<string, ParamMeta> = {
   width: {
     kind: 'number',
     doc: 'Stereo spread: each partial gets its own place, 0 (mono) to 1 (wide). Stereo output only.',
+    hint: 'Spreads the partials left and right',
     default: 0,
     min: 0,
     max: 1,
@@ -177,7 +188,6 @@ function planPartials(p: Record<string, unknown>, num: NumOf): { list: Partial[]
   return { list, explicit: false };
 }
 
-/** Sums of sine partials: chimes, glass, organ tones, beeps, UI tones and drones. */
 export const additive: SourceDef = {
   kind: 'source',
   type: 'additive',
@@ -189,6 +199,7 @@ export const additive: SourceDef = {
     'bars and bells with measured ratios. `decay` with `damping` makes the highs die first, the signature of a real ' +
     'struck object; `beat` adds the slow shimmer of a bell. When the partials decay on their own, leave the envelope ' +
     'without a decay (the default) so they ring out.',
+  hint: 'Built from pure tones: beeps, organs, chimes and bells',
   defaultEnv: { attack: 0.003 },
   params: PARAMS,
   example: {

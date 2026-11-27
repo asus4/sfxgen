@@ -43,14 +43,13 @@ export interface ChangeRecord {
 export interface Workspace {
   /** `browser` (WebMCP in the editor) or `files` (the CLI). */
   readonly kind: 'browser' | 'files';
-  /** The patch being worked on. */
   getPatch(ref?: string): Promise<Patch>;
   /**
    * Replaces the patch. `origin` says who changed it, so the editor can show the agent's edits and the workspace can
    * report a person's edits back (getHumanChanges).
    */
   setPatch(patch: Patch, opts?: { ref?: string; origin?: 'agent' | 'human' }): Promise<void>;
-  /** Renders the current patch (with its controls applied). Browsers render in a worker. */
+  /** Renders a patch with its controls applied. Browsers render in a worker. */
   render(patch: Patch): Promise<RenderResult>;
   /** Plays a sound for the person, if this workspace can (the editor can; the file workspace asks the editor). */
   play?(ref?: string): Promise<{ played: boolean; note?: string }>;

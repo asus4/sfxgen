@@ -17,8 +17,8 @@ export interface ServeFile {
 const q = (path: string) => encodeURIComponent(path);
 
 /**
- * A write the server took answers 200 with JSON. An empty 204 is the dev proxy saying nothing is listening behind
- * it: the write went nowhere, and must not pass for a save.
+ * A write the server took answers 200 with JSON. An empty 204 (the dev proxy's answer to a read when no server is
+ * behind it) must never pass for a save.
  */
 const NOT_SERVED = 'the sfxgen server is not running, so nothing was saved: start it, then make the change again';
 function written(res: Response): boolean {

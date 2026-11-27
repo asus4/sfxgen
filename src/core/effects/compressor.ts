@@ -67,9 +67,10 @@ function reduction(
   return advance(out, lookahead);
 }
 
-const time = (doc: string, def: number, min: number, max: number, hardMin: number, hardMax: number): ParamMeta => ({
+const time = (doc: string, hint: string, def: number, min: number, max: number, hardMin: number, hardMax: number): ParamMeta => ({
   kind: 'number',
   doc,
+  hint,
   default: def,
   min,
   max,
@@ -79,7 +80,6 @@ const time = (doc: string, def: number, min: number, max: number, hardMin: numbe
   scale: 'log',
 });
 
-/** Downward compressor: punch, glue and control. */
 export const compressor: EffectDef = {
   kind: 'effect',
   type: 'compressor',
@@ -91,12 +91,14 @@ export const compressor: EffectDef = {
     'on a bus (ratio 2, threshold -10, attack 0.02, release 0.2: they move as one), or to bring up a tail (fast ' +
     'attack, high ratio: the ring and room come forward). By default the threshold is measured from the loudest ' +
     'moment of its input (`reference: "peak"`), so it acts the same whatever the layer\'s level.',
+  hint: 'Evens out the level: punchier hits, glued layers',
   params: {
     threshold: {
       kind: 'signal',
       doc:
         'Level above which the gain comes down, dB below the loudest moment of the input (or dBFS with `reference: ' +
         '"dbfs"`). -6 touches only the peaks, -12 to -20 works the body, -30 and below squashes everything.',
+      hint: 'How loud a part must be before it is turned down',
       default: -12,
       min: -48,
       max: 0,
@@ -107,6 +109,7 @@ export const compressor: EffectDef = {
     ratio: {
       kind: 'signal',
       doc: 'dB in for each dB out above the threshold. 1.5 to 2 gentle glue, 3 to 4 firm and punchy, 8+ squashed, 20+ a limiter.',
+      hint: 'How hard the loud parts are squashed',
       default: 3,
       min: 1,
       max: 20,
@@ -118,6 +121,7 @@ export const compressor: EffectDef = {
     attack: time(
       'Time constant for the gain to come down. 0.0005 to 0.003 catches the transient (flatter, smoother), 0.01 to ' +
         '0.03 lets the crack through before clamping (punchier), 0.05+ barely touches short hits.',
+      'How fast it clamps down: slow lets the hit punch through',
       0.01,
       0.0002,
       0.1,
@@ -127,28 +131,32 @@ export const compressor: EffectDef = {
     release: time(
       'Time constant for the gain to recover. 0.05 to 0.1 lively (can pump on dense sounds), 0.15 to 0.3 smooth ' +
         'glue, 0.5+ slow and steady. Short releases bring tails and room up between hits.',
+      'How fast it lets go after a loud part',
       0.12,
       0.02,
       1,
       0.002,
       5,
     ),
-    knee: { kind: 'number', doc: 'Width of the soft knee around the threshold, dB: 0 hard and obvious, 6 natural, 12+ very gradual.', default: 6, min: 0, max: 24, hardMin: 0, hardMax: 48, unit: 'dB' },
-    makeup: { kind: 'number', doc: 'Gain after compression, dB (added to `autoMakeup`).', default: 0, min: -12, max: 24, hardMin: -48, hardMax: 48, unit: 'dB' },
+    knee: { kind: 'number', doc: 'Width of the soft knee around the threshold, dB: 0 hard and obvious, 6 natural, 12+ very gradual.', hint: 'How gently it starts to act', default: 6, min: 0, max: 24, hardMin: 0, hardMax: 48, unit: 'dB' },
+    makeup: { kind: 'number', doc: 'Gain after compression, dB (added to `autoMakeup`).', hint: 'Turns the result back up', default: 0, min: -12, max: 24, hardMin: -48, hardMax: 48, unit: 'dB' },
     autoMakeup: {
       kind: 'bool',
       doc: 'Raise the output to the loudness (rms) of the input, so the layer keeps its place in the mix and only its dynamics change.',
+      hint: 'Keep the overall loudness the same',
       default: false,
     },
     detector: {
       kind: 'enum',
       doc: 'peak reacts to every peak (tight control, catches clicks); rms follows the average level over about 10 ms (smoother, lets fast transients slip through: punchier).',
+      hint: 'Peak catches every spike, RMS is smoother and punchier',
       options: ['peak', 'rms'],
       default: 'peak',
     },
     lookahead: {
       kind: 'number',
       doc: 'Seconds the detector sees ahead, so the gain is already down when a peak arrives (no latency offline). 0 keeps the punch; 0.001 to 0.005 catches it cleanly.',
+      hint: 'Reacts just before a peak arrives',
       default: 0,
       min: 0,
       max: 0.01,
@@ -157,10 +165,11 @@ export const compressor: EffectDef = {
       unit: 's',
       scale: 'log',
     },
-    link: { kind: 'number', doc: 'Stereo link, 0 to 1: 1 one gain for both channels (the image stays put), 0 each channel on its own.', default: 1, min: 0, max: 1, hardMin: 0, hardMax: 1, unit: '' },
+    link: { kind: 'number', doc: 'Stereo link, 0 to 1: 1 one gain for both channels (the image stays put), 0 each channel on its own.', hint: 'Treat left and right as one, so the image stays put', default: 1, min: 0, max: 1, hardMin: 0, hardMax: 1, unit: '' },
     reference: {
       kind: 'enum',
       doc: 'What `threshold` is measured from: peak (the loudest moment of this input: predictable at any level) or dbfs (absolute, like a hardware unit).',
+      hint: 'Measure from this sound’s own peak, or from full scale',
       options: ['peak', 'dbfs'],
       default: 'peak',
     },
@@ -197,9 +206,11 @@ export const compressor: EffectDef = {
     }
     const preroll = ctx.loop ? Math.min(n, Math.round(5 * release * sr)) : 0;
     const makeup = ctx.num('makeup');
+    // With autoMakeup, makeup goes on after the loudness match, which would otherwise undo it.
+    const inline = before > 0 ? 0 : makeup;
     const gains = groups.map((level) => {
       const gr = reduction(level, refDb, threshold, ratio, knee, attack, release, lookahead, sr, preroll);
-      for (let i = 0; i < n; i++) gr[i] = dbToGain(makeup - gr[i]);
+      for (let i = 0; i < n; i++) gr[i] = dbToGain(inline - gr[i]);
       return gr;
     });
     input.forEach((ch, c) => {
@@ -209,7 +220,7 @@ export const compressor: EffectDef = {
     if (before > 0) {
       const after = energy(input);
       if (after > 0) {
-        const g = Math.min(Math.sqrt(before / after), 100);
+        const g = Math.min(Math.sqrt(before / after), 100) * dbToGain(makeup);
         for (const ch of input) for (let i = 0; i < n; i++) ch[i] *= g;
       }
     }

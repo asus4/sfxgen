@@ -1,21 +1,12 @@
 /**
  * Measurements an agent reads instead of listening: level, loudness, envelope, spectrum and how they move.
  *
- * CONTRACT (owned by the analysis module; other modules code against these signatures):
- *
- *   analyze(channels, sampleRate) -> Analysis
- *   describe(analysis) -> string            plain-language summary, a few short lines
- *   spectrogram(channels, sampleRate, opts) -> { width, height, rgba, caption }   image data, waveform strip on top
- *   encodePng(width, height, rgba) -> Promise<Uint8Array>                 CompressionStream, so Node and browsers
- *
- * The implementations live in sibling files; this file re-exports them.
- *
  * Every dB value is a finite number: silence reads -120 (JSON has no -Infinity). Values are rounded to what is
  * worth reading (0.01 dB, 0.1 Hz, 0.01 ms) so the JSON stays short.
  *
- * The time measures come from one envelope: a 1 ms RMS (the loudest channel), made ripple-free with the smaller of
- * a 10 ms look-ahead and look-back maximum. That follows a rise or a fall without shifting it and stays steady on
- * tones down to about 45 Hz.
+ * The time measures come from one envelope: the peak of each 0.25 ms frame (loudest channel), made ripple-free with
+ * the smaller of a look-ahead and a look-back maximum, 1 to 10 ms long. That follows a rise or a fall without
+ * shifting it and stays steady on tones down to about 45 Hz.
  */
 export interface BandEnergy {
   /** Label such as "sub <60", "low 60-250". */
@@ -81,7 +72,8 @@ export interface Analysis {
   onsets: number[];
   /**
    * The main events on a coarse scale, seconds: what a listener would count (steps, knocks, shots), not every sharp
-   * rise. A heel and its toe, or a burst of grains, are one event here; two events are at least 90 ms apart.
+   * rise. A heel and its toe, or a burst of grains, are one event: rises closer than 60 ms (60% of the pulse, when
+   * there is one) merge.
    */
   events: number[];
   /** The main repeat period, seconds (a step, a gallop, a loop's beat), or 0 when nothing repeats three times. */
@@ -108,7 +100,7 @@ export interface Analysis {
   clippedSamples: number;
   /** Left/right correlation for stereo (1 = mono, 0 = wide, negative = phasey); null for mono. */
   stereoCorrelation: number | null;
-  /** Envelope in dBFS, 40 points over the duration (the loudest moment of each fortieth), for a quick look at the shape. */
+  /** Envelope in dBFS, 40 points over the duration (the loudest moment of each fortieth): the shape at a glance. */
   envelopeDb: number[];
 }
 

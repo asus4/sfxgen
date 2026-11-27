@@ -1,4 +1,4 @@
-/** Effects of time, space, pitch and medium. Owned by the space-effects work. */
+/** Effects of time, space, pitch and medium. */
 import type { EffectDef } from '../nodes';
 import { reverb } from './reverb';
 import { delay } from './delay';

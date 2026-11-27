@@ -1,5 +1,5 @@
 /**
- * The sfxgen patch format, version 1.
+ * The sfxgen patch format.
  *
  * A patch is one sound effect: layered tracks, each a sound source played by one or more events and run through
  * its own effects, mixed through optional buses into a master chain. Every number is in a plain unit
@@ -16,7 +16,7 @@ export const FORMAT_ID = 'sfxgen/1' as const;
 /**
  * How a segment between two breakpoints is drawn.
  * - `linear`: straight line.
- * - `exp`: constant ratio per second (natural for frequencies and times; needs both ends above 0).
+ * - `exp`: constant ratio per second (natural for frequencies and times); linear unless both ends share a sign.
  * - `smooth`: ease in and out.
  * - `hold`: stays at the start value, then jumps.
  * - a number from -1 to 1: bend. Negative moves fast first, positive moves slowly first, 0 is linear.
@@ -54,7 +54,7 @@ export interface Modulator {
 export interface SignalObject {
   /** Constant base value, used when there is no `env`. */
   value?: number;
-  /** Breakpoints over time, from the start of the event. */
+  /** Breakpoints over time, from the start of the event (in an effect: of the track). */
   env?: Breakpoint[];
   /** Default curve for segments without their own. Default: `exp` on log-scale parameters, else `linear`. */
   curve?: Curve;
@@ -182,7 +182,7 @@ export interface EffectSpec {
   /** Lets controls and edits address this effect by name instead of position. */
   id?: string;
   bypass?: boolean;
-  /** Wet amount 0 to 1 for any effect. Default 1. */
+  /** Wet amount, 0 to 1. Default 1, or the effect's own default (reverb, delay) outside a bus. */
   mix?: number;
   [param: string]: unknown;
 }
@@ -210,7 +210,7 @@ export interface Track {
   events?: (number | TrackEvent)[];
   repeat?: Repeat;
   fx?: EffectSpec[];
-  /** Bus id to send level in dB, after this track's effects. */
+  /** Bus id to send level in dB, after this track's effects, gain and pan. */
   sends?: Record<string, number>;
 }
 
@@ -278,7 +278,7 @@ export interface ControlTarget {
    * - `set` (default): the parameter becomes the mapped value.
    * - `mul`: multiplies the parameter, envelopes and all (from/to are factors).
    * - `add`: adds to it.
-   * - `stretch`: multiplies the times of the parameter's breakpoints.
+   * - `stretch`: multiplies times: of breakpoints, an ADSR envelope, a track's `events` or a `repeat`.
    */
   mode?: 'set' | 'mul' | 'add' | 'stretch';
   /** Value at the control's minimum. Default for `set`: the parameter's range. */
@@ -290,7 +290,7 @@ export interface ControlTarget {
    * can rest exactly on the mixed level and still sweep either side of it.
    */
   via?: number;
-  /** Default `linear`, or `exp` when both ends are positive and the parameter is on a log scale. */
+  /** Default `exp` for `mul`, `stretch` and log-scale parameters when both ends are positive, else `linear`. */
   curve?: MapCurve;
 }
 

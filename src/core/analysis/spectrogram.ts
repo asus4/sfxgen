@@ -318,7 +318,6 @@ function pixelPower(
   return out;
 }
 
-/** Renders the spectrogram image. */
 export function spectrogram(channels: ArrayLike<number>[], sampleRate: number, opts: SpectrogramOptions = {}): SpectrogramImage {
   const W = Math.max(64, Math.round(opts.width ?? 900));
   const H = Math.max(48, Math.round(opts.height ?? 360));

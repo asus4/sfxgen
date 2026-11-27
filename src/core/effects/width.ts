@@ -1,7 +1,6 @@
 import type { EffectDef } from '../nodes';
 import { clamp } from '../dsp/math';
 
-/** Stereo width (mid/side) and a Haas delay. */
 export const width: EffectDef = {
   kind: 'effect',
   type: 'width',
@@ -13,11 +12,13 @@ export const width: EffectDef = {
     'right channel is delayed by a few milliseconds and the ears hear two copies, which sounds wide. The image ' +
     'leans toward the left (the earlier ear; pan the track a little right to centre it), and the mono sum is ' +
     'comb-filtered, so keep haas under about 0.015 for sounds that must also work in mono.',
+  hint: 'Narrower or wider stereo',
   widens: true,
   params: {
     width: {
       kind: 'signal',
       doc: 'Side level: 0 mono, 0.5 narrower, 1 unchanged, 1.5 wider (default), 2 very wide. Breakpoints open the image up over time.',
+      hint: 'Mono to very wide',
       default: 1.5,
       min: 0,
       max: 2,
@@ -28,6 +29,7 @@ export const width: EffectDef = {
     haas: {
       kind: 'number',
       doc: 'Seconds the right channel is delayed, before the width: 0 off, 0.005 to 0.012 wide and still focused, 0.02 to 0.03 very wide (and a near-echo).',
+      hint: 'Widens a mono sound with a tiny delay',
       default: 0,
       min: 0,
       max: 0.03,

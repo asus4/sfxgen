@@ -24,8 +24,8 @@ function equal(a: unknown, b: unknown): boolean {
 
 /**
  * Leaf-level differences between two JSON values, as dot paths. Arrays whose items all carry an `id` (tracks,
- * controls, named effects) are matched by id, so reordering is not reported as a rewrite; other arrays
- * (breakpoints, events) are reported whole.
+ * controls, named effects) are matched by id, so reordering is not reported as a rewrite; equal-length arrays of
+ * objects are compared by position; other arrays (breakpoints) are reported whole.
  */
 export function diffValues(before: unknown, after: unknown, base = ''): Change[] {
   if (equal(before, after)) return [];
@@ -154,7 +154,7 @@ export function controlTracks(patch: Patch, control: Control): Set<string> | 'al
   return ids;
 }
 
-/** What a control does, in a few words for the display: "zap · freq ×, env ↔". */
+/** What a control does, in a few words for the display: "zap.freq ×  zap.env ↔". */
 export function describeControl(patch: Patch, control: Control): string {
   const sign = { set: '', mul: ' ×', add: ' +', stretch: ' ↔' } as const;
   const parts = (control.targets ?? []).map((t) => {

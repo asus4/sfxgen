@@ -1,6 +1,4 @@
-/**
- * Turns parameter values (numbers, breakpoint lists, signal objects) and envelopes into per-sample curves.
- */
+/** Turns parameter values (numbers, breakpoint lists, signal objects) and envelopes into per-sample curves. */
 import type {
   AdsrEnvelope,
   Breakpoint,
@@ -26,7 +24,6 @@ export function isSignalObject(v: unknown): v is SignalObject {
   return typeof v === 'object' && v !== null && !Array.isArray(v);
 }
 
-/** Normalises any ParamValue to a signal object. */
 export function toSignalObject(v: ParamValue | undefined, fallback: number): SignalObject {
   if (v === undefined || v === null) return { value: fallback };
   if (typeof v === 'number') return { value: v };
@@ -255,7 +252,7 @@ export function isPointsEnvelope(e: Envelope): e is PointsEnvelope {
 
 const LN1000 = Math.log(1000);
 
-/** Fills the release-free part of an ADSR at time t. */
+/** The ADSR's level at time t, before any release. */
 function adsrLevel(e: Required<Pick<AdsrEnvelope, 'attack' | 'hold' | 'sustain'>> & AdsrEnvelope, t: number): number {
   const a = e.attack;
   if (t < a) return a > 0 ? t / a : 1;

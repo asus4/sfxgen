@@ -11,6 +11,7 @@ const PARAMS: Record<string, ParamMeta> = {
     doc:
       'Pitch of the glottal pulses. 60 to 120 a big creature or a man, 180 to 300 a small animal or a shout, 500+ a ' +
       'critter squeak. Breakpoints shape the inflection: a rise and fall reads as a roar.',
+    hint: 'Pitch of the voice',
     default: 110,
     min: 30,
     max: 1200,
@@ -27,6 +28,7 @@ const PARAMS: Record<string, ParamMeta> = {
       '(German "schön"); fractions blend neighbours. ü and ö are rounded: covered and darker than i and e, for ' +
       'ghosts, laments and hollow throats. Moving it makes the creature talk: [[0, 0], [0.5, 3]] is "ah-oh", ' +
       '[[0, 4], [0.3, 0]] a "wah".',
+    hint: 'Which vowel: ah, eh, ee, oh, oo',
     default: 0,
     min: 0,
     max: 6,
@@ -38,10 +40,12 @@ const PARAMS: Record<string, ParamMeta> = {
     doc:
       'Custom formants instead of `vowel`: `[[freq, q, gain], ...]`, up to 8, with Hz, resonance (centre/bandwidth, ' +
       '5 to 15 is vocal) and an optional linear level (omit it for the natural level). Scaled by `size` like the vowels.',
+    hint: 'A custom throat shape instead of a vowel',
     item: {
       kind: 'array',
       doc: 'One formant: [centre Hz, q, gain]. q defaults to 8; leave out gain for the natural level.',
-      item: { kind: 'number', doc: 'The centre in Hz, then q (0.5 to 50), then a linear level (0 to 4).' },
+      hint: 'One resonance',
+      item: { kind: 'number', doc: 'The centre in Hz, then q (0.5 to 50), then a linear level (0 to 4).', hint: 'Pitch, sharpness, then level' },
     },
   },
   size: {
@@ -49,6 +53,7 @@ const PARAMS: Record<string, ParamMeta> = {
     doc:
       'Size of the throat: divides every formant frequency. 0.5 a tiny critter or a child, 1 an adult, 2 a big beast, ' +
       '3+ a kaiju. Independent of pitch, so a small high voice or a huge low one are both easy.',
+    hint: 'Size of the throat: critter to kaiju',
     default: 1,
     min: 0.3,
     max: 4,
@@ -60,6 +65,7 @@ const PARAMS: Record<string, ParamMeta> = {
   resonance: {
     kind: 'number',
     doc: 'Sharpness of the formants (multiplies their q): 0.5 broad and muffled, 1 natural, 2 to 3 whistly, hollow or robotic.',
+    hint: 'Muffled to whistly',
     default: 1,
     min: 0.3,
     max: 4,
@@ -73,6 +79,7 @@ const PARAMS: Record<string, ParamMeta> = {
     doc:
       'How pressed the vocal folds are: 0 soft and dull (a sigh, a moan), 0.5 normal, 1 pressed and buzzy (a strained ' +
       'shout, a robot). Louder events (vel) press a little harder.',
+    hint: 'Soft sigh to strained shout',
     default: 0.5,
     min: 0,
     max: 1,
@@ -82,6 +89,7 @@ const PARAMS: Record<string, ParamMeta> = {
   breath: {
     kind: 'signal',
     doc: 'Aspiration noise through the same throat: 0 clean, 0.2 natural, 0.5 husky, 1 a whisper with no tone left.',
+    hint: 'Clean to whisper',
     default: 0.1,
     min: 0,
     max: 1,
@@ -91,6 +99,7 @@ const PARAMS: Record<string, ParamMeta> = {
   jitter: {
     kind: 'number',
     doc: 'Random cycle-to-cycle pitch wobble, percent: 0 mechanical (a robot), 0.5 to 1.5 alive, 4 to 10 rough and old.',
+    hint: 'Pitch wobble: robot to rough',
     default: 1,
     min: 0,
     max: 10,
@@ -101,6 +110,7 @@ const PARAMS: Record<string, ParamMeta> = {
   shimmer: {
     kind: 'number',
     doc: 'Random cycle-to-cycle level wobble, dB: 0 steady, 0.5 to 1 natural, 3 to 6 shaky and broken.',
+    hint: 'Level wobble: steady to shaky',
     default: 0.6,
     min: 0,
     max: 6,
@@ -113,6 +123,7 @@ const PARAMS: Record<string, ParamMeta> = {
     doc:
       'Subharmonic roughness: every other pulse weakens and shifts (period doubling), adding a tone an octave down ' +
       'while the harmonics stay clean. 0.3 gruff, 0.6 a monster growl, 1 a deep snarl an octave below `freq`.',
+    hint: 'A gruff growl an octave down',
     default: 0,
     min: 0,
     max: 1,
@@ -122,6 +133,7 @@ const PARAMS: Record<string, ParamMeta> = {
   rasp: {
     kind: 'signal',
     doc: 'Noisy, irregular roughness (a torn, hoarse throat): fast random flutter of the pulses. 0.3 hoarse, 0.7 a snarling hiss-roar, 1 shredded.',
+    hint: 'A hoarse, torn throat',
     default: 0,
     min: 0,
     max: 1,
@@ -168,7 +180,6 @@ const LEVELLING = 0.8;
 /** Aspiration noise level against the pulses. */
 const BREATH_GAIN = 0.55;
 
-/** A vocal source: glottal pulses with jitter, growl and breath through a morphing formant throat. */
 export const voice: SourceDef = {
   kind: 'source',
   type: 'voice',
@@ -180,6 +191,7 @@ export const voice: SourceDef = {
     'critter squeaks and whispers: anything with a throat. `growl` adds a clean subharmonic snarl, `rasp` a torn ' +
     'hoarseness, `tension` goes from a sigh to a strained shout. Pitch and vowel curves are what make it emote: a ' +
     'rising then falling `freq` with `vowel` moving from 0 to 3 is a roar.',
+  hint: 'A throat: creatures, monsters, robots and voices',
   defaultEnv: { attack: 0.03, hold: 0.25, decay: 0.4 },
   params: PARAMS,
   example: {

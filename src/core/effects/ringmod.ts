@@ -5,7 +5,6 @@ import { oscillator, type Waveform } from '../dsp/oscillators';
 
 const CARRIERS = ['sine', 'triangle', 'square', 'saw'] as const;
 
-/** Ring modulation and amplitude modulation by an audio-rate carrier. */
 export const ringmod: EffectDef = {
   kind: 'effect',
   type: 'ringmod',
@@ -16,10 +15,12 @@ export const ringmod: EffectDef = {
     'with the carrier, which is inharmonic and metallic. Robot and dalek voices: sine at 30 to 80 Hz. Metallic, ' +
     'bell-like and alien tones from anything: 300 to 1500 Hz. Sci-fi radio: square carrier. `bias` keeps some of ' +
     'the original (amplitude modulation). Sweep `freq` for a sound that bends strangely.',
+  hint: 'Metallic, robotic tones',
   params: {
     freq: {
       kind: 'signal',
       doc: 'Carrier frequency, Hz. 20 to 80 a robotic buzz, 100 to 400 a growling metal ring, 500 to 2000 bells and clangs, 2000+ a thin, whistling shimmer.',
+      hint: 'Low is a robot buzz, high is bells and shimmer',
       default: 220,
       min: 10,
       max: 5000,
@@ -31,12 +32,14 @@ export const ringmod: EffectDef = {
     shape: {
       kind: 'enum',
       doc: 'Carrier wave: sine the cleanest (two sidebands), triangle a little richer, square and saw harsh and buzzy (many sidebands).',
+      hint: 'Smooth or harsh',
       options: CARRIERS,
       default: 'sine',
     },
     bias: {
       kind: 'signal',
       doc: 'Keeps the original under the sidebands, 0 to 1: 0 pure ring modulation (the original pitch vanishes), 0.5 amplitude modulation, 1 no effect.',
+      hint: 'How much of the original stays',
       default: 0,
       min: 0,
       max: 1,

@@ -101,13 +101,13 @@ export function pinControl(patch: Patch, path: string): { patch: Patch; id: stri
   if (kind === 'options') {
     const options = meta.options!.map((o) => ({ label: o, set: { [path]: o } }));
     const now = meta.options!.indexOf(String(current ?? meta.default));
-    control = { id, label, hint: meta.doc, value: Math.max(0, now), widget: 'select', options };
+    control = { id, label, hint: meta.hint ?? meta.doc, value: Math.max(0, now), widget: 'select', options };
   } else if (kind === 'toggle') {
     const on = Boolean(current ?? meta.default);
     control = {
       id,
       label,
-      hint: meta.doc,
+      hint: meta.hint ?? meta.doc,
       value: on ? 1 : 0,
       widget: 'toggle',
       options: [
@@ -119,7 +119,7 @@ export function pinControl(patch: Patch, path: string): { patch: Patch; id: stri
     control = {
       id,
       label,
-      hint: `Scales the whole curve. ${meta.doc}`,
+      hint: `Scales the whole curve. ${meta.hint ?? meta.doc}`,
       value: 1,
       min: 0.5,
       max: 2,
@@ -139,7 +139,7 @@ export function pinControl(patch: Patch, path: string): { patch: Patch; id: stri
     control = {
       id,
       label,
-      hint: meta.doc,
+      hint: meta.hint ?? meta.doc,
       value,
       min,
       max,
@@ -169,7 +169,7 @@ export function pinnedControlFor(patch: Patch, path: string): Control | undefine
   });
 }
 
-/** The controls that set this parameter outright (a `set` target or an option), so its own value is not what renders. */
+/** The controls that set this parameter outright (a `set` target or an option): its own value is not what renders. */
 export function settersOf(patch: Patch, path: string): Control[] {
   const canon = canonPath(patch, path);
   return (patch.controls ?? []).filter(
@@ -383,7 +383,7 @@ export function defaultSource(type: string): Track['source'] {
   return example ? { ...deepClone(example), type } : { type };
 }
 
-/** Swaps a track's source type, keeping what every source shares (level, envelope, pitch, voice filter). */
+/** Swaps a track's source type, keeping its level, pitch and voice filter; the envelope is the new source's. */
 export function changeSourceType(patch: Patch, trackId: string, type: string): Patch {
   return mutate(patch, (d) => {
     const t = d.tracks.find((x) => x.id === trackId);

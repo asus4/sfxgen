@@ -14,6 +14,7 @@ const PARAMS: ParamMap = {
     doc:
       'Pitch of the string. 40 to 100 a bass string or a long cable, 110 to 660 guitar range, above 1000 short ' +
       'wires and pings. It may glide: breakpoints bend the ringing string (a dive, a whammy, a "boing" that drops).',
+    hint: 'Pitch of the string',
     default: 220,
     min: 30,
     max: 4000,
@@ -28,6 +29,7 @@ const PARAMS: ParamMap = {
     doc:
       'Seconds for the fundamental to fall 60 dB. 0.1 to 0.4 a damped or rubbery twang, 1 to 3 a guitar string, ' +
       '5+ a long steel wire. High harmonics always die sooner (see `brightness`).',
+    hint: 'How long it rings',
     default: 2.5,
     min: 0.05,
     max: 10,
@@ -42,6 +44,7 @@ const PARAMS: ParamMap = {
       'How long the high harmonics last: 0 a dull thump that turns to a sine at once (gut, rubber band, felt), ' +
       '0.5 nylon, 0.7 steel, 1 an endless bright wire (harpsichord, zing). It may move: sweep it down for a string ' +
       'being damped.',
+    hint: 'Dull thump to bright, endless wire',
     default: 0.7,
     min: 0,
     max: 1,
@@ -53,6 +56,7 @@ const PARAMS: ParamMap = {
     doc:
       'Where along the string it is excited, as a fraction of its length: 0.5 the middle (round, hollow, odd ' +
       'harmonics only), 0.15 to 0.25 a normal pluck, 0.03 to 0.08 right at the bridge (thin, nasal, twangy).',
+    hint: 'Where it is plucked: the middle is round, near the end twangy',
     default: 0.18,
     min: 0.02,
     max: 0.5,
@@ -67,6 +71,7 @@ const PARAMS: ParamMap = {
       'wire with a clangy edge, 0.8 to 1 a coil spring whose overtones run away (at 1: 1, 2.06, 3.2, 4.6, 6.4 ' +
       'times the pitch) and whose every trip round smears into a chirp: boing, sproing, spring-reverb twang. ' +
       'Best with `freq` below 150.',
+    hint: 'Ideal string to stiff, bell-like rod',
     default: 0,
     min: 0,
     max: 1,
@@ -79,6 +84,7 @@ const PARAMS: ParamMap = {
       'pluck: a pick or finger lets go (a burst as long as one period). strike: a hammer blow (piano, dulcimer, ' +
       'a cable hit with a wrench; rounder attack). bow: noisy friction drives the string for as long as the event ' +
       'is held (`dur`), or `bowTime` if it has none: an airy, singing, scraped tone that swells in.',
+    hint: 'Plucked, struck or bowed',
     options: EXCITE,
     default: 'pluck',
   },
@@ -87,6 +93,7 @@ const PARAMS: ParamMap = {
     doc:
       'Brightness of the attack: 0 the flesh of a thumb or a felt hammer, 0.6 a plectrum, 1 a metal edge. For bow, ' +
       'how gritty the friction is. Louder events (`vel`) dig in a little harder.',
+    hint: 'Soft thumb to metal edge',
     default: 0.6,
     min: 0,
     max: 1,
@@ -98,6 +105,7 @@ const PARAMS: ParamMap = {
     doc:
       'Damping by a hand on the string: 0 open, 0.3 to 0.6 palm mute (short, dull, percussive), 1 fully choked (a ' +
       'pitched thud). Breakpoints stop a ringing string: [[0, 0], [0.4, 0], [0.45, 1]].',
+    hint: 'A hand on the string: open to choked',
     default: 0,
     min: 0,
     max: 1,
@@ -107,6 +115,7 @@ const PARAMS: ParamMap = {
   bowTime: {
     kind: 'number',
     doc: 'Seconds the bow stays on the string when the event has no `dur`. The string rings on for `decay` after it lifts.',
+    hint: 'How long the bow stays on',
     default: 0.6,
     min: 0.05,
     max: 5,
@@ -129,7 +138,6 @@ function allpassDelay(a: number, w: number): number {
   return -(Math.atan2(-s, a + c) - Math.atan2(-a * s, 1 + a * c)) / w;
 }
 
-/** A waveguide string: plucked, struck or bowed, from nylon to piano wire to a coil spring. */
 export const pluck: SourceDef = {
   kind: 'source',
   type: 'pluck',
@@ -142,6 +150,7 @@ export const pluck: SourceDef = {
     'strikes (`excite: strike`, a little `stiffness`), muted thunks (`mute`), cartoon boings and springs (high ' +
     '`stiffness`, low `freq`, often with `freq` gliding), and scraped or bowed wires (`excite: bow`). The ring is the ' +
     'envelope: leave `env` alone and set `decay`.',
+  hint: 'A plucked, struck or bowed string',
   defaultEnv: { attack: 0, sustain: 1, release: 0.08 },
   params: PARAMS,
   example: { type: 'pluck', freq: [[0, 98], [0.5, 82]], decay: 1.2, stiffness: 0.85, brightness: 0.8, position: 0.1 },

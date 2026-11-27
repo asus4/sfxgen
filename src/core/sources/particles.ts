@@ -28,6 +28,7 @@ const GRAIN_FIELDS: ParamMap = {
       '(fire, embers, frying, ice, static). modal: a small struck object of `material` and `shape` (coins, shards, ' +
       'pebbles, nails, wood chips, shells). grain: a smooth window of tone or noise (`tone`) for granular clouds, ' +
       'shimmer and swarms.',
+    hint: 'What one particle sounds like',
     options: GRAIN_KINDS,
     default: 'tick',
   },
@@ -37,6 +38,7 @@ const GRAIN_FIELDS: ParamMap = {
       'Lowest frequency a particle may have; each draws its own between `lo` and `hi`, evenly by ratio. The pair ' +
       'is the size range of the pieces. Breakpoints move the range over the event (bubbles rising, debris getting ' +
       'finer).',
+    hint: 'Lowest pitch of the particles',
     default: 800,
     min: 40,
     max: 12000,
@@ -49,6 +51,7 @@ const GRAIN_FIELDS: ParamMap = {
   hi: {
     kind: 'signal',
     doc: 'Highest frequency a particle may have. Equal to `lo`, every particle has the same pitch.',
+    hint: 'Highest pitch of the particles',
     default: 6000,
     min: 40,
     max: 16000,
@@ -63,6 +66,7 @@ const GRAIN_FIELDS: ParamMap = {
     doc:
       'Shortest ring of a particle (seconds to fall 60 dB; for `grain` the length of the window). 0.002 to 0.01 dry ' +
       'ticks, 0.03 to 0.15 small ringing things, 0.3+ glass and metal. Ignored by click.',
+    hint: 'Shortest ring',
     default: 0.004,
     min: 0.001,
     max: 1,
@@ -74,6 +78,7 @@ const GRAIN_FIELDS: ParamMap = {
   decayHi: {
     kind: 'number',
     doc: 'Longest ring of a particle, seconds.',
+    hint: 'Longest ring',
     default: 0.03,
     min: 0.001,
     max: 2,
@@ -85,6 +90,7 @@ const GRAIN_FIELDS: ParamMap = {
   levelJitter: {
     kind: 'number',
     doc: 'How far below full level a particle may be, dB: 0 all equal (mechanical), 12 natural, 30 a few loud ones over a quiet bed.',
+    hint: 'All even, or a few loud ones',
     default: 12,
     min: 0,
     max: 40,
@@ -95,6 +101,7 @@ const GRAIN_FIELDS: ParamMap = {
   pitchJitter: {
     kind: 'number',
     doc: 'Random detune of each particle on top of its place in the range, semitones. With `lo` = `hi` or `bounce` it is the only pitch variation.',
+    hint: 'Random pitch of each particle',
     default: 0,
     min: 0,
     max: 12,
@@ -107,6 +114,7 @@ const GRAIN_FIELDS: ParamMap = {
     doc:
       'Ties pitch, level and ring together as size does: at 1 the low particles are the loud, long-ringing ones ' +
       '(big pieces) and the high ones faint and short; at 0 the three vary independently.',
+    hint: 'Big pieces ring louder and longer, as in life',
     default: 0.5,
     min: 0,
     max: 1,
@@ -116,18 +124,21 @@ const GRAIN_FIELDS: ParamMap = {
   material: {
     kind: 'enum',
     doc: 'For kind modal: what the pieces are made of (see the modal source).',
+    hint: 'What the pieces are made of',
     options: MODAL_MATERIALS,
     default: 'glass',
   },
   shape: {
     kind: 'enum',
     doc: 'For kind modal: the shape of the pieces. plate for shards and coins, bar for nails and sticks, random for rubble.',
+    hint: 'Shape of the pieces',
     options: MODAL_SHAPES,
     default: 'plate',
   },
   tone: {
     kind: 'number',
     doc: 'For kind grain: 0 a puff of band noise, 1 a pure tone, between a breathy tone.',
+    hint: 'A puff of noise to a pure tone',
     default: 0,
     min: 0,
     max: 1,
@@ -137,6 +148,7 @@ const GRAIN_FIELDS: ParamMap = {
   sweep: {
     kind: 'number',
     doc: 'For kind chirp: octaves the pitch moves over the particle. -2 a falling zap or spark, +1 a rising blip or chirrup.',
+    hint: 'A falling zap or a rising blip',
     default: -2,
     min: -4,
     max: 4,
@@ -150,6 +162,7 @@ const GRAIN_FIELDS: ParamMap = {
       'rain, fire). same: every one the same way, so a regular train of them sounds as one pitched tone at its rate ' +
       '(a buzz, a stick-slip creak or squeal, a zipper with a note in it). It needs grains that are the same each ' +
       'time (click, ping, drop, chirp); a tick is a fresh burst of noise every time, so it never makes a pitch.',
+    hint: 'A noisy cloud, or one pitched buzz',
     options: ['random', 'same'],
     default: 'random',
   },
@@ -163,6 +176,7 @@ const PARAMS: ParamMap = {
       '3000+ a hiss. Breakpoints over the event build or thin it: [[0, 5], [2, 400]] is rain setting in. For burst ' +
       'it is the rate at the first instant and thins as exp(-5 t / duration), so a burst emits about density x duration / 5 ' +
       'grains. Ignored by bounce.',
+    hint: 'How many per second: drips to a hiss',
     default: 40,
     min: 0.5,
     max: 2000,
@@ -178,6 +192,7 @@ const PARAMS: ParamMap = {
       'count follows velocity too (half the velocity, half the particles; a stamp into a deep puddle throws more ' +
       'drops, not just louder ones), in between partly. Accents and velocity jitter on a `repeat` then vary the ' +
       'count step by step. Ignored by bounce.',
+    hint: 'Louder hits throw more particles',
     default: 0,
     min: 0,
     max: 1,
@@ -187,6 +202,7 @@ const PARAMS: ParamMap = {
   duration: {
     kind: 'number',
     doc: 'Seconds over which particles are emitted (an event\'s `dur` ends it sooner). The last ones ring past it.',
+    hint: 'How long particles keep coming',
     default: 1,
     min: 0.05,
     max: 10,
@@ -203,12 +219,14 @@ const PARAMS: ParamMap = {
       'thinning to nothing by the end, the pieces getting quieter (debris after an impact, a spill, a shatter). ' +
       'bounce: one object bouncing to rest, each gap `ratio` times the last, starting at `interval` (ball, coin, ' +
       'dropped lid; every bounce is the same piece, softer each time).',
+    hint: 'How they fall in time: random, even, a burst or a bounce',
     options: DISTRIBUTIONS,
     default: 'random',
   },
   jitter: {
     kind: 'number',
     doc: 'Irregularity of regular spacing (0 a machine, 0.3 a hand, 1 nearly random) and of bounce gaps (a wobbling, spinning coin).',
+    hint: 'Machine-even to random',
     default: 0.1,
     min: 0,
     max: 1,
@@ -218,6 +236,7 @@ const PARAMS: ParamMap = {
   interval: {
     kind: 'number',
     doc: 'Bounce: seconds between the first and second impact. 0.5 a ball from waist height, 0.15 a coin or bottle cap from a few centimetres.',
+    hint: 'Bounce: time to the second hit',
     default: 0.3,
     min: 0.02,
     max: 1.5,
@@ -229,6 +248,7 @@ const PARAMS: ParamMap = {
   ratio: {
     kind: 'number',
     doc: 'Bounce: each gap is the last times this. 0.5 a dead thing that stops in a few hops, 0.75 a hard ball, 0.9 a ping-pong ball rattling to a buzz.',
+    hint: 'Bounce: how fast the bounces die down',
     default: 0.7,
     min: 0.3,
     max: 0.95,
@@ -238,6 +258,7 @@ const PARAMS: ParamMap = {
   spread: {
     kind: 'number',
     doc: 'Stereo scatter: 0 mono, 1 each particle anywhere between hard left and hard right (stereo output only).',
+    hint: 'Scatters particles left and right',
     default: 0,
     min: 0,
     max: 1,
@@ -247,6 +268,7 @@ const PARAMS: ParamMap = {
   grain: {
     kind: 'object',
     doc: 'One particle: { kind, lo, hi, decayLo, decayHi, levelJitter, pitchJitter, size, material, shape, tone, sweep, polarity }.',
+    hint: 'One particle',
     fields: GRAIN_FIELDS,
   },
 };
@@ -262,7 +284,6 @@ interface Emission {
   level: number[];
 }
 
-/** When the particles happen. */
 function emit(dist: Distribution, density: Buf, end: number, sr: number, rng: Rng, jitter: number, interval: number, ratio: number): Emission {
   const at: number[] = [];
   const level: number[] = [];
@@ -318,7 +339,6 @@ interface ModePrototype {
   decay: Float64Array;
 }
 
-/** Clouds of small events: debris, rain, fire, sparks, coins, bubbles, clicks, granular textures. */
 export const particles: SourceDef = {
   kind: 'source',
   type: 'particles',
@@ -332,6 +352,7 @@ export const particles: SourceDef = {
     'rest (`bounce`), or a shimmering granular cloud (grain). Describe the pieces in `grain` (how they sound, the ' +
     'range of their sizes) and how they fall with `density`, `duration` and `distribution`. The common `pitch` ' +
     'parameter shifts the whole range and may move. Layer it after a modal or noise impact for the aftermath.',
+  hint: 'A cloud of tiny sounds: gravel, rain, sparks, debris',
   defaultEnv: { attack: 0, sustain: 1, release: 0.05 },
   params: PARAMS,
   example: {

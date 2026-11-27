@@ -13,7 +13,7 @@ export interface SpringSettings {
   sr: number;
   /** Decay (60 dB) in seconds. */
   t60: number;
-  /** Round trip of the first spring, seconds; the others are a little longer. */
+  /** Round trip of the first spring, seconds; one other is a little longer, one a little shorter. */
   roundTrip: number;
   /** 0 bright and splashy, 1 dark and dull. */
   damping: number;
